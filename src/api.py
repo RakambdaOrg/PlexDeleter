@@ -1,9 +1,8 @@
 import operator
 from functools import reduce
-
 from tautulli import RawAPI
 
-from src.mediatype import MediaType
+from mediatype import MediaType
 
 
 class Api:
