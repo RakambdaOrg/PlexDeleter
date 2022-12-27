@@ -1,6 +1,7 @@
 import json
 import logging
 import os
+import sys
 
 from api import Api
 from deleter import Deleter
@@ -14,7 +15,7 @@ logging.basicConfig(
     format="%(asctime)s %(levelname)s %(message)s",
     datefmt="%Y-%m-%dT%H:%M:%S%z",
     handlers=[
-        logging.StreamHandler()
+        logging.StreamHandler(sys.stdout)
     ]
 )
 
