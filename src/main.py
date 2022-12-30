@@ -39,7 +39,7 @@ if __name__ == '__main__':
 
     tautulli = Api(get_env('TAUTULLI_URL'), get_env('TAUTULLI_KEY'))
     scanner = Scanner(tautulli)
-    deleter = Deleter(get_env('REMOTE_PATH'), get_env('LOCAL_PATH'))
+    deleter = Deleter(get_env('REMOTE_PATH'), get_env('LOCAL_PATH'), get_env('DRY_RUN').lower() == 'true')
 
     to_delete = []
     for media in medias:
