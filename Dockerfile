@@ -1,7 +1,7 @@
 FROM python:3.11
 
 ARG UNAME=pythonuser
-ARG UID=1027
+ARG UID=1050
 ARG GID=100
 
 RUN mkdir -p /usr/src/app
