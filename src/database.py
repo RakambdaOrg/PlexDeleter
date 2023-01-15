@@ -43,11 +43,11 @@ class Database:
             ids.append(int(row[0]))
         return ids
 
-    def get_waiting_media_info_for_group(self, group_id) -> list[Tuple[str, str]]:
+    def get_waiting_media_info_for_group(self, group_id) -> list[Tuple[str, str, int]]:
         info = []
-        self.__cursor.execute("SELECT M.Type, M.Name FROM MediaRequirement MR INNER JOIN Media M on MR.MediaId = M.Id WHERE MR.GroupId=? AND MR.Status='WAITING'", [group_id])
+        self.__cursor.execute("SELECT M.Type, M.Name, M.PlexId FROM MediaRequirement MR INNER JOIN Media M on MR.MediaId = M.Id WHERE MR.GroupId=? AND MR.Status='WAITING'", [group_id])
         for row in self.__cursor:
-            info.append((row[0], row[1]))
+            info.append((row[0], row[1], row[2]))
         return info
 
     def get_plex_id_for_media(self, media_id: int) -> Optional[int]:

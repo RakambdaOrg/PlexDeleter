@@ -37,7 +37,7 @@ if __name__ == '__main__':
         tautulli = Api(get_env('TAUTULLI_URL'), get_env('TAUTULLI_KEY'))
         updater = Updater(database, tautulli)
         deleter = Deleter(get_env('REMOTE_PATH'), get_env('LOCAL_PATH'), get_env('DRY_RUN').lower() == 'true', database, tautulli)
-        notifier = Notifier(database, mailer)
+        notifier = Notifier(database, mailer, get_env('PLEX_SERVER_ID'))
 
         updater.update_all_groups()
 
