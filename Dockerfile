@@ -1,4 +1,4 @@
-FROM python:3.11-bookworm
+FROM python:3.11-buster
 
 ARG UNAME=pythonuser
 ARG UID=1050
