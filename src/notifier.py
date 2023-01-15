@@ -44,13 +44,13 @@ class Notifier:
         group_info = self.__database.get_group_info(group_id)
         media_info = self.__database.get_waiting_media_info_for_group(group_id)
 
-        if len(group_info[1]) <= 0:
+        if len(media_info) <= 0:
             self.__logger.debug(f'Nothing to notify {group_id}')
-            return
+        else:
+            subject = self.__get_subject(group_info[0])
+            body = self.__get_body(group_info[0], media_info)
+            self.__mailer.send_mail(subject, body, group_info[1])
 
-        subject = self.__get_subject(group_info[0])
-        body = self.__get_body(group_info[0], media_info)
-        self.__mailer.send_mail(subject, body, group_info[1])
         self.__database.set_last_notified(group_id, datetime.datetime.now())
 
     def notify_all_unwatched(self) -> None:
