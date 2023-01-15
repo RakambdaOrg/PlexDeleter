@@ -1,0 +1,47 @@
+import logging
+from api import Api
+from database import Database
+
+
+class Updater:
+    def __init__(self, database: Database, api: Api, completion_required: int = 90):
+        self.__database = database
+        self.__api = api
+        self.__completion_required = completion_required
+        self.__logger = logging.getLogger(__name__)
+
+    def __has_user_watched(self, user_plex_id: int, metadata: dict, completion_required: int) -> bool:
+        watched = any(map(lambda percent: percent >= completion_required,
+                          map(lambda history: history['percent_complete'],
+                              self.__api.get_watch_history_for(user_plex_id, int(metadata['rating_key'])))))
+        self.__logger.debug(f'User {user_plex_id} watched {metadata["media_index"]} - {metadata["title"]} : {watched}')
+        return watched
+
+    def __has_user_watched_all(self, user_plex_id: int, all_metadata: list[dict], completion_required: int) -> bool:
+        return all(map(lambda metadata: self.__has_user_watched(user_plex_id, metadata, completion_required), all_metadata))
+
+    def __has_group_watched_all(self, media_id, plex_ids) -> bool:
+        self.__logger.debug(f'Updating media {media_id} for plex ids {plex_ids}')
+        plex_id = self.__database.get_plex_id_for_media(media_id)
+        if not plex_id:
+            self.__logger.warning(f'Media {media_id} not found on Plex')
+            return False
+
+        all_metadata = self.__api.get_metadata(str(plex_id))
+        return any(self.__has_user_watched_all(plex_id, all_metadata, self.__completion_required) for plex_id in plex_ids)
+
+    def __update_group(self, group_id: int) -> None:
+        self.__logger.info(f'Updating group {group_id}')
+        plex_ids = self.__database.get_plex_ids_in_group(group_id)
+        media_ids = self.__database.get_waiting_media_ids_for_group(group_id)
+
+        for media_id in media_ids:
+            if self.__has_group_watched_all(media_id, plex_ids):
+                self.__logger.info(f'Group {group_id} watched {media_id}')
+                self.__database.mark_watched(media_id, group_id)
+
+    def update_all_groups(self) -> None:
+        self.__logger.info('Updating all groups')
+        group_ids = self.__database.get_all_group_ids()
+        for group_id in group_ids:
+            self.__update_group(group_id)

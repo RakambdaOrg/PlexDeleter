@@ -1,17 +1,15 @@
-import json
 import logging
 import os
 import sys
-
 from api import Api
+from database import Database
 from deleter import Deleter
-from media import Media
-from mediatype import MediaType
-from requireduser import RequiredUser
-from scanner import Scanner
+from mailer import Mailer
+from notifier import Notifier
+from updater import Updater
 
 logging.basicConfig(
-    level=logging.INFO,
+    level=logging.DEBUG,
     format="%(asctime)s %(levelname)s %(message)s",
     datefmt="%Y-%m-%dT%H:%M:%S%z",
     handlers=[
@@ -28,21 +26,22 @@ def get_env(name: str) -> str:
 
 
 if __name__ == '__main__':
-    medias = []
-    with open(get_env('CONFIG_LOCATION')) as file:
-        read_json = json.load(file)
-        for element in read_json['media']:
-            medias.append(Media(MediaType[element['type'].upper()],
-                                element['ratingKey'],
-                                element['name'],
-                                [RequiredUser[x.upper()] for x in element['users']]))
+    with Database(get_env('DB_HOST'), get_env('DB_USER'), get_env('DB_PASS'), get_env('DB_DB')) as database:
+        mailer = Mailer(
+            username=get_env('MAIL_USERNAME'),
+            password=get_env('MAIL_PASSWORD'),
+            server=get_env('MAIL_SERVER'),
+            name_from=get_env('MAIL_FROM'),
+            mail_from=get_env('MAIL_MAIL')
+        )
+        tautulli = Api(get_env('TAUTULLI_URL'), get_env('TAUTULLI_KEY'))
+        updater = Updater(database, tautulli)
+        deleter = Deleter(get_env('REMOTE_PATH'), get_env('LOCAL_PATH'), get_env('DRY_RUN').lower() == 'true', database, tautulli)
+        notifier = Notifier(database, mailer)
 
-    tautulli = Api(get_env('TAUTULLI_URL'), get_env('TAUTULLI_KEY'))
-    scanner = Scanner(tautulli)
-    deleter = Deleter(get_env('REMOTE_PATH'), get_env('LOCAL_PATH'), get_env('DRY_RUN').lower() == 'true')
+        updater.update_all_groups()
 
-    to_delete = []
-    for media in medias:
-        to_delete += scanner.process_media(media) or []
+        fully_watched = database.get_fully_watched()
+        deleter.delete_all(fully_watched)
 
-    deleter.delete_all(to_delete)
+        notifier.notify_all_unwatched()

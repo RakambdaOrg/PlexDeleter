@@ -2,16 +2,10 @@ import operator
 from functools import reduce
 from tautulli import RawAPI
 
-from mediatype import MediaType
-
 
 class Api:
     def __init__(self, url, key):
         self.__api = RawAPI(base_url=url, api_key=key)
-        self.__section_ids = {
-            MediaType.MOVIE.value: '21',
-            MediaType.SHOW.value: '22'
-        }
 
     def get_metadata(self, rating_key: str) -> list[dict]:
         data = self.__api.get_metadata(rating_key=rating_key)
@@ -19,10 +13,10 @@ class Api:
             return []
 
         media_type = data['media_type']
-        if media_type == MediaType.MOVIE.value or media_type == MediaType.EPISODE.value:
+        if media_type == 'movie' or media_type == 'episode':
             return [data]
 
-        if media_type == MediaType.SHOW.value or media_type == MediaType.SEASON.value:
+        if media_type == 'show' or media_type == 'season':
             return list(reduce(operator.iconcat,
                                map(lambda child_rating_key: self.get_metadata(child_rating_key), self.get_child_rating_keys(rating_key)),
                                []))
