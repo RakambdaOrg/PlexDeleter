@@ -48,6 +48,7 @@ class Mailer:
     def send_mail(self, subject: str, body: str, mail_to: list[str]) -> dict[str, tuple[int, bytes]]:
         try:
             message = self.__create_mail(subject, body, mail_to)
+            self.__logger.info(f'Sending mail to {mail_to}: {message.as_string()}')
             return self.__get_or_create_smtp().sendmail(self.__from_mail, mail_to, message.as_string())
         except Exception as e:
             self.__logger.error('Failed to send message', exc_info=e)
