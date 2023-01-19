@@ -50,13 +50,6 @@ class Database:
             info.append((row[0], row[1], row[2]))
         return info
 
-    def get_plex_id_for_media(self, media_id: int) -> Optional[int]:
-        plex_id = None
-        self.__cursor.execute("SELECT PlexId FROM Media WHERE Id=?", [media_id])
-        for row in self.__cursor:
-            plex_id = int(row[0])
-        return plex_id
-
     def get_plex_id_for_finished_media(self, media_id: int) -> Optional[int]:
         plex_id = None
         self.__cursor.execute("SELECT PlexId FROM Media WHERE Id=? AND Status = 'FINISHED'", [media_id])

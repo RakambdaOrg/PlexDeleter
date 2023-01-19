@@ -22,9 +22,9 @@ class Updater:
 
     def __has_group_watched_all(self, media_id, plex_ids) -> bool:
         self.__logger.debug(f'Updating media {media_id} for plex ids {plex_ids}')
-        plex_id = self.__database.get_plex_id_for_media(media_id)
+        plex_id = self.__database.get_plex_id_for_finished_media(media_id)
         if not plex_id:
-            self.__logger.warning(f'Media {media_id} not found on Plex')
+            self.__logger.warning(f'Media {media_id} not found on Plex or is not finished')
             return False
 
         all_metadata = self.__api.get_metadata(str(plex_id))
