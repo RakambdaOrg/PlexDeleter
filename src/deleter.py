@@ -16,8 +16,8 @@ class Deleter:
         self.__logger = logging.getLogger(__name__)
 
     def delete_all(self, media_ids: list[int]):
-        plex_ids = [self.__database.get_plex_id_for_media(media_id) for media_id in media_ids]
-        all_metadata = reduce(operator.iconcat, [self.__api.get_metadata(str(plex_id)) for plex_id in plex_ids], [])
+        plex_ids = filter(lambda x: x is not None, (self.__database.get_plex_id_for_finished_media(media_id) for media_id in media_ids))
+        all_metadata = reduce(operator.iconcat, (self.__api.get_metadata(str(plex_id)) for plex_id in plex_ids), [])
 
         files = set(map(lambda part: part['file'],
                         reduce(operator.iconcat,
