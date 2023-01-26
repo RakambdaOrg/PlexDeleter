@@ -6,7 +6,7 @@ from email.utils import formatdate, formataddr
 
 
 class Mailer:
-    def __init__(self, username: str, password: str, server: str, name_from: str, mail_from: str, smtp_port: int = 587, use_tls: bool = True):
+    def __init__(self, username: str, password: str, server: str, name_from: str, mail_from: str, smtp_port: int = 465, use_tls: bool = True):
         self.__logger = logging.getLogger(__name__)
         self.__smtp = None
         self.__imap = None
@@ -29,7 +29,7 @@ class Mailer:
 
     def __get_or_create_smtp(self):
         if not self.__is_smtp_connected():
-            self.__smtp = smtplib.SMTP(self.__server, self.__smtp_port)
+            self.__smtp = smtplib.SMTP_SSL(self.__server, self.__smtp_port)
             if self.__tls:
                 self.__smtp.starttls()
             self.__smtp.login(self.__username, self.__password)
