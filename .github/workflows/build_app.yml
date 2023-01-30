@@ -24,7 +24,7 @@ jobs:
           password: ${{ secrets.DOCKER_TOKEN }}
       - name: Build and push
         id: docker_build
-        uses: docker/build-push-action@v3.3.0
+        uses: docker/build-push-action@v3.3.1
         with:
           context: .
           push: true
