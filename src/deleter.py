@@ -30,7 +30,17 @@ class Deleter:
         self.__delete_recursive(local_files)
 
     def __delete_recursive(self, files: set[Path]):
+        all_parents = set()
+        while len(files) > 0:
+            (parents, companion_files) = self.__delete_files(files)
+            files = companion_files
+            all_parents += parents
+        if len(all_parents) > 0:
+            self.__delete_recursive(all_parents)
+
+    def __delete_files(self, files: set[Path]) -> (set[Path], set[Path]):
         parents = set()
+        companion_files = set()
 
         for file in files:
             if file.is_file():
@@ -38,6 +48,7 @@ class Deleter:
                 parents.add(file.parent)
                 if not self.__dry_run:
                     file.unlink()
+                companion_files += self.__get_companion_files(file)
             if file.is_dir():
                 self.__logger.info(f'Deleting folder {file}')
                 children = list(file.glob('*'))
@@ -47,5 +58,9 @@ class Deleter:
                 parents.add(file.parent)
                 if not self.__dry_run:
                     file.rmdir()
-        if len(parents) > 0:
-            self.__delete_recursive(parents)
+        return parents, companion_files
+
+    @staticmethod
+    def __get_companion_files(file: Path) -> set[Path]:
+        return set(file.parent.glob(f'{file.stem}.*.srt'))
+
