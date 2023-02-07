@@ -47,7 +47,7 @@ class Notifier:
     def __notify_group(self, group_id: int) -> None:
         self.__logger.info(f'Notifying group {group_id}')
         last_notified = self.__database.get_last_notification(group_id)
-        if datetime.datetime.now() - last_notified < datetime.timedelta(days=7):
+        if datetime.datetime.now() - last_notified < datetime.timedelta(days=6, hours=23):
             self.__logger.debug(f'Too early to notify {group_id}')
             return
 
