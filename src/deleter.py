@@ -48,7 +48,7 @@ class Deleter:
                 parents.add(file.parent)
                 if not self.__dry_run:
                     file.unlink()
-                companion_files += self.__get_companion_files(file)
+                companion_files.update(self.__get_companion_files(file))
             if file.is_dir():
                 self.__logger.info(f'Deleting folder {file}')
                 children = list(file.glob('*'))
