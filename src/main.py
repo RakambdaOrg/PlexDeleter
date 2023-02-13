@@ -9,7 +9,7 @@ from notifier import Notifier
 from updater import Updater
 
 logging.basicConfig(
-    level=logging.DEBUG,
+    level=logging.INFO,
     format="%(asctime)s %(levelname)s %(message)s",
     datefmt="%Y-%m-%dT%H:%M:%S%z",
     handlers=[
