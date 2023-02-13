@@ -34,7 +34,7 @@ class Deleter:
         while len(files) > 0:
             (parents, companion_files) = self.__delete_files(files)
             files = companion_files
-            all_parents += parents
+            all_parents.update(parents)
         if len(all_parents) > 0:
             self.__delete_recursive(all_parents)
 
