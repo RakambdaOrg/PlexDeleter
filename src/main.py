@@ -31,6 +31,7 @@ if __name__ == '__main__':
             username=get_env('MAIL_USERNAME'),
             password=get_env('MAIL_PASSWORD'),
             server=get_env('MAIL_SERVER'),
+            port=int(get_env('MAIL_PORT')),
             name_from=get_env('MAIL_FROM'),
             mail_from=get_env('MAIL_MAIL')
         )

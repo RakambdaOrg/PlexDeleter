@@ -6,14 +6,13 @@ from email.utils import formatdate, formataddr
 
 
 class Mailer:
-    def __init__(self, username: str, password: str, server: str, name_from: str, mail_from: str, smtp_port: int = 465, use_tls: bool = True):
+    def __init__(self, username: str, password: str, server: str, port: int, name_from: str, mail_from: str, use_tls: bool = False):
         self.__logger = logging.getLogger(__name__)
         self.__smtp = None
-        self.__imap = None
         self.__password = password
         self.__username = username
         self.__server = server
-        self.__smtp_port = smtp_port
+        self.__port = port
         self.__tls = use_tls
         self.__from_name = name_from
         self.__from_mail = mail_from
@@ -29,7 +28,7 @@ class Mailer:
 
     def __get_or_create_smtp(self):
         if not self.__is_smtp_connected():
-            self.__smtp = smtplib.SMTP_SSL(self.__server, self.__smtp_port)
+            self.__smtp = smtplib.SMTP_SSL(self.__server, self.__port)
             if self.__tls:
                 self.__smtp.starttls()
             self.__smtp.login(self.__username, self.__password)
@@ -52,6 +51,6 @@ class Mailer:
             message = self.__create_mail(mail_to, subject, plain_body, html_body)
             self.__logger.info(f'Sending mail to {mail_to}: {message.as_string()}')
             return self.__get_or_create_smtp().sendmail(self.__from_mail, mail_to, message.as_string())
-        except Exception as e:
-            self.__logger.error('Failed to send message', exc_info=e)
+        except Exception as error:
+            self.__logger.error('Failed to send message', exc_info=error)
             return {}
