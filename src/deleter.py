@@ -2,12 +2,12 @@ import logging
 import operator
 from functools import reduce
 from pathlib import Path
-from api import Api
+from api.tautulli_api import Tautulli
 from database import Database
 
 
 class Deleter:
-    def __init__(self, remote_path: str, local_path: str, dry_run: bool, database: Database, api: Api):
+    def __init__(self, remote_path: str, local_path: str, dry_run: bool, database: Database, api: Tautulli):
         self.__remote_path = remote_path
         self.__local_path = local_path
         self.__dry_run = dry_run
@@ -17,7 +17,7 @@ class Deleter:
 
     def delete_all(self, media_ids: list[int]):
         plex_ids = filter(lambda x: x is not None, (self.__database.get_plex_id_for_finished_media(media_id) for media_id in media_ids))
-        all_metadata = reduce(operator.iconcat, (self.__api.get_metadata(str(plex_id)) for plex_id in plex_ids), [])
+        all_metadata = reduce(operator.iconcat, (self.__api.get_all_metadata(str(plex_id)) for plex_id in plex_ids), [])
 
         files = set(map(lambda part: part['file'],
                         reduce(operator.iconcat,

@@ -87,3 +87,14 @@ class Database:
     def set_last_notified(self, group_id: int, date: datetime.datetime) -> None:
         self.__cursor.execute("UPDATE UserGroup SET LastNotification=? WHERE Id=?", [date, group_id])
         self.__conn.commit()
+
+    def get_all_releasing_show(self) -> list[Tuple[int, int, int]]:
+        info = []
+        self.__cursor.execute("SELECT Id, PlexId, OverseerrId FROM Media WHERE Status='RELEASING' AND Type = 'SHOW' AND OverseerrId IS NOT NULL", [])
+        for row in self.__cursor:
+            info.append((int(row[0]), int(row[1]), int(row[2])))
+        return info
+
+    def set_finished(self, media_id: int) -> None:
+        self.__cursor.execute("UPDATE Media SET Status='FINISHED' WHERE Id=?", [media_id])
+        self.__conn.commit()

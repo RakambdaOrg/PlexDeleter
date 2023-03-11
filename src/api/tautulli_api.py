@@ -3,12 +3,15 @@ from functools import reduce
 from tautulli import RawAPI
 
 
-class Api:
+class Tautulli:
     def __init__(self, url, key):
         self.__api = RawAPI(base_url=url, api_key=key)
 
-    def get_metadata(self, rating_key: str) -> list[dict]:
-        data = self.__api.get_metadata(rating_key=rating_key)
+    def get_metadata(self, rating_key: str) -> dict | None:
+        return self.__api.get_metadata(rating_key=rating_key)
+
+    def get_all_metadata(self, rating_key: str) -> list[dict]:
+        data = self.get_metadata(rating_key=rating_key)
         if not data:
             return []
 
@@ -18,7 +21,7 @@ class Api:
 
         if media_type == 'show' or media_type == 'season':
             return list(reduce(operator.iconcat,
-                               map(lambda child_rating_key: self.get_metadata(child_rating_key), self.get_child_rating_keys(rating_key)),
+                               map(lambda child_rating_key: self.get_all_metadata(child_rating_key), self.get_child_rating_keys(rating_key)),
                                []))
 
         raise RuntimeError(f'Unsupported media type {media_type}')

@@ -3,7 +3,7 @@ import logging
 from typing import Tuple
 
 from database import Database
-from mailer import Mailer
+from notify.mailer import Mailer
 
 
 class Notifier:

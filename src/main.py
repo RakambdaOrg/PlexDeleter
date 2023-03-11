@@ -1,11 +1,13 @@
 import logging
 import os
 import sys
-from api import Api
+
+from api.overseerr_api import Overseerr
+from api.tautulli_api import Tautulli
 from database import Database
 from deleter import Deleter
-from mailer import Mailer
-from notifier import Notifier
+from notify.mailer import Mailer
+from notify.notifier import Notifier
 from updater import Updater
 
 logging.basicConfig(
@@ -35,11 +37,13 @@ if __name__ == '__main__':
             name_from=get_env('MAIL_FROM'),
             mail_from=get_env('MAIL_MAIL')
         )
-        tautulli = Api(get_env('TAUTULLI_URL'), get_env('TAUTULLI_KEY'))
-        updater = Updater(database, tautulli)
+        tautulli = Tautulli(get_env('TAUTULLI_URL'), get_env('TAUTULLI_KEY'))
+        overseerr = Overseerr(get_env('OVERSEERR_URL'), get_env('OVERSEERR_KEY'))
+        updater = Updater(database, tautulli, overseerr)
         deleter = Deleter(get_env('REMOTE_PATH'), get_env('LOCAL_PATH'), get_env('DRY_RUN').lower() == 'true', database, tautulli)
         notifier = Notifier(database, mailer, get_env('PLEX_SERVER_ID'))
 
+        updater.update_releasing()
         updater.update_all_groups()
 
         fully_watched = database.get_fully_watched()
