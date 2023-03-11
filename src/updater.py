@@ -61,9 +61,11 @@ class Updater:
 
         episode_count = self.__overseerr.get_tv_season_episode_count(overseerr_id, season_number)
         if episode_count is None:
+            self.__logger.warning(f'Unknown max tv episode for media {media_id} and season {season_number}')
             return
 
         if episode_count <= last_episode:
+            self.__logger.warning('Setting media as finished')
             self.__database.set_finished(media_id)
 
     def update_releasing(self) -> None:
