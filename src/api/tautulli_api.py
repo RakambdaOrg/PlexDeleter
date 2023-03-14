@@ -27,7 +27,7 @@ class Tautulli:
         raise RuntimeError(f'Unsupported media type {media_type}')
 
     def get_child_rating_keys(self, rating_key: str) -> list[str]:
-        response = self.__api.get_library_media_info(rating_key=rating_key, length=1000)
+        response = self.__api.get_library_media_info(rating_key=rating_key, length=1000, refresh=True)
         return list(map(lambda data: data['rating_key'], response['data'])) \
             if 'data' in response \
             else []
