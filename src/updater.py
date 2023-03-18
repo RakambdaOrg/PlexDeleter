@@ -70,6 +70,7 @@ class Updater:
 
     def update_releasing(self) -> None:
         self.__logger.info('Updating releasing medias')
+        self.__database.set_movies_finished()
         medias = self.__database.get_all_releasing_show()
         for media in medias:
             self.__update_releasing(media[0], media[1], media[2])

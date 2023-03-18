@@ -98,3 +98,7 @@ class Database:
     def set_finished(self, media_id: int) -> None:
         self.__cursor.execute("UPDATE Media SET Status='FINISHED' WHERE Id=?", [media_id])
         self.__conn.commit()
+
+    def set_movies_finished(self) -> None:
+        self.__cursor.execute("UPDATE Media SET Status='FINISHED' WHERE Type='MOVIE' AND Status = 'RELEASING'", [])
+        self.__conn.commit()
