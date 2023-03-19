@@ -14,7 +14,7 @@ class Mailer:
         self.__server = server
         self.__port = port
         self.__tls = use_tls
-        self.__from_name = name_from
+        self.__from_name = name_from if name_from else mail_from
         self.__from_mail = mail_from
 
     def __is_smtp_connected(self) -> bool:
@@ -31,7 +31,8 @@ class Mailer:
             self.__smtp = smtplib.SMTP_SSL(self.__server, self.__port)
             if self.__tls:
                 self.__smtp.starttls()
-            self.__smtp.login(self.__username, self.__password)
+            if self.__username and self.__password:
+                self.__smtp.login(self.__username, self.__password)
         return self.__smtp
 
     def __create_mail(self, mail_to: list[str], subject: str, plain_body: str, html_body: str = None) -> MIMEMultipart:

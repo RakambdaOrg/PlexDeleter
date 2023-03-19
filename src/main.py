@@ -6,6 +6,7 @@ from api.overseerr_api import Overseerr
 from api.tautulli_api import Tautulli
 from database import Database
 from deleter import Deleter
+from notify.discord import Discord
 from notify.mailer import Mailer
 from notify.notifier import Notifier
 from updater import Updater
@@ -20,28 +21,31 @@ logging.basicConfig(
 )
 
 
-def get_env(name: str) -> str:
+def get_env(name: str, required: bool = True, default: str = None) -> str:
     value = os.environ.get(name)
-    if value is None:
+    if value is not None:
+        return value
+    if required:
         raise RuntimeError(f'Missing env variable {name}')
-    return value
+    return default
 
 
 if __name__ == '__main__':
     with Database(get_env('DB_HOST'), get_env('DB_USER'), get_env('DB_PASS'), get_env('DB_DB')) as database:
         mailer = Mailer(
-            username=get_env('MAIL_USERNAME'),
-            password=get_env('MAIL_PASSWORD'),
+            username=get_env('MAIL_USERNAME', required=False),
+            password=get_env('MAIL_PASSWORD', required=False),
             server=get_env('MAIL_SERVER'),
-            port=int(get_env('MAIL_PORT')),
-            name_from=get_env('MAIL_FROM'),
+            port=int(get_env('MAIL_PORT', required=False, default='0')),
+            name_from=get_env('MAIL_FROM', required=False),
             mail_from=get_env('MAIL_MAIL')
         )
         tautulli = Tautulli(get_env('TAUTULLI_URL'), get_env('TAUTULLI_KEY'))
         overseerr = Overseerr(get_env('OVERSEERR_URL'), get_env('OVERSEERR_KEY'))
         updater = Updater(database, tautulli, overseerr)
-        deleter = Deleter(get_env('REMOTE_PATH'), get_env('LOCAL_PATH'), get_env('DRY_RUN').lower() == 'true', database, tautulli)
         notifier = Notifier(database, mailer, get_env('PLEX_SERVER_ID'))
+        discord = Discord(get_env('DISCORD_WEBHOOK', required=False))
+        deleter = Deleter(get_env('REMOTE_PATH'), get_env('LOCAL_PATH'), get_env('DRY_RUN', required=False, default='false').lower() == 'true', database, tautulli, discord)
 
         updater.update_releasing()
         updater.update_all_groups()

@@ -4,20 +4,22 @@ from functools import reduce
 from pathlib import Path
 from api.tautulli_api import Tautulli
 from database import Database
+from notify.discord import Discord
 
 
 class Deleter:
-    def __init__(self, remote_path: str, local_path: str, dry_run: bool, database: Database, api: Tautulli):
+    def __init__(self, remote_path: str, local_path: str, dry_run: bool, database: Database, tautulli: Tautulli, discord: Discord):
         self.__remote_path = remote_path
         self.__local_path = local_path
         self.__dry_run = dry_run
         self.__database = database
-        self.__api = api
+        self.__tautulli = tautulli
+        self.__discord = discord
         self.__logger = logging.getLogger(__name__)
 
     def delete_all(self, media_ids: list[int]):
         plex_ids = filter(lambda x: x is not None, (self.__database.get_plex_id_for_finished_media(media_id) for media_id in media_ids))
-        all_metadata = reduce(operator.iconcat, (self.__api.get_all_metadata(str(plex_id)) for plex_id in plex_ids), [])
+        all_metadata = reduce(operator.iconcat, (self.__tautulli.get_all_metadata(str(plex_id)) for plex_id in plex_ids), [])
 
         files = set(map(lambda part: part['file'],
                         reduce(operator.iconcat,
@@ -48,6 +50,7 @@ class Deleter:
                 parents.add(file.parent)
                 if not self.__dry_run:
                     file.unlink()
+                    self.__discord.notify_file_deleted(file)
                 companion_files.update(self.__get_companion_files(file))
             if file.is_dir():
                 self.__logger.info(f'Deleting folder {file}')
@@ -58,6 +61,7 @@ class Deleter:
                 parents.add(file.parent)
                 if not self.__dry_run:
                     file.rmdir()
+                    self.__discord.notify_file_deleted(file)
         return parents, companion_files
 
     @staticmethod
