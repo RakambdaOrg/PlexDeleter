@@ -54,7 +54,7 @@ if __name__ == "__main__":
         status_updater = StatusUpdater(database, tautulli_helper, overseerr_helper, discord_helper)
         watch_updater = WatchUpdater(database, tautulli_helper, overseerr_helper, discord_helper)
         deleter = Deleter(get_env("REMOTE_PATH"), get_env("LOCAL_PATH"), get_env("DRY_RUN", required=False, default="false").lower() == "true", database, tautulli_helper, overseerr_helper, discord_helper)
-        notifier = Notifier(database, mailer, get_env("PLEX_SERVER_ID"))
+        notifier = Notifier(database, overseerr_helper, mailer, get_env("PLEX_SERVER_ID"))
 
         status_updater.update()
         watch_updater.update()
