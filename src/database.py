@@ -102,3 +102,17 @@ class Database:
     def set_movies_finished(self) -> None:
         self.__cursor.execute("UPDATE Media SET Status='FINISHED' WHERE Type='MOVIE' AND Status = 'RELEASING'", [])
         self.__conn.commit()
+
+    def get_media_name(self, media_id: int) -> Optional[str]:
+        name = None
+        self.__cursor.execute("SELECT Name FROM Media WHERE Id=?", [media_id])
+        for row in self.__cursor:
+            name = row[0]
+        return name
+
+    def get_group_name(self, group_id: int) -> Optional[str]:
+        name = None
+        self.__cursor.execute("SELECT Name FROM UserGroup WHERE Id=?", [group_id])
+        for row in self.__cursor:
+            name = row[0]
+        return name

@@ -42,9 +42,9 @@ if __name__ == '__main__':
         )
         tautulli = Tautulli(get_env('TAUTULLI_URL'), get_env('TAUTULLI_KEY'))
         overseerr = Overseerr(get_env('OVERSEERR_URL'), get_env('OVERSEERR_KEY'))
-        updater = Updater(database, tautulli, overseerr)
+        discord = Discord(get_env('DISCORD_WEBHOOK', required=False), database)
+        updater = Updater(database, tautulli, overseerr, discord)
         notifier = Notifier(database, mailer, get_env('PLEX_SERVER_ID'))
-        discord = Discord(get_env('DISCORD_WEBHOOK', required=False))
         deleter = Deleter(get_env('REMOTE_PATH'), get_env('LOCAL_PATH'), get_env('DRY_RUN', required=False, default='false').lower() == 'true', database, tautulli, discord)
 
         updater.update_releasing()

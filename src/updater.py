@@ -2,13 +2,15 @@ import logging
 from api.overseerr_api import Overseerr
 from api.tautulli_api import Tautulli
 from database import Database
+from notify.discord import Discord
 
 
 class Updater:
-    def __init__(self, database: Database, tautulli: Tautulli, overseerr: Overseerr, completion_required: int = 90):
+    def __init__(self, database: Database, tautulli: Tautulli, overseerr: Overseerr, discord: Discord, completion_required: int = 90):
         self.__database = database
         self.__tautulli = tautulli
         self.__overseerr = overseerr
+        self.__discord = discord
         self.__completion_required = completion_required
         self.__logger = logging.getLogger(__name__)
 
@@ -41,6 +43,7 @@ class Updater:
             if self.__has_group_watched_all(media_id, plex_ids):
                 self.__logger.info(f'Group {group_id} watched {media_id}')
                 self.__database.mark_watched(media_id, group_id)
+                self.__discord.notify_watched(media_id, group_id)
 
     def update_all_groups(self) -> None:
         self.__logger.info('Updating all groups')
@@ -67,6 +70,7 @@ class Updater:
         if episode_count <= last_episode:
             self.__logger.warning('Setting media as finished')
             self.__database.set_finished(media_id)
+            self.__discord.notify_set_finished(media_id, season_number)
 
     def update_releasing(self) -> None:
         self.__logger.info('Updating releasing medias')
