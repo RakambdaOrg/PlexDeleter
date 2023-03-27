@@ -6,7 +6,7 @@ from typing import Optional
 
 import pydash
 
-from src.api.tautulli.tautulli_api import TautulliApi
+from api.tautulli.tautulli_api import TautulliApi
 
 
 class TautulliHelper:

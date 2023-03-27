@@ -1,8 +1,8 @@
 from dataclasses import dataclass
 
-from src.database.media_action_status import MediaActionStatus
-from src.database.media_status import MediaStatus
-from src.database.media_type import MediaType
+from database.media_action_status import MediaActionStatus
+from database.media_status import MediaStatus
+from database.media_type import MediaType
 
 
 @dataclass

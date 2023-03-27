@@ -1,9 +1,9 @@
 import logging
 from pathlib import Path
-from src.api.discord.discord_helper import DiscordHelper
-from src.api.overseerr.overseerr_helper import OverseerrHelper
-from src.api.tautulli.tautulli_helper import TautulliHelper
-from src.database.database import Database
+from api.discord.discord_helper import DiscordHelper
+from api.overseerr.overseerr_helper import OverseerrHelper
+from api.tautulli.tautulli_helper import TautulliHelper
+from database.database import Database
 
 
 class Deleter:

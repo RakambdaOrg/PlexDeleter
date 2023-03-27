@@ -1,13 +1,13 @@
 import logging
 
-from src.database.media import Media
-from src.database.media_status import MediaStatus
-from src.database.user_group import UserGroup
-from src.api.overseerr.overseerr_helper import OverseerrHelper
-from src.database.database import Database
-from src.api.discord.discord_helper import DiscordHelper
-from src.api.tautulli.tautulli_helper import TautulliHelper
-from src.database.user_person import UserPerson
+from database.media import Media
+from database.media_status import MediaStatus
+from database.user_group import UserGroup
+from api.overseerr.overseerr_helper import OverseerrHelper
+from database.database import Database
+from api.discord.discord_helper import DiscordHelper
+from api.tautulli.tautulli_helper import TautulliHelper
+from database.user_person import UserPerson
 
 
 class WatchUpdater:

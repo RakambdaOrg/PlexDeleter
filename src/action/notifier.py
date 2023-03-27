@@ -1,12 +1,12 @@
 import datetime
 import logging
 
-from src.api.overseerr.overseerr_helper import OverseerrHelper
-from src.api.mail.mailer import Mailer
-from src.database.database import Database
-from src.database.media import Media
-from src.database.media_type import MediaType
-from src.database.user_group import UserGroup
+from api.overseerr.overseerr_helper import OverseerrHelper
+from api.mail.mailer import Mailer
+from database.database import Database
+from database.media import Media
+from database.media_type import MediaType
+from database.user_group import UserGroup
 
 
 class Notifier:

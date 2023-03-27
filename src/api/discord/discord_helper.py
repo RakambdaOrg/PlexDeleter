@@ -2,8 +2,8 @@ from pathlib import Path
 
 from discord_webhook import DiscordWebhook
 
-from src.database.media import Media
-from src.database.user_group import UserGroup
+from database.media import Media
+from database.user_group import UserGroup
 
 
 class DiscordHelper:

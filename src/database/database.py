@@ -4,13 +4,13 @@ from typing import TypeVar, Callable
 
 import mariadb
 
-from src.database.media_action_status import MediaActionStatus
-from src.database.media_requirement_status import MediaRequirementStatus
-from src.database.media_status import MediaStatus
-from src.database.media import Media
-from src.database.media_type import MediaType
-from src.database.user_group import UserGroup
-from src.database.user_person import UserPerson
+from database.media_action_status import MediaActionStatus
+from database.media_requirement_status import MediaRequirementStatus
+from database.media_status import MediaStatus
+from database.media import Media
+from database.media_type import MediaType
+from database.user_group import UserGroup
+from database.user_person import UserPerson
 
 T = TypeVar('T')
 

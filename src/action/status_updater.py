@@ -1,11 +1,11 @@
 import logging
 
-from src.api.overseerr.overseerr_helper import OverseerrHelper
-from src.database.database import Database
-from src.database.media_type import MediaType
-from src.database.media import Media
-from src.api.discord.discord_helper import DiscordHelper
-from src.api.tautulli.tautulli_helper import TautulliHelper
+from api.overseerr.overseerr_helper import OverseerrHelper
+from database.database import Database
+from database.media_type import MediaType
+from database.media import Media
+from api.discord.discord_helper import DiscordHelper
+from api.tautulli.tautulli_helper import TautulliHelper
 
 
 class StatusUpdater:

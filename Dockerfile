@@ -4,7 +4,7 @@ ARG UNAME=pythonuser
 ARG UID=1050
 ARG GID=100
 
-RUN mkdir -p /usr/src/app/src
+RUN mkdir -p /usr/src/app
 COPY ./docker/entrypoint.sh /entrypoint.sh
 
 RUN chmod +x /entrypoint.sh \
@@ -19,12 +19,12 @@ RUN apt-get install gcc wget \
 ENV LD_PRELOAD=/usr/lib/mariadb/libmariadb.so
 
 USER ${UNAME}
-WORKDIR /usr/src/app/src
+WORKDIR /usr/src/app
 
 COPY requirements.txt /usr/src/app/
 
 RUN pip install --no-cache-dir -r /usr/src/app/requirements.txt
 
-COPY src/ /usr/src/app/src/
+COPY src/ /usr/src/app/
 
 ENTRYPOINT ["/entrypoint.sh"]

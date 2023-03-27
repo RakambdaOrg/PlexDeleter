@@ -2,9 +2,9 @@ from typing import Optional
 
 import pydash
 
-from src.api.overseerr.overseerr_api import OverseerrApi
-from src.api.overseerr.plex_urls import PlexUrls
-from src.database.media_type import MediaType
+from api.overseerr.overseerr_api import OverseerrApi
+from api.overseerr.plex_urls import PlexUrls
+from database.media_type import MediaType
 
 
 class OverseerrHelper:
