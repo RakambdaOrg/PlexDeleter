@@ -77,4 +77,5 @@ class Deleter:
 
     @staticmethod
     def __get_companion_files(file: Path) -> set[Path]:
-        return set(file.parent.glob(f"{file.stem}.*.srt"))
+        return set(file.parent.glob(f"{file.stem}.*.srt"))\
+            .union(set(file.parent.glob(f"{file.stem}.nfo")))
