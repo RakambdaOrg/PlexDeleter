@@ -40,6 +40,7 @@ class Notifier:
             text_message = self.__get_text_body(locale, medias)
             html_message = self.__get_html_body(locale, medias)
             self.__mailer.send(mails, subject, text_message, html_message)
+            self.__logger.info("Mail sent")
 
         self.__database.user_group_set_last_notified(user_group.id, datetime.datetime.now())
 
