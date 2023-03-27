@@ -2,8 +2,8 @@ from pathlib import Path
 
 from discord_webhook import DiscordWebhook
 
-from database.media import Media
-from database.user_group import UserGroup
+from src.database.media import Media
+from src.database.user_group import UserGroup
 
 
 class DiscordHelper:
@@ -12,6 +12,9 @@ class DiscordHelper:
 
     def notify_file_deleted(self, file: Path) -> None:
         self.__send(f"Deleted file {file.resolve()}")
+
+    def notify_media_deleted(self, media: Media):
+        self.__send(f"Deleted media {media.id}: {media.name} (Season {media.season_number})")
 
     def notify_set_finished(self, media: Media) -> None:
         self.__send(f"Marked {media.id} as finished: {media.name} (Season {media.season_number})")

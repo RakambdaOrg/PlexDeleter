@@ -1,9 +1,9 @@
 import logging
 from pathlib import Path
-from api.discord.discord_helper import DiscordHelper
-from api.overseerr.overseerr_helper import OverseerrHelper
-from api.tautulli.tautulli_helper import TautulliHelper
-from database.database import Database
+from src.api.discord.discord_helper import DiscordHelper
+from src.api.overseerr.overseerr_helper import OverseerrHelper
+from src.api.tautulli.tautulli_helper import TautulliHelper
+from src.database.database import Database
 
 
 class Deleter:
@@ -22,7 +22,10 @@ class Deleter:
         metadata = []
         for media in medias:
             rating_key = self.__overseerr.get_plex_rating_key(media.overseerr_id, media.type)
-            metadata.extend(self.__tautulli.get_movie_and_all_episodes_metadata(rating_key))
+            if rating_key:
+                metadata.extend(self.__tautulli.get_movie_and_all_episodes_metadata(rating_key))
+            else:
+                self.__logger.warning(f"Could not find metadata & files for {media}, considering it already deleted")
 
         files = set()
         for m in metadata:
@@ -35,6 +38,9 @@ class Deleter:
                     files.add(local_file)
 
         self.__delete_recursive(files)
+        for media in medias:
+            self.__database.media_set_deleted(media.id)
+            self.__discord.notify_media_deleted(media)
 
     def __delete_recursive(self, files: set[Path]) -> None:
         all_parents = set()

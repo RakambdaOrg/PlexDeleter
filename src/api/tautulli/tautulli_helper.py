@@ -1,9 +1,12 @@
+import array
 import logging
 import operator
 from functools import reduce
 from typing import Optional
 
-from api.tautulli.tautulli_api import TautulliApi
+import pydash
+
+from src.api.tautulli.tautulli_api import TautulliApi
 
 
 class TautulliHelper:
@@ -25,29 +28,19 @@ class TautulliHelper:
         if not season_number:
             return 0
 
-        root_rating_key = self.get_root_rating_key(rating_key)
-        data = self.api.get_new_rating_keys(root_rating_key)
-        seasons = data[0]["children"]
-        if season_number not in seasons:
+        data = self.__get_all_keys_for(rating_key)
+        episodes = pydash.get(data, f"0.children.{season_number}.children", None)
+        if not episodes or len(episodes) == 0:
             return 0
 
-        episodes = seasons[season_number]
-        if len(episodes) == 0:
-            return 0
-
-        return max(episodes)
+        return int(max(episodes))
 
     def get_season_rating_key(self, rating_key: int, season_number: int) -> Optional[int]:
         if not season_number:
             return rating_key
 
-        root_rating_key = self.get_root_rating_key(rating_key)
-        data = self.api.get_new_rating_keys(root_rating_key)
-        seasons = data[0]["children"]
-        if season_number not in seasons:
-            return None
-
-        return seasons[season_number]["rating_key"]
+        data = self.__get_all_keys_for(rating_key)
+        return pydash.get(data, f"0.children.{season_number}.rating_key", None)
 
     def has_user_watched_media(self, user_id: int, metadata: dict, completion_required: int) -> bool:
         watched = any(map(lambda percent: percent >= completion_required,
@@ -75,3 +68,8 @@ class TautulliHelper:
     def __get_child_rating_keys(self, rating_key: int) -> list[str]:
         response = self.api.get_library_media_info(rating_key)
         return list(map(lambda data: data["rating_key"], response["data"]))
+
+    def __get_all_keys_for(self, rating_key: int) -> array:
+        root_rating_key = self.get_root_rating_key(rating_key)
+        metadata = self.api.get_metadata(rating_key)
+        return self.api.get_new_rating_keys(root_rating_key, metadata["media_type"])

@@ -1,13 +1,13 @@
 import logging
 
-from database.media import Media
-from database.media_status import MediaStatus
-from database.user_group import UserGroup
-from api.overseerr.overseerr_helper import OverseerrHelper
-from database.database import Database
-from api.discord.discord_helper import DiscordHelper
-from api.tautulli.tautulli_helper import TautulliHelper
-from database.user_person import UserPerson
+from src.database.media import Media
+from src.database.media_status import MediaStatus
+from src.database.user_group import UserGroup
+from src.api.overseerr.overseerr_helper import OverseerrHelper
+from src.database.database import Database
+from src.api.discord.discord_helper import DiscordHelper
+from src.api.tautulli.tautulli_helper import TautulliHelper
+from src.database.user_person import UserPerson
 
 
 class WatchUpdater:
@@ -25,9 +25,13 @@ class WatchUpdater:
     def __has_persons_watched_media(self, media: Media, user_persons: list[UserPerson]) -> bool:
         self.__logger.debug(f"Querying watch status of {media} for persons {user_persons}")
         rating_key = self.__overseerr.get_plex_rating_key(media.overseerr_id, media.type)
+        if not rating_key:
+            self.__logger.warning(f"Could not find media rating keys for {media}, not available?")
+            return False
+
         season_rating_key = self.__tautulli.get_season_rating_key(rating_key, media.season_number)
         if not season_rating_key:
-            self.__logger.warning(f"Could not find media rating keys for {media}, not available?")
+            self.__logger.warning(f"Could not find season {media.season_number}media rating keys for {media}, not available?")
             return False
 
         all_metadata = self.__tautulli.get_movie_and_all_episodes_metadata(season_rating_key)
@@ -35,13 +39,13 @@ class WatchUpdater:
 
     def __update_group(self, user_group: UserGroup) -> None:
         self.__logger.info(f"Updating {user_group}")
-        plex_ids = self.__database.user_person_get_all_in_group(user_group.id)
+        user_persons = self.__database.user_person_get_all_in_group(user_group.id)
         medias = self.__database.media_get_waiting_for_group(user_group.id)
 
         for media in medias:
             if media.status != MediaStatus.FINISHED:
                 continue
-            if self.__has_persons_watched_media(media, plex_ids):
+            if self.__has_persons_watched_media(media, user_persons):
                 self.__logger.info(f"{user_group} watched {media}")
                 self.__database.media_requirement_set_watched(media.id, user_group.id)
                 self.__discord.notify_watched(media, user_group)
