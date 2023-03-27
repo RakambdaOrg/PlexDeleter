@@ -1,2 +1,2 @@
 #!/bin/sh
-python main.py $@
+PYTHONPATH=/usr/src/app/src/ python main.py $@
