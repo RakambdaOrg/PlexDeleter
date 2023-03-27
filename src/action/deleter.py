@@ -1,0 +1,80 @@
+import logging
+from pathlib import Path
+from src.api.discord.discord_helper import DiscordHelper
+from src.api.overseerr.overseerr_helper import OverseerrHelper
+from src.api.tautulli.tautulli_helper import TautulliHelper
+from src.database.database import Database
+
+
+class Deleter:
+    def __init__(self, remote_path: str, local_path: str, dry_run: bool, database: Database, tautulli: TautulliHelper, overseerr: OverseerrHelper, discord: DiscordHelper):
+        self.__remote_path = remote_path
+        self.__local_path = local_path
+        self.__dry_run = dry_run
+        self.__database = database
+        self.__tautulli = tautulli
+        self.__overseerr = overseerr
+        self.__discord = discord
+        self.__logger = logging.getLogger(__name__)
+
+    def delete(self) -> None:
+        medias = self.__database.media_get_fully_watched_to_delete()
+        metadata = []
+        for media in medias:
+            rating_key = self.__overseerr.get_plex_rating_key(media.overseerr_id, media.type)
+            if rating_key:
+                metadata.extend(self.__tautulli.get_movie_and_all_episodes_metadata(rating_key))
+            else:
+                self.__logger.warning(f"Could not find metadata & files for {media}, considering it already deleted")
+
+        files = set()
+        for m in metadata:
+            medias_info = m["media_info"] or []
+            for media_info in medias_info:
+                parts = media_info["parts"] or []
+                for parts in parts:
+                    remote_file = parts["file"]
+                    local_file = Path(remote_file.replace(self.__remote_path, self.__local_path, 1))
+                    files.add(local_file)
+
+        self.__delete_recursive(files)
+        for media in medias:
+            self.__database.media_set_deleted(media.id)
+            self.__discord.notify_media_deleted(media)
+
+    def __delete_recursive(self, files: set[Path]) -> None:
+        all_parents = set()
+        while len(files) > 0:
+            (parents, companion_files) = self.__delete_files(files)
+            files = companion_files
+            all_parents.update(parents)
+        if len(all_parents) > 0:
+            self.__delete_recursive(all_parents)
+
+    def __delete_files(self, files: set[Path]) -> (set[Path], set[Path]):
+        parents = set()
+        companion_files = set()
+
+        for file in files:
+            if file.is_file():
+                self.__logger.info(f"Deleting file {file}")
+                parents.add(file.parent)
+                if not self.__dry_run:
+                    file.unlink()
+                    self.__discord.notify_file_deleted(file)
+                companion_files.update(self.__get_companion_files(file))
+            if file.is_dir():
+                self.__logger.info(f"Deleting folder {file}")
+                children = list(file.glob('*'))
+                if len(children) > 0:
+                    self.__logger.info(f"Folder not empty")
+                    continue
+                parents.add(file.parent)
+                if not self.__dry_run:
+                    file.rmdir()
+                    self.__discord.notify_file_deleted(file)
+        return parents, companion_files
+
+    @staticmethod
+    def __get_companion_files(file: Path) -> set[Path]:
+        return set(file.parent.glob(f"{file.stem}.*.srt"))
