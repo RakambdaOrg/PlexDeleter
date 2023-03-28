@@ -53,7 +53,12 @@ class Notifier:
         for media in medias:
             body = self.__get_media_body(locale, media)
             plex_urls = self.__overseerr.get_plex_url(media.overseerr_id, media.type)
-            contents.append(f"<li>{body} | <a href='{plex_urls.web}'>Plex web</a><a href='{plex_urls.ios}'>Plex iOS</a></li>")
+            contents.append(f"<li>{body}")
+            if plex_urls and plex_urls.web:
+                contents.append("| <a href='{plex_urls.web}'>Plex web</a>")
+            if plex_urls and plex_urls.ios:
+                contents.append("| <a href='{plex_urls.ios}'>Plex iOS</a>")
+            contents.append("</li>")
 
         header = self.__get_header(locale)
         merged_content = "\n".join(contents)
