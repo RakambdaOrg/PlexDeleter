@@ -83,9 +83,9 @@ class Notifier:
     def __get_media_body(locale: str, media: Media) -> str:
         if locale.lower() == 'fr':
             media_type = 'Film' if media.type == MediaType.MOVIE else 'Série'
-            season = f' - Season {media.season_number}' if media.season_number else ''
+            season = f' - Saison {media.season_number}' if media.season_number else ''
         else:
             media_type = 'Movie' if media.type == MediaType.MOVIE else 'Series'
-            season = f' - Saison {media.season_number}' if media.season_number else ''
+            season = f' - Season {media.season_number}' if media.season_number else ''
 
         return f'{media_type}: {media.name}{season}'
