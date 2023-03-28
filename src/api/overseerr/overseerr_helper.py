@@ -3,7 +3,7 @@ from typing import Optional
 import pydash
 
 from api.overseerr.overseerr_api import OverseerrApi
-from api.overseerr.plex_urls import PlexUrls
+from api.overseerr.media_urls import MediaUrls
 from database.media_type import MediaType
 
 
@@ -28,13 +28,18 @@ class OverseerrHelper:
 
         return int(rating_key) if rating_key else None
 
-    def get_plex_url(self, media_id: int, media_type: MediaType) -> Optional[PlexUrls]:
+    def get_plex_url(self, media_id: int, media_type: MediaType) -> MediaUrls:
+        overseerr_url = None
         media_info = None
         if media_type == MediaType.SHOW:
+            overseerr_url = f"{self.api.endpoint}/tv/{media_id}"
             data = self.api.get_tv_details(media_id)
             media_info = pydash.get(data, f"mediaInfo", None)
         elif media_type == MediaType.MOVIE:
+            overseerr_url = f"{self.api.endpoint}/movie/{media_id}"
             data = self.api.get_movie_details(media_id)
             media_info = pydash.get(data, f"mediaInfo", None)
 
-        return PlexUrls(media_info["plexUrl"], media_info["iOSPlexUrl"]) if media_info else None
+        return MediaUrls(overseerr_url,
+                         media_info["plexUrl"] if media_info and "plexUrl" in media_info else None,
+                         media_info["iOSPlexUrl"] if media_info and "iOSPlexUrl" in media_info else None)
