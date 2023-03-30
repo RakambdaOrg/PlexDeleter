@@ -57,6 +57,6 @@ if __name__ == "__main__":
         notifier = Notifier(database, overseerr_helper, mailer, get_env("PLEX_SERVER_ID"))
 
         status_updater.update()
-        watch_updater.update()
+        user_group_statuses = watch_updater.update()
         deleter.delete()
-        notifier.notify()
+        notifier.notify(user_group_statuses)
