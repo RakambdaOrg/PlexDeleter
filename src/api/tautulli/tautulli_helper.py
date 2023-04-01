@@ -72,4 +72,6 @@ class TautulliHelper:
     def __get_all_keys_for(self, rating_key: int) -> array:
         root_rating_key = self.get_root_rating_key(rating_key)
         metadata = self.api.get_metadata(rating_key)
+        if "media_type" not in metadata:
+            return {}
         return self.api.get_new_rating_keys(root_rating_key, metadata["media_type"])

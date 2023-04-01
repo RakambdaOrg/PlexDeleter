@@ -22,8 +22,9 @@ class Deleter:
         metadata = []
         for media in medias:
             rating_key = self.__overseerr.get_plex_rating_key(media.overseerr_id, media.type)
-            if rating_key:
-                metadata.extend(self.__tautulli.get_movie_and_all_episodes_metadata(rating_key))
+            season_rating_key = self.__tautulli.get_season_rating_key(rating_key, media.season_number)
+            if season_rating_key:
+                metadata.extend(self.__tautulli.get_movie_and_all_episodes_metadata(season_rating_key))
             else:
                 self.__logger.warning(f"Could not find metadata & files for {media}, considering it already deleted")
 
@@ -60,7 +61,7 @@ class Deleter:
                 self.__logger.info(f"Deleting file {file}")
                 parents.add(file.parent)
                 if not self.__dry_run:
-                    file.unlink()
+                    # file.unlink()
                     self.__discord.notify_file_deleted(file)
                 companion_files.update(self.__get_companion_files(file))
             if file.is_dir():
@@ -71,7 +72,7 @@ class Deleter:
                     continue
                 parents.add(file.parent)
                 if not self.__dry_run:
-                    file.rmdir()
+                    # file.rmdir()
                     self.__discord.notify_file_deleted(file)
         return parents, companion_files
 
