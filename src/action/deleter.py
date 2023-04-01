@@ -61,7 +61,7 @@ class Deleter:
                 self.__logger.info(f"Deleting file {file}")
                 parents.add(file.parent)
                 if not self.__dry_run:
-                    # file.unlink()
+                    file.unlink()
                     self.__discord.notify_file_deleted(file)
                 companion_files.update(self.__get_companion_files(file))
             if file.is_dir():
@@ -72,7 +72,7 @@ class Deleter:
                     continue
                 parents.add(file.parent)
                 if not self.__dry_run:
-                    # file.rmdir()
+                    file.rmdir()
                     self.__discord.notify_file_deleted(file)
         return parents, companion_files
 
