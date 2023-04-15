@@ -26,8 +26,7 @@ class DiscordHelper:
         if not self.__webhook_url:
             return
 
-        webhook = DiscordWebhook(url=self.__webhook_url, rate_limit_retry=True, content=content)
-        webhook.execute()
+        self.send_to(self.__webhook_url, content)
 
     @staticmethod
     def send_to(url, content) -> None:

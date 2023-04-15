@@ -20,25 +20,22 @@ class DiscordNotifier(CommonNotifier):
         webhook_url = parts[1]
 
         locale = user_group.locale
-        markdown_message = self.__get_markdown_body(locale, medias, user_group_status)
-        self.__discord.send_to(webhook_url, f"{user_mention} {markdown_message}")
+        header = self._get_header(locale)
+
+        self.__discord.send_to(webhook_url, f"{user_mention} {header}")
+        for media in medias:
+            self.__discord.send_to(webhook_url, self.__get_markdown_body(locale, media, user_group_status))
         self.__logger.info("Discord webhook sent")
 
-    def __get_markdown_body(self, locale: str, medias: list[Media], user_group_status: UserGroupStatus) -> str:
-        contents = []
-        for media in medias:
-            content_parts = [self._get_media_body(locale, media, user_group_status.get(media))]
+    def __get_markdown_body(self, locale: str, media: Media, user_group_status: UserGroupStatus) -> str:
+        content_parts = [self._get_media_body(locale, media, user_group_status.get(media))]
 
-            plex_urls = self.__overseerr.get_plex_url(media.overseerr_id, media.type)
-            if plex_urls.overseerr:
-                content_parts.append(f"[Overseerr]({plex_urls.overseerr})")
-            if plex_urls.plex_web:
-                content_parts.append(f"[Plex web]({plex_urls.plex_web})")
-            if plex_urls.plex_ios:
-                content_parts.append(f"[Plex iOS]({plex_urls.plex_ios})")
+        plex_urls = self.__overseerr.get_plex_url(media.overseerr_id, media.type)
+        if plex_urls.overseerr:
+            content_parts.append(f"[Overseerr]({plex_urls.overseerr})")
+        if plex_urls.plex_web:
+            content_parts.append(f"[Plex web]({plex_urls.plex_web})")
+        if plex_urls.plex_ios:
+            content_parts.append(f"[Plex iOS]({plex_urls.plex_ios})")
 
-            contents.append(f"{' | '.join(content_parts)}\n")
-
-        header = self._get_header(locale)
-        merged_content = "\n".join(contents)
-        return f'{header}\n<ul>\n{merged_content}\n</ul>'
+        return f"{' | '.join(content_parts)}"
