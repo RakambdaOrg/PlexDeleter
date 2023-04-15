@@ -1,4 +1,5 @@
 import logging
+from datetime import datetime, timezone, timedelta
 from pathlib import Path
 from api.discord.discord_helper import DiscordHelper
 from api.overseerr.overseerr_helper import OverseerrHelper
@@ -24,7 +25,12 @@ class Deleter:
             rating_key = self.__overseerr.get_plex_rating_key(media.overseerr_id, media.type)
             season_rating_key = self.__tautulli.get_season_rating_key(rating_key, media.season_number)
             if season_rating_key:
-                metadata.extend(self.__tautulli.get_movie_and_all_episodes_metadata(season_rating_key))
+                sub_metadata = self.__tautulli.get_movie_and_all_episodes_metadata(season_rating_key)
+                max_date = datetime.fromtimestamp(max(map(lambda meta: meta["added_at"] or 0, sub_metadata)), timezone.utc)
+                if datetime.now() - max_date >= timedelta(days=2):
+                    metadata.extend(sub_metadata)
+                else:
+                    self.__logger.info(f"Skipped {media} because most recent file is from {max_date} which is not older than 2 days")
             else:
                 self.__logger.warning(f"Could not find metadata & files for {media}, considering it already deleted")
 
