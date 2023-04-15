@@ -32,10 +32,8 @@ class DiscordNotifier(CommonNotifier):
 
         plex_urls = self.__overseerr.get_plex_url(media.overseerr_id, media.type)
         if plex_urls.overseerr:
-            content_parts.append(f"[Overseerr]({plex_urls.overseerr})")
+            content_parts.append(f"[Overseerr](<{plex_urls.overseerr}>)")
         if plex_urls.plex_web:
-            content_parts.append(f"[Plex web]({plex_urls.plex_web})")
-        if plex_urls.plex_ios:
-            content_parts.append(f"[Plex iOS]({plex_urls.plex_ios})")
+            content_parts.append(f"[Plex web](<{plex_urls.plex_web}>)")
 
         return f"{' | '.join(content_parts)}"
