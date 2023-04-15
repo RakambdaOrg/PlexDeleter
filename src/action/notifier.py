@@ -1,23 +1,19 @@
 import datetime
 import logging
 
+from action.notification.notifier_discord import DiscordNotifier
+from action.notification.notifier_mail import MailNotifier
 from action.status.user_group_status import UserGroupStatus
-from action.status.user_media_status import UserMediaStatus
-from api.overseerr.overseerr_helper import OverseerrHelper
-from api.mail.mailer import Mailer
 from database.database import Database
-from database.media import Media
-from database.media_status import MediaStatus
-from database.media_type import MediaType
+from database.notification_type import NotificationType
 from database.user_group import UserGroup
 
 
 class Notifier:
-    def __init__(self, database: Database, overseerr: OverseerrHelper, mailer: Mailer, server_id: str):
+    def __init__(self, database: Database, mail_notifier: MailNotifier, discord_notifier: DiscordNotifier):
         self.__database = database
-        self.__overseerr = overseerr
-        self.__mailer = mailer
-        self.__server_id = server_id
+        self.__mail_notifier = mail_notifier
+        self.__discord_notifier = discord_notifier
         self.__logger = logging.getLogger(__name__)
 
     def notify(self, user_group_statuses: dict[UserGroup, UserGroupStatus] = None) -> None:
@@ -40,63 +36,9 @@ class Notifier:
         if len(medias) <= 0:
             self.__logger.debug("Nothing to notify")
         else:
-            locale = user_group.locale
-            mails = user_group.mail.split(',') if user_group.mail else []
-
-            subject = self.__get_subject(locale)
-            text_message = self.__get_text_body(locale, medias, user_group_status)
-            html_message = self.__get_html_body(locale, medias, user_group_status)
-            self.__mailer.send(mails, subject, text_message, html_message)
-            self.__logger.info("Mail sent")
+            if user_group.notification_type == NotificationType.MAIL:
+                self.__mail_notifier.notify(user_group, medias, user_group_status)
+            elif user_group.notification_type == NotificationType.DISCORD:
+                self.__discord_notifier.notify(user_group, medias, user_group_status)
 
         self.__database.user_group_set_last_notified(user_group.id, datetime.datetime.now())
-
-    def __get_text_body(self, locale: str, medias: list[Media], user_group_status: UserGroupStatus) -> str:
-        media_list = "\n".join([f"* {self.__get_media_body(locale, media, user_group_status.get(media))}" for media in medias])
-        return f'{self.__get_header(locale)}\n{media_list}'
-
-    def __get_html_body(self, locale: str, medias: list[Media], user_group_status: UserGroupStatus) -> str:
-        contents = []
-        for media in medias:
-            content_parts = [self.__get_media_body(locale, media, user_group_status.get(media))]
-
-            plex_urls = self.__overseerr.get_plex_url(media.overseerr_id, media.type)
-            if plex_urls.overseerr:
-                content_parts.append(f"<a href='{plex_urls.overseerr}'>Overseerr</a>")
-            if plex_urls.plex_web:
-                content_parts.append(f"<a href='{plex_urls.plex_web}'>Plex web</a>")
-            if plex_urls.plex_ios:
-                content_parts.append(f"<a href='{plex_urls.plex_ios}'>Plex iOS</a>")
-
-            contents.append(f"<li>{' | '.join(content_parts)}</li>")
-
-        header = self.__get_header(locale)
-        merged_content = "\n".join(contents)
-        return f'{header}\n<ul>\n{merged_content}\n</ul>'
-
-    @staticmethod
-    def __get_subject(locale: str) -> str:
-        if locale.lower() == "fr":
-            return "Plex: Media en attente"
-        return "Plex: Pending media"
-
-    @staticmethod
-    def __get_header(locale: str) -> str:
-        if locale.lower() == "fr":
-            return "Liste des médias en attente de visionnage sur Plex:"
-        return "Medias waiting to be watched on Plex:"
-
-    @staticmethod
-    def __get_media_body(locale: str, media: Media, user_media_status: UserMediaStatus) -> str:
-        if locale.lower() == 'fr':
-            media_type = 'Film' if media.type == MediaType.MOVIE else 'Série'
-            season = f' - Saison {media.season_number}' if media.season_number else ''
-            releasing = ' - En cours de diffusion' if media.status == MediaStatus.RELEASING else ''
-            status = f' - Attente EPs {user_media_status.get_all_str()}' if media.type == MediaType.SHOW and user_media_status and not user_media_status.is_all_watched() else ''
-        else:
-            media_type = 'Movie' if media.type == MediaType.MOVIE else 'Series'
-            season = f' - Season {media.season_number}' if media.season_number else ''
-            releasing = ' - Releasing' if media.status == MediaStatus.RELEASING else ''
-            status = f' - Waiting EPs {user_media_status.get_all_str()}' if media.type == MediaType.SHOW and user_media_status and not user_media_status.is_all_watched() else ''
-
-        return f'{media_type}: {media.name}{season}{releasing}{status}'

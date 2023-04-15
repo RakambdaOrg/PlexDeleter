@@ -9,6 +9,7 @@ from database.media_requirement_status import MediaRequirementStatus
 from database.media_status import MediaStatus
 from database.media import Media
 from database.media_type import MediaType
+from database.notification_type import NotificationType
 from database.user_group import UserGroup
 from database.user_person import UserPerson
 
@@ -39,8 +40,8 @@ class Database:
                              [group_id])
 
     def user_group_get_all(self) -> list[UserGroup]:
-        return self.__select("SELECT Id, Name, Mail, Locale, LastNotification FROM UserGroup",
-                             lambda row: UserGroup(row[0], row[1], row[2], row[3], row[4]))
+        return self.__select("SELECT Id, Name, NotificationType, NotificationValue, Locale, LastNotification FROM UserGroup",
+                             lambda row: UserGroup(row[0], row[1], NotificationType(row[2]), row[3], row[4], row[5]))
 
     def user_group_set_last_notified(self, group_id: int, date: datetime.datetime) -> None:
         self.__cursor.execute("UPDATE UserGroup SET LastNotification=? WHERE Id=?",

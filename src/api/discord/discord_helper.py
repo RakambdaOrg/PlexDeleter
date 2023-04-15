@@ -28,3 +28,8 @@ class DiscordHelper:
 
         webhook = DiscordWebhook(url=self.__webhook_url, rate_limit_retry=True, content=content)
         webhook.execute()
+
+    @staticmethod
+    def send_to(url, content) -> None:
+        webhook = DiscordWebhook(url=url, rate_limit_retry=True, content=content)
+        webhook.execute()
