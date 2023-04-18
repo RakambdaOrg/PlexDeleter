@@ -26,7 +26,7 @@ class Deleter:
             season_rating_key = self.__tautulli.get_season_rating_key(rating_key, media.season_number)
             if season_rating_key:
                 sub_metadata = self.__tautulli.get_movie_and_all_episodes_metadata(season_rating_key)
-                max_date = datetime.fromtimestamp(max(map(lambda meta: meta["added_at"] or 0, sub_metadata)), timezone.utc)
+                max_date = datetime.fromtimestamp(max(map(lambda meta: int(meta["added_at"] or "0"), sub_metadata)), timezone.utc)
                 if datetime.now() - max_date >= timedelta(days=2):
                     metadata.extend(sub_metadata)
                 else:
