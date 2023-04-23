@@ -8,7 +8,7 @@ from database.media import Media
 from database.user_group import UserGroup
 
 
-class DiscordNotifier(CommonNotifier):
+class DiscordNotifierThread(CommonNotifier):
     def __init__(self, overseerr: OverseerrHelper, discord: DiscordHelper):
         self.__overseerr = overseerr
         self.__discord = discord
@@ -21,10 +21,14 @@ class DiscordNotifier(CommonNotifier):
 
         locale = user_group.locale
         header = self._get_header(locale)
+        media_texts = [self.__get_markdown_body(locale, media, user_group_status) for media in medias]
 
-        self.__discord.send_to(webhook_url, f"{user_mention} {header}")
-        for media in medias:
-            self.__discord.send_to(webhook_url, self.__get_markdown_body(locale, media, user_group_status))
+        self.__discord.send_thread(
+            webhook_url,
+            self.get_subject(locale),
+            f"{user_mention} {header}",
+            media_texts
+        )
         self.__logger.info("Discord webhook sent")
 
     def __get_markdown_body(self, locale: str, media: Media, user_group_status: UserGroupStatus) -> str:

@@ -2,6 +2,7 @@ import datetime
 import logging
 
 from action.notification.notifier_discord import DiscordNotifier
+from action.notification.notifier_discord_thread import DiscordNotifierThread
 from action.notification.notifier_mail import MailNotifier
 from action.status.user_group_status import UserGroupStatus
 from database.database import Database
@@ -10,10 +11,11 @@ from database.user_group import UserGroup
 
 
 class Notifier:
-    def __init__(self, database: Database, mail_notifier: MailNotifier, discord_notifier: DiscordNotifier):
+    def __init__(self, database: Database, mail_notifier: MailNotifier, discord_notifier: DiscordNotifier, discord_notifier_thread: DiscordNotifierThread):
         self.__database = database
         self.__mail_notifier = mail_notifier
         self.__discord_notifier = discord_notifier
+        self.__discord_notifier_thread = discord_notifier_thread
         self.__logger = logging.getLogger(__name__)
 
     def notify(self, user_group_statuses: dict[UserGroup, UserGroupStatus] = None) -> None:
@@ -40,5 +42,7 @@ class Notifier:
                 self.__mail_notifier.notify(user_group, medias, user_group_status)
             elif user_group.notification_type == NotificationType.DISCORD:
                 self.__discord_notifier.notify(user_group, medias, user_group_status)
+            elif user_group.notification_type == NotificationType.DISCORD_THREAD:
+                self.__discord_notifier_thread.notify(user_group, medias, user_group_status)
 
         self.__database.user_group_set_last_notified(user_group.id, datetime.datetime.now())
