@@ -27,3 +27,9 @@ class CommonNotifier(ABC):
             status = f' | Waiting EPs {user_media_status.get_all_str()}' if media.type == MediaType.SHOW and user_media_status and not user_media_status.is_all_watched() else ''
 
         return f'{media_type}: {media.name}{season}{releasing}{status}'
+
+    @staticmethod
+    def get_subject(locale: str) -> str:
+        if locale.lower() == "fr":
+            return "Plex: Media en attente"
+        return "Plex: Pending media"

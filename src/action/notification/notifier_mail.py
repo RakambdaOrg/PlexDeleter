@@ -18,7 +18,7 @@ class MailNotifier(CommonNotifier):
         mails = user_group.notification_value.split(',') if user_group.notification_value else []
 
         locale = user_group.locale
-        subject = self.__get_subject(locale)
+        subject = self.get_subject(locale)
         text_message = self.__get_text_body(locale, medias, user_group_status)
         html_message = self.__get_html_body(locale, medias, user_group_status)
         self.__mailer.send(mails, subject, text_message, html_message)
@@ -46,9 +46,3 @@ class MailNotifier(CommonNotifier):
         header = self._get_header(locale)
         merged_content = "\n".join(contents)
         return f'{header}\n<ul>\n{merged_content}\n</ul>'
-
-    @staticmethod
-    def __get_subject(locale: str) -> str:
-        if locale.lower() == "fr":
-            return "Plex: Media en attente"
-        return "Plex: Pending media"

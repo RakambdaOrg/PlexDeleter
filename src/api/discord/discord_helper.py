@@ -1,5 +1,6 @@
 from pathlib import Path
 
+import requests
 from discord_webhook import DiscordWebhook
 
 from database.media import Media
@@ -22,13 +23,40 @@ class DiscordHelper:
     def notify_watched(self, media: Media, user_group: UserGroup) -> None:
         self.__send(f"{user_group.name} watched {media.name}")
 
-    def __send(self, content) -> None:
+    def __send(self, content: str) -> None:
         if not self.__webhook_url:
             return
 
         self.send_to(self.__webhook_url, content)
 
     @staticmethod
-    def send_to(url, content) -> None:
+    def send_to(url: str, content: str) -> None:
         webhook = DiscordWebhook(url=url, rate_limit_retry=True, content=content)
         webhook.execute()
+
+    @staticmethod
+    def send_thread(url: str, thread_name: str, thread_original_post: str, thread_messages: list[str]) -> None:
+        thread_response = requests.post(
+            url=url,
+            json={
+                "content": thread_original_post,
+                "thread_name": thread_name
+            },
+            params={
+                "wait": "true"
+            }
+        ).json()
+
+        thread_id = thread_response["channel_id"]
+
+        for thread_message in thread_messages:
+            requests.post(
+                url=url,
+                json={
+                    "content": thread_message,
+                },
+                params={
+                    "wait": "true",
+                    "thread_id": thread_id
+                }
+            )
