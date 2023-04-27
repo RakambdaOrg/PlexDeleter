@@ -1,5 +1,5 @@
 tautulli==3.2.1.2120
 mariadb==1.1.6
-requests==2.28.2
+requests==2.29.0
 discord-webhook==1.1.0
 pydash==7.0.1
