@@ -59,7 +59,7 @@ class Database:
                              [group_id, MediaRequirementStatus.WAITING.value])
 
     def media_get_fully_watched_to_delete(self) -> list[Media]:
-        return self.__select("SELECT M.Id, M.OverseerrId, M.Name, M.Season, M.Type, M.Status, M.ActionStatus, MIN(IF(MR.Status = 'WATCHED', 1, 0)) AS GroupWatched FROM MediaRequirement MR INNER JOIN Media M ON MR.MediaId = M.Id WHERE M.ActionStatus=? AND M.Status=? GROUP BY MediaId HAVING GroupWatched > 0",
+        return self.__select("SELECT M.Id, M.OverseerrId, M.Name, M.Season, M.Type, M.Status, M.ActionStatus, MIN(IF(MR.Status IN ('WATCHED', 'ABANDONED'), 1, 0)) AS GroupWatched FROM MediaRequirement MR INNER JOIN Media M ON MR.MediaId = M.Id WHERE M.ActionStatus=? AND M.Status=? GROUP BY MediaId HAVING GroupWatched > 0",
                              lambda row: Media(row[0], row[1], row[2], row[3], MediaType(row[4]), MediaStatus(row[5]), MediaActionStatus(row[6])),
                              [MediaActionStatus.TO_DELETE.value, MediaStatus.FINISHED.value])
 
