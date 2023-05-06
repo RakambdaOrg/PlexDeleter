@@ -36,6 +36,7 @@ class Deleter:
                 metadata.extend(sub_metadata)
             else:
                 self.__logger.info(f"Skipped {media} because most recent file is from {max_date} which is not older than 2 days")
+                return
         else:
             self.__logger.warning(f"Could not find metadata & files for {media}")
             self.__discord.notify_cannot_delete(media)
