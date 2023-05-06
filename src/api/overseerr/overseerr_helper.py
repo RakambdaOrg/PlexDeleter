@@ -43,3 +43,25 @@ class OverseerrHelper:
         return MediaUrls(overseerr_url,
                          media_info["plexUrl"] if media_info and "plexUrl" in media_info else None,
                          media_info["iOSPlexUrl"] if media_info and "iOSPlexUrl" in media_info else None)
+
+    def get_tvdb_id(self, media_id: int, media_type: MediaType) -> Optional[int]:
+        tvdb_id = None
+        if media_type == MediaType.SHOW:
+            data = self.api.get_tv_details(media_id)
+            tvdb_id = pydash.get(data, f"mediaInfo.tvdbId", None)
+        elif media_type == MediaType.MOVIE:
+            data = self.api.get_movie_details(media_id)
+            tvdb_id = pydash.get(data, f"mediaInfo.tvdbId", None)
+
+        return int(tvdb_id) if tvdb_id else None
+
+    def get_tmdb_id(self, media_id: int, media_type: MediaType) -> Optional[int]:
+        tmdb_id = None
+        if media_type == MediaType.SHOW:
+            data = self.api.get_tv_details(media_id)
+            tmdb_id = pydash.get(data, f"mediaInfo.tmdbId", None)
+        elif media_type == MediaType.MOVIE:
+            data = self.api.get_movie_details(media_id)
+            tmdb_id = pydash.get(data, f"mediaInfo.tmdbId", None)
+
+        return int(tmdb_id) if tmdb_id else None

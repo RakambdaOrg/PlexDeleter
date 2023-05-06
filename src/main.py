@@ -10,6 +10,10 @@ from api.overseerr.overseerr_api import OverseerrApi
 from api.overseerr.overseerr_helper import OverseerrHelper
 from action.deleter import Deleter
 from api.discord.discord_helper import DiscordHelper
+from api.radarr.radarr_api import RadarrApi
+from api.radarr.radarr_helper import RadarrHelper
+from api.sonarr.sonarr_api import SonarrApi
+from api.sonarr.sonarr_helper import SonarrHelper
 from api.tautulli.tautulli_api import TautulliApi
 from api.tautulli.tautulli_helper import TautulliHelper
 from database.database import Database
@@ -54,11 +58,17 @@ if __name__ == "__main__":
         overseerr_api = OverseerrApi(get_env("OVERSEERR_URL"), get_env("OVERSEERR_KEY"))
         overseerr_helper = OverseerrHelper(overseerr_api)
 
+        radarr_api = RadarrApi(get_env("RADARR_URL"), get_env("RADARR_KEY"))
+        radarr_helper = RadarrHelper(radarr_api)
+
+        sonarr_api = SonarrApi(get_env("SONARR_URL"), get_env("SONARR_KEY"))
+        sonarr_helper = SonarrHelper(sonarr_api)
+
         discord_notifier = DiscordNotifier(overseerr_helper, discord_helper)
         discord_notifier_thread = DiscordNotifierThread(overseerr_helper, discord_helper)
         mail_notifier = MailNotifier(mailer, overseerr_helper)
 
-        status_updater = StatusUpdater(database, tautulli_helper, overseerr_helper, discord_helper)
+        status_updater = StatusUpdater(database, tautulli_helper, overseerr_helper, discord_helper, radarr_helper, sonarr_helper)
         watch_updater = WatchUpdater(database, tautulli_helper, overseerr_helper, discord_helper)
         deleter = Deleter(get_env("REMOTE_PATH"), get_env("LOCAL_PATH"), get_env("DRY_RUN", required=False, default="false").lower() == "true", database, tautulli_helper, overseerr_helper, discord_helper)
         notifier = Notifier(database, mail_notifier, discord_notifier, discord_notifier_thread)
