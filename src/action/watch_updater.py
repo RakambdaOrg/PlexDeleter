@@ -31,12 +31,14 @@ class WatchUpdater:
         if not rating_key:
             self.__logger.warning(f"Could not find media rating keys for {media}, not available?")
             user_media_status.add_unknown_index()
+            self.__discord.notify_cannot_update_watch(media)
             return user_media_status
 
         season_rating_key = self.__tautulli.get_season_rating_key(rating_key, media.season_number)
         if not season_rating_key:
             self.__logger.warning(f"Could not find season {media.season_number}media rating keys for {media}, not available?")
             user_media_status.add_unknown_index()
+            self.__discord.notify_cannot_update_watch(media)
             return user_media_status
 
         all_metadata = self.__tautulli.get_movie_and_all_episodes_metadata(season_rating_key)

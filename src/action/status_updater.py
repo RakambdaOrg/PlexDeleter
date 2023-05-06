@@ -28,6 +28,7 @@ class StatusUpdater:
         rating_key = self.__overseerr.get_plex_rating_key(media.overseerr_id, media.type)
         if not rating_key:
             self.__logger.warning(f"Skipped updating {media}, no rating key found for given media")
+            self.__discord.notify_cannot_update(media)
             return
 
         if media.type == MediaType.MOVIE:
@@ -45,6 +46,6 @@ class StatusUpdater:
             self.__mark_finished(media)
 
     def __mark_finished(self, media: Media) -> None:
-        self.__logger.warning('Setting media as finished')
+        self.__logger.info('Setting media as finished')
         self.__database.media_set_finished(media.id)
         self.__discord.notify_set_finished(media)

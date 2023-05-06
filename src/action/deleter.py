@@ -5,6 +5,7 @@ from api.discord.discord_helper import DiscordHelper
 from api.overseerr.overseerr_helper import OverseerrHelper
 from api.tautulli.tautulli_helper import TautulliHelper
 from database.database import Database
+from database.media import Media
 
 
 class Deleter:
@@ -20,20 +21,25 @@ class Deleter:
 
     def delete(self) -> None:
         medias = self.__database.media_get_fully_watched_to_delete()
-        metadata = []
         for media in medias:
-            rating_key = self.__overseerr.get_plex_rating_key(media.overseerr_id, media.type)
-            season_rating_key = self.__tautulli.get_season_rating_key(rating_key, media.season_number)
-            if season_rating_key:
-                sub_metadata = self.__tautulli.get_movie_and_all_episodes_metadata(season_rating_key)
-                timestamp = max(map(lambda meta: int(meta["added_at"] or "0"), sub_metadata), default=0)
-                max_date = datetime.fromtimestamp(timestamp)
-                if datetime.now() - max_date >= timedelta(days=2):
-                    metadata.extend(sub_metadata)
-                else:
-                    self.__logger.info(f"Skipped {media} because most recent file is from {max_date} which is not older than 2 days")
+            self.__delete_media(media)
+
+    def __delete_media(self, media: Media) -> None:
+        metadata = []
+        rating_key = self.__overseerr.get_plex_rating_key(media.overseerr_id, media.type)
+        season_rating_key = self.__tautulli.get_season_rating_key(rating_key, media.season_number)
+        if season_rating_key:
+            sub_metadata = self.__tautulli.get_movie_and_all_episodes_metadata(season_rating_key)
+            timestamp = max(map(lambda meta: int(meta["added_at"] or "0"), sub_metadata), default=0)
+            max_date = datetime.fromtimestamp(timestamp)
+            if datetime.now() - max_date >= timedelta(days=2):
+                metadata.extend(sub_metadata)
             else:
-                self.__logger.warning(f"Could not find metadata & files for {media}, considering it already deleted")
+                self.__logger.info(f"Skipped {media} because most recent file is from {max_date} which is not older than 2 days")
+        else:
+            self.__logger.warning(f"Could not find metadata & files for {media}")
+            self.__discord.notify_cannot_delete(media)
+            return
 
         files = set()
         for m in metadata:
@@ -46,9 +52,8 @@ class Deleter:
                     files.add(local_file)
 
         self.__delete_recursive(files)
-        for media in medias:
-            self.__database.media_set_deleted(media.id)
-            self.__discord.notify_media_deleted(media)
+        self.__database.media_set_deleted(media.id)
+        self.__discord.notify_media_deleted(media)
 
     def __delete_recursive(self, files: set[Path]) -> None:
         all_parents = set()

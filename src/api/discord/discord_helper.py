@@ -23,6 +23,15 @@ class DiscordHelper:
     def notify_watched(self, media: Media, user_group: UserGroup) -> None:
         self.__send(f"{user_group.name} watched {media.name}")
 
+    def notify_cannot_delete(self, media: Media):
+        self.__send(f"Could not delete because no rating key {media}")
+
+    def notify_cannot_update(self, media: Media):
+        self.__send(f"Could not update status because no rating key {media}")
+
+    def notify_cannot_update_watch(self, media: Media):
+        self.__send(f"Could not update watch status because no rating key {media}")
+
     def __send(self, content: str) -> None:
         if not self.__webhook_url:
             return
