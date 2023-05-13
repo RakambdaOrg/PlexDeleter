@@ -33,7 +33,7 @@ class TautulliHelper:
         if not episodes or len(episodes) == 0:
             return 0
 
-        return int(max(episodes))
+        return max(map(lambda a: int(a), episodes))
 
     def get_season_rating_key(self, rating_key: int, season_number: int) -> Optional[int]:
         if not season_number:
