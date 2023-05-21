@@ -96,4 +96,5 @@ class Deleter:
             .union(set(file.parent.glob(f"*.metathumb"))) \
             .union(set(file.parent.glob(f"*.png"))) \
             .union(set(file.parent.glob(f"*.jpg"))) \
+            .union(set(file.parent.glob(f"*.jpeg"))) \
             .union(set(file.parent.glob(f"@eaDir/*")))
