@@ -13,7 +13,7 @@ from database.user_person import UserPerson
 
 
 class WatchUpdater:
-    def __init__(self, database: Database, tautulli: TautulliHelper, overseerr: OverseerrHelper, discord: DiscordHelper, completion_required: int = 90):
+    def __init__(self, database: Database, tautulli: TautulliHelper, overseerr: OverseerrHelper, discord: DiscordHelper, completion_required: int = 85):
         self.__logger = logging.getLogger(__name__)
         self.__database = database
         self.__tautulli = tautulli
