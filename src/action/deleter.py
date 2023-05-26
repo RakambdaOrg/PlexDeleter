@@ -53,8 +53,9 @@ class Deleter:
                     files.add(local_file)
 
         self.__delete_recursive(files)
-        self.__database.media_set_deleted(media.id)
-        self.__discord.notify_media_deleted(media)
+        if not self.__dry_run:
+            self.__database.media_set_deleted(media.id)
+            self.__discord.notify_media_deleted(media)
 
     def __delete_recursive(self, files: set[Path]) -> None:
         all_parents = set()
