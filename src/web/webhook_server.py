@@ -30,7 +30,7 @@ class WebhookServer:
         self.__logger = logging.getLogger(__name__)
 
         self.__app = Flask("PlexDeleter")
-        self.__app.get('/maintenance')(self.run_maintenance)
+        self.__app.get('/maintenance')(self.maintenance)
         self.__app.post('/webhook')(self.webhook)
 
     def run(self):
