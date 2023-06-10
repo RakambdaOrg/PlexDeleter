@@ -26,7 +26,7 @@ class WebhookServer:
         self.__notifier = notifier
 
         self.__app = Flask("PlexDeleter")
-        self.__app.get('/run_maintenance')(self.run_maintenance)
+        self.__app.get('/maintenance')(self.run_maintenance)
         self.__app.post('/webhook')(self.webhook)
 
     def run(self):
@@ -52,11 +52,11 @@ class WebhookServer:
 
         return Response(status=200)
 
-    def run_maintenance(self) -> Response:
-        asyncio.ensure_future(self.maintenance())
+    def maintenance(self) -> Response:
+        asyncio.ensure_future(self.run_maintenance())
         return Response(status=200)
 
-    async def maintenance(self):
+    async def run_maintenance(self):
         self.__status_updater.update()
         user_group_statuses = self.__watch_updater.update()
         self.__deleter.delete()
