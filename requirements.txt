@@ -4,4 +4,4 @@ requests==2.31.0
 discord-webhook==1.1.0
 pydash==7.0.4
 Flask==2.3.2
-waitress=2.1.2
+waitress==2.1.2
