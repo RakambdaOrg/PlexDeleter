@@ -2,6 +2,7 @@ import asyncio
 from typing import Optional
 
 from flask import Flask, request, Response
+from waitress import serve
 
 from action.deleter import Deleter
 from action.notifier import Notifier
@@ -30,7 +31,7 @@ class WebhookServer:
         self.__app.post('/webhook')(self.webhook)
 
     def run(self):
-        self.__app.run(host='0.0.0.0', port=5000)
+        serve(self.__app, host="0.0.0.0", port=8080)
 
     def webhook(self) -> Response:
         payload = request.json
