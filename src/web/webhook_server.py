@@ -59,7 +59,7 @@ class WebhookServer:
 
         return Response(status=200)
 
-    async def maintenance(self) -> Response:
+    def maintenance(self) -> Response:
         self.__logger.info("Received maintenance request")
         thread = Thread(target=self.run_maintenance)
         thread.start()
