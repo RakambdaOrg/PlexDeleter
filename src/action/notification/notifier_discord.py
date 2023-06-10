@@ -22,9 +22,9 @@ class DiscordNotifier(CommonNotifier):
         locale = user_group.locale
         header = self._get_header(locale)
 
-        self.__discord.send_to(webhook_url, f"{user_mention} {header}")
+        self.__discord.send_to(webhook_url, f"{user_mention}\n# {header}")
         for media in medias:
-            self.__discord.send_to(webhook_url, self.__get_markdown_body(locale, media, user_group_status))
+            self.__discord.send_to(webhook_url, "* " + self.__get_markdown_body(locale, media, user_group_status))
         self.__logger.info("Discord webhook sent")
 
     def __get_markdown_body(self, locale: str, media: Media, user_group_status: UserGroupStatus) -> str:
