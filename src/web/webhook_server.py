@@ -60,7 +60,7 @@ class WebhookServer:
 
     def maintenance(self) -> Response:
         self.__logger.info("Received maintenance request")
-        asyncio.ensure_future(self.run_maintenance())
+        asyncio.create_task(self.run_maintenance())
         return Response(status=200)
 
     async def run_maintenance(self):
