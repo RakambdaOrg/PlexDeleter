@@ -1,4 +1,5 @@
 import logging
+from threading import Thread
 from typing import Optional
 
 import flask
@@ -60,13 +61,8 @@ class WebhookServer:
 
     async def maintenance(self) -> Response:
         self.__logger.info("Received maintenance request")
-
-        @flask.after_this_request
-        def add_close_action(response):
-            @response.call_on_close
-            def process_after_request():
-                self.run_maintenance()
-
+        thread = Thread(target=self.run_maintenance)
+        thread.start()
         return Response(status=200)
 
     def run_maintenance(self):
