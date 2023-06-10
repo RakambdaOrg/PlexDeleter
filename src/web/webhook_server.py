@@ -1,3 +1,4 @@
+import asyncio
 from typing import Optional
 
 from flask import Flask, request, Response
@@ -31,7 +32,7 @@ class WebhookServer:
     def run(self):
         self.__app.run(host='0.0.0.0', port=5000)
 
-    def webhook(self):
+    def webhook(self) -> Response:
         payload = request.json
         notification_type = payload["notification_type"]
         if notification_type not in ["MEDIA_AUTO_APPROVED", "MEDIA_APPROVED"]:
@@ -51,7 +52,11 @@ class WebhookServer:
 
         return Response(status=200)
 
-    def run_maintenance(self):
+    def run_maintenance(self) -> Response:
+        asyncio.ensure_future(self.maintenance())
+        return Response(status=200)
+
+    async def maintenance(self):
         self.__status_updater.update()
         user_group_statuses = self.__watch_updater.update()
         self.__deleter.delete()

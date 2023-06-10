@@ -74,5 +74,5 @@ if __name__ == "__main__":
         deleter = Deleter(get_env("REMOTE_PATH"), get_env("LOCAL_PATH"), get_env("DRY_RUN", required=False, default="false").lower() == "true", database, tautulli_helper, overseerr_helper, discord_helper)
         notifier = Notifier(database, mail_notifier, discord_notifier, discord_notifier_thread)
 
-        webhook_server = WebhookServer(overseerr_helper, database, discord_helper)
+        webhook_server = WebhookServer(overseerr_helper, database, discord_helper, status_updater, watch_updater, deleter, notifier)
         webhook_server.run()
