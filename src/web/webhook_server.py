@@ -1,4 +1,5 @@
 import asyncio
+import logging
 from typing import Optional
 
 from flask import Flask, request, Response
@@ -25,6 +26,7 @@ class WebhookServer:
         self.__watch_updater = watch_updater
         self.__deleter = deleter
         self.__notifier = notifier
+        self.__logger = logging.getLogger(__name__)
 
         self.__app = Flask("PlexDeleter")
         self.__app.get('/maintenance')(self.run_maintenance)
@@ -35,8 +37,11 @@ class WebhookServer:
 
     def webhook(self) -> Response:
         payload = request.json
+        self.__logger.info(f"Received webhook call with payload {payload}")
+
         notification_type = payload["notification_type"]
         if notification_type not in ["MEDIA_AUTO_APPROVED", "MEDIA_APPROVED"]:
+            self.__logger.warning("Invalid notification type")
             return Response(status=400)
 
         plex_user_id = self.__overseerr.get_requester_plex_id(payload["request"]["request_id"])
@@ -54,6 +59,7 @@ class WebhookServer:
         return Response(status=200)
 
     def maintenance(self) -> Response:
+        self.__logger.info("Received maintenance request")
         asyncio.ensure_future(self.run_maintenance())
         return Response(status=200)
 
@@ -78,6 +84,7 @@ class WebhookServer:
         return seasons
 
     def handle_season(self, overseerr_id: int, name: str, plex_user_id: int, season: Optional[int], media_type: MediaType):
+        self.__logger.info(f"Handling requirement request for media with overseerr id {overseerr_id} (Season {season}) on plex id {plex_user_id}")
         medias = self.__database.media_get_by_overseerr_id(overseerr_id, season)
         user_groups = self.__database.user_group_get_with_plex_id(plex_user_id)
 
@@ -85,9 +92,11 @@ class WebhookServer:
             self.__database.media_add(overseerr_id, name, season, media_type, MediaStatus.RELEASING, MediaActionStatus.TO_DELETE)
             medias = self.__database.media_get_by_overseerr_id(overseerr_id, season)
             for media in medias:
+                self.__logger.info(f"Added media {media}")
                 self.__discord.notify_media_added(media)
 
         for media in medias:
             for user_group in user_groups:
+                self.__logger.info(f"Added media requirement for {user_group} on {media}")
                 self.__database.media_requirement_add(media.id, user_group.id)
                 self.__discord.notify_media_requirement_added(media, user_group)
