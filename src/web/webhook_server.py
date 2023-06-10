@@ -1,7 +1,7 @@
-import asyncio
 import logging
 from typing import Optional
 
+import flask
 from flask import Flask, request, Response
 from waitress import serve
 
@@ -58,12 +58,18 @@ class WebhookServer:
 
         return Response(status=200)
 
-    def maintenance(self) -> Response:
+    async def maintenance(self) -> Response:
         self.__logger.info("Received maintenance request")
-        asyncio.create_task(self.run_maintenance())
+
+        @flask.after_this_request
+        def add_close_action(response):
+            @response.call_on_close
+            def process_after_request():
+                self.run_maintenance()
+
         return Response(status=200)
 
-    async def run_maintenance(self):
+    def run_maintenance(self):
         self.__status_updater.update()
         user_group_statuses = self.__watch_updater.update()
         self.__deleter.delete()
