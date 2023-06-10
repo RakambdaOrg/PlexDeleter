@@ -84,6 +84,10 @@ class Database:
         self.__conn.commit()
 
     def media_get_by_overseerr_id(self, overseerr_id: int, season: Optional[int]) -> list[Media]:
+        if not season:
+            return self.__select("SELECT  Id, OverseerrId, Name, Season, Type, Status, ActionStatus FROM Media WHERE OverseerrId=? AND Season IS NULL",
+                                 lambda row: Media(row[0], row[1], row[2], row[3], MediaType(row[4]), MediaStatus(row[5]), MediaActionStatus(row[6])),
+                                 [overseerr_id])
         return self.__select("SELECT  Id, OverseerrId, Name, Season, Type, Status, ActionStatus FROM Media WHERE OverseerrId=? AND Season=?",
                              lambda row: Media(row[0], row[1], row[2], row[3], MediaType(row[4]), MediaStatus(row[5]), MediaActionStatus(row[6])),
                              [overseerr_id, season])
