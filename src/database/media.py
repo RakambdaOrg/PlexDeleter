@@ -1,4 +1,5 @@
 from dataclasses import dataclass, field
+from typing import Optional
 
 from database.media_action_status import MediaActionStatus
 from database.media_status import MediaStatus
@@ -10,7 +11,7 @@ class Media:
     id: int = field(hash=True, compare=True)
     overseerr_id: int = field(hash=False, compare=False)
     name: str = field(hash=False, compare=False)
-    season_number: int = field(hash=False, compare=False)
+    season_number: Optional[int] = field(hash=False, compare=False)
     type: MediaType = field(hash=False, compare=False)
     status: MediaStatus = field(hash=False, compare=False)
     action_status: MediaActionStatus = field(hash=False, compare=False)

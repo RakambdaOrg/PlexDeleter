@@ -1,6 +1,6 @@
 import array
 import datetime
-from typing import TypeVar, Callable
+from typing import TypeVar, Callable, Optional
 
 import mariadb
 
@@ -48,8 +48,13 @@ class Database:
                               [date, group_id])
         self.__conn.commit()
 
+    def user_group_get_with_plex_id(self, plex_user_id: int) -> list[UserGroup]:
+        return self.__select("SELECT UG.Id, UG.Name, UG.NotificationType, UG.NotificationValue, UG.Locale, UG.LastNotification FROM UserGroup UG INNER JOIN UserMapping UM ON UG.Id = UM.GroupId INNER JOIN UserPerson UP ON UM.PersonId = UP.Id WHERE UP.PlexId=?",
+                             lambda row: UserGroup(row[0], row[1], NotificationType(row[2]), row[3], row[4], row[5]),
+                             [plex_user_id])
+
     def media_get_all_releasing(self) -> list[Media]:
-        return self.__select("SELECT Id, OverseerrId, Name, Season, Type, Status, ActionStatus FROM Media WHERE Status=? AND OverseerrId IS NOT NULL",
+        return self.__select("SELECT Id, OverseerrId, Name, Season, Type, Status, ActionStatus FROM Media WHERE Status=?",
                              lambda row: Media(row[0], row[1], row[2], row[3], MediaType(row[4]), MediaStatus(row[5]), MediaActionStatus(row[6])),
                              [MediaStatus.RELEASING.value])
 
@@ -63,7 +68,7 @@ class Database:
                              lambda row: Media(row[0], row[1], row[2], row[3], MediaType(row[4]), MediaStatus(row[5]), MediaActionStatus(row[6])),
                              [MediaActionStatus.TO_DELETE.value, MediaStatus.FINISHED.value])
 
-    def media_get_waiting_for_user_group(self, group_id) -> list[Media]:
+    def media_get_waiting_for_user_group(self, group_id: int) -> list[Media]:
         return self.__select("SELECT  M.Id, M.OverseerrId, M.Name, M.Season, M.Type, M.Status, M.ActionStatus FROM MediaRequirement MR INNER JOIN Media M on MR.MediaId = M.Id WHERE MR.GroupId=? AND MR.Status=?",
                              lambda row: Media(row[0], row[1], row[2], row[3], MediaType(row[4]), MediaStatus(row[5]), MediaActionStatus(row[6])),
                              [group_id, MediaRequirementStatus.WAITING.value])
@@ -78,9 +83,24 @@ class Database:
                               [MediaActionStatus.DELETED.value, media_id])
         self.__conn.commit()
 
+    def media_get_by_overseerr_id(self, overseerr_id: int, season: Optional[int]) -> list[Media]:
+        return self.__select("SELECT  Id, OverseerrId, Name, Season, Type, Status, ActionStatus FROM Media WHERE OverseerrId=? AND Season=?",
+                             lambda row: Media(row[0], row[1], row[2], row[3], MediaType(row[4]), MediaStatus(row[5]), MediaActionStatus(row[6])),
+                             [overseerr_id, season])
+
+    def media_add(self, overseerr_id: int, name: str, season: Optional[int], type: MediaType, status: MediaStatus, action_status: MediaActionStatus) -> None:
+        self.__cursor.execute("INSERT INTO Media(OverseerrId, Name, Season, Type, Status, ActionStatus) VALUES (?,?,?,?,?,?)",
+                              [overseerr_id, name, season, type.value, status.value, action_status.value])
+        self.__conn.commit()
+
     def media_requirement_set_watched(self, media_id: int, group_id: int) -> None:
         self.__cursor.execute("UPDATE MediaRequirement SET Status=? WHERE MediaId=? AND GroupId=?",
                               [MediaRequirementStatus.WATCHED.value, media_id, group_id])
+        self.__conn.commit()
+
+    def media_requirement_add(self, media_id: int, user_group_id: int):
+        self.__cursor.execute("INSERT INTO MediaRequirement(MediaId, GroupId) VALUES(?,?) ON DUPLICATE KEY UPDATE MediaId=?",
+                              [media_id, user_group_id, media_id])
         self.__conn.commit()
 
     def __select(self, query: str, parser: Callable[[array], T], args=None) -> list[T]:

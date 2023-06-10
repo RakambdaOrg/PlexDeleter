@@ -17,6 +17,12 @@ class DiscordHelper:
     def notify_media_deleted(self, media: Media):
         self.__send(f"Deleted media {media.id}: {media.name} (Season {media.season_number})")
 
+    def notify_media_added(self, media: Media):
+        self.__send(f"Added media {media.id}: {media.name} (Season {media.season_number})")
+
+    def notify_media_requirement_added(self, media: Media, user_group: UserGroup):
+        self.__send(f"Added media requirement for {user_group.name} on {media.id}: {media.name} (Season {media.season_number})")
+
     def notify_set_finished(self, media: Media) -> None:
         self.__send(f"Marked {media.id} as finished: {media.name} (Season {media.season_number})")
 

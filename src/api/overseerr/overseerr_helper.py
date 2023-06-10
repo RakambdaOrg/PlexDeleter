@@ -2,8 +2,8 @@ from typing import Optional
 
 import pydash
 
-from api.overseerr.overseerr_api import OverseerrApi
 from api.overseerr.media_urls import MediaUrls
+from api.overseerr.overseerr_api import OverseerrApi
 from database.media_type import MediaType
 
 
@@ -65,3 +65,7 @@ class OverseerrHelper:
             tmdb_id = pydash.get(data, f"mediaInfo.tmdbId", None)
 
         return int(tmdb_id) if tmdb_id else None
+
+    def get_requester_plex_id(self, request_id: int) -> Optional[int]:
+        data = self.api.get_request(request_id)
+        return pydash.get(data, f"requestedBy.plexId", None)
