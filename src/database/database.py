@@ -31,87 +31,87 @@ class Database:
     def user_person_get_all_in_group(self, group_id: int) -> list[UserPerson]:
         return self.__select("SELECT UP.Id, UP.Name, UP.PlexId FROM UserPerson UP "
                              "INNER JOIN UserMapping UM ON UP.Id = UM.PersonId "
-                             "WHERE UM.GroupId=%s",
+                             "WHERE UM.GroupId=%(group_id)s",
                              self.__user_person_mapper,
-                             [group_id])
+                             {'group_id': group_id})
 
     def user_group_get_all(self) -> list[UserGroup]:
         return self.__select("SELECT Id, Name, NotificationType, NotificationValue, Locale, LastNotification FROM UserGroup",
                              self.__user_group_mapper)
 
     def user_group_set_last_notified(self, group_id: int, date: datetime.datetime) -> None:
-        self.__execute_and_commit("UPDATE UserGroup SET LastNotification=%s WHERE Id=%s",
-                                  [date, group_id])
+        self.__execute_and_commit("UPDATE UserGroup SET LastNotification=%(date)s WHERE Id=%(group_id)s",
+                                  {'date': date, 'group_id': group_id})
 
     def user_group_get_with_plex_id(self, plex_user_id: int) -> list[UserGroup]:
         return self.__select("SELECT UG.Id, UG.Name, UG.NotificationType, UG.NotificationValue, UG.Locale, UG.LastNotification FROM UserGroup UG "
                              "INNER JOIN UserMapping UM ON UG.Id = UM.GroupId "
                              "INNER JOIN UserPerson UP ON UM.PersonId = UP.Id "
-                             "WHERE UP.PlexId=%s",
+                             "WHERE UP.PlexId=%(plex_user_id)s",
                              self.__user_group_mapper,
-                             [plex_user_id])
+                             {'plex_user_id': plex_user_id})
 
     def media_get_all_releasing(self) -> list[Media]:
         return self.__select("SELECT Id, OverseerrId, Name, Season, Type, Status, ActionStatus FROM Media "
-                             "WHERE Status=%s",
+                             "WHERE Status=%(media_status)s",
                              self.__media_mapper,
-                             [MediaStatus.RELEASING.value])
+                             {'media_status': MediaStatus.RELEASING.value})
 
     def media_get_waiting_for_group(self, group_id: int) -> list[Media]:
         return self.__select("SELECT M.Id, M.OverseerrId, M.Name, M.Season, M.Type, M.Status, M.ActionStatus FROM MediaRequirement MR "
                              "INNER JOIN Media M ON MR.MediaId = M.Id "
-                             "WHERE MR.GroupId=%s AND MR.Status=%s",
+                             "WHERE MR.GroupId=%(group_id)s AND MR.Status=%(media_requirement_status)s",
                              self.__media_mapper,
-                             [group_id, MediaRequirementStatus.WAITING.value])
+                             {'group_id': group_id, 'media_requirement_status': MediaRequirementStatus.WAITING.value})
 
     def media_get_fully_watched_to_delete(self) -> list[Media]:
         return self.__select("SELECT M.Id, M.OverseerrId, M.Name, M.Season, M.Type, M.Status, M.ActionStatus, MIN(IF(MR.Status IN ('WATCHED', 'ABANDONED'), 1, 0)) AS GroupWatched "
                              "FROM MediaRequirement MR "
                              "INNER JOIN Media M ON MR.MediaId = M.Id "
-                             "WHERE M.ActionStatus=%s AND M.Status=%s "
+                             "WHERE M.ActionStatus=%(media_action_status)s AND M.Status=%(media_status)s "
                              "GROUP BY MediaId "
                              "HAVING GroupWatched > 0",
                              self.__media_mapper,
-                             [MediaActionStatus.TO_DELETE.value, MediaStatus.FINISHED.value])
+                             {'media_action_status': MediaActionStatus.TO_DELETE.value, 'media_status': MediaStatus.FINISHED.value})
 
     def media_get_waiting_for_user_group(self, group_id: int) -> list[Media]:
         return self.__select("SELECT M.Id, M.OverseerrId, M.Name, M.Season, M.Type, M.Status, M.ActionStatus FROM MediaRequirement MR "
                              "INNER JOIN Media M on MR.MediaId = M.Id "
-                             "WHERE MR.GroupId=%s AND MR.Status=%s",
+                             "WHERE MR.GroupId=%(group_id)s AND MR.Status=%(media_requirement_status)s",
                              self.__media_mapper,
-                             [group_id, MediaRequirementStatus.WAITING.value])
+                             {'group_id': group_id, 'media_requirement_status': MediaRequirementStatus.WAITING.value})
 
     def media_set_finished(self, media_id: int) -> None:
-        self.__execute_and_commit("UPDATE Media SET Status=%s WHERE Id=%s",
-                                  [MediaStatus.FINISHED.value, media_id])
+        self.__execute_and_commit("UPDATE Media SET Status=%(status)s WHERE Id=%(id)s",
+                                  {'status': MediaStatus.FINISHED.value, 'id': media_id})
 
     def media_set_deleted(self, media_id: int) -> None:
-        self.__execute_and_commit("UPDATE Media SET ActionStatus=%s WHERE Id=%s",
-                                  [MediaActionStatus.DELETED.value, media_id])
+        self.__execute_and_commit("UPDATE Media SET ActionStatus=%(action_status)s WHERE Id=%(id)s",
+                                  {'action_status': MediaActionStatus.DELETED.value, 'id': media_id})
 
     def media_get_by_overseerr_id(self, overseerr_id: int, season: Optional[int]) -> list[Media]:
         if not season:
             return self.__select("SELECT Id, OverseerrId, Name, Season, Type, Status, ActionStatus FROM Media "
-                                 "WHERE OverseerrId=%s AND Season IS NULL",
+                                 "WHERE OverseerrId=%(id)s AND Season IS NULL",
                                  self.__media_mapper,
-                                 [overseerr_id])
+                                 {'id': overseerr_id})
         return self.__select("SELECT Id, OverseerrId, Name, Season, Type, Status, ActionStatus FROM Media "
-                             "WHERE OverseerrId=%s AND Season=%s",
+                             "WHERE OverseerrId=%(id)s AND Season=%(season)s",
                              self.__media_mapper,
-                             [overseerr_id, season])
+                             {'id': overseerr_id, 'season': season})
 
-    def media_add(self, overseerr_id: int, name: str, season: Optional[int], type: MediaType, status: MediaStatus, action_status: MediaActionStatus) -> None:
-        self.__execute_and_commit("INSERT INTO Media(OverseerrId, Name, Season, Type, Status, ActionStatus) VALUES (%s,%s,%s,%s,%s,%s)",
-                                  [overseerr_id, name, season, type.value, status.value, action_status.value])
+    def media_add(self, overseerr_id: int, name: str, season: Optional[int], media_type: MediaType, status: MediaStatus, action_status: MediaActionStatus) -> None:
+        self.__execute_and_commit("INSERT INTO Media(OverseerrId, Name, Season, Type, Status, ActionStatus) VALUES (%(overseerr_id)s,%(name)s,%(season)s,%(type)s,%(status)s,%(action_status)s)",
+                                  {'overseerr_id': overseerr_id, 'name': name, 'season': season, 'type': media_type.value, 'status': status.value, 'action_status': action_status.value})
 
     def media_requirement_set_watched(self, media_id: int, group_id: int) -> None:
-        self.__execute_and_commit("UPDATE MediaRequirement SET Status=%s "
-                                  "WHERE MediaId=%s AND GroupId=%s",
-                                  [MediaRequirementStatus.WATCHED.value, media_id, group_id])
+        self.__execute_and_commit("UPDATE MediaRequirement SET Status=%(status)s "
+                                  "WHERE MediaId=%(media_id)s AND GroupId=%(group_id)s",
+                                  {'status': MediaRequirementStatus.WATCHED.value, 'media_id': media_id, 'group_id': group_id})
 
     def media_requirement_add(self, media_id: int, user_group_id: int):
-        self.__execute_and_commit("INSERT INTO MediaRequirement(MediaId, GroupId) VALUES(%s,%s) ON DUPLICATE KEY UPDATE MediaId=%s",
-                                  [media_id, user_group_id, media_id])
+        self.__execute_and_commit("INSERT INTO MediaRequirement(MediaId, GroupId) VALUES(%(media_id)s,%(user_group_id)s) ON DUPLICATE KEY UPDATE MediaId=%(media_id)s",
+                                  {'media_id': media_id, 'user_group_id': user_group_id})
 
     def __execute_and_commit(self, query: str, args=None) -> None:
         cursor = self.__execute(query, args)
@@ -126,7 +126,7 @@ class Database:
         cursor.execute(query, args)
         return cursor
 
-    def __select(self, query: str, parser: Callable[[array], T], args=None) -> list[T]:
+    def __select(self, query: str, parser: Callable[[array], T], args: dict = None) -> list[T]:
         values = []
         cursor = self.__execute(query, args)
         for row in cursor:
