@@ -6,7 +6,11 @@ from typing import Optional
 
 import pydash
 
+from api.tautulli.data.user_group_watch_status import UserGroupWatchStatus
+from api.tautulli.data.user_watch_status import UserWatchStatus
+from api.tautulli.data.watch_status import WatchStatus
 from api.tautulli.tautulli_api import TautulliApi
+from database.media_type import MediaType
 
 
 class TautulliHelper:
@@ -42,13 +46,6 @@ class TautulliHelper:
         data = self.__get_all_keys_for(rating_key)
         return pydash.get(data, f"0.children.{season_number}.rating_key", None)
 
-    def has_user_watched_media(self, user_id: int, metadata: dict, completion_required: int) -> bool:
-        watched = any(map(lambda percent: percent >= completion_required,
-                          map(lambda history: history["percent_complete"],
-                              self.api.get_watch_history_for_user_and_media(user_id, int(metadata["rating_key"]))["data"])))
-        self.__logger.debug(f"{user_id} watched {metadata['media_index']} - {metadata['title']} : {watched}")
-        return watched
-
     def get_movie_and_all_episodes_metadata(self, rating_key: int) -> list[dict]:
         data = self.api.get_metadata(rating_key=rating_key)
         if not data:
@@ -75,3 +72,20 @@ class TautulliHelper:
         if "media_type" not in metadata:
             return {}
         return self.api.get_new_rating_keys(root_rating_key, metadata["media_type"])
+
+    def watched_status_for_media(self, media_type: MediaType, rating_key: int) -> UserGroupWatchStatus:
+        data = None
+        if media_type == MediaType.MOVIE:
+            data = self.api.get_watch_history_for_rating_key(rating_key)["data"]
+        elif media_type == MediaType.SHOW:
+            data = self.api.get_watch_history_for_grandparent_rating_key(rating_key)["data"]
+
+        user_group_watch_status = UserGroupWatchStatus()
+        if data:
+            for media_data in data:
+                user_id = media_data['user_id']
+                plex_id = media_data['rating_key']
+                watch_status = WatchStatus(int(pydash.get(data, f"parent_media_index", '0')), int(pydash.get(data, f"media_index", '0')), media_data["percent_complete"])
+                user_group_watch_status.add_watch_status(user_id, plex_id, watch_status)
+
+        return user_group_watch_status

@@ -21,9 +21,6 @@ class WatchUpdater:
         self.__discord = discord
         self.__completion_required = completion_required
 
-    def __has_person_watched_all_medias(self, user_person: UserPerson, medias_metadata: list[dict]) -> list[dict]:
-        return list(filter(lambda metadata: self.__tautulli.has_user_watched_media(user_person.plex_id, metadata, self.__completion_required) is False, medias_metadata))
-
     def __has_persons_watched_media(self, media: Media, user_persons: list[UserPerson]) -> UserMediaStatus:
         self.__logger.debug(f"Querying watch status of {media} for persons {user_persons}")
         user_media_status = UserMediaStatus()
@@ -42,10 +39,12 @@ class WatchUpdater:
             return user_media_status
 
         all_metadata = self.__tautulli.get_movie_and_all_episodes_metadata(season_rating_key)
+        user_group_watch_status = self.__tautulli.watched_status_for_media(media.type, rating_key)
         for metadata in all_metadata:
             watched = False
             for user_person in user_persons:
-                watched |= self.__tautulli.has_user_watched_media(user_person.plex_id, metadata, self.__completion_required)
+                media_plex_id = metadata['rating_key']
+                watched |= self.__completion_required <= user_group_watch_status.get_watch_status(user_person.plex_id).get_watch_percentage(media_plex_id)
             if not watched:
                 user_media_status.add_index(int(metadata['media_index']) if metadata['media_index'] else 0)
         return user_media_status
