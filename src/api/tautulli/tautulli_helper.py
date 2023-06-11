@@ -51,7 +51,7 @@ class TautulliHelper:
     def __get_element_rating_key(self, data: dict, index: int) -> ElementRatingKey:
         element = ElementRatingKey(data["rating_key"], index)
         if "children" in data:
-            for child_index, child_data in data["children"]:
+            for child_index, child_data in data["children"].items():
                 element.add_child(self.__get_element_rating_key(child_data, int(child_index)))
         return element
 
