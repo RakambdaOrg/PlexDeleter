@@ -53,7 +53,7 @@ class WatchUpdater:
     def __update_group(self, user_group: UserGroup) -> UserGroupStatus:
         self.__logger.info(f"Updating {user_group}")
         user_persons = self.__database.user_person_get_all_in_group(user_group.id)
-        medias = self.__database.media_get_waiting_for_group(user_group.id)
+        medias = self.__database.media_get_waiting_for_user_group(user_group.id)
 
         user_group_status = UserGroupStatus()
         for media in medias:

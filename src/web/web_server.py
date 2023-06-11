@@ -1,4 +1,5 @@
 import logging
+from functools import reduce
 from threading import Thread
 from typing import Optional
 
@@ -30,11 +31,29 @@ class WebServer:
         self.__logger = logging.getLogger(__name__)
 
         self.__app = Flask("PlexDeleter")
+        self.__app.get('/')(self.home)
         self.__app.get('/maintenance')(self.maintenance)
         self.__app.post('/webhook')(self.webhook)
 
     def run(self):
         serve(self.__app, host="0.0.0.0", port=8080)
+
+    def home(self) -> str:
+        all_overseerr_media = {}
+        media_data = {}
+        url_data = {}
+
+        user_groups = self.__database.user_group_get_all()
+        for user_group in user_groups:
+            medias = self.__database.media_get_waiting_for_user_group(user_group.id)
+            media_data[user_group] = medias
+            for media in medias:
+                all_overseerr_media[media.overseerr_id] = media
+
+        for media in all_overseerr_media.values():
+            url_data[media.overseerr_id] = self.__overseerr.get_plex_url(media.overseerr_id, media.type)
+
+        return flask.render_template('index.html', media_data=media_data, url_data=url_data)
 
     def webhook(self) -> Response:
         payload = request.json

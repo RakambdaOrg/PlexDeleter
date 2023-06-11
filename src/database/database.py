@@ -57,13 +57,6 @@ class Database:
                              self.__media_mapper,
                              {'media_status': MediaStatus.RELEASING.value})
 
-    def media_get_waiting_for_group(self, group_id: int) -> list[Media]:
-        return self.__select("SELECT M.Id, M.OverseerrId, M.Name, M.Season, M.Type, M.Status, M.ActionStatus FROM MediaRequirement MR "
-                             "INNER JOIN Media M ON MR.MediaId = M.Id "
-                             "WHERE MR.GroupId=%(group_id)s AND MR.Status=%(media_requirement_status)s",
-                             self.__media_mapper,
-                             {'group_id': group_id, 'media_requirement_status': MediaRequirementStatus.WAITING.value})
-
     def media_get_fully_watched_to_delete(self) -> list[Media]:
         return self.__select("SELECT M.Id, M.OverseerrId, M.Name, M.Season, M.Type, M.Status, M.ActionStatus, MIN(IF(MR.Status IN ('WATCHED', 'ABANDONED'), 1, 0)) AS GroupWatched "
                              "FROM MediaRequirement MR "
