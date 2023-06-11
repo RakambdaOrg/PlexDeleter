@@ -84,7 +84,7 @@ class WebServer:
     def maintenance(self) -> Response:
         if not self.__is_authorized():
             return Response(status=401)
-        
+
         self.__logger.info("Received maintenance request")
         thread = Thread(target=self.__run_maintenance)
         thread.start()
@@ -131,4 +131,4 @@ class WebServer:
 
     def __is_authorized(self):
         authorization = request.headers.get('Authorization')
-        return authorization != self.__authorization
+        return authorization == self.__authorization
