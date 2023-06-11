@@ -2,6 +2,7 @@ import logging
 
 from action.status.user_group_status import UserGroupStatus
 from action.status.user_media_status import UserMediaStatus
+from api.tautulli.data.user_group_watch_status import UserGroupWatchStatus
 from database.media import Media
 from database.media_status import MediaStatus
 from database.user_group import UserGroup
@@ -21,7 +22,7 @@ class WatchUpdater:
         self.__discord = discord
         self.__completion_required = completion_required
 
-    def __has_persons_watched_media(self, media: Media, user_persons: list[UserPerson]) -> UserMediaStatus:
+    def __has_persons_watched_media(self, media: Media, user_persons: list[UserPerson], user_group_watch_status: UserGroupWatchStatus) -> UserMediaStatus:
         self.__logger.debug(f"Querying watch status of {media} for persons {user_persons}")
         user_media_status = UserMediaStatus()
         rating_key = self.__overseerr.get_plex_rating_key(media.overseerr_id, media.type)
@@ -39,17 +40,18 @@ class WatchUpdater:
             return user_media_status
 
         all_metadata = self.__tautulli.get_movie_and_all_episodes_metadata(season_rating_key)
-        user_group_watch_status = self.__tautulli.watched_status_for_media(media.type, rating_key)
+        if not user_group_watch_status.rating_key_searched(rating_key):
+            user_group_watch_status.merge(self.__tautulli.watched_status_for_media(media.type, rating_key))
         for metadata in all_metadata:
             watched = False
             for user_person in user_persons:
                 media_plex_id = metadata['rating_key']
-                watched |= self.__completion_required <= user_group_watch_status.get_watch_status(user_person.plex_id).get_watch_percentage(media_plex_id)
+                watched |= self.__completion_required <= user_group_watch_status.get_user_watch_status(user_person.plex_id).get_watch_percentage(media_plex_id)
             if not watched:
                 user_media_status.add_index(int(metadata['media_index']) if metadata['media_index'] else 0)
         return user_media_status
 
-    def __update_group(self, user_group: UserGroup) -> UserGroupStatus:
+    def __update_group(self, user_group: UserGroup, user_group_watch_status: UserGroupWatchStatus) -> UserGroupStatus:
         self.__logger.info(f"Updating {user_group}")
         user_persons = self.__database.user_person_get_all_in_group(user_group.id)
         medias = self.__database.media_get_waiting_for_user_group(user_group.id)
@@ -58,7 +60,7 @@ class WatchUpdater:
         for media in medias:
             if media.status != MediaStatus.FINISHED:
                 continue
-            user_media_status = self.__has_persons_watched_media(media, user_persons)
+            user_media_status = self.__has_persons_watched_media(media, user_persons, user_group_watch_status)
             user_group_status.add(media, user_media_status)
             if user_media_status.is_all_watched():
                 self.__logger.info(f"{user_group} watched {media}")
@@ -70,8 +72,9 @@ class WatchUpdater:
         self.__logger.info("Updating watch statuses for all groups")
         user_groups = self.__database.user_group_get_all()
 
+        user_group_watch_status = UserGroupWatchStatus()
         missing_watched = {}
         for user_group in user_groups:
-            missing_watched[user_group] = self.__update_group(user_group)
+            missing_watched[user_group] = self.__update_group(user_group, user_group_watch_status)
 
         return missing_watched

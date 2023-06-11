@@ -1,5 +1,5 @@
 from dataclasses import dataclass, field
-from typing import Optional
+from typing import Optional, Self
 
 from api.tautulli.data.watch_status import WatchStatus
 
@@ -10,7 +10,7 @@ class UserWatchStatus:
 
     def add_watch_status(self, plex_id: int, watch_status: WatchStatus) -> None:
         if plex_id in self.watch_statuses:
-            self.watch_statuses[plex_id].update_progress(watch_status.watch_percentage)
+            self.watch_statuses[plex_id].merge(watch_status)
         else:
             self.watch_statuses[plex_id] = watch_status
 
@@ -18,3 +18,7 @@ class UserWatchStatus:
         if rating_key not in self.watch_statuses:
             return 0
         return self.watch_statuses[rating_key].watch_percentage
+
+    def merge(self, other: Self) -> None:
+        for plex_id, status in other.watch_statuses.items():
+            self.add_watch_status(plex_id, status)

@@ -1,5 +1,5 @@
 from dataclasses import dataclass, field
-from typing import Optional
+from typing import Optional, Self
 
 
 @dataclass
@@ -8,5 +8,5 @@ class WatchStatus:
     episode: int
     watch_percentage: int
 
-    def update_progress(self, watch_percentage: int) -> None:
-        self.watch_percentage = max(watch_percentage, self.watch_percentage)
+    def merge(self, other: Self) -> None:
+        self.watch_percentage = max(other.watch_percentage, self.watch_percentage)
