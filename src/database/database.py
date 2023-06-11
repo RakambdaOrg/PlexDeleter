@@ -70,7 +70,8 @@ class Database:
     def media_get_waiting_for_user_group(self, group_id: int) -> list[Media]:
         return self.__select("SELECT M.Id, M.OverseerrId, M.Name, M.Season, M.Type, M.Status, M.ActionStatus FROM MediaRequirement MR "
                              "INNER JOIN Media M on MR.MediaId = M.Id "
-                             "WHERE MR.GroupId=%(group_id)s AND MR.Status=%(media_requirement_status)s",
+                             "WHERE MR.GroupId=%(group_id)s AND MR.Status=%(media_requirement_status)s "
+                             "ORDER BY M.Name, M.Season",
                              self.__media_mapper,
                              {'group_id': group_id, 'media_requirement_status': MediaRequirementStatus.WAITING.value})
 
