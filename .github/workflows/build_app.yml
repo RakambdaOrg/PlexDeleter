@@ -43,5 +43,7 @@ jobs:
             ${{ secrets.DOCKER_REGISTRY }}/rakambda/plex-deleter:latest
           platforms: linux/amd64
           build-args: BUILDX_QEMU_ENV=true
+          cache-from: type=gha
+          cache-to: type=gha,mode=max
       - name: Image digest
         run: echo ${{ steps.docker_build.outputs.digest }}
