@@ -20,7 +20,7 @@ from database.database import Database
 from api.mail.mailer import Mailer
 from action.notifier import Notifier
 from action.watch_updater import WatchUpdater
-from web.webhook_server import WebhookServer
+from web.web_server import WebServer
 
 logging.basicConfig(
     level=logging.INFO,
@@ -74,5 +74,5 @@ if __name__ == "__main__":
     deleter = Deleter(get_env("REMOTE_PATH"), get_env("LOCAL_PATH"), get_env("DRY_RUN", required=False, default="false").lower() == "true", database, tautulli_helper, overseerr_helper, discord_helper)
     notifier = Notifier(database, mail_notifier, discord_notifier, discord_notifier_thread)
 
-    webhook_server = WebhookServer(overseerr_helper, database, discord_helper, status_updater, watch_updater, deleter, notifier)
-    webhook_server.run()
+    web_server = WebServer(overseerr_helper, database, discord_helper, status_updater, watch_updater, deleter, notifier)
+    web_server.run()

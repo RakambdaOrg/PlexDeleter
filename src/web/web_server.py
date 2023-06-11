@@ -18,7 +18,7 @@ from database.media_status import MediaStatus
 from database.media_type import MediaType
 
 
-class WebhookServer:
+class WebServer:
     def __init__(self, overseerr: OverseerrHelper, database: Database, discord: DiscordHelper, status_updater: StatusUpdater, watch_updater: WatchUpdater, deleter: Deleter, notifier: Notifier):
         self.__overseerr = overseerr
         self.__database = database
@@ -70,6 +70,7 @@ class WebhookServer:
         user_group_statuses = self.__watch_updater.update()
         self.__deleter.delete()
         self.__notifier.notify(user_group_statuses)
+        self.__logger.info("Maintenance done")
 
     @staticmethod
     def extract_seasons(payload) -> list[int]:
