@@ -3,13 +3,14 @@ import datetime
 import logging
 from typing import TypeVar, Callable, Optional
 
-import mariadb
-from mariadb import Cursor, InterfaceError
+import pymysql
+from dbutils.persistent_db import PersistentDB
+from mariadb import Cursor
 
+from database.media import Media
 from database.media_action_status import MediaActionStatus
 from database.media_requirement_status import MediaRequirementStatus
 from database.media_status import MediaStatus
-from database.media import Media
 from database.media_type import MediaType
 from database.notification_type import NotificationType
 from database.user_group import UserGroup
@@ -20,31 +21,8 @@ T = TypeVar('T')
 
 class Database:
     def __init__(self, host: str, user: str, password: str, database: str):
-        self.__host = host,
-        self.__port = 3306,
-        self.__user = user,
-        self.__password = password,
-        self.__database = database
-
-        self.__conn = None
         self.__logger = logging.getLogger(__name__)
-
-    def __enter__(self):
-        self.__connect()
-        return self
-
-    def __connect(self):
-        self.__conn = mariadb.connect(
-            host=self.__host,
-            port=self.__port,
-            user=self.__user,
-            password=self.__password,
-            database=self.__database
-        )
-
-    def __exit__(self, exc_type, exc_val, exc_tb):
-        if self.__conn:
-            self.__conn.close()
+        self.__persist_database = PersistentDB(creator=pymysql, host=host, port=3306, user=user, password=password, database=database)
 
     def user_person_get_all_in_group(self, group_id: int) -> list[UserPerson]:
         return self.__select("SELECT UP.Id, UP.Name, UP.PlexId FROM UserPerson UP INNER JOIN UserMapping UM ON UP.Id = UM.PersonId WHERE UM.GroupId=?",
@@ -113,27 +91,17 @@ class Database:
         self.__execute_and_commit("INSERT INTO MediaRequirement(MediaId, GroupId) VALUES(?,?) ON DUPLICATE KEY UPDATE MediaId=?",
                                   [media_id, user_group_id, media_id])
 
-    def __get_cursor(self) -> Cursor:
-        return self.__conn.cursor()
-
     def __execute_and_commit(self, query: str, args=None) -> None:
-        self.__execute(query, args)
-        self.__conn.commit()
+        cursor = self.__execute(query, args)
+        cursor.connection.commit()
 
     def __execute(self, query: str, args=None, retry=True) -> Cursor:
         if args is None:
             args = []
 
-        try:
-            cursor = self.__get_cursor()
-            cursor.execute(query, args)
-        except InterfaceError as e:
-            self.__connect()
-            if retry:
-                self.__logger.warning(f"Failed to execute request, will retry : {query}. Exception was {str(e)}")
-                return self.__execute(query, args, False)
-            raise e
-
+        conn = self.__persist_database.connection()
+        cursor = conn.cursor()
+        cursor.execute(query, args)
         return cursor
 
     def __select(self, query: str, parser: Callable[[array], T], args=None) -> list[T]:

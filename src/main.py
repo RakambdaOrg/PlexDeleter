@@ -42,37 +42,37 @@ def get_env(name: str, required: bool = True, default: str = None) -> str:
 
 
 if __name__ == "__main__":
-    with Database(get_env("DB_HOST"), get_env("DB_USER"), get_env("DB_PASS"), get_env("DB_DB")) as database:
-        mailer = Mailer(
-            username=get_env("MAIL_USERNAME", required=False),
-            password=get_env("MAIL_PASSWORD", required=False),
-            server=get_env("MAIL_SERVER"),
-            port=int(get_env("MAIL_PORT", required=False, default='0')),
-            name_from=get_env("MAIL_FROM", required=False),
-            mail_from=get_env("MAIL_MAIL")
-        )
-        discord_helper = DiscordHelper(get_env("DISCORD_WEBHOOK", required=False))
+    database = Database(get_env("DB_HOST"), get_env("DB_USER"), get_env("DB_PASS"), get_env("DB_DB"))
+    mailer = Mailer(
+        username=get_env("MAIL_USERNAME", required=False),
+        password=get_env("MAIL_PASSWORD", required=False),
+        server=get_env("MAIL_SERVER"),
+        port=int(get_env("MAIL_PORT", required=False, default='0')),
+        name_from=get_env("MAIL_FROM", required=False),
+        mail_from=get_env("MAIL_MAIL")
+    )
+    discord_helper = DiscordHelper(get_env("DISCORD_WEBHOOK", required=False))
 
-        tautulli_api = TautulliApi(get_env("TAUTULLI_URL"), get_env("TAUTULLI_KEY"))
-        tautulli_helper = TautulliHelper(tautulli_api)
+    tautulli_api = TautulliApi(get_env("TAUTULLI_URL"), get_env("TAUTULLI_KEY"))
+    tautulli_helper = TautulliHelper(tautulli_api)
 
-        overseerr_api = OverseerrApi(get_env("OVERSEERR_URL"), get_env("OVERSEERR_KEY"))
-        overseerr_helper = OverseerrHelper(overseerr_api)
+    overseerr_api = OverseerrApi(get_env("OVERSEERR_URL"), get_env("OVERSEERR_KEY"))
+    overseerr_helper = OverseerrHelper(overseerr_api)
 
-        radarr_api = RadarrApi(get_env("RADARR_URL"), get_env("RADARR_KEY"))
-        radarr_helper = RadarrHelper(radarr_api)
+    radarr_api = RadarrApi(get_env("RADARR_URL"), get_env("RADARR_KEY"))
+    radarr_helper = RadarrHelper(radarr_api)
 
-        sonarr_api = SonarrApi(get_env("SONARR_URL"), get_env("SONARR_KEY"))
-        sonarr_helper = SonarrHelper(sonarr_api)
+    sonarr_api = SonarrApi(get_env("SONARR_URL"), get_env("SONARR_KEY"))
+    sonarr_helper = SonarrHelper(sonarr_api)
 
-        discord_notifier = DiscordNotifier(overseerr_helper, discord_helper)
-        discord_notifier_thread = DiscordNotifierThread(overseerr_helper, discord_helper)
-        mail_notifier = MailNotifier(mailer, overseerr_helper)
+    discord_notifier = DiscordNotifier(overseerr_helper, discord_helper)
+    discord_notifier_thread = DiscordNotifierThread(overseerr_helper, discord_helper)
+    mail_notifier = MailNotifier(mailer, overseerr_helper)
 
-        status_updater = StatusUpdater(database, tautulli_helper, overseerr_helper, discord_helper, radarr_helper, sonarr_helper)
-        watch_updater = WatchUpdater(database, tautulli_helper, overseerr_helper, discord_helper)
-        deleter = Deleter(get_env("REMOTE_PATH"), get_env("LOCAL_PATH"), get_env("DRY_RUN", required=False, default="false").lower() == "true", database, tautulli_helper, overseerr_helper, discord_helper)
-        notifier = Notifier(database, mail_notifier, discord_notifier, discord_notifier_thread)
+    status_updater = StatusUpdater(database, tautulli_helper, overseerr_helper, discord_helper, radarr_helper, sonarr_helper)
+    watch_updater = WatchUpdater(database, tautulli_helper, overseerr_helper, discord_helper)
+    deleter = Deleter(get_env("REMOTE_PATH"), get_env("LOCAL_PATH"), get_env("DRY_RUN", required=False, default="false").lower() == "true", database, tautulli_helper, overseerr_helper, discord_helper)
+    notifier = Notifier(database, mail_notifier, discord_notifier, discord_notifier_thread)
 
-        webhook_server = WebhookServer(overseerr_helper, database, discord_helper, status_updater, watch_updater, deleter, notifier)
-        webhook_server.run()
+    webhook_server = WebhookServer(overseerr_helper, database, discord_helper, status_updater, watch_updater, deleter, notifier)
+    webhook_server.run()
