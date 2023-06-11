@@ -70,7 +70,7 @@ class Deleter:
         parents = set()
         companion_files = set()
 
-        for file in files:
+        for file in sorted(files):
             if file.is_file():
                 self.__logger.info(f"Deleting file {file}")
                 parents.add(file.parent)
