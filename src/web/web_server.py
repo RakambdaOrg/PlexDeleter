@@ -43,6 +43,7 @@ class WebServer:
         return flask.send_from_directory('static', 'favicon.svg', mimetype='image/svg+xml')
 
     def home(self) -> str:
+        self.__logger.info(f"Received home call")
         all_overseerr_media = {}
         media_data = {}
         url_data = {}
