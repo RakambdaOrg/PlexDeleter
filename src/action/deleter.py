@@ -27,7 +27,16 @@ class Deleter:
     def __delete_media(self, media: Media) -> None:
         metadata = []
         rating_key = self.__overseerr.get_plex_rating_key(media.overseerr_id, media.type)
-        season_rating_key = self.__tautulli.get_season_rating_key(rating_key, media.season_number)
+        element_rating_key = self.__tautulli.get_season_episode_rating_key(rating_key, media.season_number)
+
+        season_rating_key = None
+        if not media.season_number:
+            season_rating_key = element_rating_key.rating_key
+        else:
+            season_element_rating_key = element_rating_key.get_child(media.season_number)
+            if season_element_rating_key:
+                season_rating_key = season_element_rating_key.rating_key
+
         if season_rating_key:
             sub_metadata = self.__tautulli.get_movie_and_all_episodes_metadata(season_rating_key)
             timestamp = max(map(lambda meta: int(meta["added_at"] or "0"), sub_metadata), default=0)

@@ -6,6 +6,7 @@ from typing import Optional
 
 import pydash
 
+from api.tautulli.data.element_rating_key import ElementRatingKey
 from api.tautulli.data.user_group_watch_status import UserGroupWatchStatus
 from api.tautulli.data.user_watch_status import UserWatchStatus
 from api.tautulli.data.watch_status import WatchStatus
@@ -39,12 +40,20 @@ class TautulliHelper:
 
         return max(map(lambda a: int(a), episodes))
 
-    def get_season_rating_key(self, rating_key: int, season_number: int) -> Optional[int]:
+    def get_season_episode_rating_key(self, rating_key: int, season_number: int) -> ElementRatingKey:
         if not season_number:
-            return rating_key
+            return ElementRatingKey(rating_key, 0)
 
         data = self.__get_all_keys_for(rating_key)
-        return pydash.get(data, f"0.children.{season_number}.rating_key", None)
+        seasons_data = pydash.get(data, f"0", {})
+        return self.__get_element_rating_key(seasons_data, 0)
+
+    def __get_element_rating_key(self, data: dict, index: int) -> ElementRatingKey:
+        element = ElementRatingKey(data["rating_key"], index)
+        if "children" in data:
+            for child_index, child_data in data["children"]:
+                element.add_child(self.__get_element_rating_key(child_data, int(child_index)))
+        return element
 
     def get_movie_and_all_episodes_metadata(self, rating_key: int) -> list[dict]:
         data = self.api.get_metadata(rating_key=rating_key)

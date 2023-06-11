@@ -32,23 +32,31 @@ class WatchUpdater:
             self.__discord.notify_cannot_update_watch(media)
             return user_media_status
 
-        season_rating_key = self.__tautulli.get_season_rating_key(rating_key, media.season_number)
-        if not season_rating_key:
+        element_rating_key = self.__tautulli.get_season_episode_rating_key(rating_key, media.season_number)
+        media_element_rating_keys = []
+
+        if not media.season_number:
+            media_element_rating_keys.append(element_rating_key)
+        else:
+            season_element_rating_key = element_rating_key.get_child(media.season_number)
+            if season_element_rating_key:
+                media_element_rating_keys.extend(season_element_rating_key.children.values())
+
+        if len(media_element_rating_keys) == 0:
             self.__logger.warning(f"Could not find season {media.season_number}media rating keys for {media}, not available?")
             user_media_status.add_unknown_index()
             self.__discord.notify_cannot_update_watch(media)
             return user_media_status
 
-        all_metadata = self.__tautulli.get_movie_and_all_episodes_metadata(season_rating_key)
         if not user_group_watch_status.rating_key_searched(rating_key):
             user_group_watch_status.merge(self.__tautulli.watched_status_for_media(media.type, rating_key))
-        for metadata in all_metadata:
+        for media_element_rating_key in media_element_rating_keys:
             watched = False
             for user_person in user_persons:
-                media_plex_id = metadata['rating_key']
+                media_plex_id = media_element_rating_key.rating_key
                 watched |= self.__completion_required <= user_group_watch_status.get_user_watch_status(user_person.plex_id).get_watch_percentage(media_plex_id)
             if not watched:
-                user_media_status.add_index(int(metadata['media_index']) if metadata['media_index'] else 0)
+                user_media_status.add_index(media_element_rating_key.index)
         return user_media_status
 
     def __update_group(self, user_group: UserGroup, user_group_watch_status: UserGroupWatchStatus) -> UserGroupStatus:
