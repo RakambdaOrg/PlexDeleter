@@ -131,4 +131,7 @@ class WebServer:
 
     def __is_authorized(self):
         authorization = request.headers.get('Authorization')
-        return authorization == self.__authorization
+        result = authorization == self.__authorization
+        if not result:
+            self.__logger.warning(f"Rejected authorization, received {authorization}")
+        return result
