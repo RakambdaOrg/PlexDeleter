@@ -1,5 +1,4 @@
 import logging
-from functools import reduce
 from threading import Thread
 from typing import Optional
 
@@ -20,7 +19,9 @@ from database.media_type import MediaType
 
 
 class WebServer:
-    def __init__(self, overseerr: OverseerrHelper, database: Database, discord: DiscordHelper, status_updater: StatusUpdater, watch_updater: WatchUpdater, deleter: Deleter, notifier: Notifier):
+    def __init__(self, bearer_token: str, overseerr: OverseerrHelper, database: Database, discord: DiscordHelper, status_updater: StatusUpdater, watch_updater: WatchUpdater, deleter: Deleter, notifier: Notifier):
+        self.__logger = logging.getLogger(__name__)
+        self.__authorization = f"Bearer {bearer_token}"
         self.__overseerr = overseerr
         self.__database = database
         self.__discord = discord
@@ -28,7 +29,6 @@ class WebServer:
         self.__watch_updater = watch_updater
         self.__deleter = deleter
         self.__notifier = notifier
-        self.__logger = logging.getLogger(__name__)
 
         self.__app = Flask("PlexDeleter")
         self.__app.get('/')(self.home)
@@ -56,6 +56,9 @@ class WebServer:
         return flask.render_template('index.html', media_data=media_data, url_data=url_data)
 
     def webhook(self) -> Response:
+        if not self.__is_authorized():
+            return Response(status=401)
+
         payload = request.json
         self.__logger.info(f"Received webhook call with payload {payload}")
 
@@ -68,23 +71,26 @@ class WebServer:
         overseerr_id = int(payload["media"]["tmdbId"])
         media_type = MediaType.from_overseerr(payload["media"]["media_type"])
         name = payload["subject"]
-        seasons = self.extract_seasons(payload)
+        seasons = self.__extract_seasons(payload)
 
         if len(seasons) > 0:
             for season in seasons:
-                self.handle_season(overseerr_id, name, plex_user_id, season, media_type)
+                self.__handle_season(overseerr_id, name, plex_user_id, season, media_type)
         else:
-            self.handle_season(overseerr_id, name, plex_user_id, None, media_type)
+            self.__handle_season(overseerr_id, name, plex_user_id, None, media_type)
 
         return Response(status=200)
 
     def maintenance(self) -> Response:
+        if not self.__is_authorized():
+            return Response(status=401)
+        
         self.__logger.info("Received maintenance request")
-        thread = Thread(target=self.run_maintenance)
+        thread = Thread(target=self.__run_maintenance)
         thread.start()
         return Response(status=200)
 
-    def run_maintenance(self):
+    def __run_maintenance(self):
         self.__status_updater.update()
         user_group_statuses = self.__watch_updater.update()
         self.__deleter.delete()
@@ -92,7 +98,7 @@ class WebServer:
         self.__logger.info("Maintenance done")
 
     @staticmethod
-    def extract_seasons(payload) -> list[int]:
+    def __extract_seasons(payload) -> list[int]:
         seasons = []
         if "extra" not in payload:
             return seasons
@@ -105,7 +111,7 @@ class WebServer:
                     seasons.append(int(value))
         return seasons
 
-    def handle_season(self, overseerr_id: int, name: str, plex_user_id: int, season: Optional[int], media_type: MediaType):
+    def __handle_season(self, overseerr_id: int, name: str, plex_user_id: int, season: Optional[int], media_type: MediaType):
         self.__logger.info(f"Handling requirement request for media with overseerr id {overseerr_id} (Season {season}) on plex id {plex_user_id}")
         medias = self.__database.media_get_by_overseerr_id(overseerr_id, season)
         user_groups = self.__database.user_group_get_with_plex_id(plex_user_id)
@@ -122,3 +128,7 @@ class WebServer:
                 self.__logger.info(f"Added media requirement for {user_group} on {media}")
                 self.__database.media_requirement_add(media.id, user_group.id)
                 self.__discord.notify_media_requirement_added(media, user_group)
+
+    def __is_authorized(self):
+        authorization = request.headers.get('Authorization')
+        return authorization != self.__authorization

@@ -74,5 +74,5 @@ if __name__ == "__main__":
     deleter = Deleter(get_env("REMOTE_PATH"), get_env("LOCAL_PATH"), get_env("DRY_RUN", required=False, default="false").lower() == "true", database, tautulli_helper, overseerr_helper, discord_helper)
     notifier = Notifier(database, mail_notifier, discord_notifier, discord_notifier_thread)
 
-    web_server = WebServer(overseerr_helper, database, discord_helper, status_updater, watch_updater, deleter, notifier)
+    web_server = WebServer(get_env("BEARER_TOKEN"), overseerr_helper, database, discord_helper, status_updater, watch_updater, deleter, notifier)
     web_server.run()
