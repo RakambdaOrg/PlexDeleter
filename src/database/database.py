@@ -1,8 +1,10 @@
 import array
 import datetime
+import logging
 from typing import TypeVar, Callable, Optional
 
 import mariadb
+from mariadb import Cursor, InterfaceError
 
 from database.media_action_status import MediaActionStatus
 from database.media_requirement_status import MediaRequirementStatus
@@ -18,17 +20,27 @@ T = TypeVar('T')
 
 class Database:
     def __init__(self, host: str, user: str, password: str, database: str):
-        self.__conn = mariadb.connect(
-            host=host,
-            port=3306,
-            user=user,
-            password=password,
-            database=database
-        )
+        self.__host = host,
+        self.__port = 3306,
+        self.__user = user,
+        self.__password = password,
+        self.__database = database
+
+        self.__conn = None
+        self.__logger = logging.getLogger(__name__)
 
     def __enter__(self):
-        self.__cursor = self.__conn.cursor()
+        self.__connect()
         return self
+
+    def __connect(self):
+        self.__conn = mariadb.connect(
+            host=self.__host,
+            port=self.__port,
+            user=self.__user,
+            password=self.__password,
+            database=self.__database
+        )
 
     def __exit__(self, exc_type, exc_val, exc_tb):
         if self.__conn:
@@ -44,9 +56,8 @@ class Database:
                              lambda row: UserGroup(row[0], row[1], NotificationType(row[2]), row[3], row[4], row[5]))
 
     def user_group_set_last_notified(self, group_id: int, date: datetime.datetime) -> None:
-        self.__cursor.execute("UPDATE UserGroup SET LastNotification=? WHERE Id=?",
-                              [date, group_id])
-        self.__conn.commit()
+        self.__execute_and_commit("UPDATE UserGroup SET LastNotification=? WHERE Id=?",
+                                  [date, group_id])
 
     def user_group_get_with_plex_id(self, plex_user_id: int) -> list[UserGroup]:
         return self.__select("SELECT UG.Id, UG.Name, UG.NotificationType, UG.NotificationValue, UG.Locale, UG.LastNotification FROM UserGroup UG INNER JOIN UserMapping UM ON UG.Id = UM.GroupId INNER JOIN UserPerson UP ON UM.PersonId = UP.Id WHERE UP.PlexId=?",
@@ -74,14 +85,12 @@ class Database:
                              [group_id, MediaRequirementStatus.WAITING.value])
 
     def media_set_finished(self, media_id: int) -> None:
-        self.__cursor.execute("UPDATE Media SET Status=? WHERE Id=?",
-                              [MediaStatus.FINISHED.value, media_id])
-        self.__conn.commit()
+        self.__execute_and_commit("UPDATE Media SET Status=? WHERE Id=?",
+                                  [MediaStatus.FINISHED.value, media_id])
 
     def media_set_deleted(self, media_id: int) -> None:
-        self.__cursor.execute("UPDATE Media SET ActionStatus=? WHERE Id=?",
-                              [MediaActionStatus.DELETED.value, media_id])
-        self.__conn.commit()
+        self.__execute_and_commit("UPDATE Media SET ActionStatus=? WHERE Id=?",
+                                  [MediaActionStatus.DELETED.value, media_id])
 
     def media_get_by_overseerr_id(self, overseerr_id: int, season: Optional[int]) -> list[Media]:
         if not season:
@@ -93,26 +102,43 @@ class Database:
                              [overseerr_id, season])
 
     def media_add(self, overseerr_id: int, name: str, season: Optional[int], type: MediaType, status: MediaStatus, action_status: MediaActionStatus) -> None:
-        self.__cursor.execute("INSERT INTO Media(OverseerrId, Name, Season, Type, Status, ActionStatus) VALUES (?,?,?,?,?,?)",
-                              [overseerr_id, name, season, type.value, status.value, action_status.value])
-        self.__conn.commit()
+        self.__execute_and_commit("INSERT INTO Media(OverseerrId, Name, Season, Type, Status, ActionStatus) VALUES (?,?,?,?,?,?)",
+                                  [overseerr_id, name, season, type.value, status.value, action_status.value])
 
     def media_requirement_set_watched(self, media_id: int, group_id: int) -> None:
-        self.__cursor.execute("UPDATE MediaRequirement SET Status=? WHERE MediaId=? AND GroupId=?",
-                              [MediaRequirementStatus.WATCHED.value, media_id, group_id])
-        self.__conn.commit()
+        self.__execute_and_commit("UPDATE MediaRequirement SET Status=? WHERE MediaId=? AND GroupId=?",
+                                  [MediaRequirementStatus.WATCHED.value, media_id, group_id])
 
     def media_requirement_add(self, media_id: int, user_group_id: int):
-        self.__cursor.execute("INSERT INTO MediaRequirement(MediaId, GroupId) VALUES(?,?) ON DUPLICATE KEY UPDATE MediaId=?",
-                              [media_id, user_group_id, media_id])
+        self.__execute_and_commit("INSERT INTO MediaRequirement(MediaId, GroupId) VALUES(?,?) ON DUPLICATE KEY UPDATE MediaId=?",
+                                  [media_id, user_group_id, media_id])
+
+    def __get_cursor(self) -> Cursor:
+        return self.__conn.cursor()
+
+    def __execute_and_commit(self, query: str, args=None) -> None:
+        self.__execute(query, args)
         self.__conn.commit()
 
-    def __select(self, query: str, parser: Callable[[array], T], args=None) -> list[T]:
+    def __execute(self, query: str, args=None, retry=True) -> Cursor:
         if args is None:
             args = []
 
+        try:
+            cursor = self.__get_cursor()
+            cursor.execute(query, args)
+        except InterfaceError as e:
+            self.__connect()
+            if retry:
+                self.__logger.warning(f"Failed to execute request, will retry : {query}. Exception was {str(e)}")
+                return self.__execute(query, args, False)
+            raise e
+
+        return cursor
+
+    def __select(self, query: str, parser: Callable[[array], T], args=None) -> list[T]:
         values = []
-        self.__cursor.execute(query, args)
-        for row in self.__cursor:
+        cursor = self.__execute(query, args)
+        for row in cursor:
             values.append(parser(row))
         return values
