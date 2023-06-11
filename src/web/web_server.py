@@ -34,9 +34,13 @@ class WebServer:
         self.__app.get('/')(self.home)
         self.__app.get('/maintenance')(self.maintenance)
         self.__app.post('/webhook')(self.webhook)
+        self.__app.route('/favicon.svg')(self.favicon)
 
     def run(self):
         serve(self.__app, host="0.0.0.0", port=8080)
+
+    def favicon(self):
+        return flask.send_from_directory('static', 'favicon.svg', mimetype='image/svg+xml')
 
     def home(self) -> str:
         all_overseerr_media = {}
