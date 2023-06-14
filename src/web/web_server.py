@@ -51,12 +51,15 @@ class WebServer:
         supported_languages = ["en", "fr"]
         locale = request.accept_languages.best_match(supported_languages)
 
-        user_groups = self.__database.user_group_get_all()
-        for user_group in user_groups:
-            medias = self.__database.media_get_waiting_for_user_group(user_group.id)
-            media_data[user_group] = medias
-            for media in medias:
-                all_overseerr_media[media.overseerr_id] = media
+        group_and_medias = self.__database.media_get_waiting_with_groups()
+        for group_and_media in group_and_medias:
+            user_group = group_and_media[0]
+            media = group_and_media[1]
+            if user_group not in media_data:
+                media_data[user_group] = []
+
+            media_data[user_group].append(media)
+            all_overseerr_media[media.overseerr_id] = media
 
         for media in all_overseerr_media.values():
             url_data[media.overseerr_id] = self.__overseerr.get_plex_url(media.overseerr_id, media.type)
