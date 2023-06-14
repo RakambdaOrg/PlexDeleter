@@ -5,6 +5,7 @@ from action.status.user_media_status import UserMediaStatus
 from api.tautulli.data.user_group_watch_status import UserGroupWatchStatus
 from database.media import Media
 from database.media_status import MediaStatus
+from database.media_type import MediaType
 from database.user_group import UserGroup
 from api.overseerr.overseerr_helper import OverseerrHelper
 from database.database import Database
