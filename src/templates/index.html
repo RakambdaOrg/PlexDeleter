@@ -41,6 +41,21 @@
             transform: translate(0%, 15%);
         }
 
+        .row-group {
+            writing-mode: vertical-rl;
+            text-align: center;
+            vertical-align: middle;
+            transform: rotate(180deg);
+            width: 30px;
+            line-height: 30px;
+            font-size: 20px;
+            background-color: white;
+        }
+
+        tr.first-group {
+            border-top: 2px solid black;
+        }
+
         @media (prefers-color-scheme: dark) {
             body {
                 color: #eee;
@@ -72,6 +87,14 @@
             tr:hover {
                 background-color: #606060;
             }
+
+            img.bw-icon {
+                filter: invert(1);
+            }
+            
+            .row-group {
+                background-color: #121212;
+            }
         }
     </style>
 </head>
@@ -79,8 +102,8 @@
 <table id="medias">
     <thead>
     <tr>
-        <th class="center"></th>
         <th class="center">User group</th>
+        <th class="center"></th>
         <th class="center">Type</th>
         <th class="center">Season</th>
         <th class="center">Name</th>
@@ -92,10 +115,12 @@
     <tbody>
     {% for user_group, medias in media_data.items() %}
     {% for media in medias %}
-    <tr>
+    <tr class="{{ 'first-group' if loop.index == 1 }}">
+        {% if loop.index == 1 %}
+        <td class="row-group" rowspan="{{ medias | length }}">{{user_group.name}}</td>
+        {% endif %}
         <td>{{ loop.index }}</td>
-        <td>{{ user_group.name }}</td>
-        <td><img class="icon" alt="{{ media.type.name }} icon" src="{{ url_for('static', filename=media.type.get_icon() )}}"/> {{ media.type.get_for_display(locale) or '' }}</td>
+        <td><img class="icon bw-icon" alt="{{ media.type.name }} icon" src="{{ url_for('static', filename=media.type.get_icon() )}}"/> {{ media.type.get_for_display(locale) or '' }}</td>
         <td class="center">{{ media.season_number or '' }}</td>
         <td>{{ media.name }}</td>
         <td class="center">{{ media.status.get_for_display(locale) or '' }}</td>
