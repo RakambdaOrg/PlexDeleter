@@ -14,3 +14,21 @@ class MediaType(Enum):
             return MediaType.MOVIE
 
         return None
+
+    def get_for_display(self, locale: str) -> str:
+        if self == MediaType.SHOW:
+            if locale == "fr":
+                return "Série"
+            return "Series"
+        if self == MediaType.MOVIE:
+            if locale == "fr":
+                return "Film"
+            return "Movie"
+
+    def get_icon(self) -> Optional[str]:
+        if self == MediaType.SHOW:
+            return 'tv.svg'
+        if self == MediaType.MOVIE:
+            return 'movie.svg'
+
+        return None

@@ -48,6 +48,9 @@ class WebServer:
         media_data = {}
         url_data = {}
 
+        supported_languages = ["en", "fr"]
+        locale = request.accept_languages.best_match(supported_languages)
+
         user_groups = self.__database.user_group_get_all()
         for user_group in user_groups:
             medias = self.__database.media_get_waiting_for_user_group(user_group.id)
@@ -58,7 +61,7 @@ class WebServer:
         for media in all_overseerr_media.values():
             url_data[media.overseerr_id] = self.__overseerr.get_plex_url(media.overseerr_id, media.type)
 
-        return flask.render_template('index.html', media_data=media_data, url_data=url_data)
+        return flask.render_template('index.html', media_data=media_data, url_data=url_data, locale=locale)
 
     def webhook(self) -> Response:
         if not self.__is_authorized():
