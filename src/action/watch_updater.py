@@ -74,6 +74,9 @@ class WatchUpdater:
                 self.__logger.info(f"{user_group} watched {media}")
                 self.__database.media_requirement_set_watched(media.id, user_group.id)
                 self.__discord.notify_watched(media, user_group)
+            else:
+                status = f' | Waiting EPs {user_media_status.get_all_str()}' if media.type == MediaType.SHOW and user_media_status and not user_media_status.is_all_watched() else ''
+                self.__logger.info(f"{user_group} did not watch {media}{status}")
         return user_group_status
 
     def update(self) -> dict[UserGroup, UserGroupStatus]:
