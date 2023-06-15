@@ -40,7 +40,7 @@ class TautulliHelper:
 
         return max(map(lambda a: int(a), episodes))
 
-    def get_season_episode_rating_key(self, rating_key: int, season_number: int) -> ElementRatingKey:
+    def get_season_episode_rating_key(self, rating_key: int, season_number: int) -> Optional[ElementRatingKey]:
         if not season_number:
             return ElementRatingKey(rating_key, 0)
 
@@ -48,11 +48,16 @@ class TautulliHelper:
         seasons_data = pydash.get(data, f"0", {})
         return self.__get_element_rating_key(seasons_data, 0)
 
-    def __get_element_rating_key(self, data: dict, index: int) -> ElementRatingKey:
+    def __get_element_rating_key(self, data: dict, index: int) -> Optional[ElementRatingKey]:
+        if "rating_key" not in data:
+            return None
+
         element = ElementRatingKey(data["rating_key"], index)
         if "children" in data:
             for child_index, child_data in data["children"].items():
-                element.add_child(self.__get_element_rating_key(child_data, int(child_index)))
+                child_element = self.__get_element_rating_key(child_data, int(child_index))
+                if child_element:
+                    element.add_child(child_element)
         return element
 
     def get_movie_and_all_episodes_metadata(self, rating_key: int) -> list[dict]:

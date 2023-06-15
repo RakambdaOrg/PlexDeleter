@@ -36,12 +36,13 @@ class WatchUpdater:
         element_rating_key = self.__tautulli.get_season_episode_rating_key(rating_key, media.season_number)
         media_element_rating_keys = []
 
-        if not media.season_number:
-            media_element_rating_keys.append(element_rating_key)
-        else:
-            season_element_rating_key = element_rating_key.get_child(media.season_number)
-            if season_element_rating_key:
-                media_element_rating_keys.extend(season_element_rating_key.children.values())
+        if element_rating_key:
+            if not media.season_number:
+                media_element_rating_keys.append(element_rating_key)
+            else:
+                season_element_rating_key = element_rating_key.get_child(media.season_number)
+                if season_element_rating_key:
+                    media_element_rating_keys.extend(season_element_rating_key.children.values())
 
         if len(media_element_rating_keys) == 0:
             self.__logger.warning(f"Could not find season {media.season_number}media rating keys for {media}, not available?")
