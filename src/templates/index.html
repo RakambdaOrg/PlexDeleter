@@ -134,10 +134,10 @@
         <td class="center">
             {% if url_data[media.overseerr_id] is not none %}
             {% if url_data[media.overseerr_id].overseerr is not none %}
-            <a href="{{url_data[media.overseerr_id].overseerr}}"><img class="icon" alt="Overseerr icon" src="{{ url_for('static', filename='overseerr.png' )}}"/></a>
+            <a href="{{url_data[media.overseerr_id].overseerr}}" target="_blank"><img class="icon" alt="Overseerr icon" src="{{ url_for('static', filename='overseerr.png' )}}"/></a>
             {% endif %}
             {% if url_data[media.overseerr_id].plex_web is not none %}
-            <a href="{{url_data[media.overseerr_id].plex_web}}"><img class="icon" alt="Plex web icon" src="{{ url_for('static', filename='plex.png' )}}"/></a>
+            <a href="{{url_data[media.overseerr_id].plex_web}}" target="_blank"><img class="icon" alt="Plex web icon" src="{{ url_for('static', filename='plex.png' )}}"/></a>
             {% endif %}
             {% endif %}
         </td>
