@@ -22,15 +22,6 @@ from action.notifier import Notifier
 from action.watch_updater import WatchUpdater
 from web.web_server import WebServer
 
-logging.basicConfig(
-    level=logging.INFO,
-    format="%(asctime)s %(levelname)s %(message)s",
-    datefmt="%Y-%m-%dT%H:%M:%S%z",
-    handlers=[
-        logging.StreamHandler(sys.stdout)
-    ]
-)
-
 
 def get_env(name: str, required: bool = True, default: str = None) -> str:
     value = os.environ.get(name)
@@ -40,6 +31,15 @@ def get_env(name: str, required: bool = True, default: str = None) -> str:
         raise RuntimeError(f"Missing env variable {name}")
     return default
 
+
+logging.basicConfig(
+    level=logging.DEBUG if get_env("LOG_LEVEL_DEBUG", False, None) else logging.INFO,
+    format="%(asctime)s %(levelname)s %(message)s",
+    datefmt="%Y-%m-%dT%H:%M:%S%z",
+    handlers=[
+        logging.StreamHandler(sys.stdout)
+    ]
+)
 
 if __name__ == "__main__":
     database = Database(get_env("DB_HOST"), get_env("DB_USER"), get_env("DB_PASS"), get_env("DB_DB"))
