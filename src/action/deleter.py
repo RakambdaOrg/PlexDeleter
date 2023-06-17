@@ -9,7 +9,7 @@ from database.media import Media
 
 
 class Deleter:
-    def __init__(self, remote_path: str, local_path: str, dry_run: bool, database: Database, tautulli: TautulliHelper, overseerr: OverseerrHelper, discord: DiscordHelper):
+    def __init__(self, remote_path: str, local_path: str, dry_run: bool, database: Database, tautulli: TautulliHelper, overseerr: OverseerrHelper, discord: DiscordHelper, min_days: int):
         self.__remote_path = remote_path
         self.__local_path = local_path
         self.__dry_run = dry_run
@@ -17,6 +17,7 @@ class Deleter:
         self.__tautulli = tautulli
         self.__overseerr = overseerr
         self.__discord = discord
+        self.__min_days = min_days
         self.__logger = logging.getLogger(__name__)
 
     def delete(self) -> None:
@@ -42,10 +43,10 @@ class Deleter:
             sub_metadata = self.__tautulli.get_movie_and_all_episodes_metadata(season_rating_key)
             timestamp = max(map(lambda meta: int(meta["added_at"] or "0"), sub_metadata), default=0)
             max_date = datetime.fromtimestamp(timestamp)
-            if datetime.now() - max_date >= timedelta(days=2):
+            if datetime.now() - max_date >= timedelta(days=self.__min_days):
                 metadata.extend(sub_metadata)
             else:
-                self.__logger.info(f"Skipped {media} because most recent file is from {max_date} which is not older than 2 days")
+                self.__logger.info(f"Skipped {media} because most recent file is from {max_date} which is not older than {self.__min_days} days")
                 return
         else:
             self.__logger.warning(f"Could not find metadata & files for {media}")

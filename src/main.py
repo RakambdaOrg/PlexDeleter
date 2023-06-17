@@ -71,7 +71,7 @@ if __name__ == "__main__":
 
     status_updater = StatusUpdater(database, tautulli_helper, overseerr_helper, discord_helper, radarr_helper, sonarr_helper)
     watch_updater = WatchUpdater(database, tautulli_helper, overseerr_helper, discord_helper)
-    deleter = Deleter(get_env("REMOTE_PATH"), get_env("LOCAL_PATH"), get_env("DRY_RUN", required=False, default="false").lower() == "true", database, tautulli_helper, overseerr_helper, discord_helper)
+    deleter = Deleter(get_env("REMOTE_PATH"), get_env("LOCAL_PATH"), get_env("DRY_RUN", required=False, default="false").lower() == "true", database, tautulli_helper, overseerr_helper, discord_helper, int(get_env("DELETE_MIN_DAYS", required=False, default="2")))
     notifier = Notifier(database, mail_notifier, discord_notifier, discord_notifier_thread)
 
     web_server = WebServer(get_env("BEARER_TOKEN"), overseerr_helper, database, discord_helper, status_updater, watch_updater, deleter, notifier)
