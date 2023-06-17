@@ -16,6 +16,7 @@ from database.database import Database
 from database.media_action_status import MediaActionStatus
 from database.media_status import MediaStatus
 from database.media_type import MediaType
+from database.user_group import UserGroup
 
 
 class WebServer:
@@ -52,6 +53,18 @@ class WebServer:
         locale = request.accept_languages.best_match(supported_languages)
 
         group_and_medias = self.__database.media_get_waiting_with_groups()
+
+        soon_deleted_name = "Soon deleted"
+        if locale == "fr":
+            soon_deleted_name = "Bientôt supprimé"
+
+        soon_deleted_group = UserGroup(-1, soon_deleted_name, None, None, None, None)
+        soon_deleted_media = self.__database.media_get_ready_to_delete()
+        media_data[soon_deleted_group] = soon_deleted_media
+
+        for media in soon_deleted_media:
+            all_overseerr_media[media.overseerr_id] = media
+
         for group_and_media in group_and_medias:
             user_group = group_and_media[0]
             media = group_and_media[1]

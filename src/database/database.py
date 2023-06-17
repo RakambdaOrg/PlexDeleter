@@ -100,6 +100,15 @@ class Database:
                              lambda r: (self.__user_group_mapper(r), self.__media_mapper(r)),
                              {'media_requirement_status': MediaRequirementStatus.WAITING.value})
 
+    def media_get_ready_to_delete(self) -> list[Media]:
+        return self.__select("SELECT M.Id, M.OverseerrId, M.Name, M.Season, M.Type, M.Status, M.ActionStatus "
+                             "FROM Media M "
+                             "WHERE M.ActionStatus = 'TO_DELETE'"
+                             "AND NOT EXISTS (SELECT MR.MediaId FROM MediaRequirement MR WHERE MR.MediaId = M.ID AND MR.Status=%(media_requirement_status)s)"
+                             "ORDER BY M.Name, M.Season",
+                             self.__media_mapper,
+                             {'media_requirement_status': MediaRequirementStatus.WAITING.value})
+
     def media_set_finished(self, media_id: int) -> None:
         self.__execute_and_commit("UPDATE Media SET Status=%(status)s WHERE Id=%(id)s",
                                   {'status': MediaStatus.FINISHED.value, 'id': media_id})
