@@ -35,11 +35,9 @@ class MailNotifier(CommonNotifier):
 
             plex_urls = self.__overseerr.get_plex_url(media.overseerr_id, media.type)
             if plex_urls.overseerr:
-                content_parts.append(f"<a href='{plex_urls.overseerr}'>Overseerr</a>")
+                content_parts.append(f"<a href='{plex_urls.overseerr}'><img style='max-height: 15px;' src='https://plexdeleter.ds920.rakambda.fr/static/overseerr.png'/></a>")
             if plex_urls.plex_web:
-                content_parts.append(f"<a href='{plex_urls.plex_web}'>Plex web</a>")
-            if plex_urls.plex_ios:
-                content_parts.append(f"<a href='{plex_urls.plex_ios}'>Plex iOS</a>")
+                content_parts.append(f"<a href='{plex_urls.plex_web}'><img style='max-height: 15px;' src='https://plexdeleter.ds920.rakambda.fr/static/plex.png'/></a>")
 
             contents.append(f"<li>{' | '.join(content_parts)}</li>")
 
