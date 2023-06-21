@@ -91,10 +91,18 @@ class WebServer:
             self.__logger.warning("Invalid notification type")
             return Response(status=400)
 
-        plex_user_id = self.__overseerr.get_requester_plex_id(payload["request"]["request_id"])
-        overseerr_id = int(payload["media"]["tmdbId"])
+        request_id = payload["request"]["request_id"]
+        request_details = self.__overseerr.get_request_details(request_id)
+
         media_type = MediaType.from_overseerr(payload["media"]["media_type"])
+        plex_user_id = request_details.requester_id
+        overseerr_id = int(payload["media"]["tmdbId"])
         name = payload["subject"]
+
+        if self.__tag_excluded(request_details.tags, media_type):
+            self.__logger.info("Skipped adding media because excluded tag is present")
+            return Response(status=204)
+
         seasons = self.__extract_seasons(payload)
 
         if len(seasons) > 0:
@@ -104,6 +112,17 @@ class WebServer:
             self.__handle_season(overseerr_id, name, plex_user_id, None, media_type)
 
         return Response(status=200)
+
+    def __tag_excluded(self, request_tags: list[int], media_type: MediaType) -> bool:
+        labels = []
+
+        tags = self.__overseerr.get_servarr_tags(media_type)
+        for request_tag in request_tags:
+            for tag in tags:
+                if tag["id"] == request_tag:
+                    labels.append(tag["label"])
+
+        return "no-deleter" in labels
 
     def maintenance(self) -> Response:
         if not self.__is_authorized():

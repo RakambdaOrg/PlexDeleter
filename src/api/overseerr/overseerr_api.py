@@ -32,3 +32,15 @@ class OverseerrApi:
         if r.status_code != 200:
             raise RuntimeError(f"Overseerr API returned code {r.status_code}")
         return r.json()
+
+    def get_radarr_service(self, index: int):
+        r = self.__session.get(f"{self.endpoint}/api/v1/service/radarr/{index}")
+        if r.status_code != 200:
+            raise RuntimeError(f"Overseerr API returned code {r.status_code}")
+        return r.json()
+
+    def get_sonarr_service(self, index: int):
+        r = self.__session.get(f"{self.endpoint}/api/v1/service/sonarr/{index}")
+        if r.status_code != 200:
+            raise RuntimeError(f"Overseerr API returned code {r.status_code}")
+        return r.json()

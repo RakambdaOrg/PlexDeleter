@@ -2,6 +2,7 @@ from typing import Optional
 
 import pydash
 
+from api.overseerr.data.request_details import RequestDetails
 from api.overseerr.media_urls import MediaUrls
 from api.overseerr.overseerr_api import OverseerrApi
 from database.media_type import MediaType
@@ -66,6 +67,23 @@ class OverseerrHelper:
 
         return int(tmdb_id) if tmdb_id else None
 
+    def get_request_details(self, request_id: int) -> RequestDetails:
+        data = self.api.get_request(request_id)
+        return RequestDetails(
+            pydash.get(data, f"requestedBy.plexId", None),
+            pydash.get(data, f"tags", None)
+        )
+
     def get_requester_plex_id(self, request_id: int) -> Optional[int]:
         data = self.api.get_request(request_id)
         return pydash.get(data, f"requestedBy.plexId", None)
+
+    def get_servarr_tags(self, media_type: MediaType):
+        if media_type == MediaType.SHOW:
+            data = self.api.get_sonarr_service(0)
+            return pydash.get(data, f"tags", [])
+        elif media_type == MediaType.MOVIE:
+            data = self.api.get_radarr_service(0)
+            return pydash.get(data, f"tags", [])
+
+        return []
