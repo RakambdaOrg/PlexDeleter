@@ -52,8 +52,12 @@
             background-color: white;
         }
 
-        .ready-delete, .ready-delete > td {
+        tr.ready-delete, tr.ready-delete > td {
             background-color: #fa7a7a;
+        }
+
+        tr.releasing {
+            background-color: #69d960;
         }
 
         tr.first-group {
@@ -104,8 +108,12 @@
                 background-color: #121212;
             }
 
-            .ready-delete, .ready-delete > td {
-                background-color: #872222 !important;
+            tr.ready-delete, tr.ready-delete > td {
+                background-color: #872222;
+            }
+
+            tr.releasing {
+                background-color: #568722;
             }
         }
     </style>
@@ -127,7 +135,7 @@
     <tbody>
     {% for user_group, medias in media_data.items() %}
     {% for media in medias %}
-    <tr class="{{ 'first-group ' if loop.index == 1 }}{{ 'ready-delete ' if user_group.id == -1 }}">
+    <tr class="{{ 'first-group ' if loop.index == 1 }}{{ 'ready-delete ' if user_group.id == -1 }}{{ 'releasing ' if media.status.name == 'RELEASING' }}">
         {% if loop.index == 1 %}
         <td class="row-group" rowspan="{{ medias | length }}">{{user_group.name}}</td>
         {% endif %}
