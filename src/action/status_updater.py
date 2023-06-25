@@ -53,13 +53,16 @@ class StatusUpdater:
             season_episode_count = self.__overseerr.get_tv_season_episode_count(media.overseerr_id, media.season_number)
 
             if season_episode_count:
+                self.__database.media_set_element_count(media.id, season_episode_count)
                 if season_episode_count <= last_available_episode:
                     self.__mark_finished(media)
                 return
 
         tvdb_id = self.__overseerr.get_tvdb_id(media.overseerr_id, media.type)
         if tvdb_id:
-            season_episode_percentage = self.__sonarr.get_tv_season_episode_percentage(tvdb_id, media.season_number)
+            (season_episode_percentage, season_episode_count) = self.__sonarr.get_tv_season_episode_percentage(tvdb_id, media.season_number)
+            if season_episode_count:
+                self.__database.media_set_element_count(media.id, season_episode_count)
             if season_episode_percentage:
                 if season_episode_percentage == 100:
                     self.__mark_finished(media)

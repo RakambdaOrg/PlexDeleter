@@ -12,6 +12,7 @@ class Media:
     overseerr_id: int = field(hash=False, compare=False)
     name: str = field(hash=False, compare=False)
     season_number: Optional[int] = field(hash=False, compare=False)
+    element_count: Optional[int] = field(hash=False, compare=False)
     type: MediaType = field(hash=False, compare=False)
     status: MediaStatus = field(hash=False, compare=False)
     action_status: MediaActionStatus = field(hash=False, compare=False)

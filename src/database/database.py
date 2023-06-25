@@ -37,6 +37,7 @@ class Database:
                                                 self.__get_row_value(row, 'M', 'OverseerrId'),
                                                 self.__get_row_value(row, 'M', 'Name'),
                                                 self.__get_row_value(row, 'M', 'Season'),
+                                                self.__get_row_value(row, 'M', 'ElementCount'),
                                                 MediaType(self.__get_row_value(row, 'M', 'Type')),
                                                 MediaStatus(self.__get_row_value(row, 'M', 'Status')),
                                                 MediaActionStatus(self.__get_row_value(row, 'M', 'ActionStatus')))
@@ -67,13 +68,13 @@ class Database:
                              {'plex_user_id': plex_user_id})
 
     def media_get_all_releasing(self) -> list[Media]:
-        return self.__select("SELECT M.Id, M.OverseerrId, M.Name, M.Season, M.Type, M.Status, M.ActionStatus FROM Media M "
+        return self.__select("SELECT M.Id, M.OverseerrId, M.Name, M.Season, M.ElementCount, M.Type, M.Status, M.ActionStatus FROM Media M "
                              "WHERE Status=%(media_status)s",
                              self.__media_mapper,
                              {'media_status': MediaStatus.RELEASING.value})
 
     def media_get_fully_watched_to_delete(self) -> list[Media]:
-        return self.__select("SELECT M.Id, M.OverseerrId, M.Name, M.Season, M.Type, M.Status, M.ActionStatus, MIN(IF(MR.Status IN ('WATCHED', 'ABANDONED'), 1, 0)) AS GroupWatched "
+        return self.__select("SELECT M.Id, M.OverseerrId, M.Name, M.Season, M.ElementCount, M.Type, M.Status, M.ActionStatus, MIN(IF(MR.Status IN ('WATCHED', 'ABANDONED'), 1, 0)) AS GroupWatched "
                              "FROM MediaRequirement MR "
                              "INNER JOIN Media M ON MR.MediaId = M.Id "
                              "WHERE M.ActionStatus=%(media_action_status)s AND M.Status=%(media_status)s "
@@ -83,7 +84,7 @@ class Database:
                              {'media_action_status': MediaActionStatus.TO_DELETE.value, 'media_status': MediaStatus.FINISHED.value})
 
     def media_get_waiting_for_user_group(self, group_id: int) -> list[Media]:
-        return self.__select("SELECT M.Id, M.OverseerrId, M.Name, M.Season, M.Type, M.Status, M.ActionStatus FROM MediaRequirement MR "
+        return self.__select("SELECT M.Id, M.OverseerrId, M.Name, M.Season, M.ElementCount, M.Type, M.Status, M.ActionStatus FROM MediaRequirement MR "
                              "INNER JOIN Media M on MR.MediaId = M.Id "
                              "WHERE MR.GroupId=%(group_id)s AND MR.Status=%(media_requirement_status)s "
                              "ORDER BY M.Name, M.Season",
@@ -91,7 +92,7 @@ class Database:
                              {'group_id': group_id, 'media_requirement_status': MediaRequirementStatus.WAITING.value})
 
     def media_get_waiting_with_groups(self) -> list[tuple[UserGroup, Media]]:
-        return self.__select("SELECT M.Id, M.OverseerrId, M.Name, M.Season, M.Type, M.Status, M.ActionStatus, UG.Id, UG.Name, UG.NotificationType, UG.NotificationValue, UG.Locale, UG.LastNotification "
+        return self.__select("SELECT M.Id, M.OverseerrId, M.Name, M.Season, M.Type, M.ElementCount, M.Status, M.ActionStatus, UG.Id, UG.Name, UG.NotificationType, UG.NotificationValue, UG.Locale, UG.LastNotification "
                              "FROM MediaRequirement MR "
                              "INNER JOIN UserGroup UG on MR.GroupId = UG.Id "
                              "INNER JOIN Media M on MR.MediaId = M.Id "
@@ -101,7 +102,7 @@ class Database:
                              {'media_requirement_status': MediaRequirementStatus.WAITING.value})
 
     def media_get_ready_to_delete(self) -> list[Media]:
-        return self.__select("SELECT M.Id, M.OverseerrId, M.Name, M.Season, M.Type, M.Status, M.ActionStatus "
+        return self.__select("SELECT M.Id, M.OverseerrId, M.Name, M.Season, M.ElementCount, M.Type, M.Status, M.ActionStatus "
                              "FROM Media M "
                              "WHERE M.ActionStatus = 'TO_DELETE'"
                              "AND NOT EXISTS (SELECT MR.MediaId FROM MediaRequirement MR WHERE MR.MediaId = M.ID AND MR.Status=%(media_requirement_status)s)"
@@ -117,13 +118,17 @@ class Database:
         self.__execute_and_commit("UPDATE Media SET ActionStatus=%(action_status)s WHERE Id=%(id)s",
                                   {'action_status': MediaActionStatus.DELETED.value, 'id': media_id})
 
+    def media_set_element_count(self, media_id: int, element_count: int):
+        self.__execute_and_commit("UPDATE Media SET ElementCount=%(element_count)s WHERE Id=%(id)s",
+                                  {'element_count': element_count, 'id': media_id})
+
     def media_get_by_overseerr_id(self, overseerr_id: int, season: Optional[int]) -> list[Media]:
         if not season:
-            return self.__select("SELECT M.Id, M.OverseerrId, M.Name, M.Season, M.Type, M.Status, M.ActionStatus FROM Media M "
+            return self.__select("SELECT M.Id, M.OverseerrId, M.Name, M.Season, M.ElementCount, M.Type, M.Status, M.ActionStatus FROM Media M "
                                  "WHERE OverseerrId=%(id)s AND Season IS NULL",
                                  self.__media_mapper,
                                  {'id': overseerr_id})
-        return self.__select("SELECT M.Id, M.OverseerrId, M.Name, M.Season, M.Type, M.Status, M.ActionStatus FROM Media M "
+        return self.__select("SELECT M.Id, M.OverseerrId, M.Name, M.Season, M.ElementCount, M.Type, M.Status, M.ActionStatus FROM Media M "
                              "WHERE OverseerrId=%(id)s AND Season=%(season)s",
                              self.__media_mapper,
                              {'id': overseerr_id, 'season': season})
