@@ -63,12 +63,12 @@ class StatusUpdater:
             if result[1] and result[1] > total_element_count:
                 total_element_count = result[1]
 
-        if not element_count and not total_element_count:
+        if not element_count or not total_element_count:
             self.__logger.warning(f"Skipped updating {media}, no rating key or Sonarr data found for given media")
             self.__discord.notify_cannot_update(media)
             return
 
-        self.__database.media_set_element_count(media.id, element_count)
+        self.__database.media_set_element_count(media.id, total_element_count)
         if element_count >= total_element_count:
             self.__mark_finished(media)
 
