@@ -127,6 +127,7 @@
         <th class="center">Type</th>
         <th class="center">Name</th>
         <th class="center">Season</th>
+        <th class="center">Count</th>
         <th class="center">Status</th>
         <th class="center">Links</th>
         <th class="center">ID</th>
@@ -146,6 +147,7 @@
         </td>
         <td>{{ media.name }}</td>
         <td class="center">{{ media.season_number or '' }}</td>
+        <td class="center">{{ media.element_count or '' }}</td>
         <td class="center">{{ media.status.get_for_display(locale) or '' }}</td>
         <td class="center">
             {% if url_data[media.overseerr_id] is not none %}
