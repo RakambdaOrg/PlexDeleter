@@ -29,7 +29,7 @@ class TautulliHelper:
             return int(data["parent_rating_key"])
         return rating_key
 
-    def get_last_episode_number_in_season(self, rating_key: int, season_number: int) -> int:
+    def get_last_episode_count_in_season(self, rating_key: int, season_number: int) -> int:
         if not season_number:
             return 0
 
@@ -38,7 +38,7 @@ class TautulliHelper:
         if not episodes or len(episodes) == 0:
             return 0
 
-        return max(map(lambda a: int(a), episodes))
+        return len(episodes)
 
     def get_season_episode_rating_key(self, rating_key: int, season_number: int) -> Optional[ElementRatingKey]:
         if not season_number:

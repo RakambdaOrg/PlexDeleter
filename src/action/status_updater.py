@@ -1,4 +1,5 @@
 import logging
+from typing import Optional
 
 from api.overseerr.overseerr_helper import OverseerrHelper
 from api.radarr.radarr_helper import RadarrHelper
@@ -47,31 +48,44 @@ class StatusUpdater:
         self.__discord.notify_cannot_update(media)
 
     def __update_series(self, media: Media) -> None:
+        element_count = None
+        total_element_count = None
+
+        result = self.__get_episode_count_from_overseerr_and_tautulli(media)
+        if result:
+            element_count = result[0]
+            total_element_count = result[1]
+
+        result = self.__get_episode_count_from_radarr(media)
+        if result:
+            if result[0] and result[0] > element_count:
+                element_count = result[0]
+            if result[1] and result[1] > total_element_count:
+                total_element_count = result[1]
+
+        if not element_count and not total_element_count:
+            self.__logger.warning(f"Skipped updating {media}, no rating key or Sonarr data found for given media")
+            self.__discord.notify_cannot_update(media)
+            return
+
+        self.__database.media_set_element_count(media.id, element_count)
+        if element_count >= total_element_count:
+            self.__logger.info('Setting media as finished')
+            self.__database.media_set_finished(media.id)
+            self.__discord.notify_set_finished(media)
+
+    def __get_episode_count_from_overseerr_and_tautulli(self, media: Media) -> Optional[tuple[int, int]]:
         rating_key = self.__overseerr.get_plex_rating_key(media.overseerr_id, media.type)
-        if rating_key:
-            last_available_episode = self.__tautulli.get_last_episode_number_in_season(rating_key, media.season_number)
-            season_episode_count = self.__overseerr.get_tv_season_episode_count(media.overseerr_id, media.season_number)
+        if not rating_key:
+            return
 
-            if season_episode_count:
-                self.__database.media_set_element_count(media.id, season_episode_count)
-                if season_episode_count <= last_available_episode:
-                    self.__mark_finished(media)
-                return
+        episode_count = self.__tautulli.get_last_episode_count_in_season(rating_key, media.season_number)
+        total_episode_count = self.__overseerr.get_tv_season_episode_count(media.overseerr_id, media.season_number)
+        return episode_count, total_episode_count
 
+    def __get_episode_count_from_radarr(self, media: Media) -> Optional[tuple[int, int]]:
         tvdb_id = self.__overseerr.get_tvdb_id(media.overseerr_id, media.type)
-        if tvdb_id:
-            (season_episode_percentage, season_episode_count) = self.__sonarr.get_tv_season_episode_percentage(tvdb_id, media.season_number)
-            if season_episode_count:
-                self.__database.media_set_element_count(media.id, season_episode_count)
-            if season_episode_percentage:
-                if season_episode_percentage == 100:
-                    self.__mark_finished(media)
-                return
+        if not tvdb_id:
+            return
 
-        self.__logger.warning(f"Skipped updating {media}, no rating key or Sonarr data found for given media")
-        self.__discord.notify_cannot_update(media)
-
-    def __mark_finished(self, media: Media) -> None:
-        self.__logger.info('Setting media as finished')
-        self.__database.media_set_finished(media.id)
-        self.__discord.notify_set_finished(media)
+        return self.__sonarr.get_tv_season_episode(tvdb_id, media.season_number)
