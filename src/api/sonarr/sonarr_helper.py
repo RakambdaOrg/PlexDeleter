@@ -9,7 +9,7 @@ class SonarrHelper:
     def __init__(self, api: SonarrApi):
         self.api = api
 
-    def get_tv_season_episode(self, tvdb_id: int, season_number: int) -> Optional[(int, int)]:
+    def get_tv_season_episode(self, tvdb_id: int, season_number: int) -> Optional[tuple[int, int]]:
         data = self.api.get_series(tvdb_id)
         for s in data:
             if "seasons" not in data:
