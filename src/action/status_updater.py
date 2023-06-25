@@ -70,9 +70,7 @@ class StatusUpdater:
 
         self.__database.media_set_element_count(media.id, element_count)
         if element_count >= total_element_count:
-            self.__logger.info('Setting media as finished')
-            self.__database.media_set_finished(media.id)
-            self.__discord.notify_set_finished(media)
+            self.__mark_finished(media)
 
     def __get_episode_count_from_overseerr_and_tautulli(self, media: Media) -> Optional[tuple[int, int]]:
         rating_key = self.__overseerr.get_plex_rating_key(media.overseerr_id, media.type)
@@ -89,3 +87,8 @@ class StatusUpdater:
             return
 
         return self.__sonarr.get_tv_season_episode(tvdb_id, media.season_number)
+
+    def __mark_finished(self, media: Media) -> None:
+        self.__logger.info('Setting media as finished')
+        self.__database.media_set_finished(media.id)
+        self.__discord.notify_set_finished(media)
