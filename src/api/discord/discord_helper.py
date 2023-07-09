@@ -15,19 +15,19 @@ class DiscordHelper:
         self.__send(f"Deleted file {file.resolve()}")
 
     def notify_media_deleted(self, media: Media):
-        self.__send(f"Deleted media {media.id}: {media.name} (Season {media.season_number})")
+        self.__send(f"Deleted media {media.id}: {media}")
 
     def notify_media_added(self, media: Media):
-        self.__send(f"Added media {media.id}: {media.name} (Season {media.season_number})")
+        self.__send(f"Added media {media.id}: {media}")
 
     def notify_media_requirement_added(self, media: Media, user_group: UserGroup):
-        self.__send(f"Added media requirement for {user_group.name} on {media.id}: {media.name} (Season {media.season_number})")
+        self.__send(f"Added media requirement for {user_group.name} on {media.id}: {media}")
 
     def notify_set_finished(self, media: Media) -> None:
-        self.__send(f"Marked {media.id} as finished: {media.name} (Season {media.season_number})")
+        self.__send(f"Marked {media.id} as finished: {media}")
 
     def notify_watched(self, media: Media, user_group: UserGroup) -> None:
-        self.__send(f"{user_group.name} watched {media.name}")
+        self.__send(f"{user_group.name} watched {media}")
 
     def notify_cannot_delete(self, media: Media):
         self.__send(f"Could not delete because no rating key {media}")
