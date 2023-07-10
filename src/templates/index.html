@@ -151,11 +151,11 @@
         <td class="center">{{ media.status.get_for_display(locale) or '' }}</td>
         <td class="center">
             {% if url_data[media.overseerr_id] is not none %}
-            {% if url_data[media.overseerr_id].overseerr is not none %}
-            <a href="{{url_data[media.overseerr_id].overseerr}}" target="_blank"><img class="icon" alt="Overseerr icon" src="{{ url_for('static', filename='overseerr.png' )}}"/></a>
+            {% if url_data[media.overseerr_id].overseerr_url is not none %}
+            <a href="{{url_data[media.overseerr_id].overseerr_url}}" target="_blank"><img class="icon" alt="Overseerr icon" src="{{ url_for('static', filename='overseerr.png' )}}"/></a>
             {% endif %}
-            {% if url_data[media.overseerr_id].plex_web is not none %}
-            <a href="{{url_data[media.overseerr_id].plex_web}}" target="_blank"><img class="icon" alt="Plex web icon" src="{{ url_for('static', filename='plex.png' )}}"/></a>
+            {% if url_data[media.overseerr_id].plex_web_url is not none %}
+            <a href="{{url_data[media.overseerr_id].plex_web_url}}" target="_blank"><img class="icon" alt="Plex web icon" src="{{ url_for('static', filename='plex.png' )}}"/></a>
             {% endif %}
             {% endif %}
         </td>

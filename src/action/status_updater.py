@@ -32,14 +32,13 @@ class StatusUpdater:
                 self.__update_series(media)
 
     def __update_movie(self, media: Media) -> None:
-        rating_key = self.__overseerr.get_plex_rating_key(media.overseerr_id, media.type)
-        if rating_key:
+        media_details = self.__overseerr.get_plex_rating_key(media.overseerr_id, media.type)
+        if media_details.rating_key:
             self.__mark_finished(media)
             return
 
-        tmdb_id = self.__overseerr.get_tmdb_id(media.overseerr_id, media.type)
-        if tmdb_id:
-            movie_has_file = self.__radarr.has_file(tmdb_id)
+        if media_details.tmdb_id:
+            movie_has_file = self.__radarr.has_file(media_details.tmdb_id)
             if movie_has_file:
                 self.__mark_finished(media)
             return
@@ -73,20 +72,20 @@ class StatusUpdater:
             self.__mark_finished(media)
 
     def __get_episode_count_from_overseerr_and_tautulli(self, media: Media) -> Optional[tuple[int, int]]:
-        rating_key = self.__overseerr.get_plex_rating_key(media.overseerr_id, media.type)
-        if not rating_key:
+        media_details = self.__overseerr.get_plex_rating_key(media.overseerr_id, media.type)
+        if not media_details.rating_key:
             return
 
-        episode_count = self.__tautulli.get_last_episode_count_in_season(rating_key, media.season_number)
+        episode_count = self.__tautulli.get_last_episode_count_in_season(media_details.rating_key, media.season_number)
         total_episode_count = self.__overseerr.get_tv_season_episode_count(media.overseerr_id, media.season_number)
         return episode_count, total_episode_count
 
     def __get_episode_count_from_radarr(self, media: Media) -> Optional[tuple[int, int]]:
-        tvdb_id = self.__overseerr.get_tvdb_id(media.overseerr_id, media.type)
-        if not tvdb_id:
+        media_details = self.__overseerr.get_plex_rating_key(media.overseerr_id, media.type)
+        if not media_details.tvdb_id:
             return
 
-        return self.__sonarr.get_tv_season_episode(tvdb_id, media.season_number)
+        return self.__sonarr.get_tv_season_episode(media_details.tvdb_id, media.season_number)
 
     def __mark_finished(self, media: Media) -> None:
         self.__logger.info('Setting media as finished')

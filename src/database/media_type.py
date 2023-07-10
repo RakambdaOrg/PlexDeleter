@@ -32,3 +32,11 @@ class MediaType(Enum):
             return 'movie.svg'
 
         return None
+
+    def get_overseerr_type(self) -> Optional[str]:
+        if self == MediaType.SHOW:
+            return 'tv'
+        if self == MediaType.MOVIE:
+            return 'movie'
+
+        return None

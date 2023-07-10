@@ -26,14 +26,14 @@ class WatchUpdater:
     def __has_persons_watched_media(self, media: Media, user_persons: list[UserPerson], user_group_watch_status: UserGroupWatchStatus) -> UserMediaStatus:
         self.__logger.debug(f"Querying watch status of {media} for persons {user_persons}")
         user_media_status = UserMediaStatus()
-        rating_key = self.__overseerr.get_plex_rating_key(media.overseerr_id, media.type)
-        if not rating_key:
+        media_details = self.__overseerr.get_plex_rating_key(media.overseerr_id, media.type)
+        if not media_details.rating_key:
             self.__logger.warning(f"Could not find media rating keys for {media}, not available?")
             user_media_status.add_unknown_index()
             self.__discord.notify_cannot_update_watch(media)
             return user_media_status
 
-        element_rating_key = self.__tautulli.get_season_episode_rating_key(rating_key, media.season_number)
+        element_rating_key = self.__tautulli.get_season_episode_rating_key(media_details.rating_key, media.season_number)
         media_element_rating_keys = []
 
         if element_rating_key:
@@ -50,8 +50,8 @@ class WatchUpdater:
             self.__discord.notify_cannot_update_watch(media)
             return user_media_status
 
-        if not user_group_watch_status.rating_key_searched(rating_key):
-            user_group_watch_status.merge(self.__tautulli.watched_status_for_media(media.type, rating_key))
+        if not user_group_watch_status.rating_key_searched(media_details.rating_key):
+            user_group_watch_status.merge(self.__tautulli.watched_status_for_media(media.type, media_details.rating_key))
         for media_element_rating_key in media_element_rating_keys:
             watched = False
             for user_person in user_persons:

@@ -2,6 +2,7 @@ from typing import Optional
 
 import pydash
 
+from api.overseerr.data.media_details import MediaDetails
 from api.overseerr.data.request_details import RequestDetails
 from api.overseerr.media_urls import MediaUrls
 from api.overseerr.overseerr_api import OverseerrApi
@@ -18,54 +19,29 @@ class OverseerrHelper:
             return None
         return max(map(lambda x: x["episodeNumber"], data["episodes"]))
 
-    def get_plex_rating_key(self, media_id: int, media_type: MediaType) -> Optional[int]:
-        rating_key = None
+    def get_plex_rating_key(self, media_id: int, media_type: MediaType) -> MediaDetails:
+        media_details = MediaDetails()
+
         if media_type == MediaType.SHOW:
             data = self.api.get_tv_details(media_id)
-            rating_key = pydash.get(data, f"mediaInfo.ratingKey", None)
         elif media_type == MediaType.MOVIE:
             data = self.api.get_movie_details(media_id)
-            rating_key = pydash.get(data, f"mediaInfo.ratingKey", None)
+        else:
+            return media_details
 
-        return int(rating_key) if rating_key else None
+        rating_key = pydash.get(data, f"mediaInfo.ratingKey", None)
+        media_info = pydash.get(data, f"mediaInfo", None)
+        tvdb_id = pydash.get(data, f"mediaInfo.tvdbId", None)
+        tmdb_id = pydash.get(data, f"mediaInfo.tmdbId", None)
 
-    def get_plex_url(self, media_id: int, media_type: MediaType) -> MediaUrls:
-        overseerr_url = None
-        media_info = None
-        if media_type == MediaType.SHOW:
-            overseerr_url = f"{self.api.endpoint}/tv/{media_id}"
-            data = self.api.get_tv_details(media_id)
-            media_info = pydash.get(data, f"mediaInfo", None)
-        elif media_type == MediaType.MOVIE:
-            overseerr_url = f"{self.api.endpoint}/movie/{media_id}"
-            data = self.api.get_movie_details(media_id)
-            media_info = pydash.get(data, f"mediaInfo", None)
+        media_details.rating_key = int(rating_key) if rating_key else None
+        media_details.overseerr_url = f"{self.api.endpoint}/{media_type.get_overseerr_type()}/{media_id}"
+        media_details.plex_web_url = media_info["plexUrl"] if media_info and "plexUrl" in media_info else None
+        media_details.plex_ios_url = media_info["iOSPlexUrl"] if media_info and "iOSPlexUrl" in media_info else None
+        media_details.tvdb_id = int(tvdb_id) if tvdb_id else None
+        media_details.tmdb_id = int(tmdb_id) if tmdb_id else None
 
-        return MediaUrls(overseerr_url,
-                         media_info["plexUrl"] if media_info and "plexUrl" in media_info else None,
-                         media_info["iOSPlexUrl"] if media_info and "iOSPlexUrl" in media_info else None)
-
-    def get_tvdb_id(self, media_id: int, media_type: MediaType) -> Optional[int]:
-        tvdb_id = None
-        if media_type == MediaType.SHOW:
-            data = self.api.get_tv_details(media_id)
-            tvdb_id = pydash.get(data, f"mediaInfo.tvdbId", None)
-        elif media_type == MediaType.MOVIE:
-            data = self.api.get_movie_details(media_id)
-            tvdb_id = pydash.get(data, f"mediaInfo.tvdbId", None)
-
-        return int(tvdb_id) if tvdb_id else None
-
-    def get_tmdb_id(self, media_id: int, media_type: MediaType) -> Optional[int]:
-        tmdb_id = None
-        if media_type == MediaType.SHOW:
-            data = self.api.get_tv_details(media_id)
-            tmdb_id = pydash.get(data, f"mediaInfo.tmdbId", None)
-        elif media_type == MediaType.MOVIE:
-            data = self.api.get_movie_details(media_id)
-            tmdb_id = pydash.get(data, f"mediaInfo.tmdbId", None)
-
-        return int(tmdb_id) if tmdb_id else None
+        return media_details
 
     def get_request_details(self, request_id: int) -> RequestDetails:
         data = self.api.get_request(request_id)
@@ -73,10 +49,6 @@ class OverseerrHelper:
             pydash.get(data, f"requestedBy.plexId", None),
             pydash.get(data, f"tags", None)
         )
-
-    def get_requester_plex_id(self, request_id: int) -> Optional[int]:
-        data = self.api.get_request(request_id)
-        return pydash.get(data, f"requestedBy.plexId", None)
 
     def get_servarr_tags(self, media_type: MediaType):
         if media_type == MediaType.SHOW:

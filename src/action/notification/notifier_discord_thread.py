@@ -34,10 +34,10 @@ class DiscordNotifierThread(CommonNotifier):
     def __get_markdown_body(self, locale: str, media: Media, user_group_status: UserGroupStatus) -> str:
         content_parts = [self._get_media_body(locale, media, user_group_status.get(media))]
 
-        plex_urls = self.__overseerr.get_plex_url(media.overseerr_id, media.type)
-        if plex_urls.overseerr:
-            content_parts.append(f"[Overseerr](<{plex_urls.overseerr}>)")
-        if plex_urls.plex_web:
-            content_parts.append(f"[Plex web](<{plex_urls.plex_web}>)")
+        media_details = self.__overseerr.get_plex_rating_key(media.overseerr_id, media.type)
+        if media_details.overseerr_url:
+            content_parts.append(f"[Overseerr](<{media_details.overseerr_url}>)")
+        if media_details.plex_web_url:
+            content_parts.append(f"[Plex web](<{media_details.plex_web_url}>)")
 
         return f"{' | '.join(content_parts)}"
