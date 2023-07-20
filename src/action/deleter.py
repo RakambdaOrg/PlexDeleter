@@ -6,6 +6,7 @@ from api.overseerr.overseerr_helper import OverseerrHelper
 from api.tautulli.tautulli_helper import TautulliHelper
 from database.database import Database
 from database.media import Media
+from database.media_action_status import MediaActionStatus
 
 
 class Deleter:
@@ -65,7 +66,7 @@ class Deleter:
 
         self.__delete_recursive(files)
         if not self.__dry_run:
-            self.__database.media_set_deleted(media.id)
+            self.__database.media_set_action_status(media.id, MediaActionStatus.DELETED)
             self.__discord.notify_media_deleted(media)
 
     def __delete_recursive(self, files: set[Path]) -> None:

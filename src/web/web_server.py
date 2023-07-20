@@ -165,6 +165,10 @@ class WebServer:
             for media in medias:
                 self.__logger.info(f"Added media {media}")
                 self.__discord.notify_media_added(media)
+        else:
+            for media in medias:
+                self.__database.media_set_status(media.id, MediaStatus.RELEASING)
+                self.__database.media_set_action_status(media.id, MediaActionStatus.TO_DELETE)
 
         for media in medias:
             for user_group in user_groups:

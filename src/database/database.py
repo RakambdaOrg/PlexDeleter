@@ -110,13 +110,13 @@ class Database:
                              self.__media_mapper,
                              {'media_requirement_status': MediaRequirementStatus.WAITING.value})
 
-    def media_set_finished(self, media_id: int) -> None:
+    def media_set_status(self, media_id: int, status: MediaStatus) -> None:
         self.__execute_and_commit("UPDATE Media SET Status=%(status)s WHERE Id=%(id)s",
-                                  {'status': MediaStatus.FINISHED.value, 'id': media_id})
+                                  {'status': status.value, 'id': media_id})
 
-    def media_set_deleted(self, media_id: int) -> None:
+    def media_set_action_status(self, media_id: int, action_status: MediaActionStatus) -> None:
         self.__execute_and_commit("UPDATE Media SET ActionStatus=%(action_status)s WHERE Id=%(id)s",
-                                  {'action_status': MediaActionStatus.DELETED.value, 'id': media_id})
+                                  {'action_status': action_status.value, 'id': media_id})
 
     def media_set_element_count(self, media_id: int, element_count: int):
         self.__execute_and_commit("UPDATE Media SET ElementCount=%(element_count)s WHERE Id=%(id)s",

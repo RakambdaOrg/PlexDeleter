@@ -5,6 +5,7 @@ from api.overseerr.overseerr_helper import OverseerrHelper
 from api.radarr.radarr_helper import RadarrHelper
 from api.sonarr.sonarr_helper import SonarrHelper
 from database.database import Database
+from database.media_status import MediaStatus
 from database.media_type import MediaType
 from database.media import Media
 from api.discord.discord_helper import DiscordHelper
@@ -89,5 +90,5 @@ class StatusUpdater:
 
     def __mark_finished(self, media: Media) -> None:
         self.__logger.info('Setting media as finished')
-        self.__database.media_set_finished(media.id)
+        self.__database.media_set_status(media.id, MediaStatus.FINISHED)
         self.__discord.notify_set_finished(media)
