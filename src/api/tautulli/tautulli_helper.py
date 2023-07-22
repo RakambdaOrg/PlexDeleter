@@ -8,7 +8,6 @@ import pydash
 
 from api.tautulli.data.element_rating_key import ElementRatingKey
 from api.tautulli.data.user_group_watch_status import UserGroupWatchStatus
-from api.tautulli.data.user_watch_status import UserWatchStatus
 from api.tautulli.data.watch_status import WatchStatus
 from api.tautulli.tautulli_api import TautulliApi
 from database.media_type import MediaType
@@ -29,7 +28,7 @@ class TautulliHelper:
             return int(data["parent_rating_key"])
         return rating_key
 
-    def get_last_episode_count_in_season(self, rating_key: int, season_number: int) -> int:
+    def get_episode_count_in_season(self, rating_key: int, season_number: int) -> int:
         if not season_number:
             return 0
 

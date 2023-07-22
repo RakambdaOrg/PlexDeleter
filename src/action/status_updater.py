@@ -1,4 +1,5 @@
 import logging
+from datetime import datetime
 from typing import Optional
 
 from api.overseerr.overseerr_helper import OverseerrHelper
@@ -48,13 +49,14 @@ class StatusUpdater:
         self.__discord.notify_cannot_update(media)
 
     def __update_series(self, media: Media) -> None:
-        element_count = None
-        total_element_count = None
+        season_details = self.__overseerr.get_tv_season_details(media.overseerr_id, media.season_number)
 
-        result = self.__get_episode_count_from_overseerr_and_tautulli(media)
+        element_count = None
+        total_element_count = season_details.episode_count
+
+        result = self.__get_episode_count_from_tautulli(media)
         if result:
-            element_count = result[0]
-            total_element_count = result[1]
+            element_count = result
 
         result = self.__get_episode_count_from_radarr(media)
         if result:
@@ -65,21 +67,21 @@ class StatusUpdater:
 
         if not element_count or not total_element_count:
             self.__logger.warning(f"Skipped updating {media}, no rating key or Sonarr data found for given media")
-            self.__discord.notify_cannot_update(media)
+            if season_details.last_air_date and season_details.last_air_date < datetime.now():
+                self.__discord.notify_cannot_update(media)
             return
 
         self.__database.media_set_element_count(media.id, total_element_count)
         if element_count >= total_element_count:
             self.__mark_finished(media)
 
-    def __get_episode_count_from_overseerr_and_tautulli(self, media: Media) -> Optional[tuple[int, int]]:
+    def __get_episode_count_from_tautulli(self, media: Media) -> Optional[int]:
         media_details = self.__overseerr.get_plex_rating_key(media.overseerr_id, media.type)
         if not media_details.rating_key:
             return
 
-        episode_count = self.__tautulli.get_last_episode_count_in_season(media_details.rating_key, media.season_number)
-        total_episode_count = self.__overseerr.get_tv_season_episode_count(media.overseerr_id, media.season_number)
-        return episode_count, total_episode_count
+        episode_count = self.__tautulli.get_episode_count_in_season(media_details.rating_key, media.season_number)
+        return episode_count
 
     def __get_episode_count_from_radarr(self, media: Media) -> Optional[tuple[int, int]]:
         media_details = self.__overseerr.get_plex_rating_key(media.overseerr_id, media.type)
