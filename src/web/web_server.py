@@ -1,4 +1,5 @@
 import logging
+import threading
 from threading import Thread
 from typing import Optional
 
@@ -32,11 +33,14 @@ class WebServer:
         self.__deleter = deleter
         self.__notifier = notifier
 
+        self.__lock = threading.Lock()
+
         self.__app = Flask("PlexDeleter")
         self.__app.get('/')(self.home)
         self.__app.get('/maintenance/full')(self.maintenance_full)
         self.__app.get('/maintenance/updates')(self.maintenance_updates)
-        self.__app.post('/webhook')(self.webhook)
+        self.__app.post('/webhook/overseerr')(self.webhook_overseerr)
+        self.__app.post('/webhook/tautulli')(self.webhook_tautulli)
         self.__app.route('/favicon.svg')(self.favicon)
 
     def run(self):
@@ -81,12 +85,12 @@ class WebServer:
 
         return flask.render_template('index.html', media_data=media_data, url_data=url_data, locale=locale)
 
-    def webhook(self) -> Response:
+    def webhook_overseerr(self) -> Response:
         if not self.__is_authorized():
             return Response(status=401)
 
         payload = request.json
-        self.__logger.info(f"Received webhook call with payload {payload}")
+        self.__logger.info(f"Received overseerr webhook call with payload {payload}")
 
         notification_type = payload["notification_type"]
         if notification_type not in ["MEDIA_AUTO_APPROVED", "MEDIA_APPROVED"]:
@@ -112,6 +116,18 @@ class WebServer:
                 self.__handle_season(overseerr_id, name, plex_user_id, season, media_type)
         else:
             self.__handle_season(overseerr_id, name, plex_user_id, None, media_type)
+
+        return Response(status=200)
+
+    def webhook_tautulli(self) -> Response:
+        if not self.__is_authorized():
+            return Response(status=401)
+
+        payload = request.json
+        self.__logger.info(f"Received tautulli webhook call with payload {payload}")
+
+        thread = Thread(target=self.__run_maintenance_updates)
+        thread.start()
 
         return Response(status=200)
 
@@ -145,16 +161,18 @@ class WebServer:
         return Response(status=200)
 
     def __run_maintenance_full(self):
-        user_group_statuses = self.__run_maintenance_updates()
-        self.__deleter.delete()
-        self.__notifier.notify(user_group_statuses)
-        self.__logger.info("Full maintenance done")
+        with self.__lock:
+            user_group_statuses = self.__run_maintenance_updates()
+            self.__deleter.delete()
+            self.__notifier.notify(user_group_statuses)
+            self.__logger.info("Full maintenance done")
 
     def __run_maintenance_updates(self) -> dict[UserGroup, UserGroupStatus]:
-        self.__status_updater.update()
-        user_group_statuses = self.__watch_updater.update()
-        self.__logger.info("Updates maintenance done")
-        return user_group_statuses
+        with self.__lock:
+            self.__status_updater.update()
+            user_group_statuses = self.__watch_updater.update()
+            self.__logger.info("Updates maintenance done")
+            return user_group_statuses
 
     @staticmethod
     def __extract_seasons(payload) -> list[int]:
