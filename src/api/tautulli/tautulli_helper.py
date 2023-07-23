@@ -89,9 +89,11 @@ class TautulliHelper:
     def watched_status_for_media(self, media_type: MediaType, rating_key: int) -> UserGroupWatchStatus:
         data = None
         if media_type == MediaType.MOVIE:
-            data = self.api.get_watch_history_for_rating_key(rating_key)["data"]
+            response = self.api.get_watch_history_for_rating_key(rating_key)
+            data = pydash.get(response, f"data", None)
         elif media_type == MediaType.SHOW:
-            data = self.api.get_watch_history_for_grandparent_rating_key(rating_key)["data"]
+            response = self.api.get_watch_history_for_grandparent_rating_key(rating_key)
+            data = pydash.get(response, f"data", None)
 
         user_group_watch_status = UserGroupWatchStatus()
         if data:
