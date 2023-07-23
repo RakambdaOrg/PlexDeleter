@@ -8,6 +8,7 @@ from waitress import serve
 
 from action.deleter import Deleter
 from action.notifier import Notifier
+from action.status.user_group_status import UserGroupStatus
 from action.status_updater import StatusUpdater
 from action.watch_updater import WatchUpdater
 from api.discord.discord_helper import DiscordHelper
@@ -33,7 +34,8 @@ class WebServer:
 
         self.__app = Flask("PlexDeleter")
         self.__app.get('/')(self.home)
-        self.__app.get('/maintenance')(self.maintenance)
+        self.__app.get('/maintenance/full')(self.maintenance_full)
+        self.__app.get('/maintenance/updates')(self.maintenance_updates)
         self.__app.post('/webhook')(self.webhook)
         self.__app.route('/favicon.svg')(self.favicon)
 
@@ -124,21 +126,35 @@ class WebServer:
 
         return "no-deleter" in labels
 
-    def maintenance(self) -> Response:
+    def maintenance_full(self) -> Response:
         if not self.__is_authorized():
             return Response(status=401)
 
-        self.__logger.info("Received maintenance request")
-        thread = Thread(target=self.__run_maintenance)
+        self.__logger.info("Received full maintenance request")
+        thread = Thread(target=self.__run_maintenance_full)
         thread.start()
         return Response(status=200)
 
-    def __run_maintenance(self):
-        self.__status_updater.update()
-        user_group_statuses = self.__watch_updater.update()
+    def maintenance_updates(self) -> Response:
+        if not self.__is_authorized():
+            return Response(status=401)
+
+        self.__logger.info("Received update maintenance request")
+        thread = Thread(target=self.__run_maintenance_updates)
+        thread.start()
+        return Response(status=200)
+
+    def __run_maintenance_full(self):
+        user_group_statuses = self.__run_maintenance_updates()
         self.__deleter.delete()
         self.__notifier.notify(user_group_statuses)
-        self.__logger.info("Maintenance done")
+        self.__logger.info("Full maintenance done")
+
+    def __run_maintenance_updates(self) -> dict[UserGroup, UserGroupStatus]:
+        self.__status_updater.update()
+        user_group_statuses = self.__watch_updater.update()
+        self.__logger.info("Updates maintenance done")
+        return user_group_statuses
 
     @staticmethod
     def __extract_seasons(payload) -> list[int]:
