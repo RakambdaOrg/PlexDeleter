@@ -33,7 +33,7 @@ class WebServer:
         self.__deleter = deleter
         self.__notifier = notifier
 
-        self.__lock = threading.Lock()
+        self.__lock = threading.RLock()
 
         self.__app = Flask("PlexDeleter")
         self.__app.get('/')(self.home)
