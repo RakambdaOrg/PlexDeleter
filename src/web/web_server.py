@@ -126,7 +126,19 @@ class WebServer:
         payload = request.json
         self.__logger.info(f"Received tautulli webhook call with payload {payload}")
 
-        thread = Thread(target=self.__run_maintenance_updates)
+        payload_type = payload["type"]
+        refresh_status = True
+        refresh_watch = True
+        user_id = None
+        if payload_type == "watched":
+            refresh_status = False
+            user_id = payload["user_id"]
+            pass
+        elif payload_type == "added":
+            refresh_watch = False
+            pass
+
+        thread = Thread(target=self.__run_maintenance_updates, args=(refresh_status, refresh_watch, user_id))
         thread.start()
 
         return Response(status=200)
@@ -167,10 +179,15 @@ class WebServer:
             self.__notifier.notify(user_group_statuses)
             self.__logger.info("Full maintenance done")
 
-    def __run_maintenance_updates(self) -> dict[UserGroup, UserGroupStatus]:
+    def __run_maintenance_updates(self, refresh_status: bool = True, refresh_watch: bool = True, user_id: Optional[int] = None) -> dict[UserGroup, UserGroupStatus]:
         with self.__lock:
-            self.__status_updater.update()
-            user_group_statuses = self.__watch_updater.update()
+            if refresh_status:
+                self.__status_updater.update()
+
+            user_group_statuses = {}
+            if refresh_watch:
+                user_group_statuses = self.__watch_updater.update(user_id)
+
             self.__logger.info("Updates maintenance done")
             return user_group_statuses
 

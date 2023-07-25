@@ -1,4 +1,5 @@
 import logging
+from typing import Optional
 
 from action.status.user_group_status import UserGroupStatus
 from action.status.user_media_status import UserMediaStatus
@@ -81,13 +82,18 @@ class WatchUpdater:
                 self.__logger.info(f"{user_group} did not watch {media}{status}")
         return user_group_status
 
-    def update(self) -> dict[UserGroup, UserGroupStatus]:
-        self.__logger.info("Updating watch statuses for all groups")
-        user_groups = self.__database.user_group_get_all()
-
+    def __update_groups(self, user_groups: list[UserGroup]) -> dict[UserGroup, UserGroupStatus]:
         user_group_watch_status = UserGroupWatchStatus()
         missing_watched = {}
         for user_group in user_groups:
             missing_watched[user_group] = self.__update_group(user_group, user_group_watch_status)
 
         return missing_watched
+
+    def update(self, user_id: Optional[int]) -> dict[UserGroup, UserGroupStatus]:
+        if user_id:
+            self.__logger.info(f"Updating watch statuses for user {user_id}")
+            return self.__update_groups(self.__database.user_group_get_with_plex_id(user_id))
+        else:
+            self.__logger.info("Updating watch statuses for all groups")
+            return self.__update_groups(self.__database.user_group_get_all())
