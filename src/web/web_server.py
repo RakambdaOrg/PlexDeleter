@@ -132,7 +132,7 @@ class WebServer:
         user_id = None
         if payload_type == "watched":
             refresh_status = False
-            user_id = payload["user_id"]
+            user_id = int(payload["user_id"]) if payload["user_id"] else None
             pass
         elif payload_type == "added":
             refresh_watch = False
