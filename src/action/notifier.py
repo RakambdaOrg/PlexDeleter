@@ -6,6 +6,7 @@ from action.notification.notifier_discord_thread import DiscordNotifierThread
 from action.notification.notifier_mail import MailNotifier
 from action.status.user_group_status import UserGroupStatus
 from database.database import Database
+from database.media_status import MediaStatus
 from database.notification_type import NotificationType
 from database.user_group import UserGroup
 
@@ -37,6 +38,8 @@ class Notifier:
         medias = self.__database.media_get_waiting_for_user_group(user_group.id)
         if len(medias) <= 0:
             self.__logger.debug("Nothing to notify")
+        elif all(media.status == MediaStatus.RELEASING for media in medias):
+            self.__logger.info("Not notifying, only got releasing")
         else:
             if user_group.notification_type == NotificationType.MAIL:
                 self.__mail_notifier.notify(user_group, medias, user_group_status)
