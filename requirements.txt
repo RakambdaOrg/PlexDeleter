@@ -2,7 +2,7 @@ tautulli==3.4.0.2120
 mariadb==1.1.7
 requests==2.31.0
 discord-webhook==1.2.1
-pydash==7.0.5
+pydash==7.0.6
 Flask==2.3.2
 waitress==2.1.2
 DBUtils==3.0.3
