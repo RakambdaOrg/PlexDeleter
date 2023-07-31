@@ -30,7 +30,7 @@ class DiscordNotifier(CommonNotifier):
     def __get_markdown_body(self, locale: str, media: Media, user_group_status: UserGroupStatus) -> str:
         content_parts = [self._get_media_body(locale, media, user_group_status.get(media))]
 
-        media_details = self.__overseerr.get_plex_rating_key(media.overseerr_id, media.type)
+        media_details = self.__overseerr.get_media_details(media.overseerr_id, media.type)
         if media_details.overseerr_url:
             content_parts.append(f"[Overseerr](<{media_details.overseerr_url}>)")
         if media_details.plex_web_url:

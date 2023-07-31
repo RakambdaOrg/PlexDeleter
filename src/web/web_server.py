@@ -81,7 +81,7 @@ class WebServer:
             all_overseerr_media[media.overseerr_id] = media
 
         for media in all_overseerr_media.values():
-            url_data[media.overseerr_id] = self.__overseerr.get_plex_rating_key(media.overseerr_id, media.type)
+            url_data[media.overseerr_id] = self.__overseerr.get_media_details(media.overseerr_id, media.type)
 
         return flask.render_template('index.html', media_data=media_data, url_data=url_data, locale=locale)
 

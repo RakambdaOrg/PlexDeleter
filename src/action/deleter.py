@@ -28,7 +28,7 @@ class Deleter:
 
     def __delete_media(self, media: Media) -> None:
         metadata = []
-        media_details = self.__overseerr.get_plex_rating_key(media.overseerr_id, media.type)
+        media_details = self.__overseerr.get_media_details(media.overseerr_id, media.type)
         element_rating_key = self.__tautulli.get_season_episode_rating_key(media_details.rating_key, media.season_number)
 
         season_rating_key = None

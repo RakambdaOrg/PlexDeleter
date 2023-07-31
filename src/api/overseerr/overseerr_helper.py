@@ -14,8 +14,12 @@ class OverseerrHelper:
         self.api = overseerr
 
     def get_tv_season_details(self, tv_id: int, season_number: int) -> SeasonDetails:
-        data = self.api.get_tv_season_details(tv_id, season_number)
-        if "episodes" not in data:
+        try:
+            data = self.api.get_tv_season_details(tv_id, season_number)
+        except RuntimeError:
+            data = None
+
+        if not data or "episodes" not in data:
             return SeasonDetails()
 
         episodes = data["episodes"]
@@ -30,7 +34,7 @@ class OverseerrHelper:
 
         return SeasonDetails(len(episodes), max_air_date)
 
-    def get_plex_rating_key(self, media_id: int, media_type: MediaType) -> MediaDetails:
+    def get_media_details(self, media_id: int, media_type: MediaType) -> MediaDetails:
         media_details = MediaDetails()
 
         if media_type == MediaType.SHOW:

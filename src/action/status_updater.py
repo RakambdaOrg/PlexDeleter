@@ -34,7 +34,7 @@ class StatusUpdater:
                 self.__update_series(media)
 
     def __update_movie(self, media: Media) -> None:
-        media_details = self.__overseerr.get_plex_rating_key(media.overseerr_id, media.type)
+        media_details = self.__overseerr.get_media_details(media.overseerr_id, media.type)
         if media_details.rating_key:
             self.__mark_finished(media)
             return
@@ -60,9 +60,9 @@ class StatusUpdater:
 
         result = self.__get_episode_count_from_radarr(media)
         if result:
-            if result[0] and result[0] > element_count:
+            if result[0] and (not element_count or result[0] > element_count):
                 element_count = result[0]
-            if result[1] and result[1] > total_element_count:
+            if result[1] and (not total_element_count or result[1] > total_element_count):
                 total_element_count = result[1]
 
         if not element_count or not total_element_count:
@@ -76,7 +76,7 @@ class StatusUpdater:
             self.__mark_finished(media)
 
     def __get_episode_count_from_tautulli(self, media: Media) -> Optional[int]:
-        media_details = self.__overseerr.get_plex_rating_key(media.overseerr_id, media.type)
+        media_details = self.__overseerr.get_media_details(media.overseerr_id, media.type)
         if not media_details.rating_key:
             return
 
@@ -84,7 +84,7 @@ class StatusUpdater:
         return episode_count
 
     def __get_episode_count_from_radarr(self, media: Media) -> Optional[tuple[int, int]]:
-        media_details = self.__overseerr.get_plex_rating_key(media.overseerr_id, media.type)
+        media_details = self.__overseerr.get_media_details(media.overseerr_id, media.type)
         if not media_details.tvdb_id:
             return
 

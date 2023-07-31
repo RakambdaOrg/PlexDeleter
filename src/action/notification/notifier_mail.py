@@ -33,7 +33,7 @@ class MailNotifier(CommonNotifier):
         for media in medias:
             content_parts = [self._get_media_body(locale, media, user_group_status.get(media))]
 
-            plex_urls = self.__overseerr.get_plex_rating_key(media.overseerr_id, media.type)
+            plex_urls = self.__overseerr.get_media_details(media.overseerr_id, media.type)
             if plex_urls.overseerr_url:
                 content_parts.append(f"<a href='{plex_urls.overseerr_url}'><img style='max-height: 15px;' src='https://plexdeleter.ds920.rakambda.fr/static/overseerr.png'/></a>")
             if plex_urls.plex_web_url:

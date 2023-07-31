@@ -27,7 +27,7 @@ class WatchUpdater:
     def __has_persons_watched_media(self, media: Media, user_persons: list[UserPerson], user_group_watch_status: UserGroupWatchStatus) -> UserMediaStatus:
         self.__logger.debug(f"Querying watch status of {media} for persons {user_persons}")
         user_media_status = UserMediaStatus()
-        media_details = self.__overseerr.get_plex_rating_key(media.overseerr_id, media.type)
+        media_details = self.__overseerr.get_media_details(media.overseerr_id, media.type)
         if not media_details.rating_key:
             self.__logger.warning(f"Could not find media rating keys for {media}, not available?")
             user_media_status.add_unknown_index()

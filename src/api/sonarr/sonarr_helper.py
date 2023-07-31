@@ -11,18 +11,21 @@ class SonarrHelper:
 
     def get_tv_season_episode(self, tvdb_id: int, season_number: int) -> Optional[tuple[int, int]]:
         data = self.api.get_series(tvdb_id)
-        for s in data:
-            if "seasons" not in data:
+        for match in data:
+            if "seasons" not in match:
                 continue
 
-            season = None
-            for sea in data["seasons"]:
-                if sea["seasonNumber"] == season_number:
-                    season = sea
-            if not season:
+            matched_season = None
+            for season in match["seasons"]:
+                if season["seasonNumber"] == season_number:
+                    matched_season = season
+            if not matched_season:
+                continue
+            if "statistics" not in matched_season:
                 continue
 
-            if "episodeCount" in season:
-                return s["episodeCount"], pydash.get(season, f"totalEpisodeCount", None)
+            statistics = matched_season["statistics"]
+            if "episodeCount" in statistics:
+                return statistics["episodeCount"], pydash.get(statistics, f"totalEpisodeCount", None)
 
         return None
