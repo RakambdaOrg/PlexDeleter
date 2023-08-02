@@ -1,11 +1,13 @@
 import datetime
 import logging
+from functools import cmp_to_key
 
 from action.notification.notifier_discord import DiscordNotifier
 from action.notification.notifier_discord_thread import DiscordNotifierThread
 from action.notification.notifier_mail import MailNotifier
 from action.status.user_group_status import UserGroupStatus
 from database.database import Database
+from database.media import Media
 from database.media_status import MediaStatus
 from database.notification_type import NotificationType
 from database.user_group import UserGroup
@@ -29,6 +31,24 @@ class Notifier:
             user_group_status = user_group_statuses[user_group] if user_group in user_group_statuses else UserGroupStatus()
             self.__notify_group(user_group, user_group_status)
 
+    @staticmethod
+    def __media_sorter_name_season(x: Media, y: Media) -> int:
+        if x.overseerr_id == y.overseerr_id:
+            if x.season_number <= y.season_number:
+                return -1
+            return 1
+
+        if x.name <= y.name:
+            return -1
+        return 1
+
+    def __media_sorter(self, x: Media, y: Media) -> int:
+        if x.status == y.status:
+            return self.__media_sorter_name_season(x, y)
+        if x.status != MediaStatus.RELEASING:
+            return -1
+        return 1
+
     def __notify_group(self, user_group: UserGroup, user_group_status: UserGroupStatus) -> None:
         self.__logger.info(f"Notifying {user_group}")
         if datetime.datetime.now() - user_group.last_notification < datetime.timedelta(days=6, hours=23):
@@ -36,6 +56,7 @@ class Notifier:
             return
 
         medias = self.__database.media_get_waiting_for_user_group(user_group.id)
+        medias = sorted(medias, key=cmp_to_key(self.__media_sorter))
         if len(medias) <= 0:
             self.__logger.debug("Nothing to notify")
         elif all(media.status == MediaStatus.RELEASING for media in medias):
