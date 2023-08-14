@@ -51,27 +51,10 @@ class DiscordHelper:
 
     @staticmethod
     def send_thread(url: str, thread_name: str, thread_original_post: str, thread_messages: list[str]) -> None:
-        thread_response = requests.post(
-            url=url,
-            json={
-                "content": thread_original_post,
-                "thread_name": thread_name
-            },
-            params={
-                "wait": "true"
-            }
-        ).json()
-
-        thread_id = thread_response["channel_id"]
+        webhook = DiscordWebhook(url=url, rate_limit_retry=True, content=thread_original_post, thread_name=thread_name)
+        response = webhook.execute()
+        thread_id = json.loads(response.content.decode("utf-8")).get("channel_id")
 
         for thread_message in thread_messages:
-            requests.post(
-                url=url,
-                json={
-                    "content": thread_message,
-                },
-                params={
-                    "wait": "true",
-                    "thread_id": thread_id
-                }
-            )
+            webhook = DiscordWebhook(url=url, rate_limit_retry=True, content=thread_message, thread_id=thread_id)
+            webhook.execute()
