@@ -1,6 +1,6 @@
 from pathlib import Path
 
-import requests
+import json
 from discord_webhook import DiscordWebhook
 
 from database.media import Media
