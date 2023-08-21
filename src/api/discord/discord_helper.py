@@ -15,7 +15,7 @@ class DiscordHelper:
         self.__send(f" * Deleted file {file.resolve()}")
 
     def notify_media_deleted(self, media: Media):
-        self.__send(f"* 🗑️ Deleted media {media.id}: {media}")
+        self.__send(f"🗑️ Deleted media {media.id}: {media}")
 
     def notify_media_added(self, media: Media):
         self.__send(f"✅ Added media {media.id}: {media}")
