@@ -21,7 +21,7 @@ class DiscordHelper:
         self.__send(f"✅ Added media {media.id}: {media}")
 
     def notify_media_requirement_added(self, media: Media, user_group: UserGroup):
-        self.__send(f"✅ Added media requirement for {user_group.name} on {media.id}: {media}")
+        self.__send(f"📋 Added media requirement for {user_group.name} on {media.id}: {media}")
 
     def notify_set_finished(self, media: Media) -> None:
         self.__send(f"🆗 Marked {media.id} as finished: {media}")
