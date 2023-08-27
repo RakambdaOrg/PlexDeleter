@@ -227,6 +227,14 @@ class WebServer:
                 self.__database.media_requirement_add(media.id, user_group.id)
                 self.__discord.notify_media_requirement_added(media, user_group)
 
+        if season:
+            previous_user_groups = self.__database.user_group_get_watching(overseerr_id, season - 1)
+            for user_group in previous_user_groups:
+                for media in medias:
+                    self.__logger.info(f"Added media requirement for previous {user_group} on {media}")
+                    self.__database.media_requirement_add(media.id, user_group.id)
+                    self.__discord.notify_media_requirement_added(media, user_group)
+
     def __is_authorized(self):
         authorization = request.headers.get('Authorization')
         result = authorization == self.__authorization

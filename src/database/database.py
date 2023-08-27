@@ -67,6 +67,15 @@ class Database:
                              self.__user_group_mapper,
                              {'plex_user_id': plex_user_id})
 
+    def user_group_get_watching(self, overseerr_id: int, season: int) -> list[UserGroup]:
+        return self.__select("SELECT UG.Id, UG.Name, UG.NotificationType, UG.NotificationValue, UG.Locale, UG.LastNotification "
+                             "FROM UserGroup UG "
+                             "INNER JOIN MediaRequirement MR ON UG.Id = MR.GroupId "
+                             "INNER JOIN Media M ON MR.MediaId = M.Id "
+                             "WHERE M.OverseerrId=%(overseerr_id)s AND M.Season=%(season)s AND MR.Status <> %(status)s",
+                             self.__user_group_mapper,
+                             {'overseerr_id': overseerr_id, 'season': season, 'status': MediaRequirementStatus.ABANDONED.value})
+
     def media_get_all_releasing(self) -> list[Media]:
         return self.__select("SELECT M.Id, M.OverseerrId, M.Name, M.Season, M.ElementCount, M.Type, M.Status, M.ActionStatus FROM Media M "
                              "WHERE Status=%(media_status)s",
