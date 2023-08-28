@@ -176,7 +176,7 @@ class WebServer:
         with self.__lock:
             user_group_statuses = self.__run_maintenance_updates()
             self.__deleter.delete()
-            self.__notifier.notify(user_group_statuses)
+            self.__notifier.notify_watchlist(user_group_statuses)
             self.__logger.info("Full maintenance done")
 
     def __run_maintenance_updates(self, refresh_status: bool = True, refresh_watch: bool = True, user_id: Optional[int] = None) -> dict[UserGroup, UserGroupStatus]:
@@ -208,7 +208,7 @@ class WebServer:
     def __handle_season(self, overseerr_id: int, name: str, plex_user_id: int, season: Optional[int], media_type: MediaType):
         self.__logger.info(f"Handling requirement request for media with overseerr id {overseerr_id} (Season {season}) on plex id {plex_user_id}")
         medias = self.__database.media_get_by_overseerr_id(overseerr_id, season)
-        user_groups = self.__database.user_group_get_with_plex_id(plex_user_id)
+        user_groups = set(self.__database.user_group_get_with_plex_id(plex_user_id))
 
         if len(medias) == 0:
             self.__database.media_add(overseerr_id, name, season, media_type, MediaStatus.RELEASING, MediaActionStatus.TO_DELETE)
@@ -221,12 +221,15 @@ class WebServer:
                 self.__database.media_set_status(media.id, MediaStatus.RELEASING)
                 self.__database.media_set_action_status(media.id, MediaActionStatus.TO_DELETE)
 
-        user_groups.extend(self.__database.user_group_get_watching(overseerr_id, season - 1))
+        self.__status_updater.update_medias(medias)
+
+        user_groups.update(self.__database.user_group_get_watching(overseerr_id, season - 1))
         for media in medias:
             for user_group in user_groups:
                 self.__logger.info(f"Added media requirement for {user_group} on {media}")
                 self.__database.media_requirement_add(media.id, user_group.id)
                 self.__discord.notify_media_requirement_added(media, user_group)
+                self.__notifier.notify_requirement_added(user_group, media)
 
     def __is_authorized(self):
         authorization = request.headers.get('Authorization')

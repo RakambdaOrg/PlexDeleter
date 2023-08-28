@@ -25,13 +25,19 @@ class StatusUpdater:
 
     def update(self) -> None:
         self.__logger.info("Updating media statuses")
-        medias = self.__database.media_get_all_releasing()
+        self.update_medias(self.__database.media_get_all_releasing())
+
+    def update_medias(self, medias: list[Media]) -> None:
+        self.__logger.info(f"Updating {len(medias)} medias")
         for media in medias:
-            self.__logger.info(f"Updating releasing media {media}")
-            if media.type == MediaType.MOVIE:
-                self.__update_movie(media)
-            else:
-                self.__update_series(media)
+            self.update_media(media)
+
+    def update_media(self, media: Media) -> None:
+        self.__logger.info(f"Updating media status {media}")
+        if media.type == MediaType.MOVIE:
+            self.__update_movie(media)
+        else:
+            self.__update_series(media)
 
     def __update_movie(self, media: Media) -> None:
         media_details = self.__overseerr.get_media_details(media.overseerr_id, media.type)

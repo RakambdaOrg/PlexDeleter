@@ -21,15 +21,25 @@ class Notifier:
         self.__discord_notifier_thread = discord_notifier_thread
         self.__logger = logging.getLogger(__name__)
 
-    def notify(self, user_group_statuses: dict[UserGroup, UserGroupStatus] = None) -> None:
+    def notify_watchlist(self, user_group_statuses: dict[UserGroup, UserGroupStatus] = None) -> None:
         if not user_group_statuses:
             user_group_statuses = {}
 
-        self.__logger.info("Notifying all groups")
+        self.__logger.info("Notifying watchlist for all groups")
         user_groups = self.__database.user_group_get_all()
         for user_group in user_groups:
             user_group_status = user_group_statuses[user_group] if user_group in user_group_statuses else UserGroupStatus()
-            self.__notify_group(user_group, user_group_status)
+            self.__notify_group_watchlist(user_group, user_group_status)
+
+    def notify_requirement_added(self, user_group: UserGroup, media: Media) -> None:
+        self.__logger.info(f"Notifying requirement added to {user_group} on {media}")
+        medias = [media]
+        if user_group.notification_type == NotificationType.MAIL:
+            self.__mail_notifier.notify_requirement_added(user_group, medias)
+        elif user_group.notification_type == NotificationType.DISCORD:
+            self.__discord_notifier.notify_requirement_added(user_group, medias)
+        elif user_group.notification_type == NotificationType.DISCORD_THREAD:
+            self.__discord_notifier_thread.notify_requirement_added(user_group, medias)
 
     @staticmethod
     def __media_sorter_name_season(x: Media, y: Media) -> int:
@@ -49,24 +59,24 @@ class Notifier:
             return -1
         return 1
 
-    def __notify_group(self, user_group: UserGroup, user_group_status: UserGroupStatus) -> None:
-        self.__logger.info(f"Notifying {user_group}")
+    def __notify_group_watchlist(self, user_group: UserGroup, user_group_status: UserGroupStatus) -> None:
+        self.__logger.info(f"Notifying {user_group} watchlist")
         if datetime.datetime.now() - user_group.last_notification < datetime.timedelta(days=6, hours=23):
-            self.__logger.debug("Too early to notify group")
+            self.__logger.debug("Too early to notify group watchlist")
             return
 
         medias = self.__database.media_get_waiting_for_user_group(user_group.id)
         medias = sorted(medias, key=cmp_to_key(self.__media_sorter))
         if len(medias) <= 0:
-            self.__logger.debug("Nothing to notify")
+            self.__logger.debug("No media in watchlist to notify")
         elif all(media.status == MediaStatus.RELEASING for media in medias):
-            self.__logger.info("Not notifying, only got releasing")
+            self.__logger.info("Not notifying watchlist, only got releasing")
         else:
             if user_group.notification_type == NotificationType.MAIL:
-                self.__mail_notifier.notify(user_group, medias, user_group_status)
+                self.__mail_notifier.notify_watchlist(user_group, medias, user_group_status)
             elif user_group.notification_type == NotificationType.DISCORD:
-                self.__discord_notifier.notify(user_group, medias, user_group_status)
+                self.__discord_notifier.notify_watchlist(user_group, medias, user_group_status)
             elif user_group.notification_type == NotificationType.DISCORD_THREAD:
-                self.__discord_notifier_thread.notify(user_group, medias, user_group_status)
+                self.__discord_notifier_thread.notify_watchlist(user_group, medias, user_group_status)
 
         self.__database.user_group_set_last_notified(user_group.id, datetime.datetime.now())
