@@ -223,7 +223,9 @@ class WebServer:
 
         self.__status_updater.update_medias(medias)
 
-        user_groups.update(self.__database.user_group_get_watching(overseerr_id, season - 1))
+        if season:
+            user_groups.update(self.__database.user_group_get_watching(overseerr_id, season - 1))
+
         for media in medias:
             for user_group in user_groups:
                 self.__logger.info(f"Added media requirement for {user_group} on {media}")
