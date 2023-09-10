@@ -27,8 +27,8 @@ class CommonNotifier(ABC):
     @staticmethod
     def _get_header_requirement_added(locale: str) -> str:
         if locale.lower() == "fr":
-            return "Nouveau média à regarder ajouté :"
-        return "New media to watch added:"
+            return "Nouveau média à regarder ajouté car vous l'avez demandé ou avez regardé la saison précédente :"
+        return "New media to watch added because you requested it or watched previous season:"
 
     @staticmethod
     def _get_media_body(locale: str, media: Media, user_media_status: Optional[UserMediaStatus]) -> str:
@@ -54,5 +54,5 @@ class CommonNotifier(ABC):
     @staticmethod
     def _get_subject_requirement_added(locale: str) -> str:
         if locale.lower() == "fr":
-            return "Plex : Media ajouté"
-        return "Plex: Media added"
+            return "Plex : Media ajouté a votre liste de lecture"
+        return "Plex: Media added to your watch list"
