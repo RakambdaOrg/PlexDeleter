@@ -25,6 +25,12 @@ class CommonNotifier(ABC):
         return "Medias waiting to be watched on Plex:"
 
     @staticmethod
+    def _get_header_releasing_watchlist(locale: str) -> str:
+        if locale.lower() == "fr":
+            return "Medias en cours de téléchargement :"
+        return "Medias waiting to be downloaded:"
+
+    @staticmethod
     def _get_header_requirement_added(locale: str) -> str:
         if locale.lower() == "fr":
             return "Nouveau média à regarder ajouté car vous l'avez demandé ou avez regardé la saison précédente :"
