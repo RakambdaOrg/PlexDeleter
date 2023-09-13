@@ -17,13 +17,13 @@ class CommonDiscordNotifier(CommonNotifier):
         self.__logger = logging.getLogger(__name__)
 
     def notify_watchlist(self, user_group: UserGroup, medias: list[Media], user_group_status: UserGroupStatus) -> None:
-        return self._notify(user_group, medias, user_group_status, self._get_header_watchlist, self._get_subject_watchlist)
+        return self._notify(user_group, medias, user_group_status, self._get_header_watchlist, self._get_header_releasing_watchlist, self._get_subject_watchlist)
 
     def notify_requirement_added(self, user_group: UserGroup, medias: list[Media]) -> None:
-        return self._notify(user_group, medias, None, self._get_header_requirement_added, self._get_subject_requirement_added)
+        return self._notify(user_group, medias, None, self._get_header_requirement_added, self._get_header_requirement_added, self._get_subject_requirement_added)
 
     @abstractmethod
-    def _notify(self, user_group: UserGroup, medias: list[Media], user_group_status: Optional[UserGroupStatus], header_function: Callable[[str], str], subject_function: Callable[[str], str]) -> None:
+    def _notify(self, user_group: UserGroup, medias: list[Media], user_group_status: Optional[UserGroupStatus], header_function: Callable[[str], str], header_releasing_function: Callable[[str], str], subject_function: Callable[[str], str]) -> None:
         pass
 
     def _get_markdown_body(self, locale: str, media: Media, user_group_status: Optional[UserGroupStatus]) -> str:
