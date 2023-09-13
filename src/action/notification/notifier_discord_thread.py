@@ -22,7 +22,7 @@ class DiscordNotifierThread(CommonDiscordNotifier):
 
         locale = user_group.locale
         header = header_function(locale)
-        header = header_releasing_function(locale)
+        header_releasing = header_releasing_function(locale)
         media_texts = ["* " + self._get_markdown_body(locale, media, user_group_status) for media in filter(lambda m: m.status != MediaStatus.RELEASING, medias)]
         media_texts_releasing = ["* " + self._get_markdown_body(locale, media, user_group_status) for media in filter(lambda m: m.status == MediaStatus.RELEASING, medias)]
 
