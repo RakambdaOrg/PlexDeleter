@@ -24,7 +24,11 @@ class Deleter:
     def delete(self) -> None:
         medias = self.__database.media_get_fully_watched_to_delete()
         for media in medias:
-            self.__delete_media(media)
+            try:
+                self.__delete_media(media)
+            except IOError as error:
+                self.__logger.error(f"Failed to delete media {media}", exc_info=error)
+                
 
     def __delete_media(self, media: Media) -> None:
         metadata = []
