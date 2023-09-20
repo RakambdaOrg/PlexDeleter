@@ -28,9 +28,9 @@ class DiscordNotifierThread(CommonDiscordNotifier):
         media_texts_releasing = ["* " + self._get_markdown_body(locale, media, user_group_status) for media in filter(lambda m: m.status == MediaStatus.RELEASING, medias)]
 
         texts = []
-        texts.append("# {header}")
+        texts.append(f"# {header}")
         texts += media_texts
-        texts.append("# {header_releasing}")
+        texts.append(f"# {header_releasing}")
         texts += media_texts_releasing
 
         self.__discord.send_thread(

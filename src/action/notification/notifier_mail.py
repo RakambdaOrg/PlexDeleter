@@ -6,6 +6,7 @@ from action.status.user_group_status import UserGroupStatus
 from api.mail.mailer import Mailer
 from api.overseerr.overseerr_helper import OverseerrHelper
 from database.media import Media
+from database.media_status import MediaStatus
 from database.user_group import UserGroup
 
 
@@ -35,20 +36,29 @@ class MailNotifier(CommonNotifier):
         media_list = "\n".join([f"* {self._get_media_body(locale, media, user_group_status.get(media) if user_group_status else None)}" for media in medias])
         return f'{self._get_header_watchlist(locale)}\n{media_list}'
 
+    def __get_content_parts(self, media: Media, user_group_status: UserGroupStatus, locale: str) -> str:
+        user_media_status = user_group_status.get(media) if user_group_status else None
+        content_parts = [self._get_media_body(locale, media, user_media_status)]
+
+        media_details = self.__overseerr.get_media_details(media.overseerr_id, media.type)
+        if media_details.overseerr_url:
+            content_parts.append(f"<a href='{media_details.overseerr_url}'><img style='max-height: 15px; max-width: 15px;' src='https://plexdeleter.ds920.rakambda.fr/static/overseerr.png'/></a>")
+        if media_details.plex_web_url:
+            content_parts.append(f"<a href='{media_details.plex_web_url}'><img style='max-height: 15px; max-width: 15px;' src='https://plexdeleter.ds920.rakambda.fr/static/plex.png'/></a>")
+
+        return f"<li>{' | '.join(content_parts)}</li>"
+
     def __get_html_body(self, locale: str, medias: list[Media], user_group_status: Optional[UserGroupStatus]) -> str:
         contents = []
-        for media in medias:
-            user_media_status = user_group_status.get(media) if user_group_status else None
-            content_parts = [self._get_media_body(locale, media, user_media_status)]
+        contents_releasing = []
 
-            media_details = self.__overseerr.get_media_details(media.overseerr_id, media.type)
-            if media_details.overseerr_url:
-                content_parts.append(f"<a href='{media_details.overseerr_url}'><img style='max-height: 15px;' src='https://plexdeleter.ds920.rakambda.fr/static/overseerr.png'/></a>")
-            if media_details.plex_web_url:
-                content_parts.append(f"<a href='{media_details.plex_web_url}'><img style='max-height: 15px;' src='https://plexdeleter.ds920.rakambda.fr/static/plex.png'/></a>")
-
-            contents.append(f"<li>{' | '.join(content_parts)}</li>")
+        for media in filter(lambda m: m.status != MediaStatus.RELEASING, medias):
+            contents.append(self.__get_content_parts(media, user_group_status, locale))
+        for media in filter(lambda m: m.status == MediaStatus.RELEASING, medias):
+            contents_releasing.append(self.__get_content_parts(media, user_group_status, locale))
 
         header = self._get_header_watchlist(locale)
+        header_releasing = self._get_header_releasing_watchlist(locale)
         merged_content = "\n".join(contents)
-        return f'{header}\n<ul>\n{merged_content}\n</ul>'
+        merged_content_releasing = "\n".join(contents_releasing)
+        return f'{header}\n<ul>\n{merged_content}\n</ul>{header_releasing}\n<ul>\n{merged_content_releasing}\n</ul>'
