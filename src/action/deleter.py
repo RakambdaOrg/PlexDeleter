@@ -1,6 +1,7 @@
 import logging
-from datetime import datetime, timezone, timedelta
+from datetime import datetime, timedelta
 from pathlib import Path
+
 from api.discord.discord_helper import DiscordHelper
 from api.overseerr.overseerr_helper import OverseerrHelper
 from api.tautulli.tautulli_helper import TautulliHelper
@@ -109,6 +110,8 @@ class Deleter:
     @staticmethod
     def __get_companion_files(file: Path) -> set[Path]:
         return set(file.parent.glob(f"*.srt")) \
+            .union(set(file.parent.glob(f"*.smi"))) \
+            .union(set(file.parent.glob(f"*.xml"))) \
             .union(set(file.parent.glob(f"*.nfo"))) \
             .union(set(file.parent.glob(f"*.metathumb"))) \
             .union(set(file.parent.glob(f"*.png"))) \
