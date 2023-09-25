@@ -22,16 +22,19 @@ class DiscordNotifierThread(CommonDiscordNotifier):
         webhook_url = parts[1]
 
         locale = user_group.locale
-        header = header_function(locale)
-        header_releasing = header_releasing_function(locale)
         media_texts = ["* " + self._get_markdown_body(locale, media, user_group_status) for media in filter(lambda m: m.status != MediaStatus.RELEASING, medias)]
         media_texts_releasing = ["* " + self._get_markdown_body(locale, media, user_group_status) for media in filter(lambda m: m.status == MediaStatus.RELEASING, medias)]
 
         texts = []
-        texts.append(f"# {header}")
-        texts += media_texts
-        texts.append(f"# {header_releasing}")
-        texts += media_texts_releasing
+        if len(media_texts) > 0:
+            header = header_function(locale)
+            texts.append(f"# {header}")
+            texts += media_texts
+
+        if len(media_texts_releasing) > 0:
+            header_releasing = header_releasing_function(locale)
+            texts.append(f"# {header_releasing}")
+            texts += media_texts_releasing
 
         self.__discord.send_thread(
             webhook_url,

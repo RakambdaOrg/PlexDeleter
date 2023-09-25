@@ -22,15 +22,17 @@ class DiscordNotifier(CommonDiscordNotifier):
         webhook_url = parts[1]
 
         locale = user_group.locale
-        header = header_function(locale)
-        header_releasing = header_releasing_function(locale)
 
-        self.__discord.send_to(webhook_url, f"{user_mention}\n# {header}")
-        for media in filter(lambda m: m.status != MediaStatus.RELEASING, medias):
-            self.__discord.send_to(webhook_url, "* " + self._get_markdown_body(locale, media, user_group_status))
+        if len(list(filter(lambda m: m.status != MediaStatus.RELEASING, medias))) > 0:
+            header = header_function(locale)
+            self.__discord.send_to(webhook_url, f"{user_mention}\n# {header}")
+            for media in filter(lambda m: m.status != MediaStatus.RELEASING, medias):
+                self.__discord.send_to(webhook_url, "* " + self._get_markdown_body(locale, media, user_group_status))
 
-        self.__discord.send_to(webhook_url, f"# {header_releasing}")
-        for media in filter(lambda m: m.status == MediaStatus.RELEASING, medias):
-            self.__discord.send_to(webhook_url, "* " + self._get_markdown_body(locale, media, user_group_status))
+        if len(list(filter(lambda m: m.status == MediaStatus.RELEASING, medias))) > 0:
+            header_releasing = header_releasing_function(locale)
+            self.__discord.send_to(webhook_url, f"# {header_releasing}")
+            for media in filter(lambda m: m.status == MediaStatus.RELEASING, medias):
+                self.__discord.send_to(webhook_url, "* " + self._get_markdown_body(locale, media, user_group_status))
 
         self.__logger.info("Discord webhook sent")

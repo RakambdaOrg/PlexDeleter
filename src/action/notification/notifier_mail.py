@@ -57,8 +57,14 @@ class MailNotifier(CommonNotifier):
         for media in filter(lambda m: m.status == MediaStatus.RELEASING, medias):
             contents_releasing.append(self.__get_content_parts(media, user_group_status, locale))
 
-        header = self._get_header_watchlist(locale)
-        header_releasing = self._get_header_releasing_watchlist(locale)
-        merged_content = "\n".join(contents)
-        merged_content_releasing = "\n".join(contents_releasing)
-        return f'{header}\n<ul>\n{merged_content}\n</ul>{header_releasing}\n<ul>\n{merged_content_releasing}\n</ul>'
+        text = ''
+        if len(contents) > 0:
+            header = self._get_header_watchlist(locale)
+            merged_content = "\n".join(contents)
+            text += f'{header}\n<ul>\n{merged_content}\n</ul>'
+        if len(contents_releasing) > 0:
+            header_releasing = self._get_header_releasing_watchlist(locale)
+            merged_content_releasing = "\n".join(contents_releasing)
+            text += f'{header_releasing}\n<ul>\n{merged_content_releasing}\n</ul>'
+
+        return text
