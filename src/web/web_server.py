@@ -71,7 +71,7 @@ class WebServer:
         for media in soon_deleted_media:
             all_overseerr_media[media.overseerr_id] = media
 
-        for group_and_media in group_and_medias:
+        for group_and_media in sorted(group_and_medias, key=lambda x: x[0].name):
             user_group = group_and_media[0]
             media = group_and_media[1]
             if user_group not in media_data:
