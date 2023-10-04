@@ -1,6 +1,6 @@
+import json
 from pathlib import Path
 
-import json
 from discord_webhook import DiscordWebhook
 
 from database.media import Media
@@ -23,8 +23,8 @@ class DiscordHelper:
     def notify_media_requirement_added(self, media: Media, user_group: UserGroup):
         self.__send(f"📋 Added media requirement for {user_group.name} on {media.id}: {media}")
 
-    def notify_set_finished(self, media: Media) -> None:
-        self.__send(f"🆗 Marked {media.id} as finished: {media}")
+    def notify_set_finished(self, media: Media, element_count: int, total_element_count: int) -> None:
+        self.__send(f"🆗 Marked {media.id} as finished: {media} ({element_count}/{total_element_count})")
 
     def notify_watched(self, media: Media, user_group: UserGroup) -> None:
         self.__send(f"👁️ {user_group.name} watched {media}")
