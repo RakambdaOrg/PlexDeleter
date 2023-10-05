@@ -22,9 +22,9 @@ from database.user_group import UserGroup
 
 
 class WebServer:
-    def __init__(self, bearer_token: str, overseerr: OverseerrHelper, database: Database, discord: DiscordHelper, status_updater: StatusUpdater, watch_updater: WatchUpdater, deleter: Deleter, notifier: Notifier):
+    def __init__(self, bearer_token: str, basic_token: str, overseerr: OverseerrHelper, database: Database, discord: DiscordHelper, status_updater: StatusUpdater, watch_updater: WatchUpdater, deleter: Deleter, notifier: Notifier):
         self.__logger = logging.getLogger(__name__)
-        self.__authorization = f"Bearer {bearer_token}"
+        self.__authorizations = [f"Bearer {bearer_token}", f"Basic {basic_token}"]
         self.__overseerr = overseerr
         self.__database = database
         self.__discord = discord
@@ -41,6 +41,8 @@ class WebServer:
         self.__app.get('/maintenance/updates')(self.maintenance_updates)
         self.__app.post('/webhook/overseerr')(self.webhook_overseerr)
         self.__app.post('/webhook/tautulli')(self.webhook_tautulli)
+        self.__app.post('/webhook/sonarr')(self.webhook_sonarr)
+        self.__app.post('/webhook/radarr')(self.webhook_radarr)
         self.__app.route('/favicon.svg')(self.favicon)
 
     def run(self):
@@ -90,7 +92,7 @@ class WebServer:
             return Response(status=401)
 
         payload = request.json
-        self.__logger.info(f"Received overseerr webhook call with payload {payload}")
+        self.__logger.info(f"Received Overseerr webhook call with payload {payload}")
 
         notification_type = payload["notification_type"]
         if notification_type not in ["MEDIA_AUTO_APPROVED", "MEDIA_APPROVED"]:
@@ -124,7 +126,7 @@ class WebServer:
             return Response(status=401)
 
         payload = request.json
-        self.__logger.info(f"Received tautulli webhook call with payload {payload}")
+        self.__logger.info(f"Received Tautulli webhook call with payload {payload}")
 
         payload_type = payload["type"]
         refresh_status = True
@@ -140,6 +142,24 @@ class WebServer:
 
         thread = Thread(target=self.__run_maintenance_updates, args=(refresh_status, refresh_watch, user_id))
         thread.start()
+
+        return Response(status=200)
+
+    def webhook_sonarr(self) -> Response:
+        if not self.__is_authorized():
+            return Response(status=401)
+
+        payload = request.json
+        self.__logger.info(f"Received Sonarr webhook call with payload {payload}")
+
+        return Response(status=200)
+
+    def webhook_radarr(self) -> Response:
+        if not self.__is_authorized():
+            return Response(status=401)
+
+        payload = request.json
+        self.__logger.info(f"Received Sonarr webhook call with payload {payload}")
 
         return Response(status=200)
 
@@ -235,7 +255,7 @@ class WebServer:
 
     def __is_authorized(self):
         authorization = request.headers.get('Authorization')
-        result = authorization == self.__authorization
+        result = authorization in self.__authorizations
         if not result:
             self.__logger.warning(f"Rejected authorization, received {authorization}")
         return result
