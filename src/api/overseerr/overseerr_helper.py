@@ -24,6 +24,7 @@ class OverseerrHelper:
 
         episodes = data["episodes"]
         max_air_date = None
+        tvdb_id = pydash.get(data, f"externalIds.tvdbId", None)
 
         for episode in episodes:
             air_date = pydash.get(episode, f"airDate", None)
@@ -32,7 +33,7 @@ class OverseerrHelper:
                 if max_air_date is None or max_air_date < air_date_date:
                     max_air_date = air_date_date
 
-        return SeasonDetails(len(episodes), max_air_date)
+        return SeasonDetails(len(episodes), max_air_date, tvdb_id)
 
     def get_media_details(self, media_id: int, media_type: MediaType) -> MediaDetails:
         media_details = MediaDetails()

@@ -7,3 +7,4 @@ from typing import Optional
 class SeasonDetails:
     episode_count: Optional[int] = None
     last_air_date: Optional[datetime.datetime] = None
+    tvdb_id: Optional[int] = None

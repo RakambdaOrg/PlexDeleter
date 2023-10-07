@@ -41,13 +41,15 @@ class StatusUpdater:
 
     def __update_movie(self, media: Media) -> None:
         media_details = self.__overseerr.get_media_details(media.overseerr_id, media.type)
-        if media_details.rating_key:
-            self.__mark_finished(media, 1, 1)
-            return
 
         if not media.tvdb_id and media_details.tvdb_id:
             media.tvdb_id = media_details.tvdb_id
+            self.__logger.info(f"Setting tvdb id {media_details.tvdb_id} for media {media}")
             self.__database.media_set_tvdb_id(media.id, media.tvdb_id)
+
+        if media_details.rating_key:
+            self.__mark_finished(media, 1, 1)
+            return
 
         if media_details.tmdb_id:
             movie_has_file = self.__radarr.has_file(media_details.tmdb_id)
@@ -60,6 +62,11 @@ class StatusUpdater:
 
     def __update_series(self, media: Media) -> None:
         season_details = self.__overseerr.get_tv_season_details(media.overseerr_id, media.season_number)
+
+        if not media.tvdb_id and season_details.tvdb_id:
+            media.tvdb_id = season_details.tvdb_id
+            self.__logger.info(f"Setting tvdb id {season_details.tvdb_id} for media {media}")
+            self.__database.media_set_tvdb_id(media.id, media.tvdb_id)
 
         element_count = None
         total_element_count = season_details.episode_count
