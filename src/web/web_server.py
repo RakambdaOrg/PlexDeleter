@@ -129,6 +129,11 @@ class WebServer:
         self.__logger.info(f"Received Tautulli webhook call with payload {payload}")
 
         payload_type = payload["type"]
+        media_type = payload["media_type"]
+        if media_type == 'track':
+            self.__logger.info("Skipping update as media is a track")
+            return Response(status=200)
+
         refresh_status = True
         refresh_watch = True
         user_id = None
@@ -168,7 +173,7 @@ class WebServer:
             season_number = episode["seasonNumber"]
             episode_number = episode["episodeNumber"]
             if tvdb_id and season_number and episode_number:
-                logging.info(f"Setting episode count to {episode_number} for show {title} (Season {season_number}) of tvdb {tvdb_id}")
+                self.__logger.info(f"Setting episode count to {episode_number} for show {title} (Season {season_number}) of tvdb {tvdb_id}")
                 self.__database.media_tvdb_id_set_episode(tvdb_id, season_number, episode_number)
 
         return Response(status=200)
