@@ -26,6 +26,6 @@ class SonarrHelper:
 
             statistics = matched_season["statistics"]
             if "episodeCount" in statistics:
-                return statistics["episodeCount"], pydash.get(statistics, f"totalEpisodeCount", None)
+                return statistics["episodeFileCount"], pydash.get(statistics, f"totalEpisodeCount", None)
 
         return None
