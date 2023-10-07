@@ -10,6 +10,7 @@ from database.media_type import MediaType
 class Media:
     id: int = field(hash=True, compare=True)
     overseerr_id: int = field(hash=False, compare=False)
+    tvdb_id: Optional[int] = field(hash=False, compare=False)
     name: str = field(hash=False, compare=False)
     season_number: Optional[int] = field(hash=False, compare=False)
     element_count: Optional[int] = field(hash=False, compare=False)

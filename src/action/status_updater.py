@@ -45,6 +45,10 @@ class StatusUpdater:
             self.__mark_finished(media, 1, 1)
             return
 
+        if not media.tvdb_id and media_details.tvdb_id:
+            media.tvdb_id = media_details.tvdb_id
+            self.__database.media_set_tvdb_id(media.id, media.tvdb_id)
+
         if media_details.tmdb_id:
             movie_has_file = self.__radarr.has_file(media_details.tmdb_id)
             if movie_has_file:

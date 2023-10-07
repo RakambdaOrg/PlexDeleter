@@ -135,10 +135,8 @@ class WebServer:
         if payload_type == "watched":
             refresh_status = False
             user_id = int(payload["user_id"]) if payload["user_id"] else None
-            pass
         elif payload_type == "added":
             refresh_watch = False
-            pass
 
         thread = Thread(target=self.__run_maintenance_updates, args=(refresh_status, refresh_watch, user_id))
         thread.start()
@@ -151,6 +149,27 @@ class WebServer:
 
         payload = request.json
         self.__logger.info(f"Received Sonarr webhook call with payload {payload}")
+
+        payload_type = payload["eventType"]
+        if payload_type != 'Grab':
+            return Response(status=204)
+
+        if not 'series' in payload:
+            return Response(status=204)
+        series = payload["series"]
+
+        if 'episodes' in series:
+            return Response(status=204)
+        episodes = series["episodes"]
+        title = series["title"]
+        tvdb_id = series["tvdbId"]
+
+        for episode in episodes:
+            season_number = episode["seasonNumber"]
+            episode_number = episode["episodeNumber"]
+            if tvdb_id and season_number and episode_number:
+                logging.info(f"Setting episode count to {episode_number} for show {title} (Season {season_number}) of tvdb {tvdb_id}")
+                self.__database.media_tvdb_id_set_episode(tvdb_id, season_number, episode_number)
 
         return Response(status=200)
 
