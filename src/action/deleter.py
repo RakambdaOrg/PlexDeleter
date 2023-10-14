@@ -104,7 +104,7 @@ class Deleter:
                 parents.add(file.parent)
                 if not self.__dry_run:
                     file.rmdir()
-                    self.__discord.notify_file_deleted(file)
+                    self.__discord.notify_folder_deleted(file)
         return parents, companion_files
 
     @staticmethod
@@ -117,4 +117,5 @@ class Deleter:
             .union(set(file.parent.glob(f"*.png"))) \
             .union(set(file.parent.glob(f"*.jpg"))) \
             .union(set(file.parent.glob(f"*.jpeg"))) \
-            .union(set(file.parent.glob(f"@eaDir/*")))
+            .union(set(file.parent.glob(f"@eaDir/*"))) \
+            .union(set(file.parent.glob(f"Plex Versions/**")))

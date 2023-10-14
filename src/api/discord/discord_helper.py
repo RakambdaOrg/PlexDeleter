@@ -14,6 +14,9 @@ class DiscordHelper:
     def notify_file_deleted(self, file: Path) -> None:
         self.__send(f" * Deleted file {file.resolve()}")
 
+    def notify_folder_deleted(self, file: Path) -> None:
+        self.__send(f" * Deleted folder {file.resolve()}")
+
     def notify_media_deleted(self, media: Media):
         self.__send(f"🗑️ Deleted media {media.id}: {media}")
 
