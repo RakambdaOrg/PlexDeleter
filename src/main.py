@@ -42,37 +42,56 @@ logging.basicConfig(
 )
 
 if __name__ == "__main__":
-    database = Database(get_env("DB_HOST"), get_env("DB_USER"), get_env("DB_PASS"), get_env("DB_DB"))
-    mailer = Mailer(
-        username=get_env("MAIL_USERNAME", required=False),
-        password=get_env("MAIL_PASSWORD", required=False),
-        server=get_env("MAIL_SERVER"),
-        port=int(get_env("MAIL_PORT", required=False, default='0')),
-        name_from=get_env("MAIL_FROM", required=False),
-        mail_from=get_env("MAIL_MAIL")
-    )
-    discord_helper = DiscordHelper(get_env("DISCORD_WEBHOOK", required=False))
+    database_host = get_env("DB_HOST")
+    database_user = get_env("DB_USER")
+    database_password = get_env("DB_PASS")
+    database_name = get_env("DB_DB")
 
-    tautulli_api = TautulliApi(get_env("TAUTULLI_URL"), get_env("TAUTULLI_KEY"))
+    remote_path = get_env("REMOTE_PATH")
+    local_path = get_env("LOCAL_PATH")
+    discord_webhook = get_env("DISCORD_WEBHOOK", required=False)
+    dry_run = get_env("DRY_RUN", required=False, default="false").lower() == "true"
+    delete_min_days = int(get_env("DELETE_MIN_DAYS", required=False, default="2"))
+
+    server_auth_bearer = get_env("BEARER_TOKEN")
+    server_auth_basic = get_env("BASIC_TOKEN")
+
+    mail_username = get_env("MAIL_USERNAME", required=False)
+    mail_password = get_env("MAIL_PASSWORD", required=False)
+    mail_host = get_env("MAIL_SERVER")
+    mail_port = get_env("MAIL_PORT", required=False, default='0')
+    mail_from_name = get_env("MAIL_FROM", required=False)
+    mail_from_mail = get_env("MAIL_MAIL")
+
+    tautulli_host = get_env("TAUTULLI_URL")
+    tautulli_key = get_env("TAUTULLI_KEY")
+
+    overseerr_host = get_env("OVERSEERR_URL")
+    overseerr_key = get_env("OVERSEERR_KEY")
+
+    radarr_host = get_env("RADARR_URL")
+    radarr_key = get_env("RADARR_KEY")
+
+    sonarr_host = get_env("SONARR_URL")
+    sonarr_key = get_env("SONARR_KEY")
+
+    database = Database(database_host, database_user, database_password, database_name)
+    mailer = Mailer(username=mail_username, password=mail_password, server=mail_host, port=int(mail_port), name_from=mail_from_name, mail_from=mail_from_mail)
+    discord_helper = DiscordHelper(discord_webhook)
+    tautulli_api = TautulliApi(tautulli_host, tautulli_key)
     tautulli_helper = TautulliHelper(tautulli_api)
-
-    overseerr_api = OverseerrApi(get_env("OVERSEERR_URL"), get_env("OVERSEERR_KEY"))
+    overseerr_api = OverseerrApi(overseerr_host, overseerr_key)
     overseerr_helper = OverseerrHelper(overseerr_api)
-
-    radarr_api = RadarrApi(get_env("RADARR_URL"), get_env("RADARR_KEY"))
+    radarr_api = RadarrApi(radarr_host, radarr_key)
     radarr_helper = RadarrHelper(radarr_api)
-
-    sonarr_api = SonarrApi(get_env("SONARR_URL"), get_env("SONARR_KEY"))
+    sonarr_api = SonarrApi(sonarr_host, sonarr_key)
     sonarr_helper = SonarrHelper(sonarr_api)
-
     discord_notifier = DiscordNotifier(overseerr_helper, discord_helper)
     discord_notifier_thread = DiscordNotifierThread(overseerr_helper, discord_helper)
     mail_notifier = MailNotifier(mailer, overseerr_helper)
-
     status_updater = StatusUpdater(database, tautulli_helper, overseerr_helper, discord_helper, radarr_helper, sonarr_helper)
     watch_updater = WatchUpdater(database, tautulli_helper, overseerr_helper, discord_helper)
-    deleter = Deleter(get_env("REMOTE_PATH"), get_env("LOCAL_PATH"), get_env("DRY_RUN", required=False, default="false").lower() == "true", database, tautulli_helper, overseerr_helper, discord_helper, int(get_env("DELETE_MIN_DAYS", required=False, default="2")))
+    deleter = Deleter(remote_path, local_path, dry_run, database, tautulli_helper, overseerr_helper, discord_helper, delete_min_days)
     notifier = Notifier(database, mail_notifier, discord_notifier, discord_notifier_thread)
-
-    web_server = WebServer(get_env("BEARER_TOKEN"), get_env("BASIC_TOKEN"), overseerr_helper, database, discord_helper, status_updater, watch_updater, deleter, notifier)
+    web_server = WebServer(server_auth_bearer, server_auth_basic, overseerr_helper, database, discord_helper, status_updater, watch_updater, deleter, notifier)
     web_server.run()
