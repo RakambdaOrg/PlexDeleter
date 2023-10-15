@@ -29,7 +29,6 @@ class Deleter:
                 self.__delete_media(media)
             except IOError as error:
                 self.__logger.error(f"Failed to delete media {media}", exc_info=error)
-                
 
     def __delete_media(self, media: Media) -> None:
         metadata = []
@@ -93,7 +92,7 @@ class Deleter:
                 parents.add(file.parent)
                 if not self.__dry_run:
                     file.unlink()
-                    self.__discord.notify_file_deleted(file)
+                    self.__discord.notify_file_deleted(file.relative_to(Path(self.__local_path)))
                 companion_files.update(self.__get_companion_files(file))
             if file.is_dir():
                 self.__logger.info(f"Deleting folder {file}")
@@ -104,7 +103,7 @@ class Deleter:
                 parents.add(file.parent)
                 if not self.__dry_run:
                     file.rmdir()
-                    self.__discord.notify_folder_deleted(file)
+                    self.__discord.notify_folder_deleted(file.relative_to(Path(self.__local_path)))
         return parents, companion_files
 
     @staticmethod
