@@ -32,7 +32,8 @@ class Database:
                                                          NotificationType(self.__get_row_value(row, 'UG', 'NotificationType')),
                                                          self.__get_row_value(row, 'UG', 'NotificationValue'),
                                                          self.__get_row_value(row, 'UG', 'Locale'),
-                                                         self.__get_row_value(row, 'UG', 'LastNotification'))
+                                                         self.__get_row_value(row, 'UG', 'LastNotification'),
+                                                         self.__get_row_value(row, 'UG', 'Display'))
         self.__media_mapper = lambda row: Media(self.__get_row_value(row, 'M', 'Id'),
                                                 self.__get_row_value(row, 'M', 'OverseerrId'),
                                                 self.__get_row_value(row, 'M', 'TvdbId'),
@@ -52,7 +53,7 @@ class Database:
                              {'group_id': group_id})
 
     def user_group_get_all(self) -> list[UserGroup]:
-        return self.__select("SELECT UG.Id, UG.Name, UG.NotificationType, UG.NotificationValue, UG.Locale, UG.LastNotification FROM UserGroup UG",
+        return self.__select("SELECT UG.Id, UG.Name, UG.NotificationType, UG.NotificationValue, UG.Locale, UG.LastNotification, UG.Display FROM UserGroup UG",
                              self.__user_group_mapper)
 
     def user_group_set_last_notified(self, group_id: int, date: datetime.datetime) -> None:
@@ -60,7 +61,7 @@ class Database:
                                   {'date': date, 'group_id': group_id})
 
     def user_group_get_with_plex_id(self, plex_user_id: int) -> list[UserGroup]:
-        return self.__select("SELECT UG.Id, UG.Name, UG.NotificationType, UG.NotificationValue, UG.Locale, UG.LastNotification "
+        return self.__select("SELECT UG.Id, UG.Name, UG.NotificationType, UG.NotificationValue, UG.Locale, UG.LastNotification, UG.Display "
                              "FROM UserGroup UG "
                              "INNER JOIN UserMapping UM ON UG.Id = UM.GroupId "
                              "INNER JOIN UserPerson UP ON UM.PersonId = UP.Id "
@@ -69,7 +70,7 @@ class Database:
                              {'plex_user_id': plex_user_id})
 
     def user_group_get_watching(self, overseerr_id: int, season: int) -> list[UserGroup]:
-        return self.__select("SELECT UG.Id, UG.Name, UG.NotificationType, UG.NotificationValue, UG.Locale, UG.LastNotification "
+        return self.__select("SELECT UG.Id, UG.Name, UG.NotificationType, UG.NotificationValue, UG.Locale, UG.LastNotification, UG.Display "
                              "FROM UserGroup UG "
                              "INNER JOIN MediaRequirement MR ON UG.Id = MR.GroupId "
                              "INNER JOIN Media M ON MR.MediaId = M.Id "
@@ -102,7 +103,8 @@ class Database:
                              {'group_id': group_id, 'media_requirement_status': MediaRequirementStatus.WAITING.value})
 
     def media_get_waiting_with_groups(self) -> list[tuple[UserGroup, Media]]:
-        return self.__select("SELECT M.Id, M.OverseerrId, M.TvdbId, M.Name, M.Season, M.Type, M.ElementCount, M.Status, M.ActionStatus, UG.Id, UG.Name, UG.NotificationType, UG.NotificationValue, UG.Locale, UG.LastNotification "
+        return self.__select("SELECT M.Id, M.OverseerrId, M.TvdbId, M.Name, M.Season, M.Type, M.ElementCount, M.Status, M.ActionStatus, "
+                             "UG.Id, UG.Name, UG.NotificationType, UG.NotificationValue, UG.Locale, UG.LastNotification, UG.Display "
                              "FROM MediaRequirement MR "
                              "INNER JOIN UserGroup UG on MR.GroupId = UG.Id "
                              "INNER JOIN Media M on MR.MediaId = M.Id "

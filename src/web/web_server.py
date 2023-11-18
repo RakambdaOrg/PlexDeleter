@@ -76,6 +76,9 @@ class WebServer:
         for group_and_media in sorted(group_and_medias, key=lambda x: x[0].name):
             user_group = group_and_media[0]
             media = group_and_media[1]
+
+            if not user_group.display:
+                continue
             if user_group not in media_data:
                 media_data[user_group] = []
 
