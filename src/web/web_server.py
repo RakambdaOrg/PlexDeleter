@@ -66,7 +66,7 @@ class WebServer:
         if locale == "fr":
             soon_deleted_name = "Bientôt supprimé"
 
-        soon_deleted_group = UserGroup(-1, soon_deleted_name, None, None, None, None)
+        soon_deleted_group = UserGroup(-1, soon_deleted_name, None, None, None, None, True)
         soon_deleted_media = self.__database.media_get_ready_to_delete()
         media_data[soon_deleted_group] = soon_deleted_media
 
