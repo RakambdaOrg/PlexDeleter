@@ -35,10 +35,10 @@ class WebServer:
         self.__app.get('/')(self.__homepage.home)
         self.__app.get('/maintenance/full')(self.__web_utils.on_maintenance_full)
         self.__app.get('/maintenance/updates')(self.__web_utils.on_maintenance_updates)
-        self.__app.post('/webhook/overseerr')(self.__webhook_overseerr.on_call)
-        self.__app.post('/webhook/tautulli')(self.__webhook_tautulli.on_call)
-        self.__app.post('/webhook/sonarr')(self.__webhook_sonarr.on_call)
-        self.__app.post('/webhook/radarr')(self.__webhook_radarr.on_call)
+        self.__app.post('/webhook/overseerr')(self.__webhook_overseerr.on_webhook_overseerr)
+        self.__app.post('/webhook/tautulli')(self.__webhook_tautulli.on_webhook_tautulli)
+        self.__app.post('/webhook/sonarr')(self.__webhook_sonarr.on_webhook_sonarr)
+        self.__app.post('/webhook/radarr')(self.__webhook_radarr.on_webhook_radarr)
 
     def run(self):
         serve(self.__app, host="0.0.0.0", port=8080)

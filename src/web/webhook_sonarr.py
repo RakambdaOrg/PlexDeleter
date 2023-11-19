@@ -12,7 +12,7 @@ class WebhookSonarr:
         self.__web_utils = web_utils
         self.__database = database
 
-    def on_call(self) -> Response:
+    def on_webhook_sonarr(self) -> Response:
         if not self.__web_utils.is_authorized():
             return Response(status=401)
 

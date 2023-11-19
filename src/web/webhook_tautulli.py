@@ -11,7 +11,7 @@ class WebhookTautulli:
         self.__logger = logging.getLogger(__name__)
         self.__web_utils = web_utils
 
-    def on_call(self) -> Response:
+    def on_webhook_tautulli(self) -> Response:
         if not self.__web_utils.is_authorized():
             return Response(status=401)
 
