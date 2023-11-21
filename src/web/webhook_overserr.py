@@ -1,4 +1,5 @@
 import logging
+from threading import Thread
 from typing import Optional
 
 from flask import Response, request
@@ -32,9 +33,22 @@ class WebhookOverseerr:
         self.__logger.info(f"Received Overseerr webhook call with payload {payload}")
 
         notification_type = payload["notification_type"]
-        if notification_type not in ["MEDIA_AUTO_APPROVED", "MEDIA_APPROVED"]:
-            self.__logger.warning("Invalid notification type")
-            return Response(status=400)
+        if notification_type in ["MEDIA_AUTO_APPROVED", "MEDIA_APPROVED"]:
+            return self.__on_media_approved(payload)
+        if notification_type in ["MEDIA_AVAILABLE"]:
+            return self.__on_media_added()
+
+        self.__logger.warning("Invalid notification type")
+        return Response(status=400)
+
+    def __on_media_added(self):
+        thread = Thread(target=self.__web_utils.run_maintenance_updates, args=(True, False, None))
+        thread.start()
+
+        return Response(status=200)
+
+    def __on_media_approved(self, payload: dict):
+        payload = request.json
 
         request_id = payload["request"]["request_id"]
         request_details = self.__overseerr.get_request_details(request_id)
