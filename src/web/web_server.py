@@ -80,22 +80,22 @@ class WebServer:
             thread.start()
             return Response(status=200)
 
-        @self.__app.route('/webhook/overseerr')
+        @self.__app.route('/webhook/overseerr', methods=["POST"])
         @bearer_auth.login_required
         def on_webhook_overseerr():
             return webhook_overseerr.on_call()
 
-        @self.__app.route('/webhook/radarr')
+        @self.__app.route('/webhook/radarr', methods=["POST"])
         @basic_auth.login_required
         def on_webhook_radarr():
             return webhook_radarr.on_call()
 
-        @self.__app.route('/webhook/sonarr')
+        @self.__app.route('/webhook/sonarr', methods=["POST"])
         @basic_auth.login_required
         def on_webhook_sonarr():
             return webhook_sonarr.on_call()
 
-        @self.__app.route('/webhook/tautulli')
+        @self.__app.route('/webhook/tautulli', methods=["POST"])
         @bearer_auth.login_required
         def on_webhook_tautulli():
             return webhook_tautulli.on_call()
