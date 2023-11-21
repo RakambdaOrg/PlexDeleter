@@ -48,8 +48,6 @@ class WebhookOverseerr:
         return Response(status=200)
 
     def __on_media_approved(self, payload: dict):
-        payload = request.json
-
         request_id = payload["request"]["request_id"]
         request_details = self.__overseerr.get_request_details(request_id)
 
