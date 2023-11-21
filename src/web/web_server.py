@@ -106,6 +106,7 @@ class WebServer:
             if user:
                 self.__app.logger.info('Authorized %s with BASIC', user.username)
                 return user.username
+            self.__app.logger.warning('Authorization failed for BASIC %s %s', username, password)
             return None
 
         @bearer_auth.verify_token
@@ -114,6 +115,7 @@ class WebServer:
             if user:
                 self.__app.logger.info('Authorized %s with BEARER', user.username)
                 return user.username
+            self.__app.logger.warning('Authorization failed for BEARER %s', token)
             return None
 
     def run(self):

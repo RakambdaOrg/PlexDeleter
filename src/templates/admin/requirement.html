@@ -12,7 +12,7 @@
     <input type="number" id="overseerr_id" name="overseerrId" required><br>
     <label for="user_group">User group:</label><br>
     <select id="user_group" name="userGroupId" required>
-        {% for user_group, medias in user_groups.items() %}
+        {% for user_group in user_groups %}
         <option value="{{user_group.id}}">{{user_group.name}}</option>
         {% endfor %}
     </select><br>
