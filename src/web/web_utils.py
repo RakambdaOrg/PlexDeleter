@@ -1,9 +1,6 @@
 import logging
 import threading
-from threading import Thread
 from typing import Optional
-
-from flask import Response
 
 from action.deleter import Deleter
 from action.notifier import Notifier
@@ -22,18 +19,6 @@ class WebUtils:
         self.__notifier = notifier
 
         self.__lock = threading.RLock()
-
-    def on_maintenance_full(self) -> Response:
-        self.__logger.info("Received full maintenance request")
-        thread = Thread(target=self.run_maintenance_full)
-        thread.start()
-        return Response(status=200)
-
-    def on_maintenance_updates(self) -> Response:
-        self.__logger.info("Received update maintenance request")
-        thread = Thread(target=self.run_maintenance_updates)
-        thread.start()
-        return Response(status=200)
 
     def run_maintenance_full(self):
         with self.__lock:

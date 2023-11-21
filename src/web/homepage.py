@@ -15,7 +15,6 @@ class Homepage:
         self.__overseerr = overseerr
 
     def on_call(self) -> str:
-        self.__logger.info(f"Received home call")
         all_overseerr_media = {}
         media_data = {}
         url_data = {}

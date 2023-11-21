@@ -1,8 +1,9 @@
 import logging
+from threading import Thread
 from typing import Optional
 
 import flask
-from flask import Flask
+from flask import Flask, request, Response
 from flask_httpauth import HTTPBasicAuth, HTTPTokenAuth
 from waitress import serve
 
@@ -40,6 +41,13 @@ class WebServer:
         basic_auth = HTTPBasicAuth()
         bearer_auth = HTTPTokenAuth()
 
+        @self.__app.before_request
+        def log_request_info():
+            self.__app.logger.info('Received %s request on %s', request.method, request.path)
+            self.__app.logger.debug('Headers: %s', request.headers)
+            if request.content_length and request.content_length > 0:
+                self.__app.logger.info('Body: %s', request.get_data())
+
         @self.__app.route('/favicon.svg')
         def on_favicon():
             return flask.send_from_directory('static', 'favicon.svg', mimetype='image/svg+xml')
@@ -61,12 +69,16 @@ class WebServer:
         @self.__app.route('/maintenance/full')
         @bearer_auth.login_required
         def on_maintenance_full():
-            return web_utils.on_maintenance_full()
+            thread = Thread(target=web_utils.run_maintenance_full)
+            thread.start()
+            return Response(status=200)
 
         @self.__app.route('/maintenance/updates')
         @bearer_auth.login_required
         def on_maintenance_updates():
-            return web_utils.on_maintenance_updates()
+            thread = Thread(target=web_utils.run_maintenance_updates)
+            thread.start()
+            return Response(status=200)
 
         @self.__app.route('/webhook/overseerr')
         @bearer_auth.login_required
@@ -92,6 +104,7 @@ class WebServer:
         def verify_password(username, password) -> Optional[str]:
             user = database.get_auth("BASIC", username, password)
             if user:
+                self.__app.logger.info('Authorized %s with BASIC', user.username)
                 return user.username
             return None
 
@@ -99,6 +112,7 @@ class WebServer:
         def verify_password(token) -> Optional[str]:
             user = database.get_auth("BEARER", None, token)
             if user:
+                self.__app.logger.info('Authorized %s with BEARER', user.username)
                 return user.username
             return None
 

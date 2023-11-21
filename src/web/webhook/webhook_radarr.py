@@ -10,5 +10,4 @@ class WebhookRadarr:
     def on_call(self) -> Response:
         payload = request.json
         self.__logger.info(f"Received Radarr webhook call with payload {payload}")
-
         return Response(status=200)

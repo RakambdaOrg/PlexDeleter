@@ -13,5 +13,4 @@ class Api:
     def on_add_requirement(self):
         payload = request.json
         self.__logger.info(f"Received api add requirement call with payload {payload}")
-
         return Response(status=200)

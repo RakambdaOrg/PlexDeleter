@@ -13,6 +13,4 @@ class Admin:
 
     def on_form_add_requirement(self) -> str | Response:
         user_groups = self.__database.user_group_get_all()
-
-        self.__logger.info(f"Received form add requirement call")
         return flask.render_template('admin/requirement.html', user_groups=user_groups)
