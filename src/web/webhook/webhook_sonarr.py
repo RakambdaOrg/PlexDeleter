@@ -3,19 +3,14 @@ import logging
 from flask import Response, request
 
 from database.database import Database
-from web.web_utils import WebUtils
 
 
 class WebhookSonarr:
-    def __init__(self, web_utils: WebUtils, database: Database):
+    def __init__(self, database: Database):
         self.__logger = logging.getLogger(__name__)
-        self.__web_utils = web_utils
         self.__database = database
 
-    def on_webhook_sonarr(self) -> Response:
-        if not self.__web_utils.is_authorized():
-            return Response(status=401)
-
+    def on_call(self) -> Response:
         payload = request.json
         self.__logger.info(f"Received Sonarr webhook call with payload {payload}")
 

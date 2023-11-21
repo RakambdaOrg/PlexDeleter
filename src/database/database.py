@@ -7,6 +7,7 @@ import pymysql
 from dbutils.persistent_db import PersistentDB
 from mariadb import Cursor
 
+from database.auth import Auth
 from database.media import Media
 from database.media_action_status import MediaActionStatus
 from database.media_requirement_status import MediaRequirementStatus
@@ -44,6 +45,8 @@ class Database:
                                                 MediaType(self.__get_row_value(row, 'M', 'Type')),
                                                 MediaStatus(self.__get_row_value(row, 'M', 'Status')),
                                                 MediaActionStatus(self.__get_row_value(row, 'M', 'ActionStatus')))
+        self.__auth_mapper = lambda row: Auth(self.__get_row_value(row, 'A', 'Type'),
+                                              self.__get_row_value(row, 'A', 'Username'))
 
     def user_person_get_all_in_group(self, group_id: int) -> list[UserPerson]:
         return self.__select("SELECT UP.Id, UP.Name, UP.PlexId "
@@ -166,6 +169,22 @@ class Database:
     def media_requirement_add(self, media_id: int, user_group_id: int):
         self.__execute_and_commit("INSERT INTO MediaRequirement(MediaId, GroupId) VALUES(%(media_id)s,%(user_group_id)s) ON DUPLICATE KEY UPDATE MediaId=%(media_id)s",
                                   {'media_id': media_id, 'user_group_id': user_group_id})
+
+    def get_auth(self, auth_type: str, username: Optional[str], password: str) -> Optional[Auth]:
+        if auth_type == 'BEARER':
+            values = self.__select("SELECT A.Type, A.Username FROM Auth A "
+                                   "WHERE A.Type=%(auth_type)s AND A.Password=%(password)s",
+                                   self.__auth_mapper,
+                                   {'auth_type': auth_type, 'password': password})
+        else:
+            values = self.__select("SELECT A.Type, A.Username FROM Auth A "
+                                   "WHERE A.Type=%(auth_type)s AND A.Username=%(username)s AND A.Password=%(password)s",
+                                   self.__auth_mapper,
+                                   {'auth_type': auth_type, 'username': username, 'password': password})
+
+        if values and len(values) > 0:
+            return values[0]
+        return None
 
     def __execute_and_commit(self, query: str, args=None) -> None:
         cursor = self.__execute(query, args)

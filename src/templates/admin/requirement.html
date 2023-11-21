@@ -1,0 +1,22 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Add requirement</title>
+    <link rel="icon" href="/static/favicon.svg" sizes="any" type="image/svg+xml">
+    <link rel="stylesheet" href="/static/main.css">
+</head>
+<body>
+<form action="/api/requirement/add" method="post">
+    <label for="overseerr_id">Overseerr id:</label><br>
+    <input type="number" id="overseerr_id" name="overseerrId" required><br>
+    <label for="user_group">User group:</label><br>
+    <select id="user_group" name="userGroupId" required>
+        {% for user_group, medias in user_groups.items() %}
+        <option value="{{user_group.id}}">{{user_group.name}}</option>
+        {% endfor %}
+    </select><br>
+    <button type="submit">Submit</button>
+</form>
+</body>
+</html>

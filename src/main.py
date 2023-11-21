@@ -53,9 +53,6 @@ if __name__ == "__main__":
     dry_run = get_env("DRY_RUN", required=False, default="false").lower() == "true"
     delete_min_days = int(get_env("DELETE_MIN_DAYS", required=False, default="2"))
 
-    server_auth_bearer = get_env("BEARER_TOKEN")
-    server_auth_basic = get_env("BASIC_TOKEN")
-
     mail_username = get_env("MAIL_USERNAME", required=False)
     mail_password = get_env("MAIL_PASSWORD", required=False)
     mail_host = get_env("MAIL_SERVER")
@@ -93,5 +90,5 @@ if __name__ == "__main__":
     watch_updater = WatchUpdater(database, tautulli_helper, overseerr_helper, discord_helper)
     deleter = Deleter(remote_path, local_path, dry_run, database, tautulli_helper, overseerr_helper, discord_helper, delete_min_days)
     notifier = Notifier(database, mail_notifier, discord_notifier, discord_notifier_thread)
-    web_server = WebServer(server_auth_bearer, server_auth_basic, overseerr_helper, database, discord_helper, status_updater, watch_updater, deleter, notifier)
+    web_server = WebServer(overseerr_helper, database, discord_helper, status_updater, watch_updater, deleter, notifier)
     web_server.run()

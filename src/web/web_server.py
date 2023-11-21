@@ -1,7 +1,9 @@
 import logging
+from typing import Optional
 
 import flask
 from flask import Flask
+from flask_httpauth import HTTPBasicAuth, HTTPTokenAuth
 from waitress import serve
 
 from action.deleter import Deleter
@@ -11,37 +13,94 @@ from action.watch_updater import WatchUpdater
 from api.discord.discord_helper import DiscordHelper
 from api.overseerr.overseerr_helper import OverseerrHelper
 from database.database import Database
+from web.admin import Admin
+from web.api import Api
 from web.homepage import Homepage
 from web.web_utils import WebUtils
-from web.webhook_overserr import WebhookOverseerr
-from web.webhook_radarr import WebhookRadarr
-from web.webhook_sonarr import WebhookSonarr
-from web.webhook_tautulli import WebhookTautulli
+from web.webhook.webhook_overserr import WebhookOverseerr
+from web.webhook.webhook_radarr import WebhookRadarr
+from web.webhook.webhook_sonarr import WebhookSonarr
+from web.webhook.webhook_tautulli import WebhookTautulli
 
 
 class WebServer:
-    def __init__(self, bearer_token: str, basic_token: str, overseerr: OverseerrHelper, database: Database, discord: DiscordHelper, status_updater: StatusUpdater, watch_updater: WatchUpdater, deleter: Deleter, notifier: Notifier):
+    def __init__(self, overseerr: OverseerrHelper, database: Database, discord: DiscordHelper, status_updater: StatusUpdater, watch_updater: WatchUpdater, deleter: Deleter, notifier: Notifier):
         self.__logger = logging.getLogger(__name__)
-        self.__web_utils = WebUtils([f"Bearer {bearer_token}", f"Basic {basic_token}"], watch_updater, deleter, status_updater, notifier)
-        self.__webhook_overseerr = WebhookOverseerr(self.__web_utils, overseerr, database, discord, status_updater, notifier)
-        self.__webhook_tautulli = WebhookTautulli(self.__web_utils)
-        self.__webhook_sonarr = WebhookSonarr(self.__web_utils, database)
-        self.__webhook_radarr = WebhookRadarr(self.__web_utils)
-        self.__homepage = Homepage(self.__web_utils, database, overseerr)
+        web_utils = WebUtils(watch_updater, deleter, status_updater, notifier)
+        admin = Admin(database)
+        api = Api(database)
+        homepage = Homepage(database, overseerr)
+        webhook_overseerr = WebhookOverseerr(web_utils, overseerr, database, discord, status_updater, notifier)
+        webhook_radarr = WebhookRadarr()
+        webhook_sonarr = WebhookSonarr(database)
+        webhook_tautulli = WebhookTautulli(web_utils)
 
         self.__app = Flask("PlexDeleter")
-        self.__app.route('/favicon.svg')(self.favicon)
 
-        self.__app.get('/')(self.__homepage.home)
-        self.__app.get('/maintenance/full')(self.__web_utils.on_maintenance_full)
-        self.__app.get('/maintenance/updates')(self.__web_utils.on_maintenance_updates)
-        self.__app.post('/webhook/overseerr')(self.__webhook_overseerr.on_webhook_overseerr)
-        self.__app.post('/webhook/tautulli')(self.__webhook_tautulli.on_webhook_tautulli)
-        self.__app.post('/webhook/sonarr')(self.__webhook_sonarr.on_webhook_sonarr)
-        self.__app.post('/webhook/radarr')(self.__webhook_radarr.on_webhook_radarr)
+        basic_auth = HTTPBasicAuth()
+        bearer_auth = HTTPTokenAuth()
+
+        @self.__app.route('/favicon.svg')
+        def on_favicon():
+            return flask.send_from_directory('static', 'favicon.svg', mimetype='image/svg+xml')
+
+        @self.__app.route('/')
+        def on_home():
+            return homepage.on_call()
+
+        @self.__app.route('/admin/requirement')
+        @basic_auth.login_required
+        def on_admin_requirement():
+            return admin.on_form_add_requirement()
+
+        @self.__app.route('/api/requirement/add', methods=['POST'])
+        @basic_auth.login_required
+        def on_api_requirement_add():
+            return api.on_add_requirement()
+
+        @self.__app.route('/maintenance/full')
+        @bearer_auth.login_required
+        def on_maintenance_full():
+            return web_utils.on_maintenance_full()
+
+        @self.__app.route('/maintenance/updates')
+        @bearer_auth.login_required
+        def on_maintenance_updates():
+            return web_utils.on_maintenance_updates()
+
+        @self.__app.route('/webhook/overseerr')
+        @bearer_auth.login_required
+        def on_webhook_overseerr():
+            return webhook_overseerr.on_call()
+
+        @self.__app.route('/webhook/radarr')
+        @basic_auth.login_required
+        def on_webhook_radarr():
+            return webhook_radarr.on_call()
+
+        @self.__app.route('/webhook/sonarr')
+        @basic_auth.login_required
+        def on_webhook_sonarr():
+            return webhook_sonarr.on_call()
+
+        @self.__app.route('/webhook/tautulli')
+        @bearer_auth.login_required
+        def on_webhook_tautulli():
+            return webhook_tautulli.on_call()
+
+        @basic_auth.verify_password
+        def verify_password(username, password) -> Optional[str]:
+            user = database.get_auth("BASIC", username, password)
+            if user:
+                return user.username
+            return None
+
+        @bearer_auth.verify_token
+        def verify_password(token) -> Optional[str]:
+            user = database.get_auth("BEARER", None, token)
+            if user:
+                return user.username
+            return None
 
     def run(self):
         serve(self.__app, host="0.0.0.0", port=8080)
-
-    def favicon(self):
-        return flask.send_from_directory('static', 'favicon.svg', mimetype='image/svg+xml')

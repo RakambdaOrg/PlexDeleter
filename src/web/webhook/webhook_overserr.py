@@ -25,10 +25,7 @@ class WebhookOverseerr:
         self.__status_updater = status_updater
         self.__notifier = notifier
 
-    def on_webhook_overseerr(self) -> Response:
-        if not self.__web_utils.is_authorized():
-            return Response(status=401)
-
+    def on_call(self) -> Response:
         payload = request.json
         self.__logger.info(f"Received Overseerr webhook call with payload {payload}")
 

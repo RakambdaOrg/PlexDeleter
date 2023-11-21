@@ -6,17 +6,15 @@ from flask import request
 from api.overseerr.overseerr_helper import OverseerrHelper
 from database.database import Database
 from database.user_group import UserGroup
-from web.web_utils import WebUtils
 
 
 class Homepage:
-    def __init__(self, web_utils: WebUtils, database: Database, overseerr: OverseerrHelper):
+    def __init__(self, database: Database, overseerr: OverseerrHelper):
         self.__logger = logging.getLogger(__name__)
-        self.__web_utils = web_utils
         self.__database = database
         self.__overseerr = overseerr
 
-    def home(self) -> str:
+    def on_call(self) -> str:
         self.__logger.info(f"Received home call")
         all_overseerr_media = {}
         media_data = {}

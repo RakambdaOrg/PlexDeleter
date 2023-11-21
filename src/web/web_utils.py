@@ -3,7 +3,7 @@ import threading
 from threading import Thread
 from typing import Optional
 
-from flask import request, Response
+from flask import Response
 
 from action.deleter import Deleter
 from action.notifier import Notifier
@@ -14,9 +14,8 @@ from database.user_group import UserGroup
 
 
 class WebUtils:
-    def __init__(self, authorizations: [str], watch_updater: WatchUpdater, deleter: Deleter, status_updater: StatusUpdater, notifier: Notifier):
+    def __init__(self, watch_updater: WatchUpdater, deleter: Deleter, status_updater: StatusUpdater, notifier: Notifier):
         self.__logger = logging.getLogger(__name__)
-        self.__authorizations = authorizations
         self.__watch_updater = watch_updater
         self.__deleter = deleter
         self.__status_updater = status_updater
@@ -24,26 +23,13 @@ class WebUtils:
 
         self.__lock = threading.RLock()
 
-    def is_authorized(self):
-        authorization = request.headers.get('Authorization')
-        result = authorization in self.__authorizations
-        if not result:
-            self.__logger.warning(f"Rejected authorization, received {authorization}")
-        return result
-
     def on_maintenance_full(self) -> Response:
-        if not self.is_authorized():
-            return Response(status=401)
-
         self.__logger.info("Received full maintenance request")
         thread = Thread(target=self.run_maintenance_full)
         thread.start()
         return Response(status=200)
 
     def on_maintenance_updates(self) -> Response:
-        if not self.is_authorized():
-            return Response(status=401)
-
         self.__logger.info("Received update maintenance request")
         thread = Thread(target=self.run_maintenance_updates)
         thread.start()
