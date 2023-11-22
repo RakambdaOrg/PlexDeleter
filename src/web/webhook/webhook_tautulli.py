@@ -16,8 +16,7 @@ class WebhookTautulli:
         self.__logger.info(f"Received Tautulli webhook call with payload {payload}")
 
         payload_type = payload["type"]
-        media_type = payload["media_type"]
-        if media_type == 'track':
+        if "media_type" not in payload or payload["media_type"] == 'track':
             self.__logger.info("Skipping update as media is a track")
             return Response(status=200)
 
