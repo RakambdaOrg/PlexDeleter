@@ -27,7 +27,6 @@ class WebhookOverseerr:
 
     def on_call(self) -> Response:
         payload = request.json
-        self.__logger.info(f"Received Overseerr webhook call with payload {payload}")
 
         notification_type = payload["notification_type"]
         if notification_type in ["MEDIA_AUTO_APPROVED", "MEDIA_APPROVED"]:

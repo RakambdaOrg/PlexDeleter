@@ -12,7 +12,6 @@ class WebhookSonarr:
 
     def on_call(self) -> Response:
         payload = request.json
-        self.__logger.info(f"Received Sonarr webhook call with payload {payload}")
 
         payload_type = payload["eventType"]
         if payload_type != 'Grab':

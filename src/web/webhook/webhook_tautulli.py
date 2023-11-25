@@ -13,7 +13,6 @@ class WebhookTautulli:
 
     def on_call(self) -> Response:
         payload = request.json
-        self.__logger.info(f"Received Tautulli webhook call with payload {payload}")
 
         payload_type = payload["type"]
         if "media_type" not in payload or payload["media_type"] == 'track':

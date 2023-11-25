@@ -1,6 +1,6 @@
 import logging
 
-from flask import Response, request
+from flask import Response
 
 
 class WebhookRadarr:
@@ -8,6 +8,4 @@ class WebhookRadarr:
         self.__logger = logging.getLogger(__name__)
 
     def on_call(self) -> Response:
-        payload = request.json
-        self.__logger.info(f"Received Radarr webhook call with payload {payload}")
         return Response(status=200)
