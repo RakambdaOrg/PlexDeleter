@@ -74,13 +74,7 @@ class CommonNotifier(ABC):
         return "Plex: Media added to your watch list"
 
     @staticmethod
-    def _get_subject_requirement_added(locale: str) -> str:
+    def _get_subject_media_available(locale: str) -> str:
         if locale.lower() == "fr":
             return "Plex : Disponible"
         return "Plex: Available"
-
-    @staticmethod
-    def _get_subject_media_available(locale: str) -> str:
-        if locale.lower() == "fr":
-            return "Plex : Media de votre liste de lecture disponible"
-        return "Plex: Media from your watchlist available"
