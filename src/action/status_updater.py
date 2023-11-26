@@ -60,7 +60,7 @@ class StatusUpdater:
             return
 
         self.__logger.warning(f"Skipped updating {media}, no rating key or Radarr data found for given media")
-        self.__discord.notify_cannot_update(media, element_count, total_element_count)
+        self.__discord.notify_cannot_update(media, None, None)
 
     def __update_series(self, media: Media) -> None:
         season_details = self.__overseerr.get_tv_season_details(media.overseerr_id, media.season_number)
