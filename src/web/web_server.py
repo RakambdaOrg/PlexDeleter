@@ -48,6 +48,11 @@ class WebServer:
             if request.content_length and request.content_length > 0:
                 self.__app.logger.info('Body: %s', request.get_data())
 
+        @self.__app.after_request
+        def log_request_info(response: Response) -> Response:
+            self.__app.logger.info('Done handling %s request on %s : %d', request.method, request.path, response.status_code)
+            return response
+
         @self.__app.route('/favicon.svg')
         def on_favicon():
             return flask.send_from_directory('static', 'favicon.svg', mimetype='image/svg+xml')
