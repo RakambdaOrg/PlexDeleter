@@ -98,6 +98,7 @@ class StatusUpdater:
 
         self.__database.media_set_element_count(media.id, total_element_count)
         if element_count >= total_element_count:
+            media.status = MediaStatus.FINISHED
             self.__mark_finished(media, element_count, total_element_count)
             self.__notifier.notify_available(media)
 
