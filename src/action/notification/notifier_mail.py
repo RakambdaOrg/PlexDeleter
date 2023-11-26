@@ -22,6 +22,9 @@ class MailNotifier(CommonNotifier):
     def notify_requirement_added(self, user_group: UserGroup, medias: list[Media]):
         return self.__notify(user_group, medias, None, self._get_subject_requirement_added)
 
+    def notify_media_available(self, user_group: UserGroup, medias: list[Media]):
+        return self.__notify(user_group, medias, None, self._get_subject_media_available)
+
     def __notify(self, user_group: UserGroup, medias: list[Media], user_group_status: Optional[UserGroupStatus], subject_function: Callable[[str], str]):
         mails = user_group.notification_value.split(',') if user_group.notification_value else []
 

@@ -22,6 +22,9 @@ class CommonDiscordNotifier(CommonNotifier):
     def notify_requirement_added(self, user_group: UserGroup, medias: list[Media]) -> None:
         return self._notify(user_group, medias, None, self._get_header_requirement_added, self._get_header_requirement_added, self._get_subject_requirement_added)
 
+    def notify_media_available(self, user_group: UserGroup, medias: list[Media]) -> None:
+        return self._notify(user_group, medias, None, self._get_header_media_available, self._get_header_media_available, self._get_subject_media_available)
+
     @abstractmethod
     def _notify(self, user_group: UserGroup, medias: list[Media], user_group_status: Optional[UserGroupStatus], header_function: Callable[[str], str], header_releasing_function: Callable[[str], str], subject_function: Callable[[str], str]) -> None:
         pass

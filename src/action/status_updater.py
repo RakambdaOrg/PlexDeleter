@@ -2,6 +2,7 @@ import logging
 from datetime import datetime
 from typing import Optional
 
+from action.notifier import Notifier
 from api.discord.discord_helper import DiscordHelper
 from api.overseerr.overseerr_helper import OverseerrHelper
 from api.radarr.radarr_helper import RadarrHelper
@@ -14,7 +15,7 @@ from database.media_type import MediaType
 
 
 class StatusUpdater:
-    def __init__(self, database: Database, tautulli: TautulliHelper, overseerr: OverseerrHelper, discord: DiscordHelper, radarr: RadarrHelper, sonarr: SonarrHelper):
+    def __init__(self, database: Database, tautulli: TautulliHelper, overseerr: OverseerrHelper, discord: DiscordHelper, radarr: RadarrHelper, sonarr: SonarrHelper, notifier: Notifier):
         self.__logger = logging.getLogger(__name__)
         self.__database = database
         self.__tautulli = tautulli
@@ -22,6 +23,7 @@ class StatusUpdater:
         self.__discord = discord
         self.__radarr = radarr
         self.__sonarr = sonarr
+        self.__notifier = notifier
 
     def update(self) -> None:
         self.__logger.info("Updating media statuses")
@@ -97,6 +99,7 @@ class StatusUpdater:
         self.__database.media_set_element_count(media.id, total_element_count)
         if element_count >= total_element_count:
             self.__mark_finished(media, element_count, total_element_count)
+            self.__notifier.notify_available(media)
 
     def __get_episode_count_from_tautulli(self, media: Media) -> Optional[int]:
         media_details = self.__overseerr.get_media_details(media.overseerr_id, media.type)

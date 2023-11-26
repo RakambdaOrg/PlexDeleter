@@ -41,6 +41,19 @@ class Notifier:
         elif user_group.notification_type == NotificationType.DISCORD_THREAD:
             self.__discord_notifier_thread.notify_requirement_added(user_group, medias)
 
+    def notify_available(self, media: Media) -> None:
+        self.__logger.info(f"Notifying media {media} is available")
+        medias = [media]
+        user_groups = self.__database.user_group_get_watching_media(media.id)
+
+        for user_group in user_groups:
+            if user_group.notification_type == NotificationType.MAIL:
+                self.__mail_notifier.notify_media_available(user_group, medias)
+            elif user_group.notification_type == NotificationType.DISCORD:
+                self.__discord_notifier.notify_media_available(user_group, medias)
+            elif user_group.notification_type == NotificationType.DISCORD_THREAD:
+                self.__discord_notifier_thread.notify_media_available(user_group, medias)
+
     @staticmethod
     def __media_sorter_name_season(x: Media, y: Media) -> int:
         if x.overseerr_id == y.overseerr_id:

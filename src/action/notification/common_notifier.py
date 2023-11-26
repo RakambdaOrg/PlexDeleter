@@ -18,6 +18,10 @@ class CommonNotifier(ABC):
     def notify_requirement_added(self, user_group: UserGroup, medias: list[Media]):
         pass
 
+    @abstractmethod
+    def notify_media_available(self, user_group: UserGroup, medias: list[Media]):
+        pass
+
     @staticmethod
     def _get_header_watchlist(locale: str) -> str:
         if locale.lower() == "fr":
@@ -35,6 +39,12 @@ class CommonNotifier(ABC):
         if locale.lower() == "fr":
             return "Nouveau média à regarder ajouté car vous l'avez demandé ou avez regardé la saison précédente :"
         return "New media to watch added because you requested it or watched previous season:"
+
+    @staticmethod
+    def _get_header_media_available(locale: str) -> str:
+        if locale.lower() == "fr":
+            return "Média de votre liste de lecture disponible :"
+        return "Media from your watchlist available:"
 
     @staticmethod
     def _get_media_body(locale: str, media: Media, user_media_status: Optional[UserMediaStatus]) -> str:
@@ -62,3 +72,15 @@ class CommonNotifier(ABC):
         if locale.lower() == "fr":
             return "Plex : Media ajouté a votre liste de lecture"
         return "Plex: Media added to your watch list"
+
+    @staticmethod
+    def _get_subject_requirement_added(locale: str) -> str:
+        if locale.lower() == "fr":
+            return "Plex : Disponible"
+        return "Plex: Available"
+
+    @staticmethod
+    def _get_subject_media_available(locale: str) -> str:
+        if locale.lower() == "fr":
+            return "Plex : Media de votre liste de lecture disponible"
+        return "Plex: Media from your watchlist available"
