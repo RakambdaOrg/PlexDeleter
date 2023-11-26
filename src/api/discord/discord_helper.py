@@ -1,5 +1,6 @@
 import json
 from pathlib import Path
+from typing import Optional
 
 from discord_webhook import DiscordWebhook
 
@@ -35,8 +36,8 @@ class DiscordHelper:
     def notify_cannot_delete(self, media: Media):
         self.__send(f"❌ Could not delete because no rating key {media}")
 
-    def notify_cannot_update(self, media: Media):
-        self.__send(f"❌ Could not update status because no rating key {media}")
+    def notify_cannot_update(self, media: Media, element_count: Optional[int], total_element_count: Optional[int]):
+        self.__send(f"❌ Could not update status because no rating key {media} (count: {element_count} / total count: {total_element_count})")
 
     def notify_cannot_update_watch(self, media: Media):
         self.__send(f"❌ Could not update watch status because no rating key {media}")
