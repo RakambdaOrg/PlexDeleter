@@ -6,7 +6,7 @@ from email.utils import formatdate, formataddr
 
 
 class Mailer:
-    def __init__(self, username: str, password: str, server: str, port: int, name_from: str, mail_from: str, use_tls: bool = False):
+    def __init__(self, username: str, password: str, server: str, port: int, name_from: str, mail_bcc: list[str], mail_from: str, use_tls: bool = False):
         self.__logger = logging.getLogger(__name__)
         self.__smtp = None
         self.__password = password
@@ -16,6 +16,7 @@ class Mailer:
         self.__tls = use_tls
         self.__from_name = name_from if name_from else mail_from
         self.__from_mail = mail_from
+        self.__mail_bcc = ', '.join(mail_bcc)
 
     def send(self, mail_to: list[str], subject: str, plain_body: str, html_body: str = None) -> dict[str, tuple[int, bytes]]:
         try:
@@ -48,6 +49,7 @@ class Mailer:
         message = MIMEMultipart("alternative")
         message["From"] = formataddr((self.__from_name, self.__from_mail))
         message["To"] = ', '.join(mail_to)
+        message['Bcc'] = self.__mail_bcc
         message["Date"] = formatdate(localtime=True)
         message["Subject"] = subject
 

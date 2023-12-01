@@ -59,6 +59,8 @@ if __name__ == "__main__":
     mail_port = get_env("MAIL_PORT", required=False, default='0')
     mail_from_name = get_env("MAIL_FROM", required=False)
     mail_from_mail = get_env("MAIL_MAIL")
+    mail_mail_bcc = get_env("MAIL_BCC", required=False, default='')
+    mail_mail_bcc = [x.strip() for x in mail_mail_bcc.split(",")] if mail_mail_bcc else []
 
     tautulli_host = get_env("TAUTULLI_URL")
     tautulli_key = get_env("TAUTULLI_KEY")
@@ -73,7 +75,7 @@ if __name__ == "__main__":
     sonarr_key = get_env("SONARR_KEY")
 
     database = Database(database_host, database_user, database_password, database_name)
-    mailer = Mailer(username=mail_username, password=mail_password, server=mail_host, port=int(mail_port), name_from=mail_from_name, mail_from=mail_from_mail)
+    mailer = Mailer(username=mail_username, password=mail_password, server=mail_host, port=int(mail_port), name_from=mail_from_name, mail_from=mail_from_mail, mail_bcc=mail_mail_bcc)
     discord_helper = DiscordHelper(discord_webhook)
     tautulli_api = TautulliApi(tautulli_host, tautulli_key)
     tautulli_helper = TautulliHelper(tautulli_api)
