@@ -28,7 +28,7 @@ class Api:
             return Response(status=404, response='No such media')
 
         self.__web_utils.handle_season(overseerr_id, media.name, plex_user_id, int(season) if season else season, media_type)
-        return Response(status=200)
+        return Response(status=200, response='Ok')
 
     def on_abandon_requirement(self, form: dict):
         overseerr_id = int(form.get('overseerrId'))
@@ -43,4 +43,4 @@ class Api:
         for media in medias:
             self.__database.media_requirement_set_status(media.id, user_group_id, MediaRequirementStatus.ABANDONED)
 
-        return Response(status=200)
+        return Response(status=200, response='Ok')
