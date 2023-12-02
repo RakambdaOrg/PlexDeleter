@@ -165,11 +165,11 @@ class Database:
             return self.__select("SELECT M.Id, M.OverseerrId, M.TvdbId, M.Name, M.Season, M.ElementCount, M.Type, M.Status, M.ActionStatus FROM Media M "
                                  "WHERE OverseerrId=%(id)s AND M.Type=%(media_type)s AND Season IS NULL",
                                  self.__media_mapper,
-                                 {'id': overseerr_id, 'media_type': media_type})
+                                 {'id': overseerr_id, 'media_type': media_type.value})
         return self.__select("SELECT M.Id, M.OverseerrId, M.TvdbId, M.Name, M.Season, M.ElementCount, M.Type, M.Status, M.ActionStatus FROM Media M "
                              "WHERE OverseerrId=%(id)s AND M.Type=%(media_type)s AND Season=%(season)s",
                              self.__media_mapper,
-                             {'id': overseerr_id, 'media_type': media_type, 'season': season})
+                             {'id': overseerr_id, 'media_type': media_type.value, 'season': season})
 
     def media_add(self, overseerr_id: int, name: str, season: Optional[int], media_type: MediaType, status: MediaStatus, action_status: MediaActionStatus) -> None:
         self.__execute_and_commit("INSERT INTO Media(OverseerrId, Name, Season, Type, Status, ActionStatus) VALUES (%(overseerr_id)s,%(name)s,%(season)s,%(type)s,%(status)s,%(action_status)s)",
