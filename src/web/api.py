@@ -17,9 +17,9 @@ class Api:
         self.__overseerr_helper = overseerr_helper
 
     def on_add_requirement(self, form: dict):
-        overseerr_id = form.get('overseerrId')
+        overseerr_id = int(form.get('overseerrId'))
         season = form.get('seasonNumber') or None
-        plex_user_id = form.get('plexUserId')
+        plex_user_id = int(form.get('plexUserId'))
         media_type = MediaType.from_overseerr(form.get('mediaType'))
 
         media = self.__overseerr_helper.get_media_details(overseerr_id, media_type)
@@ -27,16 +27,16 @@ class Api:
         if not media.name:
             return Response(status=404, response='No such media')
 
-        self.__web_utils.handle_season(overseerr_id, media.name, plex_user_id, season, media_type)
+        self.__web_utils.handle_season(overseerr_id, media.name, plex_user_id, int(season) if season else season, media_type)
         return Response(status=200)
 
     def on_abandon_requirement(self, form: dict):
-        overseerr_id = form.get('overseerrId')
+        overseerr_id = int(form.get('overseerrId'))
         season = form.get('seasonNumber') or None
-        user_group_id = form.get('userGroupId')
+        user_group_id = int(form.get('userGroupId'))
         media_type = MediaType.from_overseerr(form.get('mediaType'))
 
-        medias = self.__database.media_get_by_overseerr_id(overseerr_id, season, media_type)
+        medias = self.__database.media_get_by_overseerr_id(overseerr_id, int(season) if season else season, media_type)
         if len(medias) == 0:
             return Response(status=404, response='No such media')
 
