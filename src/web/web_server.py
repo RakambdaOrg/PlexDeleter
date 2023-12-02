@@ -50,7 +50,9 @@ class WebServer:
 
         @self.__app.after_request
         def log_request_info(response: Response) -> Response:
-            self.__app.logger.info('Done handling %s request on %s : %d (%s)', request.method, request.path, response.status_code, response.get_data(True))
+            response_data = '<<Passthrough>>' if response.direct_passthrough else response.get_data(True)
+            self.__app.logger.info('Done handling %s request on %s : %d (%s)', request.method, request.path, response.status_code, response_data)
+
             return response
 
         @self.__app.route('/favicon.svg')
