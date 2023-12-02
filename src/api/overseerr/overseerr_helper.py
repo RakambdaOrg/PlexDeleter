@@ -46,16 +46,19 @@ class OverseerrHelper:
             return media_details
 
         rating_key = pydash.get(data, f"mediaInfo.ratingKey", None)
-        media_info = pydash.get(data, f"mediaInfo", None)
+        plex_web_url = pydash.get(data, f"mediaInfo.plexUrl", None)
+        plex_ios_url = pydash.get(data, f"mediaInfo.iOSPlexUrl", None)
         tvdb_id = pydash.get(data, f"mediaInfo.tvdbId", None)
         tmdb_id = pydash.get(data, f"mediaInfo.tmdbId", None)
+        name = pydash.get(data, f"name", pydash.get(data, f"title", None))
 
         media_details.rating_key = int(rating_key) if rating_key else None
         media_details.overseerr_url = f"{self.api.endpoint}/{media_type.get_overseerr_type()}/{media_id}"
-        media_details.plex_web_url = media_info["plexUrl"] if media_info and "plexUrl" in media_info else None
-        media_details.plex_ios_url = media_info["iOSPlexUrl"] if media_info and "iOSPlexUrl" in media_info else None
+        media_details.plex_web_url = plex_web_url
+        media_details.plex_ios_url = plex_ios_url
         media_details.tvdb_id = int(tvdb_id) if tvdb_id else None
         media_details.tmdb_id = int(tmdb_id) if tmdb_id else None
+        media_details.name = name
 
         return media_details
 

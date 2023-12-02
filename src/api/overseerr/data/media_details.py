@@ -10,4 +10,4 @@ class MediaDetails:
     plex_ios_url: Optional[str] = None
     tvdb_id: Optional[int] = None
     tmdb_id: Optional[int] = None
-   
+    name: Optional[str] = None

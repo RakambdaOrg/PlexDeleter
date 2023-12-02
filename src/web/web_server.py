@@ -27,11 +27,11 @@ from web.webhook.webhook_tautulli import WebhookTautulli
 class WebServer:
     def __init__(self, overseerr: OverseerrHelper, database: Database, discord: DiscordHelper, status_updater: StatusUpdater, watch_updater: WatchUpdater, deleter: Deleter, notifier: Notifier):
         self.__logger = logging.getLogger(__name__)
-        web_utils = WebUtils(watch_updater, deleter, status_updater, notifier)
+        web_utils = WebUtils(database, watch_updater, deleter, status_updater, notifier, discord)
         admin = Admin(database)
-        api = Api(database)
+        api = Api(database, web_utils, overseerr)
         homepage = Homepage(database, overseerr)
-        webhook_overseerr = WebhookOverseerr(web_utils, overseerr, database, discord, status_updater, notifier)
+        webhook_overseerr = WebhookOverseerr(web_utils, overseerr)
         webhook_radarr = WebhookRadarr()
         webhook_sonarr = WebhookSonarr(database)
         webhook_tautulli = WebhookTautulli(web_utils)
@@ -50,7 +50,7 @@ class WebServer:
 
         @self.__app.after_request
         def log_request_info(response: Response) -> Response:
-            self.__app.logger.info('Done handling %s request on %s : %d', request.method, request.path, response.status_code)
+            self.__app.logger.info('Done handling %s request on %s : %d (%s)', request.method, request.path, response.status_code, response.response)
             return response
 
         @self.__app.route('/favicon.svg')
@@ -61,15 +61,25 @@ class WebServer:
         def on_home():
             return homepage.on_call()
 
-        @self.__app.route('/admin/requirement')
+        @self.__app.route('/admin/requirement/add')
         @basic_auth.login_required
-        def on_admin_requirement():
+        def on_admin_requirement_add():
             return admin.on_form_add_requirement()
+
+        @self.__app.route('/admin/requirement/abandon')
+        @basic_auth.login_required
+        def on_admin_requirement_abandon():
+            return admin.on_form_abandon_requirement()
 
         @self.__app.route('/api/requirement/add', methods=['POST'])
         @basic_auth.login_required
         def on_api_requirement_add():
-            return api.on_add_requirement()
+            return api.on_add_requirement(request.form)
+
+        @self.__app.route('/api/requirement/abandon', methods=['POST'])
+        @basic_auth.login_required
+        def on_api_requirement_abandon():
+            return api.on_abandon_requirement(request.form)
 
         @self.__app.route('/maintenance/full')
         @bearer_auth.login_required
@@ -88,7 +98,7 @@ class WebServer:
         @self.__app.route('/webhook/overseerr', methods=["POST"])
         @bearer_auth.login_required
         def on_webhook_overseerr():
-            return webhook_overseerr.on_call()
+            return webhook_overseerr.on_call(request.json)
 
         @self.__app.route('/webhook/radarr', methods=["POST"])
         @basic_auth.login_required
@@ -98,12 +108,12 @@ class WebServer:
         @self.__app.route('/webhook/sonarr', methods=["POST"])
         @basic_auth.login_required
         def on_webhook_sonarr():
-            return webhook_sonarr.on_call()
+            return webhook_sonarr.on_call(request.json)
 
         @self.__app.route('/webhook/tautulli', methods=["POST"])
         @bearer_auth.login_required
         def on_webhook_tautulli():
-            return webhook_tautulli.on_call()
+            return webhook_tautulli.on_call(request.json)
 
         @basic_auth.verify_password
         def verify_password(username, password) -> Optional[str]:

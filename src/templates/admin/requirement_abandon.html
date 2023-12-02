@@ -7,16 +7,27 @@
     <link rel="stylesheet" href="/static/main.css">
 </head>
 <body>
-<form action="/api/requirement/add" method="post">
+<form action="/api/requirement/abandon" method="post">
     <label for="overseerr_id">Overseerr id:</label><br>
     <input type="number" id="overseerr_id" name="overseerrId" required><br>
+
+    <label for="season_number">Season number</label><br>
+    <input type="number" id="season_number" name="seasonNumber"><br>
+
+    <label for="media_type">Media type</label><br>
+    <select id="media_type" name="mediaType" required>
+        <option value="tv">Show</option>
+        <option value="movie">Movie</option>
+    </select><br>
+
     <label for="user_group">User group:</label><br>
     <select id="user_group" name="userGroupId" required>
         {% for user_group in user_groups %}
         <option value="{{user_group.id}}">{{user_group.name}}</option>
         {% endfor %}
     </select><br>
-    <button type="submit">Submit</button>
+
+    <button type="submit">Abandon</button>
 </form>
 </body>
 </html>

@@ -3,15 +3,16 @@ from typing import Optional
 
 from action.status.user_group_status import UserGroupStatus
 from action.status.user_media_status import UserMediaStatus
+from api.discord.discord_helper import DiscordHelper
+from api.overseerr.overseerr_helper import OverseerrHelper
 from api.tautulli.data.user_group_watch_status import UserGroupWatchStatus
+from api.tautulli.tautulli_helper import TautulliHelper
+from database.database import Database
 from database.media import Media
+from database.media_requirement_status import MediaRequirementStatus
 from database.media_status import MediaStatus
 from database.media_type import MediaType
 from database.user_group import UserGroup
-from api.overseerr.overseerr_helper import OverseerrHelper
-from database.database import Database
-from api.discord.discord_helper import DiscordHelper
-from api.tautulli.tautulli_helper import TautulliHelper
 from database.user_person import UserPerson
 
 
@@ -75,7 +76,7 @@ class WatchUpdater:
             user_group_status.add(media, user_media_status)
             if user_media_status.is_all_watched():
                 self.__logger.info(f"{user_group} watched {media}")
-                self.__database.media_requirement_set_watched(media.id, user_group.id)
+                self.__database.media_requirement_set_status(media.id, user_group.id, MediaRequirementStatus.WATCHED)
                 self.__discord.notify_watched(media, user_group)
             else:
                 status = f' | Waiting EPs {user_media_status.get_all_str()}' if media.type == MediaType.SHOW and user_media_status and not user_media_status.is_all_watched() else ''

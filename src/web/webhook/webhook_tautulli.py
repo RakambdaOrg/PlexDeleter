@@ -1,7 +1,7 @@
 import logging
 from threading import Thread
 
-from flask import Response, request
+from flask import Response
 
 from web.web_utils import WebUtils
 
@@ -11,13 +11,10 @@ class WebhookTautulli:
         self.__logger = logging.getLogger(__name__)
         self.__web_utils = web_utils
 
-    def on_call(self) -> Response:
-        payload = request.json
-
+    def on_call(self, payload: dict) -> Response:
         payload_type = payload["type"]
         if "media_type" not in payload or payload["media_type"] == 'track':
-            self.__logger.info("Skipping update as media is a track")
-            return Response(status=200)
+            return Response(status=200, response="Skipping update as media is a track")
 
         refresh_status = True
         refresh_watch = True

@@ -1,6 +1,6 @@
 import logging
 
-from flask import Response, request
+from flask import Response
 
 from database.database import Database
 
@@ -10,19 +10,17 @@ class WebhookSonarr:
         self.__logger = logging.getLogger(__name__)
         self.__database = database
 
-    def on_call(self) -> Response:
-        payload = request.json
-
+    def on_call(self, payload: dict) -> Response:
         payload_type = payload["eventType"]
         if payload_type != 'Grab':
-            return Response(status=204)
+            return Response(status=204, response="Event type isn't grab")
 
         if 'series' not in payload:
-            return Response(status=204)
+            return Response(status=204, response="Series payload not found")
         series = payload["series"]
 
         if 'episodes' in series:
-            return Response(status=204)
+            return Response(status=204, response="Episodes payload not found")
         episodes = series["episodes"]
         title = series["title"]
         tvdb_id = series["tvdbId"]

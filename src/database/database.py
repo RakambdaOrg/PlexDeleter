@@ -56,6 +56,12 @@ class Database:
                              self.__user_person_mapper,
                              {'group_id': group_id})
 
+    def user_person_get_all(self) -> list[UserPerson]:
+        return self.__select("SELECT UP.Id, UP.Name, UP.PlexId "
+                             "FROM UserPerson UP "
+                             "INNER JOIN UserMapping UM ON UP.Id = UM.PersonId",
+                             self.__user_person_mapper)
+
     def user_group_get_all(self) -> list[UserGroup]:
         return self.__select("SELECT UG.Id, UG.Name, UG.NotificationType, UG.NotificationValue, UG.Locale, UG.LastNotification, UG.Display, UG.ServarrTag FROM UserGroup UG",
                              self.__user_group_mapper)
@@ -73,14 +79,14 @@ class Database:
                              self.__user_group_mapper,
                              {'plex_user_id': plex_user_id})
 
-    def user_group_get_watching(self, overseerr_id: int, season: int) -> list[UserGroup]:
+    def user_group_get_watching(self, overseerr_id: int, season: int, media_type: MediaType) -> list[UserGroup]:
         return self.__select("SELECT UG.Id, UG.Name, UG.NotificationType, UG.NotificationValue, UG.Locale, UG.LastNotification, UG.Display, UG.ServarrTag "
                              "FROM UserGroup UG "
                              "INNER JOIN MediaRequirement MR ON UG.Id = MR.GroupId "
                              "INNER JOIN Media M ON MR.MediaId = M.Id "
-                             "WHERE M.OverseerrId=%(overseerr_id)s AND M.Season=%(season)s AND MR.Status <> %(status)s",
+                             "WHERE M.OverseerrId=%(overseerr_id)s AND M.Season=%(season)s AND M.Type=%(media_type)s AND MR.Status <> %(status)s",
                              self.__user_group_mapper,
-                             {'overseerr_id': overseerr_id, 'season': season, 'status': MediaRequirementStatus.ABANDONED.value})
+                             {'overseerr_id': overseerr_id, 'season': season, 'media_type': media_type.value, 'status': MediaRequirementStatus.ABANDONED.value})
 
     def user_group_get_watching_media(self, media_id: int) -> list[UserGroup]:
         return self.__select("SELECT UG.Id, UG.Name, UG.NotificationType, UG.NotificationValue, UG.Locale, UG.LastNotification, UG.Display, UG.ServarrTag "
@@ -150,29 +156,29 @@ class Database:
         self.__execute_and_commit("UPDATE Media SET TvdbId=%(tvdb_id)s WHERE Id=%(id)s",
                                   {'tvdb_id': tvdb_id, 'id': media_id})
 
-    def media_tvdb_id_set_episode(self, tvdb_id, season_number, episode_number):
+    def media_tvdb_id_set_episode(self, tvdb_id: int, season_number: int, episode_number: int):
         self.__execute_and_commit("UPDATE Media SET ElementCount=MAX(COALESCE(ElementCount, 0), %(episode)s) WHERE TvdbId=%(tvdb_id)s AND Season=%(season)s",
                                   {'tvdb_id': tvdb_id, 'season': season_number, 'episode': episode_number})
 
-    def media_get_by_overseerr_id(self, overseerr_id: int, season: Optional[int]) -> list[Media]:
+    def media_get_by_overseerr_id(self, overseerr_id: int, season: Optional[int], media_type: MediaType) -> list[Media]:
         if not season:
             return self.__select("SELECT M.Id, M.OverseerrId, M.TvdbId, M.Name, M.Season, M.ElementCount, M.Type, M.Status, M.ActionStatus FROM Media M "
-                                 "WHERE OverseerrId=%(id)s AND Season IS NULL",
+                                 "WHERE OverseerrId=%(id)s AND M.Type=%(media_type)s AND Season IS NULL",
                                  self.__media_mapper,
-                                 {'id': overseerr_id})
+                                 {'id': overseerr_id, 'media_type': media_type})
         return self.__select("SELECT M.Id, M.OverseerrId, M.TvdbId, M.Name, M.Season, M.ElementCount, M.Type, M.Status, M.ActionStatus FROM Media M "
-                             "WHERE OverseerrId=%(id)s AND Season=%(season)s",
+                             "WHERE OverseerrId=%(id)s AND M.Type=%(media_type)s AND Season=%(season)s",
                              self.__media_mapper,
-                             {'id': overseerr_id, 'season': season})
+                             {'id': overseerr_id, 'media_type': media_type, 'season': season})
 
     def media_add(self, overseerr_id: int, name: str, season: Optional[int], media_type: MediaType, status: MediaStatus, action_status: MediaActionStatus) -> None:
         self.__execute_and_commit("INSERT INTO Media(OverseerrId, Name, Season, Type, Status, ActionStatus) VALUES (%(overseerr_id)s,%(name)s,%(season)s,%(type)s,%(status)s,%(action_status)s)",
                                   {'overseerr_id': overseerr_id, 'name': name, 'season': season, 'type': media_type.value, 'status': status.value, 'action_status': action_status.value})
 
-    def media_requirement_set_watched(self, media_id: int, group_id: int) -> None:
+    def media_requirement_set_status(self, media_id: int, group_id: int, media_requirement_status: MediaRequirementStatus) -> None:
         self.__execute_and_commit("UPDATE MediaRequirement SET Status=%(status)s "
                                   "WHERE MediaId=%(media_id)s AND GroupId=%(group_id)s",
-                                  {'status': MediaRequirementStatus.WATCHED.value, 'media_id': media_id, 'group_id': group_id})
+                                  {'status': media_requirement_status.value, 'media_id': media_id, 'group_id': group_id})
 
     def media_requirement_add(self, media_id: int, user_group_id: int):
         self.__execute_and_commit("INSERT INTO MediaRequirement(MediaId, GroupId) VALUES(%(media_id)s,%(user_group_id)s) ON DUPLICATE KEY UPDATE MediaId=%(media_id)s",

@@ -12,5 +12,9 @@ class Admin:
         self.__database = database
 
     def on_form_add_requirement(self) -> str | Response:
+        user_persons = self.__database.user_person_get_all()
+        return flask.render_template('admin/requirement_add.html', user_persons=user_persons)
+
+    def on_form_abandon_requirement(self) -> str | Response:
         user_groups = self.__database.user_group_get_all()
-        return flask.render_template('admin/requirement.html', user_groups=user_groups)
+        return flask.render_template('admin/requirement_abandon.html', user_groups=user_groups)
