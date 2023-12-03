@@ -20,9 +20,9 @@ class Mailer:
 
     def send(self, mail_to: list[str], subject: str, plain_body: str, html_body: str = None) -> dict[str, tuple[int, bytes]]:
         try:
-            message = self.__create_mail(mail_to, subject, plain_body, html_body)
-            self.__logger.info(f"Sending mail to {mail_to}: {message.as_string()}")
-            return self.__get_or_create_smtp().sendmail(self.__from_mail, mail_to, message.as_string())
+            (message, mails) = self.__create_mail(mail_to, subject, plain_body, html_body)
+            self.__logger.info(f"Sending mail to {mails}: {message.as_string()}")
+            return self.__get_or_create_smtp().sendmail(self.__from_mail, mails, message.as_string())
         except Exception as error:
             self.__logger.error("Failed to send message", exc_info=error)
             return {}
@@ -45,7 +45,9 @@ class Mailer:
                 self.__smtp.login(self.__username, self.__password)
         return self.__smtp
 
-    def __create_mail(self, mail_to: list[str], subject: str, plain_body: str, html_body: str = None) -> MIMEMultipart:
+    def __create_mail(self, mail_to: list[str], subject: str, plain_body: str, html_body: str = None) -> tuple[MIMEMultipart, list[str]]:
+        mails = []
+
         message = MIMEMultipart("alternative")
         message["From"] = formataddr((self.__from_name, self.__from_mail))
         message["To"] = ', '.join(mail_to)
@@ -56,4 +58,7 @@ class Mailer:
         message.attach(MIMEText(plain_body, "plain", _charset="UTF-8"))
         if html_body:
             message.attach(MIMEText(html_body, "html", _charset="UTF-8"))
-        return message
+
+        mails += message["To"]
+        mails += message['Bcc']
+        return message, mails
