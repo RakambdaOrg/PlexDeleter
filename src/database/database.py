@@ -221,6 +221,7 @@ class Database:
         with closing(cursor) as c:
             for row in c:
                 values.append(parser(row))
+            c.connection.commit()
         return values
 
     @staticmethod
