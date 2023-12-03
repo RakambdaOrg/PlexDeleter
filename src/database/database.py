@@ -1,6 +1,7 @@
 import array
 import datetime
 import logging
+from contextlib import closing
 from typing import TypeVar, Callable, Optional
 
 import pymysql
@@ -23,7 +24,7 @@ T = TypeVar('T')
 class Database:
     def __init__(self, host: str, user: str, password: str, database: str):
         self.__logger = logging.getLogger(__name__)
-        self.__persist_database = PersistentDB(creator=pymysql, host=host, port=3306, user=user, password=password, database=database, cursorclass=pymysql.cursors.DictCursor)
+        self.__persist_database = PersistentDB(creator=pymysql, host=host, port=3306, user=user, password=password, database=database, cursorclass=pymysql.cursors.DictCursor, closeable=True, ping=7)
 
         self.__user_person_mapper = lambda row: UserPerson(self.__get_row_value(row, 'UP', 'Id'),
                                                            self.__get_row_value(row, 'UP', 'Name'),
@@ -202,7 +203,8 @@ class Database:
 
     def __execute_and_commit(self, query: str, args=None) -> None:
         cursor = self.__execute(query, args)
-        cursor.connection.commit()
+        with closing(cursor) as c:
+            c.connection.commit()
 
     def __execute(self, query: str, args=None) -> Cursor:
         if args is None:
@@ -216,8 +218,9 @@ class Database:
     def __select(self, query: str, parser: Callable[[array], T], args: dict = None) -> list[T]:
         values = []
         cursor = self.__execute(query, args)
-        for row in cursor:
-            values.append(parser(row))
+        with closing(cursor) as c:
+            for row in c:
+                values.append(parser(row))
         return values
 
     @staticmethod
