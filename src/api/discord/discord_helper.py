@@ -2,6 +2,7 @@ import json
 from pathlib import Path
 from typing import Optional
 
+import humanize
 from discord_webhook import DiscordWebhook
 
 from database.media import Media
@@ -12,14 +13,17 @@ class DiscordHelper:
     def __init__(self, webhook_url: str):
         self.__webhook_url = webhook_url
 
-    def notify_file_deleted(self, file: Path) -> None:
-        self.__send(f" * Deleted file {file.resolve()}")
+    def notify_file_deleted(self, file: Path, size: int) -> None:
+        self.__send(f" * Deleted file ({humanize.naturalsize(size)}) {file.resolve()}")
 
     def notify_folder_deleted(self, file: Path) -> None:
         self.__send(f" * Deleted folder {file.resolve()}")
 
-    def notify_media_deleted(self, media: Media):
-        self.__send(f"🗑️ Deleted media {media.id}: {media}")
+    def notify_media_deleted(self, media: Media, size: int):
+        self.__send(f"🗑️ Deleted media {media.id} ({humanize.naturalsize(size)}): {media}")
+
+    def notify_total_deleted(self, size: int):
+        self.__send(f"🗑️ Deleted a total of {humanize.naturalsize(size)}")
 
     def notify_media_added(self, media: Media):
         self.__send(f"✅ Added media {media.id}: {media}")

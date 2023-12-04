@@ -2,6 +2,8 @@ import logging
 from datetime import datetime, timedelta
 from pathlib import Path
 
+import humanize
+
 from api.discord.discord_helper import DiscordHelper
 from api.overseerr.overseerr_helper import OverseerrHelper
 from api.tautulli.tautulli_helper import TautulliHelper
@@ -24,13 +26,16 @@ class Deleter:
 
     def delete(self) -> None:
         medias = self.__database.media_get_fully_watched_to_delete()
+        deleted_size = 0
         for media in medias:
             try:
-                self.__delete_media(media)
+                deleted_size += self.__delete_media(media)
             except IOError as error:
                 self.__logger.error(f"Failed to delete media {media}", exc_info=error)
+        self.__logger.error(f"Total deleted size : {humanize.naturalsize(deleted_size)}")
+        self.__discord.notify_total_deleted(deleted_size)
 
-    def __delete_media(self, media: Media) -> None:
+    def __delete_media(self, media: Media) -> int:
         metadata = []
         media_details = self.__overseerr.get_media_details(media.overseerr_id, media.type)
         element_rating_key = self.__tautulli.get_season_episode_rating_key(media_details.rating_key, media.season_number)
@@ -52,11 +57,11 @@ class Deleter:
                 metadata.extend(sub_metadata)
             else:
                 self.__logger.info(f"Skipped {media} because most recent file is from {max_date} which is not older than {self.__min_days} days")
-                return
+                return 0
         else:
             self.__logger.warning(f"Could not find metadata & files for {media}")
             self.__discord.notify_cannot_delete(media)
-            return
+            return 0
 
         files = set()
         for m in metadata:
@@ -68,31 +73,39 @@ class Deleter:
                     local_file = Path(remote_file.replace(self.__remote_path, self.__local_path, 1))
                     files.add(local_file)
 
-        self.__delete_recursive(files)
+        deleted_size = self.__delete_recursive(files)
         if not self.__dry_run:
             self.__database.media_set_action_status(media.id, MediaActionStatus.DELETED)
-            self.__discord.notify_media_deleted(media)
+            self.__discord.notify_media_deleted(media, deleted_size)
 
-    def __delete_recursive(self, files: set[Path]) -> None:
+        return deleted_size
+
+    def __delete_recursive(self, files: set[Path]) -> int:
         all_parents = set()
+        deleted_size = 0
         while len(files) > 0:
-            (parents, companion_files) = self.__delete_files(files)
+            (parents, companion_files, size) = self.__delete_files(files)
             files = companion_files
             all_parents.update(parents)
+            deleted_size += size
         if len(all_parents) > 0:
-            self.__delete_recursive(all_parents)
+            deleted_size += self.__delete_recursive(all_parents)
+        return deleted_size
 
-    def __delete_files(self, files: set[Path]) -> (set[Path], set[Path]):
+    def __delete_files(self, files: set[Path]) -> (set[Path], set[Path], int):
         parents = set()
         companion_files = set()
+        deleted_size = 0
 
         for file in sorted(files):
             if file.is_file():
                 self.__logger.info(f"Deleting file {file}")
                 parents.add(file.parent)
                 if not self.__dry_run:
+                    size = file.stat().st_size
                     file.unlink()
-                    self.__discord.notify_file_deleted(file.relative_to(Path(self.__local_path)))
+                    deleted_size += size
+                    self.__discord.notify_file_deleted(file.relative_to(Path(self.__local_path)), size)
                 companion_files.update(self.__get_companion_files(file))
             if file.is_dir():
                 self.__logger.info(f"Deleting folder {file}")
@@ -104,7 +117,7 @@ class Deleter:
                 if not self.__dry_run:
                     file.rmdir()
                     self.__discord.notify_folder_deleted(file.relative_to(Path(self.__local_path)))
-        return parents, companion_files
+        return parents, companion_files, deleted_size
 
     @staticmethod
     def __get_companion_files(file: Path) -> set[Path]:
