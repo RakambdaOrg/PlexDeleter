@@ -26,6 +26,9 @@ class Deleter:
 
     def delete(self) -> None:
         medias = self.__database.media_get_fully_watched_to_delete()
+        if len(medias) == 0:
+            return
+
         deleted_size = 0
         for media in medias:
             try:
