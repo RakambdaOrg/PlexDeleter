@@ -45,8 +45,6 @@ class WebServer:
         def log_request_info():
             self.__app.logger.info('Received %s request on %s', request.method, request.path)
             self.__app.logger.debug('Headers: %s', request.headers)
-            if request.content_length and request.content_length > 0:
-                self.__app.logger.info('Body: %s', request.get_data())
 
         @self.__app.after_request
         def log_request_info(response: Response) -> Response:
