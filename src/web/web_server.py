@@ -43,6 +43,8 @@ class WebServer:
 
         @self.__app.before_request
         def log_request_info():
+            if not request.path or not request.path.startswith("/static/"):
+                return
             self.__app.logger.info('Received %s request on %s', request.method, request.path)
             self.__app.logger.debug('Headers: %s', request.headers)
 
