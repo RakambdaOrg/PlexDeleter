@@ -76,6 +76,7 @@ class Deleter:
                     local_file = Path(remote_file.replace(self.__remote_path, self.__local_path, 1))
                     files.add(local_file)
 
+        logging.info(f"Will delete {len(files)} elements for media {media}")
         deleted_size = self.__delete_recursive(files)
         if not self.__dry_run:
             self.__database.media_set_action_status(media.id, MediaActionStatus.DELETED)
