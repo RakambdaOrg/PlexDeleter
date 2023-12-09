@@ -67,7 +67,7 @@ class WebServer:
 
         @self.__app.route('/admin')
         @basic_auth.login_required
-        def on_home():
+        def on_admin_home():
             return homepage.on_call(include_hidden=True)
 
         @self.__app.route('/admin/requirement/add')
