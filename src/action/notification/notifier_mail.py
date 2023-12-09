@@ -26,7 +26,7 @@ class MailNotifier(CommonNotifier):
         return self.__notify(user_group, medias, None, self._get_subject_media_available)
 
     def __notify(self, user_group: UserGroup, medias: list[Media], user_group_status: Optional[UserGroupStatus], subject_function: Callable[[str], str]):
-        mails = user_group.notification_value.split(',') if user_group.notification_value else []
+        mails = [x.strip() for x in user_group.notification_value.split(',')] if user_group.notification_value else []
 
         locale = user_group.locale
         subject = subject_function(locale)
