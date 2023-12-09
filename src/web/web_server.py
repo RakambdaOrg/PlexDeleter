@@ -25,7 +25,8 @@ from web.webhook.webhook_tautulli import WebhookTautulli
 
 
 class WebServer:
-    def __init__(self, overseerr: OverseerrHelper, database: Database, discord: DiscordHelper, status_updater: StatusUpdater, watch_updater: WatchUpdater, deleter: Deleter, notifier: Notifier):
+    def __init__(self, overseerr: OverseerrHelper, database: Database, discord: DiscordHelper,
+                 status_updater: StatusUpdater, watch_updater: WatchUpdater, deleter: Deleter, notifier: Notifier):
         self.__logger = logging.getLogger(__name__)
         web_utils = WebUtils(database, watch_updater, deleter, status_updater, notifier, discord)
         admin = Admin(database)
@@ -51,7 +52,8 @@ class WebServer:
         @self.__app.after_request
         def log_request_info(response: Response) -> Response:
             response_data = '<<Passthrough>>' if response.direct_passthrough else response.get_data(True)
-            self.__app.logger.info('Done handling %s request on %s : %d (%s)', request.method, request.path, response.status_code, response_data)
+            self.__app.logger.info('Done handling %s request on %s : %d (%s)', request.method, request.path,
+                                   response.status_code, response_data)
 
             return response
 
@@ -61,7 +63,12 @@ class WebServer:
 
         @self.__app.route('/')
         def on_home():
-            return homepage.on_call()
+            return homepage.on_call(include_hidden=False)
+
+        @self.__app.route('/admin')
+        @basic_auth.login_required
+        def on_home():
+            return homepage.on_call(include_hidden=True)
 
         @self.__app.route('/admin/requirement/add')
         @basic_auth.login_required

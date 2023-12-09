@@ -14,7 +14,7 @@ class Homepage:
         self.__database = database
         self.__overseerr = overseerr
 
-    def on_call(self) -> str:
+    def on_call(self, include_hidden: bool = False) -> str:
         all_overseerr_media = {}
         media_data = {}
         url_data = {}
@@ -39,7 +39,7 @@ class Homepage:
             user_group = group_and_media[0]
             media = group_and_media[1]
 
-            if not user_group.display:
+            if not include_hidden and not user_group.display:
                 continue
             if user_group not in media_data:
                 media_data[user_group] = []
