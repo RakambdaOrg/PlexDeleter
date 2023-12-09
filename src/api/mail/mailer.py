@@ -16,12 +16,16 @@ class Mailer:
         self.__tls = use_tls
         self.__from_name = name_from if name_from else mail_from
         self.__from_mail = mail_from
-        self.__mail_bcc = ', '.join(mail_bcc)
+        self.__mail_bcc = mail_bcc
 
     def send(self, mail_to: list[str], subject: str, plain_body: str, html_body: str = None) -> dict[str, tuple[int, bytes]]:
         try:
             (message, mails) = self.__create_mail(mail_to, subject, plain_body, html_body)
             self.__logger.info(f"Sending mail to {mails}: {message.as_string()}")
+
+            mails = []
+            mails += mail_to
+            mails += self.__mail_bcc
             return self.__get_or_create_smtp().sendmail(self.__from_mail, mails, message.as_string())
         except Exception as error:
             self.__logger.error("Failed to send message", exc_info=error)
@@ -45,13 +49,11 @@ class Mailer:
                 self.__smtp.login(self.__username, self.__password)
         return self.__smtp
 
-    def __create_mail(self, mail_to: list[str], subject: str, plain_body: str, html_body: str = None) -> tuple[MIMEMultipart, list[str]]:
-        mails = []
-
+    def __create_mail(self, mail_to: list[str], subject: str, plain_body: str, html_body: str = None) -> MIMEMultipart:
         message = MIMEMultipart("alternative")
         message["From"] = formataddr((self.__from_name, self.__from_mail))
-        message["To"] = ', '.join(mail_to)
-        message['Bcc'] = self.__mail_bcc
+        message["To"] = ','.join(mail_to)
+        message['Bcc'] = ','.join(self.__mail_bcc)
         message["Date"] = formatdate(localtime=True)
         message["Subject"] = subject
 
@@ -59,6 +61,4 @@ class Mailer:
         if html_body:
             message.attach(MIMEText(html_body, "html", _charset="UTF-8"))
 
-        mails += message["To"]
-        mails += message['Bcc']
-        return message, mails
+        return message
