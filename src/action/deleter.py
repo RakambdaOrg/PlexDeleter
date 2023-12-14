@@ -13,9 +13,8 @@ from database.media_action_status import MediaActionStatus
 
 
 class Deleter:
-    def __init__(self, remote_path: str, local_path: str, dry_run: bool, database: Database, tautulli: TautulliHelper, overseerr: OverseerrHelper, discord: DiscordHelper, min_days: int):
-        self.__remote_path = remote_path
-        self.__local_path = local_path
+    def __init__(self, remote_path_mappings: dict[str, str], dry_run: bool, database: Database, tautulli: TautulliHelper, overseerr: OverseerrHelper, discord: DiscordHelper, min_days: int):
+        self.__remote_path_mappings = remote_path_mappings
         self.__dry_run = dry_run
         self.__database = database
         self.__tautulli = tautulli
@@ -73,7 +72,10 @@ class Deleter:
                 parts = media_info["parts"] or []
                 for parts in parts:
                     remote_file = parts["file"]
-                    local_file = Path(remote_file.replace(self.__remote_path, self.__local_path, 1))
+                    replaced_path = remote_file
+                    for remote_part, local_part in self.__remote_path_mappings.items():
+                        replaced_path = replaced_path.replace(remote_part, local_part, 1)
+                    local_file = Path(replaced_path)
                     files.add(local_file)
 
         logging.info(f"Will delete {len(files)} elements for media {media}")
@@ -109,7 +111,7 @@ class Deleter:
                     size = file.stat().st_size
                     file.unlink()
                     deleted_size += size
-                    self.__discord.notify_file_deleted(file.relative_to(Path(self.__local_path)), size)
+                    self.__discord.notify_file_deleted(file, size)
                 companion_files.update(self.__get_companion_files(file))
             if file.is_dir():
                 self.__logger.info(f"Deleting folder {file}")
@@ -120,7 +122,7 @@ class Deleter:
                 parents.add(file.parent)
                 if not self.__dry_run:
                     file.rmdir()
-                    self.__discord.notify_folder_deleted(file.relative_to(Path(self.__local_path)))
+                    self.__discord.notify_folder_deleted(file)
         return parents, companion_files, deleted_size
 
     @staticmethod

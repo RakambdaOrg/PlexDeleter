@@ -47,8 +47,12 @@ if __name__ == "__main__":
     database_password = get_env("DB_PASS")
     database_name = get_env("DB_DB")
 
-    remote_path = get_env("REMOTE_PATH")
-    local_path = get_env("LOCAL_PATH")
+    remote_path_mappings = get_env("REMOTE_PATH_MAPPINGS")
+    path_mappings = {}
+    for mapping in remote_path_mappings.split(","):
+        mapping_parts = mapping.split("=", 1)
+        path_mappings[mapping_parts[0]] = mapping_parts[1]
+
     discord_webhook = get_env("DISCORD_WEBHOOK", required=False)
     dry_run = get_env("DRY_RUN", required=False, default="false").lower() == "true"
     delete_min_days = int(get_env("DELETE_MIN_DAYS", required=False, default="2"))
@@ -89,7 +93,7 @@ if __name__ == "__main__":
     discord_notifier_thread = DiscordNotifierThread(overseerr_helper, discord_helper)
     mail_notifier = MailNotifier(mailer, overseerr_helper)
     notifier = Notifier(database, mail_notifier, discord_notifier, discord_notifier_thread)
-    deleter = Deleter(remote_path, local_path, dry_run, database, tautulli_helper, overseerr_helper, discord_helper, delete_min_days)
+    deleter = Deleter(path_mappings, dry_run, database, tautulli_helper, overseerr_helper, discord_helper, delete_min_days)
     status_updater = StatusUpdater(database, tautulli_helper, overseerr_helper, discord_helper, radarr_helper, sonarr_helper, notifier)
     watch_updater = WatchUpdater(database, tautulli_helper, overseerr_helper, discord_helper)
     web_server = WebServer(overseerr_helper, database, discord_helper, status_updater, watch_updater, deleter, notifier)
