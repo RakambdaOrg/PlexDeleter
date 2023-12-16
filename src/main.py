@@ -32,12 +32,23 @@ def get_env(name: str, required: bool = True, default: str = None) -> str:
     return default
 
 
+class MyFormatter(logging.Formatter):
+    def format(self, record):
+        if not record.exc_text:
+            record.exc_text = self.formatException(record.exc_info)
+        record.exc_text = record.exc_text.replace("\n", " § ")
+        return super().format(record)
+
+
+stdout_stream_handler = logging.StreamHandler(sys.stdout)
+stdout_stream_handler.setFormatter(MyFormatter(fmt="%(asctime)s %(levelname)s %(message)s"))
+
 logging.basicConfig(
     level=logging.DEBUG if get_env("LOG_LEVEL_DEBUG", False, None) else logging.INFO,
     format="%(asctime)s %(levelname)s %(message)s",
     datefmt="%Y-%m-%dT%H:%M:%S%z",
     handlers=[
-        logging.StreamHandler(sys.stdout)
+        stdout_stream_handler
     ]
 )
 
