@@ -79,7 +79,7 @@ class StatusUpdater:
             self.__logger.info(f"Got element count of {element_count} from Tautulli")
             element_count = result
 
-        result = self.__get_episode_count_from_radarr(media)
+        result = self.__get_episode_count_from_sonarr(media)
         if result:
             if result[0]:
                 self.__logger.info(f"Got element count of {result[0]} from Radarr")
@@ -112,7 +112,7 @@ class StatusUpdater:
         episode_count = self.__tautulli.get_episode_count_in_season(media_details.rating_key, media.season_number)
         return episode_count
 
-    def __get_episode_count_from_radarr(self, media: Media) -> Optional[tuple[int, int]]:
+    def __get_episode_count_from_sonarr(self, media: Media) -> Optional[tuple[int, int]]:
         media_details = self.__overseerr.get_media_details(media.overseerr_id, media.type)
         if not media_details.tvdb_id:
             return
