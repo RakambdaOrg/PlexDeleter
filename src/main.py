@@ -34,9 +34,8 @@ def get_env(name: str, required: bool = True, default: str = None) -> str:
 
 class MyFormatter(logging.Formatter):
     def format(self, record):
-        if not record.exc_text:
-            record.exc_text = self.formatException(record.exc_info)
-        record.exc_text = record.exc_text.replace("\n", " § ")
+        if record.exc_text:
+            record.exc_text = record.exc_text.replace("\n", " § ")
         return super().format(record)
 
 
