@@ -102,7 +102,6 @@ class StatusUpdater:
             media.element_count = element_count
             media.total_element_count = total_element_count
             self.__mark_finished(media, element_count, total_element_count)
-            self.__notifier.notify_available(media)
 
     def __get_episode_count_from_tautulli(self, media: Media) -> Optional[int]:
         media_details = self.__overseerr.get_media_details(media.overseerr_id, media.type)
@@ -120,6 +119,7 @@ class StatusUpdater:
         return self.__sonarr.get_tv_season_episode(media_details.tvdb_id, media.season_number)
 
     def __mark_finished(self, media: Media, element_count: int, total_element_count: int) -> None:
-        self.__logger.info(f'Setting media as finished {element_count}/{total_element_count}')
+        self.__logger.info(f'Setting media {media} as finished {element_count}/{total_element_count}')
         self.__database.media_set_status(media.id, MediaStatus.FINISHED)
         self.__discord.notify_set_finished(media, element_count, total_element_count)
+        self.__notifier.notify_available(media)

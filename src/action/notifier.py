@@ -39,7 +39,6 @@ class Notifier:
 
     def notify_requirement_added(self, user_group: UserGroup, media: Media) -> None:
         self.__logger.info(f"Notifying requirement added to {user_group} on {media}")
-        medias = [media]
         self.__get_notifier(user_group.notification_type).notify(user_group, [media], None, RequirementAddedType())
 
     def notify_available(self, media: Media) -> None:
