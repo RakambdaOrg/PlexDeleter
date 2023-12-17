@@ -30,7 +30,7 @@ class WebServer:
         self.__logger = logging.getLogger(__name__)
         web_utils = WebUtils(database, watch_updater, deleter, status_updater, notifier, discord)
         admin = Admin(database)
-        api = Api(database, web_utils, overseerr)
+        api = Api(database, web_utils, overseerr, notifier)
         homepage = Homepage(database, overseerr)
         webhook_overseerr = WebhookOverseerr(web_utils, overseerr)
         webhook_radarr = WebhookRadarr()
