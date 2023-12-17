@@ -9,8 +9,7 @@ jobs:
     uses: RakambdaOrg/rakambda-github-workflows/.github/workflows/python-build.yml@main
     with:
       source-folder: src
-      runs-on: self-hosted
-      
+
   deploy:
     uses: RakambdaOrg/rakambda-github-workflows/.github/workflows/docker-publish.yml@main
     needs: check
@@ -18,7 +17,6 @@ jobs:
     with:
       docker-image: ${{ vars.DOCKER_IMAGE }}
       docker-tag: latest
-      runs-on: self-hosted
     secrets:
       docker-repo: ${{ secrets.DOCKER_REPO }}
       docker-username: ${{ secrets.DOCKER_USERNAME }}

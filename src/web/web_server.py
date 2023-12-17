@@ -50,7 +50,7 @@ class WebServer:
             self.__app.logger.debug('Headers: %s', request.headers)
 
         @self.__app.after_request
-        def log_request_info(response: Response) -> Response:
+        def log_response_info(response: Response) -> Response:
             if (not request.path or not request.path.startswith("/static/")) and response.status_code == 200:
                 return response
 
