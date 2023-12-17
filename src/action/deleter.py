@@ -34,7 +34,7 @@ class Deleter:
                 deleted_size += self.__delete_media(media)
             except IOError as error:
                 self.__logger.error(f"Failed to delete media {media}", exc_info=error)
-        self.__logger.error(f"Total deleted size : {humanize.naturalsize(deleted_size)}")
+        self.__logger.info(f"Total deleted size : {humanize.naturalsize(deleted_size)}")
         self.__discord.notify_total_deleted(deleted_size)
 
     def __delete_media(self, media: Media) -> int:
