@@ -1,7 +1,8 @@
 import logging
-from typing import Callable, Optional
+from typing import Optional
 
 from action.notification.common_discord import CommonDiscordNotifier
+from action.notification.types.NotifyType import NotifyType
 from action.status.user_group_status import UserGroupStatus
 from api.discord.discord_helper import DiscordHelper
 from api.overseerr.overseerr_helper import OverseerrHelper
@@ -16,7 +17,7 @@ class DiscordNotifierThread(CommonDiscordNotifier):
         self.__discord = discord
         self.__logger = logging.getLogger(__name__)
 
-    def _notify(self, user_group: UserGroup, medias: list[Media], user_group_status: Optional[UserGroupStatus], header_function: Callable[[str], str], header_releasing_function: Callable[[str], str], subject_function: Callable[[str], str]):
+    def notify(self, user_group: UserGroup, medias: list[Media], user_group_status: Optional[UserGroupStatus], notify_type: NotifyType):
         parts = user_group.notification_value.split(',') if user_group.notification_value else []
         user_mention = f"<@{parts[0]}>"
         webhook_url = parts[1]
@@ -27,18 +28,18 @@ class DiscordNotifierThread(CommonDiscordNotifier):
 
         texts = []
         if len(media_texts) > 0:
-            header = header_function(locale)
+            header = notify_type.get_discord_header(locale)
             texts.append(f"# {header}")
             texts += media_texts
 
         if len(media_texts_releasing) > 0:
-            header_releasing = header_releasing_function(locale)
+            header_releasing = notify_type.get_discord_header_releasing(locale)
             texts.append(f"# {header_releasing}")
             texts += media_texts_releasing
 
         self.__discord.send_thread(
             webhook_url,
-            subject_function(locale),
+            notify_type.get_subject(locale),
             f"{user_mention}",
             texts
         )

@@ -1,7 +1,8 @@
 import logging
-from typing import Callable, Optional
+from typing import Optional
 
 from action.notification.common_discord import CommonDiscordNotifier
+from action.notification.types.NotifyType import NotifyType
 from action.status.user_group_status import UserGroupStatus
 from api.discord.discord_helper import DiscordHelper
 from api.overseerr.overseerr_helper import OverseerrHelper
@@ -16,7 +17,7 @@ class DiscordNotifier(CommonDiscordNotifier):
         self.__discord = discord
         self.__logger = logging.getLogger(__name__)
 
-    def _notify(self, user_group: UserGroup, medias: list[Media], user_group_status: Optional[UserGroupStatus], header_function: Callable[[str], str], header_releasing_function: Callable[[str], str], subject_function: Callable[[str], str]) -> None:
+    def notify(self, user_group: UserGroup, medias: list[Media], user_group_status: Optional[UserGroupStatus], notify_type: NotifyType) -> None:
         parts = user_group.notification_value.split(',') if user_group.notification_value else []
         user_mention = f"<@{parts[0]}>"
         webhook_url = parts[1]
@@ -24,13 +25,13 @@ class DiscordNotifier(CommonDiscordNotifier):
         locale = user_group.locale
 
         if len(list(filter(lambda m: m.status != MediaStatus.RELEASING, medias))) > 0:
-            header = header_function(locale)
+            header = notify_type.get_discord_header(locale)
             self.__discord.send_to(webhook_url, f"{user_mention}\n# {header}")
             for media in filter(lambda m: m.status != MediaStatus.RELEASING, medias):
                 self.__discord.send_to(webhook_url, "* " + self._get_markdown_body(locale, media, user_group_status))
 
         if len(list(filter(lambda m: m.status == MediaStatus.RELEASING, medias))) > 0:
-            header_releasing = header_releasing_function(locale)
+            header_releasing = notify_type.get_discord_header_releasing(locale)
             self.__discord.send_to(webhook_url, f"# {header_releasing}")
             for media in filter(lambda m: m.status == MediaStatus.RELEASING, medias):
                 self.__discord.send_to(webhook_url, "* " + self._get_markdown_body(locale, media, user_group_status))

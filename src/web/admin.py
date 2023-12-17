@@ -18,3 +18,7 @@ class Admin:
     def on_form_abandon_requirement(self) -> str | Response:
         user_groups = self.__database.user_group_get_all()
         return flask.render_template('admin/requirement_abandon.html', user_groups=user_groups)
+
+    def on_form_complete_requirement(self) -> str | Response:
+        user_groups = self.__database.user_group_get_all()
+        return flask.render_template('admin/requirement_complete.html', user_groups=user_groups)

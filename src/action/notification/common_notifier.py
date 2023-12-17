@@ -1,6 +1,7 @@
 from abc import ABC, abstractmethod
 from typing import Optional
 
+from action.notification.types.NotifyType import NotifyType
 from action.status.user_group_status import UserGroupStatus
 from action.status.user_media_status import UserMediaStatus
 from database.media import Media
@@ -11,15 +12,7 @@ from database.user_group import UserGroup
 
 class CommonNotifier(ABC):
     @abstractmethod
-    def notify_watchlist(self, user_group: UserGroup, medias: list[Media], user_group_status: UserGroupStatus):
-        pass
-
-    @abstractmethod
-    def notify_requirement_added(self, user_group: UserGroup, medias: list[Media]):
-        pass
-
-    @abstractmethod
-    def notify_media_available(self, user_group: UserGroup, medias: list[Media]):
+    def notify(self, user_group: UserGroup, medias: list[Media], user_group_status: Optional[UserGroupStatus], notify_type: NotifyType) -> None:
         pass
 
     @staticmethod

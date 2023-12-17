@@ -82,6 +82,11 @@ class WebServer:
         def on_admin_requirement_abandon():
             return admin.on_form_abandon_requirement()
 
+        @self.__app.route('/admin/requirement/complete')
+        @basic_auth.login_required
+        def on_admin_requirement_complete():
+            return admin.on_form_complete_requirement()
+
         @self.__app.route('/api/requirement/add', methods=['POST'])
         @basic_auth.login_required
         def on_api_requirement_add():
@@ -91,6 +96,11 @@ class WebServer:
         @basic_auth.login_required
         def on_api_requirement_abandon():
             return api.on_abandon_requirement(request.form)
+
+        @self.__app.route('/api/requirement/complete', methods=['POST'])
+        @basic_auth.login_required
+        def on_api_requirement_complete():
+            return api.on_complete_requirement(request.form)
 
         @self.__app.route('/maintenance/full')
         @bearer_auth.login_required

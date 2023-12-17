@@ -97,6 +97,13 @@ class Database:
                              self.__user_group_mapper,
                              {'media_id': media_id, 'status': MediaRequirementStatus.ABANDONED.value})
 
+    def user_group_get_by_id(self, user_group_id: int) -> list[UserGroup]:
+        return self.__select("SELECT UG.Id, UG.Name, UG.NotificationType, UG.NotificationValue, UG.Locale, UG.LastNotification, UG.Display, UG.ServarrTag "
+                             "FROM UserGroup UG "
+                             "WHERE UG.Id=%(user_group_id)s",
+                             self.__user_group_mapper,
+                             {'user_group_id': user_group_id})
+
     def media_get_all_releasing(self) -> list[Media]:
         return self.__select("SELECT M.Id, M.OverseerrId, M.TvdbId, M.Name, M.Season, M.ElementCount, M.Type, M.Status, M.ActionStatus FROM Media M "
                              "WHERE Status=%(media_status)s",

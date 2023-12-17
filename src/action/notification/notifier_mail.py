@@ -1,7 +1,8 @@
 import logging
-from typing import Optional, Callable
+from typing import Optional
 
 from action.notification.common_notifier import CommonNotifier
+from action.notification.types.NotifyType import NotifyType
 from action.status.user_group_status import UserGroupStatus
 from api.mail.mailer import Mailer
 from api.overseerr.overseerr_helper import OverseerrHelper
@@ -16,20 +17,11 @@ class MailNotifier(CommonNotifier):
         self.__overseerr = overseerr
         self.__logger = logging.getLogger(__name__)
 
-    def notify_watchlist(self, user_group: UserGroup, medias: list[Media], user_group_status: UserGroupStatus):
-        return self.__notify(user_group, medias, user_group_status, self._get_subject_watchlist)
-
-    def notify_requirement_added(self, user_group: UserGroup, medias: list[Media]):
-        return self.__notify(user_group, medias, None, self._get_subject_requirement_added)
-
-    def notify_media_available(self, user_group: UserGroup, medias: list[Media]):
-        return self.__notify(user_group, medias, None, self._get_subject_media_available)
-
-    def __notify(self, user_group: UserGroup, medias: list[Media], user_group_status: Optional[UserGroupStatus], subject_function: Callable[[str], str]):
+    def notify(self, user_group: UserGroup, medias: list[Media], user_group_status: Optional[UserGroupStatus], notify_type: NotifyType):
         mails = [x.strip() for x in user_group.notification_value.split(',')] if user_group.notification_value else []
 
         locale = user_group.locale
-        subject = subject_function(locale)
+        subject = notify_type.get_subject(locale)
         text_message = self.__get_text_body(locale, medias, user_group_status)
         html_message = self.__get_html_body(locale, medias, user_group_status)
         self.__mailer.send(mails, subject, text_message, html_message)

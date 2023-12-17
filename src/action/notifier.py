@@ -2,9 +2,15 @@ import datetime
 import logging
 from functools import cmp_to_key
 
+from action.notification.common_notifier import CommonNotifier
 from action.notification.notifier_discord import DiscordNotifier
 from action.notification.notifier_discord_thread import DiscordNotifierThread
 from action.notification.notifier_mail import MailNotifier
+from action.notification.types.AbandonedType import AbandonedType
+from action.notification.types.CompletedType import CompletedType
+from action.notification.types.MediaAvailableType import MediaAvailableType
+from action.notification.types.RequirementAddedType import RequirementAddedType
+from action.notification.types.WatchlistType import WatchlistType
 from action.status.user_group_status import UserGroupStatus
 from database.database import Database
 from database.media import Media
@@ -34,25 +40,28 @@ class Notifier:
     def notify_requirement_added(self, user_group: UserGroup, media: Media) -> None:
         self.__logger.info(f"Notifying requirement added to {user_group} on {media}")
         medias = [media]
-        if user_group.notification_type == NotificationType.MAIL:
-            self.__mail_notifier.notify_requirement_added(user_group, medias)
-        elif user_group.notification_type == NotificationType.DISCORD:
-            self.__discord_notifier.notify_requirement_added(user_group, medias)
-        elif user_group.notification_type == NotificationType.DISCORD_THREAD:
-            self.__discord_notifier_thread.notify_requirement_added(user_group, medias)
+        self.__get_notifier(user_group.notification_type).notify(user_group, [media], None, RequirementAddedType())
 
     def notify_available(self, media: Media) -> None:
         self.__logger.info(f"Notifying media {media} is available")
-        medias = [media]
         user_groups = self.__database.user_group_get_watching_media(media.id)
 
         for user_group in user_groups:
-            if user_group.notification_type == NotificationType.MAIL:
-                self.__mail_notifier.notify_media_available(user_group, medias)
-            elif user_group.notification_type == NotificationType.DISCORD:
-                self.__discord_notifier.notify_media_available(user_group, medias)
-            elif user_group.notification_type == NotificationType.DISCORD_THREAD:
-                self.__discord_notifier_thread.notify_media_available(user_group, medias)
+            self.__get_notifier(user_group.notification_type).notify(user_group, [media], None, MediaAvailableType())
+
+    def notify_abandoned(self, media: Media, user_group_id: int) -> None:
+        self.__logger.info(f"Notifying media {media} is abandoned by {user_group_id}")
+        user_groups = self.__database.user_group_get_by_id(media.id)
+
+        for user_group in user_groups:
+            self.__get_notifier(user_group.notification_type).notify(user_group, [media], None, AbandonedType())
+
+    def notify_completed(self, media: Media, user_group_id: int) -> None:
+        self.__logger.info(f"Notifying media {media} is completed by {user_group_id}")
+        user_groups = self.__database.user_group_get_by_id(media.id)
+
+        for user_group in user_groups:
+            self.__get_notifier(user_group.notification_type).notify(user_group, [media], None, CompletedType())
 
     @staticmethod
     def __media_sorter_name_season(x: Media, y: Media) -> int:
@@ -85,11 +94,14 @@ class Notifier:
         elif all(media.status == MediaStatus.RELEASING for media in medias):
             self.__logger.info("Not notifying watchlist, only got releasing")
         else:
-            if user_group.notification_type == NotificationType.MAIL:
-                self.__mail_notifier.notify_watchlist(user_group, medias, user_group_status)
-            elif user_group.notification_type == NotificationType.DISCORD:
-                self.__discord_notifier.notify_watchlist(user_group, medias, user_group_status)
-            elif user_group.notification_type == NotificationType.DISCORD_THREAD:
-                self.__discord_notifier_thread.notify_watchlist(user_group, medias, user_group_status)
+            self.__get_notifier(user_group.notification_type).notify(user_group, medias, user_group_status, WatchlistType())
 
         self.__database.user_group_set_last_notified(user_group.id, datetime.datetime.now())
+
+    def __get_notifier(self, notification_type: NotificationType) -> CommonNotifier:
+        if notification_type == NotificationType.MAIL:
+            return self.__mail_notifier
+        elif notification_type == NotificationType.DISCORD:
+            return self.__discord_notifier
+        elif notification_type == NotificationType.DISCORD_THREAD:
+            return self.__discord_notifier_thread
