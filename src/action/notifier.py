@@ -51,14 +51,14 @@ class Notifier:
 
     def notify_abandoned(self, media: Media, user_group_id: int) -> None:
         self.__logger.info(f"Notifying media {media} is abandoned by {user_group_id}")
-        user_groups = self.__database.user_group_get_by_id(media.id)
+        user_groups = self.__database.user_group_get_by_id(user_group_id)
 
         for user_group in user_groups:
             self.__get_notifier(user_group.notification_type).notify(user_group, [media], None, AbandonedType())
 
     def notify_completed(self, media: Media, user_group_id: int) -> None:
         self.__logger.info(f"Notifying media {media} is completed by {user_group_id}")
-        user_groups = self.__database.user_group_get_by_id(media.id)
+        user_groups = self.__database.user_group_get_by_id(user_group_id)
 
         for user_group in user_groups:
             self.__get_notifier(user_group.notification_type).notify(user_group, [media], None, CompletedType())
