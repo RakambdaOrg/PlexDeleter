@@ -51,7 +51,7 @@ class WebServer:
 
         @self.__app.after_request
         def log_response_info(response: Response) -> Response:
-            if (not request.path or not request.path.startswith("/static/")) and response.status_code == 200:
+            if request.path and request.path.startswith("/static/") and response.status_code == 200:
                 return response
 
             response_data = '<<Passthrough>>' if response.direct_passthrough else response.get_data(True)[:50].replace("\n", " § ")
