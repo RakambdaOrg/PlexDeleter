@@ -26,7 +26,7 @@
     {% for media in medias %}
     <tr class="{{ 'first-group ' if loop.index == 1 }}{{ 'ready-delete ' if user_group.id == -1 }}{{ 'releasing ' if media.status.name == 'RELEASING' }}">
         {% if loop.index == 1 %}
-        <td class="row-group" rowspan="{{ medias | length }}">{{user_group.name}}</td>
+        <td class="row-group" rowspan="{{ medias | length }}"><span>{{user_group.name}}</span></td>
         {% endif %}
         <td>{{ loop.index }}</td>
         <td>
