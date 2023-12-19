@@ -5,7 +5,7 @@ table {
 }
 
 td, th {
-    border: 1px solid #ddd;
+    border: 1px solid #E0E0E0;
     padding: 8px;
 }
 
@@ -14,11 +14,11 @@ td.center, th.center {
 }
 
 tr:nth-child(even) {
-    background-color: #f2f2f2;
+    background-color: #EEEEEE;
 }
 
 tr:hover {
-    background-color: #9d9d9d;
+    background-color: #BDBDBD;
 }
 
 th {
@@ -26,7 +26,7 @@ th {
     padding-bottom: 12px;
     text-align: left;
     background-color: #04AA6D;
-    color: white;
+    color: #FAFAFA;
 }
 
 img.icon {
@@ -40,7 +40,7 @@ img.icon {
     width: 30px;
     line-height: 30px;
     font-size: 20px;
-    background-color: white;
+    background-color: #FAFAFA;
 }
 
 .row-group > span {
@@ -50,27 +50,27 @@ img.icon {
 }
 
 tr.ready-delete {
-    background-color: #fa7a7a;
+    background-color: #FFCCBC;
 }
 
 tr.ready-delete:nth-child(even) {
-    background-color: #af5656;
+    background-color: #FFAB91;
 }
 
 tr.ready-delete:hover {
-    background-color: #693030;
+    background-color: #FF7043;
 }
 
 tr.releasing {
-    background-color: #69d960;
+    background-color: #DCEDC8;
 }
 
 tr.releasing:nth-child(even) {
-    background-color: #4da147;
+    background-color: #C5E1A5;
 }
 
 tr.releasing:hover {
-    background-color: #406e3c;
+    background-color: #9CCC65;
 }
 
 tr.first-group {
