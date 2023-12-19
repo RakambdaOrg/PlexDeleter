@@ -46,6 +46,7 @@ img.icon {
 .row-group > span {
     writing-mode: vertical-lr;
     transform: rotate(180deg);
+    white-space: nowrap;
 }
 
 tr.ready-delete {
