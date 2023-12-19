@@ -18,7 +18,7 @@ tr:nth-child(even) {
 }
 
 tr:hover {
-    background-color: #ddd;
+    background-color: #9d9d9d;
 }
 
 th {
@@ -80,7 +80,7 @@ tr.first-group {
 @media (prefers-color-scheme: dark) {
     body {
         color: #eee;
-        background: #121212;
+        background: #404040;
     }
 
     a:link {
@@ -102,11 +102,11 @@ tr.first-group {
     }
 
     tr:nth-child(even) {
-        background-color: #303030;
+        background-color: #252525;
     }
 
     tr:hover {
-        background-color: #606060;
+        background-color: #101010;
     }
 
     tr.first-group {
