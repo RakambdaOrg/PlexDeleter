@@ -58,7 +58,7 @@ tr.ready-delete:nth-child(even) {
 }
 
 tr.ready-delete:hover {
-    background-color: #d96a6a;
+    background-color: #693030;
 }
 
 tr.releasing {
@@ -70,7 +70,7 @@ tr.releasing:nth-child(even) {
 }
 
 tr.releasing:hover {
-    background-color: #58b752;
+    background-color: #406e3c;
 }
 
 tr.first-group {
@@ -130,7 +130,7 @@ tr.first-group {
     }
 
     tr.ready-delete:hover {
-        background-color: #832222;
+        background-color: #541616;
     }
 
     tr.releasing {
@@ -142,6 +142,6 @@ tr.first-group {
     }
 
     tr.releasing:hover {
-        background-color: #456b1b;
+        background-color: #263a11;
     }
 }
