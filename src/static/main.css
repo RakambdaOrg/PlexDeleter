@@ -35,7 +35,7 @@ img.icon {
 }
 
 .row-group {
-    writing-mode: vertical-rl;
+    writing-mode: vertical-lr;
     text-align: center;
     vertical-align: middle;
     transform: rotate(180deg);
