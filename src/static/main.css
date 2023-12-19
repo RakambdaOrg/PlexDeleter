@@ -45,8 +45,16 @@ img.icon {
     background-color: white;
 }
 
-tr.ready-delete, tr.ready-delete > td {
+tr.ready-delete {
     background-color: #fa7a7a;
+}
+
+tr.ready-delete:nth-child(even) {
+    background-color: #d96a6a;
+}
+
+tr.ready-delete:hover {
+    background-color: #af5656;
 }
 
 tr.releasing {
@@ -109,8 +117,16 @@ tr.first-group {
         background-color: #121212;
     }
 
-    tr.ready-delete, tr.ready-delete > td {
-        background-color: #872222;
+    tr.ready-delete {
+        background-color: #942626;
+    }
+
+    tr.ready-delete:nth-child(even) {
+        background-color: #832222;
+    }
+
+    tr.ready-delete:hover {
+        background-color: #731f1f;
     }
 
     tr.releasing {
