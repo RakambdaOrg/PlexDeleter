@@ -53,6 +53,14 @@ tr.releasing {
     background-color: #69d960;
 }
 
+tr.releasing:nth-child(even) {
+    background-color: #58b752;
+}
+
+tr.releasing:hover {
+    background-color: #4da147;
+}
+
 tr.first-group {
     border-top: 2px solid black;
 }
@@ -107,5 +115,13 @@ tr.first-group {
 
     tr.releasing {
         background-color: #568722;
+    }
+
+    tr.releasing:nth-child(even) {
+        background-color: #456b1b;
+    }
+
+    tr.releasing:hover {
+        background-color: #395917;
     }
 }
