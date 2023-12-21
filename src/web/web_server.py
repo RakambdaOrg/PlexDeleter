@@ -32,6 +32,7 @@ class WebServer:
         admin = Admin(database)
         api = Api(database, web_utils, overseerr, notifier)
         homepage = Homepage(database, overseerr)
+        webhook_ombi = WebhookOmbi(web_utils, overseerr)
         webhook_overseerr = WebhookOverseerr(web_utils, overseerr)
         webhook_radarr = WebhookRadarr()
         webhook_sonarr = WebhookSonarr(database)
@@ -115,6 +116,11 @@ class WebServer:
             thread = Thread(target=web_utils.run_maintenance_updates)
             thread.start()
             return Response(status=200)
+
+        @self.__app.route('/webhook/ombi', methods=["POST"])
+        @bearer_auth.login_required
+        def on_webhook_ombi():
+            return webhook_ombi.on_call(request.json)
 
         @self.__app.route('/webhook/overseerr', methods=["POST"])
         @bearer_auth.login_required
