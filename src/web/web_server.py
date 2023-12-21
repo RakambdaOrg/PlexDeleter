@@ -43,6 +43,7 @@ class WebServer:
 
         basic_auth = HTTPBasicAuth()
         bearer_auth = HTTPTokenAuth()
+        access_token_auth = HTTPTokenAuth(header="Access-Token")
 
         @self.__app.before_request
         def log_request_info():
@@ -119,7 +120,7 @@ class WebServer:
             return Response(status=200)
 
         @self.__app.route('/webhook/ombi', methods=["POST"])
-        @bearer_auth.login_required
+        @access_token_auth.login_required
         def on_webhook_ombi():
             return webhook_ombi.on_call(request.json)
 
