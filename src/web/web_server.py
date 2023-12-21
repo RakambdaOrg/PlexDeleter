@@ -18,6 +18,7 @@ from web.admin import Admin
 from web.api import Api
 from web.homepage import Homepage
 from web.web_utils import WebUtils
+from web.webhook.webhook_ombi import WebhookOmbi
 from web.webhook.webhook_overserr import WebhookOverseerr
 from web.webhook.webhook_radarr import WebhookRadarr
 from web.webhook.webhook_sonarr import WebhookSonarr
