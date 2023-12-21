@@ -50,12 +50,14 @@ class StatusUpdater:
             self.__database.media_set_tvdb_id(media.id, media.tvdb_id)
 
         if media_details.rating_key:
+            media.status = MediaStatus.FINISHED
             self.__mark_finished(media, 1, 1)
             return
 
         if media_details.tmdb_id:
             movie_has_file = self.__radarr.has_file(media_details.tmdb_id)
             if movie_has_file:
+                media.status = MediaStatus.FINISHED
                 self.__mark_finished(media, 1, 1)
             return
 
