@@ -61,15 +61,15 @@ tr.ready-delete:hover {
     background-color: #FF7043;
 }
 
-tr.releasing {
+tr.status-finished {
     background-color: #DCEDC8;
 }
 
-tr.releasing:nth-child(even) {
+tr.status-finished:nth-child(even) {
     background-color: #C5E1A5;
 }
 
-tr.releasing:hover {
+tr.status-finished:hover {
     background-color: #9CCC65;
 }
 
@@ -133,15 +133,15 @@ tr.first-group {
         background-color: #541616;
     }
 
-    tr.releasing {
+    tr.status-finished {
         background-color: #568722;
     }
 
-    tr.releasing:nth-child(even) {
+    tr.status-finished:nth-child(even) {
         background-color: #395917;
     }
 
-    tr.releasing:hover {
+    tr.status-finished:hover {
         background-color: #263a11;
     }
 }
