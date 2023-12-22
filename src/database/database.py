@@ -93,9 +93,9 @@ class Database:
         return self.__select("SELECT UG.Id, UG.Name, UG.NotificationType, UG.NotificationValue, UG.Locale, UG.LastNotification, UG.Display, UG.ServarrTag "
                              "FROM UserGroup UG "
                              "INNER JOIN MediaRequirement MR ON UG.Id = MR.GroupId "
-                             "WHERE MR.MediaId=%(media_id)s AND MR.Status <> %(status)s",
+                             "WHERE MR.MediaId=%(media_id)s AND MR.Status=%(status)s",
                              self.__user_group_mapper,
-                             {'media_id': media_id, 'status': MediaRequirementStatus.ABANDONED.value})
+                             {'media_id': media_id, 'status': MediaRequirementStatus.WAITING.value})
 
     def user_group_get_by_id(self, user_group_id: int) -> list[UserGroup]:
         return self.__select("SELECT UG.Id, UG.Name, UG.NotificationType, UG.NotificationValue, UG.Locale, UG.LastNotification, UG.Display, UG.ServarrTag "
