@@ -49,18 +49,6 @@ img.icon {
     white-space: nowrap;
 }
 
-tr.ready-delete {
-    background-color: #FFCCBC;
-}
-
-tr.ready-delete:nth-child(even) {
-    background-color: #FFAB91;
-}
-
-tr.ready-delete:hover {
-    background-color: #FF7043;
-}
-
 tr.status-finished {
     background-color: #DCEDC8;
 }
@@ -71,6 +59,18 @@ tr.status-finished:nth-child(even) {
 
 tr.status-finished:hover {
     background-color: #9CCC65;
+}
+
+tr.ready-delete {
+    background-color: #FFCCBC;
+}
+
+tr.ready-delete:nth-child(even) {
+    background-color: #FFAB91;
+}
+
+tr.ready-delete:hover {
+    background-color: #FF7043;
 }
 
 tr.first-group {
@@ -121,18 +121,6 @@ tr.first-group {
         background-color: #121212;
     }
 
-    tr.ready-delete {
-        background-color: #942626;
-    }
-
-    tr.ready-delete:nth-child(even) {
-        background-color: #731f1f;
-    }
-
-    tr.ready-delete:hover {
-        background-color: #541616;
-    }
-
     tr.status-finished {
         background-color: #568722;
     }
@@ -143,5 +131,17 @@ tr.first-group {
 
     tr.status-finished:hover {
         background-color: #263a11;
+    }
+
+    tr.ready-delete {
+        background-color: #942626;
+    }
+
+    tr.ready-delete:nth-child(even) {
+        background-color: #731f1f;
+    }
+
+    tr.ready-delete:hover {
+        background-color: #541616;
     }
 }
