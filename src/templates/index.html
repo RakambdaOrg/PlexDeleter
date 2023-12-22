@@ -24,7 +24,7 @@
     <tbody>
     {% for user_group, medias in media_data.items() %}
     {% for media in medias %}
-    <tr class="{{ 'first-group ' if loop.index == 1 }}{{ 'ready-delete ' if user_group.id == -1 }}{{ 'status-releasing ' if media.status.name == 'RELEASING' }{{ 'status-finished ' if media.status.name == 'FINISHED' }}">
+    <tr class="{{ 'first-group ' if loop.index == 1 }}{{ 'ready-delete ' if user_group.id == -1 }}{{ 'status-releasing ' if media.status.name == 'RELEASING' }}{{ 'status-finished ' if media.status.name == 'FINISHED' }}">
         {% if loop.index == 1 %}
         <td class="row-group" rowspan="{{ medias | length }}"><span>{{user_group.name}}</span></td>
         {% endif %}
