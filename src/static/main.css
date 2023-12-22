@@ -14,7 +14,7 @@ td.center, th.center {
 }
 
 tr:nth-child(even) {
-    background-color: #EEEEEE;
+    background-color: #ffee6924;
 }
 
 tr:hover {
