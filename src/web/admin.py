@@ -22,3 +22,7 @@ class Admin:
     def on_form_complete_requirement(self) -> str | Response:
         user_groups = self.__database.user_group_get_all()
         return flask.render_template('admin/requirement_complete.html', user_groups=user_groups)
+
+    def on_form_delete_media(self) -> str | Response:
+        medias = self.__database.media_get_all_releasing()
+        return flask.render_template('admin/media_delete.html', medias=medias)

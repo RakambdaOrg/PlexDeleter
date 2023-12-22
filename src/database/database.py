@@ -148,6 +148,10 @@ class Database:
                              self.__media_mapper,
                              {'media_requirement_status': MediaRequirementStatus.WAITING.value})
 
+    def media_delete(self, media_id: int) -> None:
+        self.__execute_and_commit("DELETE FROM Media WHERE Id=%(id)s",
+                                  {'id': media_id})
+
     def media_set_status(self, media_id: int, status: MediaStatus) -> None:
         self.__execute_and_commit("UPDATE Media SET Status=%(status)s WHERE Id=%(id)s",
                                   {'status': status.value, 'id': media_id})
@@ -178,6 +182,12 @@ class Database:
                              "WHERE OverseerrId=%(id)s AND M.Type=%(media_type)s AND Season=%(season)s",
                              self.__media_mapper,
                              {'id': overseerr_id, 'media_type': media_type.value, 'season': season})
+
+    def media_get_by_id(self, media_id: int) -> list[Media]:
+        return self.__select("SELECT M.Id, M.OverseerrId, M.TvdbId, M.Name, M.Season, M.ElementCount, M.Type, M.Status, M.ActionStatus FROM Media M "
+                             "WHERE Id=%(id)s",
+                             self.__media_mapper,
+                             {'id': media_id})
 
     def media_add(self, overseerr_id: int, name: str, season: Optional[int], media_type: MediaType, status: MediaStatus, action_status: MediaActionStatus) -> None:
         self.__execute_and_commit("INSERT INTO Media(OverseerrId, Name, Season, Type, Status, ActionStatus) VALUES (%(overseerr_id)s,%(name)s,%(season)s,%(type)s,%(status)s,%(action_status)s)",

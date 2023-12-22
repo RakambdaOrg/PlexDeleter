@@ -63,3 +63,14 @@ class Api:
             self.__notifier.notify_completed(media, user_group_id)
 
         return Response(status=200, response='Ok')
+
+    def on_delete_media(self, form: dict):
+        media_id = int(form.get('mediaId'))
+
+        medias = self.__database.media_get_by_id(media_id)
+        user_groups = self.__database.user_group_get_watching_media(media_id)
+
+        self.__database.media_delete(media_id)
+        self.__notifier.notify_deleted(medias, user_groups)
+
+        return Response(status=200, response='Ok')

@@ -1,0 +1,21 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Add requirement</title>
+    <link rel="icon" href="/static/favicon.svg" sizes="any" type="image/svg+xml">
+    <link rel="stylesheet" href="/static/main.css">
+</head>
+<body>
+<form action="/api/media/delete" method="post">
+    <label for="media_id">Media:</label><br>
+    <select id="media_id" name="mediaId" required>
+        {% for media in medias %}
+        <option value="{{media.id}}">{{media.name}} ({{media.season_number}})</option>
+        {% endfor %}
+    </select><br>
+
+    <button type="submit">Delete</button>
+</form>
+</body>
+</html>

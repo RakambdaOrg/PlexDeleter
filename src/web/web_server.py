@@ -75,6 +75,11 @@ class WebServer:
         def on_admin_home():
             return homepage.on_call(include_hidden=True)
 
+        @self.__app.route('/admin/media/delete')
+        @basic_auth.login_required
+        def on_admin_media_delete():
+            return admin.on_form_delete_media()
+
         @self.__app.route('/admin/requirement/add')
         @basic_auth.login_required
         def on_admin_requirement_add():
@@ -89,6 +94,11 @@ class WebServer:
         @basic_auth.login_required
         def on_admin_requirement_complete():
             return admin.on_form_complete_requirement()
+
+        @self.__app.route('/api/media/delete', methods=['POST'])
+        @basic_auth.login_required
+        def on_api_media_delete():
+            return api.on_delete_media(request.form)
 
         @self.__app.route('/api/requirement/add', methods=['POST'])
         @basic_auth.login_required

@@ -8,6 +8,7 @@ from action.notification.notifier_discord_thread import DiscordNotifierThread
 from action.notification.notifier_mail import MailNotifier
 from action.notification.types.AbandonedType import AbandonedType
 from action.notification.types.CompletedType import CompletedType
+from action.notification.types.DeletedType import DeletedType
 from action.notification.types.MediaAvailableType import MediaAvailableType
 from action.notification.types.RequirementAddedType import RequirementAddedType
 from action.notification.types.WatchlistType import WatchlistType
@@ -61,6 +62,12 @@ class Notifier:
 
         for user_group in user_groups:
             self.__get_notifier(user_group.notification_type).notify(user_group, [media], None, CompletedType())
+
+    def notify_deleted(self, medias: [Media], user_groups: [UserGroup]) -> None:
+        self.__logger.info(f"Notifying medias {medias} are deleted")
+
+        for user_group in user_groups:
+            self.__get_notifier(user_group.notification_type).notify(user_group, medias, None, DeletedType())
 
     @staticmethod
     def __media_sorter_name_season(x: Media, y: Media) -> int:
