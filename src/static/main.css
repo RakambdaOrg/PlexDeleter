@@ -4,6 +4,10 @@ table {
     width: 100%;
 }
 
+.no-wrap {   
+    white-space: nowrap;
+}
+
 td, th {
     border: 1px solid #E0E0E0;
     padding: 8px;
