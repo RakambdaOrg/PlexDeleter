@@ -29,7 +29,7 @@
         <td class="row-group" rowspan="{{ medias | length }}"><span>{{user_group.name}}</span></td>
         {% endif %}
         <td>{{ loop.index }}</td>
-        <td>
+        <td class="no-wrap">
             <img class="icon bw-icon" alt="{{ media.type.name }} icon" src="{{ url_for('static', filename=media.type.get_icon() )}}"/>
             {{ media.type.get_for_display(locale) or '' }}
         </td>
