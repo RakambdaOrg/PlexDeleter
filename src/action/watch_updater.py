@@ -36,6 +36,7 @@ class WatchUpdater:
             return user_media_status
 
         element_rating_key = self.__tautulli.get_season_episode_rating_key(media_details.rating_key, media.season_number)
+        season_element_rating_key = None
         media_element_rating_keys = []
 
         if element_rating_key:
@@ -51,6 +52,21 @@ class WatchUpdater:
             user_media_status.add_unknown_index()
             self.__discord.notify_cannot_update_watch(media)
             return user_media_status
+
+        metadata = []
+        total_size = 0
+        if season_element_rating_key:
+            metadata.extend(self.__tautulli.get_movie_and_all_episodes_metadata(season_element_rating_key.rating_key))
+        else:
+            metadata.extend(self.__tautulli.get_movie_and_all_episodes_metadata(element_rating_key.rating_key))
+        for m in metadata:
+            medias_info = m["media_info"] or []
+            for media_info in medias_info:
+                parts = media_info["parts"] or []
+                for parts in parts:
+                    file_size = parts["file_size"]
+                    total_size += int(file_size)
+        user_media_status.set_size(total_size)
 
         if not user_group_watch_status.rating_key_searched(media_details.rating_key):
             user_group_watch_status.merge(self.__tautulli.watched_status_for_media(media.type, media_details.rating_key))
