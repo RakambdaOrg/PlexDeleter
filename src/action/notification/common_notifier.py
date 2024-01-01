@@ -48,13 +48,13 @@ class CommonNotifier(ABC):
             season = f' - Saison {media.season_number}' if media.season_number else ''
             releasing = ' | En cours de diffusion' if media.status == MediaStatus.RELEASING else ''
             status = f' | Attente EPs {user_media_status.get_all_str()}' if user_media_status and media.type == MediaType.SHOW and not user_media_status.is_all_watched() else ''
-            size = f' | Taille {humanize.naturalsize(user_media_status.get_size())}' if user_media_status else ''
+            size = f' | Taille {humanize.naturalsize(user_media_status.get_size())}' if user_media_status and user_media_status.get_size() else ''
         else:
             media_type = 'Movie' if media.type == MediaType.MOVIE else 'Series'
             season = f' - Season {media.season_number}' if media.season_number else ''
             releasing = ' | Releasing' if media.status == MediaStatus.RELEASING else ''
             status = f' | Waiting EPs {user_media_status.get_all_str()}' if user_media_status and media.type == MediaType.SHOW and user_media_status and not user_media_status.is_all_watched() else ''
-            size = f' | Size {humanize.naturalsize(user_media_status.get_size())}' if user_media_status else ''
+            size = f' | Size {humanize.naturalsize(user_media_status.get_size())}' if user_media_status and user_media_status.get_size() else ''
 
         return f'{media_type}: {media.name}{season}{releasing}{status}{size}'
 
