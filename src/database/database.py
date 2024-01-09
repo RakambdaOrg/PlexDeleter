@@ -7,6 +7,7 @@ from typing import TypeVar, Callable, Optional
 import pymysql
 from dbutils.pooled_db import PooledDB
 from mariadb import Cursor
+from pymysql import DatabaseError
 
 from database.auth import Auth
 from database.media import Media
@@ -236,10 +237,13 @@ class Database:
         if args is None:
             args = []
 
-        conn = self.__persist_database.connection()
-        cursor = conn.cursor()
-        cursor.execute(query, args)
-        return cursor
+        try:
+            conn = self.__persist_database.connection()
+            cursor = conn.cursor()
+            cursor.execute(query, args)
+            return cursor
+        except DatabaseError as e:
+            raise RuntimeError(f"Failed to execute query `{query}` with args {args}") from e
 
     def __select(self, query: str, parser: Callable[[array], T], args: dict = None) -> list[T]:
         values = []
