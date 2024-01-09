@@ -179,7 +179,7 @@ class Database:
                                   {'tvdb_id': tvdb_id, 'id': media_id})
 
     def media_tvdb_id_set_episode(self, tvdb_id: int, season_number: int, episode_number: int):
-        self.__execute_and_commit("UPDATE Media SET ElementCount=MAX(COALESCE(ElementCount, 0), %(episode)s) WHERE TvdbId=%(tvdb_id)s AND Season=%(season)s",
+        self.__execute_and_commit("UPDATE Media SET ElementCount=GREATEST(COALESCE(ElementCount, 0), %(episode)s) WHERE TvdbId=%(tvdb_id)s AND Season=%(season)s",
                                   {'tvdb_id': tvdb_id, 'season': season_number, 'episode': episode_number})
 
     def media_get_by_overseerr_id(self, overseerr_id: int, season: Optional[int], media_type: MediaType) -> list[Media]:
