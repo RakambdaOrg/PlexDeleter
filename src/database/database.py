@@ -31,7 +31,6 @@ class Database:
                                            password=password,
                                            database=database,
                                            cursorclass=pymysql.cursors.DictCursor,
-                                           closeable=True,
                                            ping=7,
                                            blocking=True
                                            )
