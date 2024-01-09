@@ -5,7 +5,7 @@ from contextlib import closing
 from typing import TypeVar, Callable, Optional
 
 import pymysql
-from dbutils.persistent_db import PersistentDB
+from dbutils.pooled_db import PooledDB
 from mariadb import Cursor
 
 from database.auth import Auth
@@ -24,7 +24,17 @@ T = TypeVar('T')
 class Database:
     def __init__(self, host: str, user: str, password: str, database: str):
         self.__logger = logging.getLogger(__name__)
-        self.__persist_database = PersistentDB(creator=pymysql, host=host, port=3306, user=user, password=password, database=database, cursorclass=pymysql.cursors.DictCursor, closeable=True, ping=7)
+        self.__persist_database = PooledDB(creator=pymysql,
+                                           host=host,
+                                           port=3306,
+                                           user=user,
+                                           password=password,
+                                           database=database,
+                                           cursorclass=pymysql.cursors.DictCursor,
+                                           closeable=True,
+                                           ping=7,
+                                           blocking=True
+                                           )
 
         self.__user_person_mapper = lambda row: UserPerson(self.__get_row_value(row, 'UP', 'Id'),
                                                            self.__get_row_value(row, 'UP', 'Name'),
