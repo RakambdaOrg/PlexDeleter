@@ -3,6 +3,7 @@ import logging
 from functools import cmp_to_key
 
 from action.notification.common_notifier import CommonNotifier
+from action.notification.none_mail import NoneNotifier
 from action.notification.notifier_discord import DiscordNotifier
 from action.notification.notifier_discord_thread import DiscordNotifierThread
 from action.notification.notifier_mail import MailNotifier
@@ -23,6 +24,7 @@ from database.user_group import UserGroup
 class Notifier:
     def __init__(self, database: Database, mail_notifier: MailNotifier, discord_notifier: DiscordNotifier, discord_notifier_thread: DiscordNotifierThread):
         self.__database = database
+        self.__none_notifier = NoneNotifier()
         self.__mail_notifier = mail_notifier
         self.__discord_notifier = discord_notifier
         self.__discord_notifier_thread = discord_notifier_thread
@@ -111,3 +113,5 @@ class Notifier:
             return self.__discord_notifier
         elif notification_type == NotificationType.DISCORD_THREAD:
             return self.__discord_notifier_thread
+        elif notification_type == NotificationType.NONE:
+            return self.__none_notifier
