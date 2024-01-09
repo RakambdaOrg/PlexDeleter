@@ -210,7 +210,7 @@ class Database:
 
     def media_requirement_add(self, media_id: int, user_group_id: int):
         self.__execute_and_commit("INSERT INTO MediaRequirement(MediaId, GroupId) VALUES(%(media_id)s,%(user_group_id)s) ON DUPLICATE KEY UPDATE Status=%(requirement_status)s",
-                                  {'media_id': media_id, 'user_group_id': user_group_id, 'requirement_status': MediaRequirementStatus.WAITING})
+                                  {'media_id': media_id, 'user_group_id': user_group_id, 'requirement_status': MediaRequirementStatus.WAITING.value})
 
     def get_auth(self, auth_type: str, username: Optional[str], password: str) -> Optional[Auth]:
         if auth_type == 'BEARER':
