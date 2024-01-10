@@ -1,13 +1,11 @@
 import array
 import datetime
 import logging
-from contextlib import closing
 from typing import TypeVar, Callable, Optional
 
 import pymysql
-from dbutils.pooled_db import PooledDB
-from mariadb import Cursor
-from pymysql import DatabaseError
+from pymysql import DatabaseError, Connection
+from pymysql.cursors import Cursor
 
 from database.auth import Auth
 from database.media import Media
@@ -25,16 +23,14 @@ T = TypeVar('T')
 class Database:
     def __init__(self, host: str, user: str, password: str, database: str):
         self.__logger = logging.getLogger(__name__)
-        self.__persist_database = PooledDB(creator=pymysql,
-                                           host=host,
-                                           port=3306,
-                                           user=user,
-                                           password=password,
-                                           database=database,
-                                           cursorclass=pymysql.cursors.DictCursor,
-                                           ping=7,
-                                           blocking=True
-                                           )
+        self.__connection_params = {
+            'host': host,
+            'port': 3306,
+            'user': user,
+            'password': password,
+            'database': database,
+            'cursorclass': pymysql.cursors.DictCursor
+        }
 
         self.__user_person_mapper = lambda row: UserPerson(self.__get_row_value(row, 'UP', 'Id'),
                                                            self.__get_row_value(row, 'UP', 'Name'),
@@ -228,31 +224,33 @@ class Database:
             return values[0]
         return None
 
-    def __execute_and_commit(self, query: str, args=None) -> None:
-        cursor = self.__execute(query, args)
-        with closing(cursor) as c:
-            c.connection.commit()
+    def __select(self, query: str, parser: Callable[[array], T], args: dict = None) -> list[T]:
+        values = []
 
-    def __execute(self, query: str, args=None) -> Cursor:
+        with self.get_connection() as connection:
+            with connection.cursor() as cursor:
+                self.__execute(cursor, query, args)
+                for row in cursor:
+                    values.append(parser(row))
+                connection.commit()
+
+        return values
+
+    def __execute_and_commit(self, query: str, args=None) -> None:
+        with self.get_connection() as connection:
+            with connection.cursor() as cursor:
+                self.__execute(cursor, query, args)
+                connection.commit()
+
+    @staticmethod
+    def __execute(cursor: Cursor, query: str, args=None) -> None:
         if args is None:
             args = []
 
         try:
-            conn = self.__persist_database.connection()
-            cursor = conn.cursor()
             cursor.execute(query, args)
-            return cursor
         except DatabaseError as e:
             raise RuntimeError(f"Failed to execute query `{query}` with args {args}") from e
-
-    def __select(self, query: str, parser: Callable[[array], T], args: dict = None) -> list[T]:
-        values = []
-        cursor = self.__execute(query, args)
-        with closing(cursor) as c:
-            for row in c:
-                values.append(parser(row))
-            c.connection.commit()
-        return values
 
     @staticmethod
     def __get_row_value(row: array, alias: str, field: str) -> any:
@@ -264,3 +262,6 @@ class Database:
             return row[field]
 
         raise KeyError(f"Alias '{alias}', field '{field}'")
+
+    def get_connection(self) -> Connection:
+        return pymysql.connect(**self.__connection_params)
