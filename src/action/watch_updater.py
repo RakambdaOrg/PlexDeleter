@@ -1,3 +1,4 @@
+import datetime
 import logging
 from typing import Optional
 
@@ -67,6 +68,7 @@ class WatchUpdater:
                     file_size = parts["file_size"]
                     total_size += int(file_size)
         user_media_status.set_size(total_size)
+        user_media_status.set_available_since(datetime.datetime.fromtimestamp(max(map(lambda meta: int(meta["added_at"] or "0"), metadata), default=0)))
 
         if not user_group_watch_status.rating_key_searched(media_details.rating_key):
             user_group_watch_status.merge(self.__tautulli.watched_status_for_media(media.type, media_details.rating_key))

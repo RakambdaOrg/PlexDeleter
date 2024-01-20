@@ -1,3 +1,4 @@
+import datetime
 from abc import ABC, abstractmethod
 from typing import Optional
 
@@ -41,22 +42,27 @@ class CommonNotifier(ABC):
             return "Média de votre liste de lecture disponible :"
         return "Media from your watchlist available:"
 
-    @staticmethod
-    def _get_media_body(locale: str, media: Media, user_media_status: Optional[UserMediaStatus]) -> str:
+    def _get_media_body(self, locale: str, media: Media, user_media_status: Optional[UserMediaStatus]) -> str:
         if locale.lower() == 'fr':
             media_type = 'Film' if media.type == MediaType.MOVIE else 'Série'
             season = f' - Saison {media.season_number}' if media.season_number else ''
             releasing = ' | En cours de diffusion' if media.status == MediaStatus.RELEASING else ''
             status = f' | Attente EPs {user_media_status.get_all_str()}' if user_media_status and media.type == MediaType.SHOW and not user_media_status.is_all_watched() else ''
             size = f' | Taille {humanize.naturalsize(user_media_status.get_size())}' if user_media_status and user_media_status.get_size() else ''
+            available_for = f' | Disponible depuis {self.__days_diff(datetime.datetime.now(), user_media_status.get_available_since())} jour(s)' if user_media_status and user_media_status.get_available_since() else ''
         else:
             media_type = 'Movie' if media.type == MediaType.MOVIE else 'Series'
             season = f' - Season {media.season_number}' if media.season_number else ''
             releasing = ' | Releasing' if media.status == MediaStatus.RELEASING else ''
             status = f' | Waiting EPs {user_media_status.get_all_str()}' if user_media_status and media.type == MediaType.SHOW and user_media_status and not user_media_status.is_all_watched() else ''
             size = f' | Size {humanize.naturalsize(user_media_status.get_size())}' if user_media_status and user_media_status.get_size() else ''
+            available_for = f' | Available for {self.__days_diff(datetime.datetime.now(), user_media_status.get_available_since())} day(s)' if user_media_status and user_media_status.get_available_since() else ''
 
-        return f'{media_type}: {media.name}{season}{releasing}{status}{size}'
+        return f'{media_type}: {media.name}{season}{releasing}{status}{size}{available_for}'
+
+    @staticmethod
+    def __days_diff(start: datetime.datetime, end: datetime.datetime):
+        return (start - end).days
 
     @staticmethod
     def _get_subject_watchlist(locale: str) -> str:

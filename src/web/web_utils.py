@@ -30,7 +30,7 @@ class WebUtils:
     def run_maintenance_full(self):
         with self.__lock:
             user_group_statuses = self.run_maintenance_updates()
-            self.__deleter.delete()
+            # self.__deleter.delete()
             self.__notifier.notify_watchlist(user_group_statuses)
             self.__logger.info("Full maintenance done")
 
