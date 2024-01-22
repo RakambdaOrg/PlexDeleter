@@ -1,8 +1,7 @@
 import datetime
+import humanize
 from abc import ABC, abstractmethod
 from typing import Optional
-
-import humanize
 
 from action.notification.types.NotifyType import NotifyType
 from action.status.user_group_status import UserGroupStatus
@@ -56,7 +55,7 @@ class CommonNotifier(ABC):
             releasing = ' | Releasing' if media.status == MediaStatus.RELEASING else ''
             status = f' | Waiting EPs {user_media_status.get_all_str()}' if user_media_status and media.type == MediaType.SHOW and user_media_status and not user_media_status.is_all_watched() else ''
             size = f' | Size {humanize.naturalsize(user_media_status.get_size())}' if user_media_status and user_media_status.get_size() else ''
-            available_for = f' | Available for {self.__days_diff(datetime.datetime.now(), user_media_status.get_available_since())} day(s)' if user_media_status and user_media_status.get_available_since() else ''
+            available_for = f' | Been available for {self.__days_diff(datetime.datetime.now(), user_media_status.get_available_since())} day(s)' if user_media_status and user_media_status.get_available_since() else ''
 
         return f'{media_type}: {media.name}{season}{releasing}{status}{size}{available_for}'
 
