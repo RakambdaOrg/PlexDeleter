@@ -1,0 +1,39 @@
+logging:
+  level:
+    org.mariadb.jdbc: WARN
+    root: INFO
+
+spring:
+  jpa:
+    generate-ddl: false
+    hibernate:
+      ddl-auto: none
+      naming:
+        implicit-strategy: "org.hibernate.boot.model.naming.ImplicitNamingStrategyLegacyJpaImpl"
+        physical-strategy: "org.hibernate.boot.model.naming.PhysicalNamingStrategyStandardImpl"
+  jackson:
+    visibility:
+      field: any
+      getter: none
+      setter: none
+      creator: none
+      is-getter: none
+  datasource:
+    hikari:
+      maximum-pool-size: 3
+
+server:
+  forward-headers-strategy: native
+  servlet:
+    session:
+      timeout: 12h
+
+app:
+  overseerr:
+    endpoint: "https://overseerr"
+    api-key: "api-key"
+  tautulli:
+    endpoint: "https://tautulli"
+    api-key: "api-key"
+  deletion:
+    days-delay: 5

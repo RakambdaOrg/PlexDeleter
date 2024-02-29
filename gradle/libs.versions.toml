@@ -1,0 +1,22 @@
+[versions]
+jetbrains-annotations-version = "24.1.0"
+unirest-version = "4.2.7"
+
+names-version = "0.51.0"
+sptringboot-version = "3.2.2"
+sptringboot-dm-version = "1.1.4"
+graalvm-version = "0.9.28"
+
+[libraries]
+jetbrainsAnnotations = { group = "org.jetbrains", name = "annotations", version.ref = "jetbrains-annotations-version" }
+unirest-java = { group = "com.konghq", name = "unirest-java-core", version.ref = "unirest-version" }
+unirest-objectmapper-jackson = { group = "com.konghq", name = "unirest-objectmapper-jackson", version.ref = "unirest-version" }
+
+[bundles]
+unirest = ["unirest-java", "unirest-objectmapper-jackson"]
+
+[plugins]
+sptringboot = { id = "org.springframework.boot", version.ref = "sptringboot-version" }
+sptringbootDependencyManagement = { id = "io.spring.dependency-management", version.ref = "sptringboot-dm-version" }
+graalvm = { id = "org.graalvm.buildtools.native", version.ref = "graalvm-version" }
+names = { id = "com.github.ben-manes.versions", version.ref = "names-version" }
