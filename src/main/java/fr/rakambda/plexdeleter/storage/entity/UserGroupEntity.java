@@ -8,6 +8,8 @@ import jakarta.persistence.Enumerated;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
+import jakarta.persistence.JoinColumn;
+import jakarta.persistence.OneToMany;
 import jakarta.persistence.Table;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -16,6 +18,7 @@ import lombok.NoArgsConstructor;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import java.time.Instant;
+import java.util.List;
 
 @Data
 @AllArgsConstructor
@@ -56,4 +59,8 @@ public class UserGroupEntity{
 	@Column(name = "ServarrTag")
 	@Nullable
 	private String servarrTag;
+	
+	@OneToMany(targetEntity = UserPersonEntity.class)
+	@JoinColumn(name = "GroupID", referencedColumnName = "ID")
+	private List<UserPersonEntity> persons;
 }

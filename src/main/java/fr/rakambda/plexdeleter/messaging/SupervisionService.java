@@ -1,4 +1,4 @@
-package fr.rakambda.plexdeleter;
+package fr.rakambda.plexdeleter.messaging;
 
 import org.springframework.stereotype.Service;
 

@@ -20,8 +20,8 @@ import org.jetbrains.annotations.NotNull;
 @Entity
 @Table(name = "UserPerson", schema = "PlexDeleter")
 public class UserPersonEntity{
-	@GeneratedValue(strategy = GenerationType.IDENTITY)
 	@Id
+	@GeneratedValue(strategy = GenerationType.IDENTITY)
 	@Column(name = "ID", nullable = false)
 	private Integer id;
 	@Basic
@@ -32,4 +32,8 @@ public class UserPersonEntity{
 	@Column(name = "PlexId", nullable = false)
 	@NotNull
 	private Integer plexId;
+	@Basic
+	@Column(name = "GroupId", nullable = false)
+	@NotNull
+	private Integer groupId;
 }

@@ -13,7 +13,7 @@ public interface MediaRepository extends JpaRepository<MediaEntity, Integer>{
 	@Query(value = """
 			SELECT M
 			FROM MediaEntity M
-			INNER JOIN MediaRequirementEntity MR ON M.id = MR.mediaId
+			INNER JOIN MediaRequirementEntity MR ON M.id = MR.id.mediaId
 			WHERE M.actionStatus = 'TO_DELETE'
 			AND M.availability = 'DOWNLOADED'
 			GROUP BY M.id

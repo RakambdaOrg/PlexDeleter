@@ -70,4 +70,42 @@ class TautulliServiceTest{
 					);
 		});
 	}
+	
+	@Test
+	void itShouldGetMovieHistory() throws RequestFailedException{
+		var result = tested.getHistory(272271, MediaType.MOVIE, 17746770);
+		
+		assertThat(result.getResponse().getData()).satisfies(data -> {
+			assertThat(data.getRecordsFiltered()).isEqualTo(1);
+			assertThat(data.getData()).hasSize(1)
+					.allSatisfy(watch -> {
+						assertThat(watch.getPercentComplete()).isLessThan(50);
+						assertThat(watch.getWatchedStatus()).isEqualTo(0);
+					});
+		});
+	}
+	
+	@Test
+	void itShouldGetSeriesHistory() throws RequestFailedException{
+		var result = tested.getHistory(791642, MediaType.SEASON, 17746770);
+		
+		assertThat(result.getResponse().getData()).satisfies(data -> {
+			assertThat(data.getRecordsFiltered()).isGreaterThanOrEqualTo(10);
+			assertThat(data.getData()).hasSizeGreaterThanOrEqualTo(10)
+					.allSatisfy(watch -> {
+						assertThat(watch.getPercentComplete()).isGreaterThan(80);
+						assertThat(watch.getWatchedStatus()).isEqualTo(1);
+					});
+		});
+	}
+	
+	@Test
+	void itShouldGetUnknownHistory() throws RequestFailedException{
+		var result = tested.getHistory(99999999, MediaType.SEASON, 99999999);
+		
+		assertThat(result.getResponse().getData()).satisfies(data -> {
+			assertThat(data.getRecordsFiltered()).isEqualTo(0);
+			assertThat(data.getData()).isEmpty();
+		});
+	}
 }

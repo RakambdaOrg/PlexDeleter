@@ -1,12 +1,12 @@
 package fr.rakambda.plexdeleter.schedule;
 
-import fr.rakambda.plexdeleter.SupervisionService;
 import fr.rakambda.plexdeleter.api.RequestFailedException;
 import fr.rakambda.plexdeleter.api.tautulli.TautulliService;
 import fr.rakambda.plexdeleter.api.tautulli.data.GetMetadataResponse;
 import fr.rakambda.plexdeleter.api.tautulli.data.MediaInfo;
 import fr.rakambda.plexdeleter.api.tautulli.data.MediaPart;
 import fr.rakambda.plexdeleter.config.ApplicationConfiguration;
+import fr.rakambda.plexdeleter.messaging.SupervisionService;
 import fr.rakambda.plexdeleter.storage.entity.MediaActionStatus;
 import fr.rakambda.plexdeleter.storage.entity.MediaEntity;
 import fr.rakambda.plexdeleter.storage.repository.MediaRepository;

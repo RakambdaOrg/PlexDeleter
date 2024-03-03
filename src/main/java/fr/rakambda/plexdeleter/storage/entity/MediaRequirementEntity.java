@@ -1,12 +1,14 @@
 package fr.rakambda.plexdeleter.storage.entity;
 
-import jakarta.persistence.Basic;
 import jakarta.persistence.Column;
+import jakarta.persistence.Embeddable;
+import jakarta.persistence.EmbeddedId;
 import jakarta.persistence.Entity;
 import jakarta.persistence.EnumType;
 import jakarta.persistence.Enumerated;
-import jakarta.persistence.Id;
-import jakarta.persistence.IdClass;
+import jakarta.persistence.JoinColumn;
+import jakarta.persistence.ManyToOne;
+import jakarta.persistence.MapsId;
 import jakarta.persistence.Table;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -21,23 +23,33 @@ import java.io.Serializable;
 @Builder
 @Entity
 @Table(name = "MediaRequirement", schema = "PlexDeleter")
-@IdClass(MediaRequirementEntity.TableId.class)
 public class MediaRequirementEntity{
-	@Id
-	@Column(name = "MediaId", nullable = false)
-	private Integer mediaId;
-	@Basic
-	@Column(name = "GroupId", nullable = false)
-	@NotNull
-	private Integer groupId;
+	@EmbeddedId
+	private TableId id;
 	@Enumerated(EnumType.STRING)
 	@Column(name = "Status", nullable = false)
 	@NotNull
 	private MediaRequirementStatus status;
 	
+	@ManyToOne
+	@JoinColumn(name = "MediaId", referencedColumnName = "ID", updatable = false, nullable = false)
+	@MapsId("mediaId")
+	private MediaEntity media;
+	@ManyToOne
+	@JoinColumn(name = "GroupId", referencedColumnName = "ID", updatable = false, nullable = false)
+	@MapsId("groupId")
+	private UserGroupEntity group;
+	
+	@Embeddable
 	@Data
+	@NoArgsConstructor
+	@AllArgsConstructor
 	public static class TableId implements Serializable{
+		@Column(name = "MediaId", nullable = false)
+		@NotNull
 		private Integer mediaId;
+		@Column(name = "GroupID", nullable = false)
+		@NotNull
 		private Integer groupId;
 	}
 }

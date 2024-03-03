@@ -2,6 +2,7 @@ package fr.rakambda.plexdeleter.api.tautulli;
 
 import fr.rakambda.plexdeleter.api.HttpUtils;
 import fr.rakambda.plexdeleter.api.RequestFailedException;
+import fr.rakambda.plexdeleter.api.tautulli.data.GetHistoryResponse;
 import fr.rakambda.plexdeleter.api.tautulli.data.GetMetadataResponse;
 import fr.rakambda.plexdeleter.api.tautulli.data.GetNewRatingKeysData;
 import fr.rakambda.plexdeleter.api.tautulli.data.GetNewRatingKeysResponse;
@@ -90,6 +91,31 @@ public class TautulliService{
 						.build())
 				.retrieve()
 				.toEntity(new ParameterizedTypeReference<TautulliResponseWrapper<GetMetadataResponse>>(){})
+				.blockOptional()
+				.orElseThrow(() -> new RequestFailedException("Failed to get metadata with rating key %d".formatted(ratingKey))));
+	}
+	
+	@NotNull
+	public TautulliResponseWrapper<GetHistoryResponse> getHistory(int ratingKey, @NotNull MediaType mediaType, int userId) throws RequestFailedException{
+		return switch(mediaType){
+			case MOVIE -> getHistory(ratingKey, "rating_key", userId, "movie");
+			case SEASON -> getHistory(ratingKey, "parent_rating_key", userId, "episode");
+		};
+	}
+	
+	@NotNull
+	private TautulliResponseWrapper<GetHistoryResponse> getHistory(int ratingKey, @NotNull String ratingKeyParamName, int userId, @NotNull String mediaType) throws RequestFailedException{
+		return HttpUtils.withStatusOkAndBody(apiClient.get()
+				.uri(b -> b.pathSegment("api", "v2")
+						.queryParam("cmd", "get_history")
+						.queryParam(ratingKeyParamName, ratingKey)
+						.queryParam("user_id", userId)
+						.queryParam("media_type", mediaType)
+						.queryParam("length", 10000)
+						.queryParam("grouping ", 1)
+						.build())
+				.retrieve()
+				.toEntity(new ParameterizedTypeReference<TautulliResponseWrapper<GetHistoryResponse>>(){})
 				.blockOptional()
 				.orElseThrow(() -> new RequestFailedException("Failed to get metadata with rating key %d".formatted(ratingKey))));
 	}

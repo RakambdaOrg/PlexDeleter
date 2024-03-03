@@ -1,6 +1,5 @@
 package fr.rakambda.plexdeleter.schedule;
 
-import fr.rakambda.plexdeleter.SupervisionService;
 import fr.rakambda.plexdeleter.api.RequestFailedException;
 import fr.rakambda.plexdeleter.api.overseerr.OverseerrService;
 import fr.rakambda.plexdeleter.api.overseerr.data.MediaInfo;
@@ -11,6 +10,7 @@ import fr.rakambda.plexdeleter.api.sonarr.SonarrService;
 import fr.rakambda.plexdeleter.api.sonarr.data.Season;
 import fr.rakambda.plexdeleter.api.sonarr.data.Statistics;
 import fr.rakambda.plexdeleter.api.tautulli.TautulliService;
+import fr.rakambda.plexdeleter.messaging.SupervisionService;
 import fr.rakambda.plexdeleter.storage.entity.MediaAvailability;
 import fr.rakambda.plexdeleter.storage.entity.MediaEntity;
 import fr.rakambda.plexdeleter.storage.repository.MediaRepository;
@@ -51,7 +51,7 @@ public class UpdateMediaScheduler implements IScheduler{
 	}
 	
 	@Override
-	@Scheduled(cron = "0 0 */6 * * *")
+	@Scheduled(cron = "0 0 0,8,15 * * *")
 	public void run(){
 		var medias = mediaRepository.findAllByAvailabilityIs(MediaAvailability.DOWNLOADING);
 		for(var media : medias){
