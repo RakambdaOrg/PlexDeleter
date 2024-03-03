@@ -3,7 +3,6 @@ package fr.rakambda.plexdeleter.schedule;
 import fr.rakambda.plexdeleter.SupervisionService;
 import fr.rakambda.plexdeleter.api.RequestFailedException;
 import fr.rakambda.plexdeleter.api.overseerr.OverseerrService;
-import fr.rakambda.plexdeleter.api.overseerr.data.ExternalIds;
 import fr.rakambda.plexdeleter.api.overseerr.data.MediaInfo;
 import fr.rakambda.plexdeleter.api.overseerr.data.MovieMedia;
 import fr.rakambda.plexdeleter.api.overseerr.data.SeriesMedia;
@@ -46,6 +45,12 @@ public class UpdateMediaScheduler implements IScheduler{
 	}
 	
 	@Override
+	@NotNull
+	public String getTaskId(){
+		return "media-update";
+	}
+	
+	@Override
 	@Scheduled(cron = "0 0 */6 * * *")
 	public void run(){
 		var medias = mediaRepository.findAllByAvailabilityIs(MediaAvailability.DOWNLOADING);
@@ -68,11 +73,11 @@ public class UpdateMediaScheduler implements IScheduler{
 		updateFromTautulli(mediaEntity);
 		updateFromServarr(mediaEntity);
 		
-		if(Objects.isNull(mediaEntity.getPartsCount()) || Objects.isNull(mediaEntity.getAvailablePartsCount())){
+		if(mediaEntity.getPartsCount() <= 0){
 			log.warn("Failed to update {}, not enough info", mediaEntity);
 			supervisionService.send("❌ Could not update %s", mediaEntity);
 		}
-		else if(mediaEntity.getPartsCount() >= mediaEntity.getAvailablePartsCount()){
+		else if(mediaEntity.getAvailablePartsCount() >= mediaEntity.getPartsCount()){
 			mediaEntity.setAvailability(MediaAvailability.DOWNLOADED);
 			log.info("Marked media {} as finished", mediaEntity);
 			supervisionService.send("\uD83C\uDD97 Marked %d as finished: %s (%d/%d)", mediaEntity.getId(), mediaEntity, mediaEntity.getPartsCount(), mediaEntity.getAvailablePartsCount());
@@ -90,21 +95,37 @@ public class UpdateMediaScheduler implements IScheduler{
 		
 		Optional.ofNullable(mediaDetails.getMediaInfo())
 				.map(MediaInfo::getRatingKey)
+				.flatMap(key -> getActualRatingKey(mediaEntity, key))
 				.ifPresent(mediaEntity::setPlexId);
 		Optional.ofNullable(mediaDetails.getMediaInfo())
 				.map(MediaInfo::getExternalServiceId)
 				.ifPresent(mediaEntity::setServarrId);
-		Optional.ofNullable(mediaDetails.getExternalIds())
-				.map(ExternalIds::getTvdbId)
-				.ifPresent(mediaEntity::setTvdbId);
 		
 		var partsCount = switch(mediaDetails){
 			case MovieMedia ignored -> 1;
-			case SeriesMedia seriesMedia -> seriesMedia.getNumberOfEpisodes();
+			case SeriesMedia seriesMedia -> seriesMedia.getSeasons().stream()
+					.filter(s -> Objects.equals(s.getSeasonNumber(), mediaEntity.getIndex()))
+					.findFirst()
+					.map(fr.rakambda.plexdeleter.api.overseerr.data.Season::getEpisodeCount)
+					.orElse(0);
 			default -> throw new UpdateException("Unexpected value: " + mediaDetails);
 		};
-		if(Objects.isNull(mediaEntity.getPartsCount()) || mediaEntity.getPartsCount() < partsCount){
+		if(mediaEntity.getPartsCount() < partsCount){
 			mediaEntity.setPartsCount(partsCount);
+		}
+	}
+	
+	@NotNull
+	private Optional<Integer> getActualRatingKey(@NotNull MediaEntity mediaEntity, int ratingKey){
+		try{
+			return switch(mediaEntity.getType()){
+				case SEASON -> tautulliService.getSeasonRatingKey(ratingKey, mediaEntity.getIndex());
+				case MOVIE -> Optional.of(ratingKey);
+			};
+		}
+		catch(RequestFailedException e){
+			log.warn("Failed to get actual rating key", e);
+			return Optional.empty();
 		}
 	}
 	
@@ -115,7 +136,7 @@ public class UpdateMediaScheduler implements IScheduler{
 		}
 		var availablePartsCount = tautulliService.getElementsRatingKeys(mediaEntity.getPlexId(), mediaEntity.getType()).size();
 		
-		if(Objects.isNull(mediaEntity.getAvailablePartsCount()) || mediaEntity.getAvailablePartsCount() < availablePartsCount){
+		if(mediaEntity.getAvailablePartsCount() < availablePartsCount){
 			mediaEntity.setAvailablePartsCount(availablePartsCount);
 		}
 	}
@@ -145,10 +166,10 @@ public class UpdateMediaScheduler implements IScheduler{
 		}
 		
 		partsCount
-				.filter(v -> Objects.isNull(mediaEntity.getPartsCount()) || mediaEntity.getPartsCount() < v)
+				.filter(v -> mediaEntity.getPartsCount() < v)
 				.ifPresent(mediaEntity::setPartsCount);
 		availablePartsCount
-				.filter(v -> Objects.isNull(mediaEntity.getAvailablePartsCount()) || mediaEntity.getAvailablePartsCount() < v)
+				.filter(v -> mediaEntity.getAvailablePartsCount() < v)
 				.ifPresent(mediaEntity::setAvailablePartsCount);
 	}
 	

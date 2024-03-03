@@ -22,12 +22,12 @@ import org.jetbrains.annotations.Nullable;
 @NoArgsConstructor
 @Builder
 @Entity
-@Table(name = "Media", schema = "PlexDeleter2")
+@Table(name = "Media", schema = "PlexDeleter")
 @ToString(onlyExplicitlyIncluded = true)
 public class MediaEntity{
 	@GeneratedValue(strategy = GenerationType.IDENTITY)
 	@Id
-	@Column(name = "ID", nullable = false)
+	@Column(name = "Id", nullable = false)
 	@ToString.Include
 	private Integer id;
 	@Enumerated(EnumType.STRING)
@@ -48,26 +48,22 @@ public class MediaEntity{
 	@Nullable
 	private Integer servarrId;
 	@Basic
-	@Column(name = "TvdbId")
-	@Nullable
-	private Long tvdbId;
-	@Basic
 	@Column(name = "Name", nullable = false)
 	@NotNull
 	@ToString.Include
 	private String name;
 	@Basic
-	@Column(name = "Index")
-	@Nullable
+	@Column(name = "MediaIndex")
+	@NotNull
 	@ToString.Include
 	private Integer index;
 	@Basic
 	@Column(name = "PartsCount", nullable = false)
-	@Nullable
+	@NotNull
 	private Integer partsCount;
 	@Basic
 	@Column(name = "AvailablePartsCount", nullable = false)
-	@Nullable
+	@NotNull
 	private Integer availablePartsCount;
 	@Enumerated(EnumType.STRING)
 	@Column(name = "Availability", nullable = false)

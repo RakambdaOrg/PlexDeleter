@@ -33,6 +33,27 @@ class TautulliServiceTest{
 	}
 	
 	@Test
+	void itShouldGetSeasonRatingKey() throws RequestFailedException{
+		var result = tested.getSeasonRatingKey(391959, 2);
+		
+		assertThat(result).contains(392028);
+	}
+	
+	@Test
+	void itShouldNotGetSeasonRatingKeyOfUnknownSeason() throws RequestFailedException{
+		var result = tested.getSeasonRatingKey(391959, 9999);
+		
+		assertThat(result).isEmpty();
+	}
+	
+	@Test
+	void itShouldNotGetSeasonRatingKeyOfUnknownRatingKey() throws RequestFailedException{
+		var result = tested.getSeasonRatingKey(999999999, 1);
+		
+		assertThat(result).isEmpty();
+	}
+	
+	@Test
 	void itShouldGetMetadata() throws RequestFailedException{
 		var result = tested.getMetadata(272271);
 		

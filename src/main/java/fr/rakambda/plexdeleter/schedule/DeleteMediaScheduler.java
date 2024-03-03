@@ -54,6 +54,12 @@ public class DeleteMediaScheduler implements IScheduler{
 	}
 	
 	@Override
+	@NotNull
+	public String getTaskId(){
+		return "media-delete";
+	}
+	
+	@Override
 	@Scheduled(cron = "0 0 1 * * *")
 	public void run(){
 		var medias = mediaRepository.findAllReadyToDelete();

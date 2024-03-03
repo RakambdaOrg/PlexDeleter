@@ -20,7 +20,7 @@ import java.io.Serializable;
 @NoArgsConstructor
 @Builder
 @Entity
-@Table(name = "Auth", schema = "PlexDeleter2")
+@Table(name = "Auth", schema = "PlexDeleter")
 @IdClass(AuthEntity.TableId.class)
 public class AuthEntity{
 	@Id

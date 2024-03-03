@@ -20,6 +20,7 @@ import reactor.core.publisher.Mono;
 import java.util.Collection;
 import java.util.Map;
 import java.util.Objects;
+import java.util.Optional;
 import java.util.Set;
 
 @Slf4j
@@ -38,16 +39,7 @@ public class TautulliService{
 										.toUri())
 								.build())
 				))
-				.filter(logRequest())
 				.build();
-	}
-	
-	private static ExchangeFilterFunction logRequest(){
-		return ExchangeFilterFunction.ofRequestProcessor(clientRequest -> {
-			log.info("Request: {} {}", clientRequest.method(), clientRequest.url());
-			clientRequest.headers().forEach((name, values) -> values.forEach(value -> log.info("{}={}", name, value)));
-			return Mono.just(clientRequest);
-		});
 	}
 	
 	@NotNull
@@ -64,6 +56,15 @@ public class TautulliService{
 					.distinct()
 					.toList();
 		};
+	}
+	
+	@NotNull
+	public Optional<Integer> getSeasonRatingKey(int ratingKey, int season) throws RequestFailedException{
+		return Optional.ofNullable(getNewRatingKeys(ratingKey, "show").getResponse().getData())
+				.map(GetNewRatingKeysResponse::getData)
+				.map(GetNewRatingKeysData::getChildren)
+				.map(m -> m.get(String.valueOf(season)))
+				.map(GetNewRatingKeysData::getRatingKey);
 	}
 	
 	@NotNull

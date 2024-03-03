@@ -16,8 +16,8 @@ public interface MediaRepository extends JpaRepository<MediaEntity, Integer>{
 			INNER JOIN MediaRequirementEntity MR ON M.id = MR.mediaId
 			WHERE M.actionStatus = 'TO_DELETE'
 			AND M.availability = 'DOWNLOADED'
-			GROUP BY M.id"""
-			//HAVING SUM(CASE WHEN (MR.status = 'WATCHED' OR MR.status = 'ABANDONED') THEN 0 ELSE 1 END) <= 0""" //TODO
+			GROUP BY M.id
+			HAVING SUM(CASE WHEN (MR.status = 'WATCHED' OR MR.status = 'ABANDONED') THEN 0 ELSE 1 END) <= 0"""
 	)
 	@NotNull
 	List<MediaEntity> findAllReadyToDelete();

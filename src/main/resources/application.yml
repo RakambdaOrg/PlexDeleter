@@ -6,6 +6,7 @@ logging:
 spring:
   jpa:
     generate-ddl: false
+    database-platform: org.hibernate.dialect.MariaDBDialect
     hibernate:
       ddl-auto: none
       naming:
@@ -19,10 +20,15 @@ spring:
       creator: none
       is-getter: none
   datasource:
+    url: "jdbc:mariadb://fake:3306/PlexDeleter"
+    username: ""
+    password: ""
     hikari:
       maximum-pool-size: 3
+      connectionTimeout: 180000
 
 server:
+  port: 8080
   forward-headers-strategy: native
   servlet:
     session:
@@ -35,5 +41,12 @@ app:
   tautulli:
     endpoint: "https://tautulli"
     api-key: "api-key"
+  radarr:
+    endpoint: "https://radarr"
+    api-key: "api-key"
+  sonarr:
+    endpoint: "https://sonarr"
+    api-key: "api-key"
   deletion:
     days-delay: 5
+    remote-path-mappings: { }
