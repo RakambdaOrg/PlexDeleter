@@ -11,6 +11,7 @@ import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+import lombok.ToString;
 import org.jetbrains.annotations.NotNull;
 
 @Data
@@ -19,14 +20,17 @@ import org.jetbrains.annotations.NotNull;
 @Builder
 @Entity
 @Table(name = "UserPerson", schema = "PlexDeleter")
+@ToString(onlyExplicitlyIncluded = true)
 public class UserPersonEntity{
 	@Id
 	@GeneratedValue(strategy = GenerationType.IDENTITY)
 	@Column(name = "ID", nullable = false)
+	@ToString.Include
 	private Integer id;
 	@Basic
 	@Column(name = "Name", nullable = false)
 	@NotNull
+	@ToString.Include
 	private String name;
 	@Basic
 	@Column(name = "PlexId", nullable = false)

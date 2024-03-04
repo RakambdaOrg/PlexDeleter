@@ -12,6 +12,7 @@ import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+import lombok.ToString;
 import org.jetbrains.annotations.NotNull;
 import java.io.Serializable;
 
@@ -22,15 +23,18 @@ import java.io.Serializable;
 @Entity
 @Table(name = "Auth", schema = "PlexDeleter")
 @IdClass(AuthEntity.TableId.class)
+@ToString(onlyExplicitlyIncluded = true)
 public class AuthEntity{
 	@Id
 	@Enumerated(EnumType.STRING)
 	@Column(name = "Type", nullable = false)
 	@NotNull
+	@ToString.Include
 	private AuthType type;
 	@Id
 	@Column(name = "Username", nullable = false)
 	@NotNull
+	@ToString.Include
 	private String username;
 	@Basic
 	@Column(name = "Password", nullable = false)

@@ -14,6 +14,7 @@ import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+import lombok.ToString;
 import org.jetbrains.annotations.NotNull;
 import java.io.Serializable;
 
@@ -23,12 +24,15 @@ import java.io.Serializable;
 @Builder
 @Entity
 @Table(name = "MediaRequirement", schema = "PlexDeleter")
+@ToString(onlyExplicitlyIncluded = true)
 public class MediaRequirementEntity{
 	@EmbeddedId
+	@ToString.Include
 	private TableId id;
 	@Enumerated(EnumType.STRING)
 	@Column(name = "Status", nullable = false)
 	@NotNull
+	@ToString.Include
 	private MediaRequirementStatus status;
 	
 	@ManyToOne

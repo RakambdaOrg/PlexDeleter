@@ -26,6 +26,24 @@ spring:
     hikari:
       maximum-pool-size: 3
       connectionTimeout: 180000
+  mail:
+    host: "smtp.host"
+    port: 587
+    username: "username"
+    password: "password"
+    properties:
+      mail:
+        smtp:
+          auth: true
+          starttls:
+            enable: true
+  messages:
+    basename: lang/messages
+  mvc:
+    static-path-pattern: "/static/**"
+  web:
+    resources:
+      static-locations: "classpath:/static/"
 
 server:
   port: 8080
@@ -35,6 +53,7 @@ server:
       timeout: 12h
 
 app:
+  applicationUrl: "http://app.url"
   overseerr:
     endpoint: "https://overseerr"
     api-key: "api-key"
@@ -50,3 +69,9 @@ app:
   deletion:
     days-delay: 5
     remote-path-mappings: { }
+  notify-watchlist:
+    daysDelay: 7
+  mail:
+    from-address: "from@sender.com"
+    from-name: "Plex Watcher"
+

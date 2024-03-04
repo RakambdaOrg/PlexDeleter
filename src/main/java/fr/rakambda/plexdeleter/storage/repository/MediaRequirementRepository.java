@@ -11,4 +11,7 @@ import java.util.List;
 public interface MediaRequirementRepository extends JpaRepository<MediaRequirementEntity, MediaRequirementEntity.TableId>{
 	@NotNull
 	List<MediaRequirementEntity> findAllByStatusIs(@NotNull MediaRequirementStatus status);
+	
+	@NotNull
+	List<MediaRequirementEntity> findAllByIdGroupIdAndStatusIs(int groupId, @NotNull MediaRequirementStatus status);
 }

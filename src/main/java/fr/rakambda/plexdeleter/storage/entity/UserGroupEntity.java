@@ -15,10 +15,12 @@ import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+import lombok.ToString;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import java.time.Instant;
 import java.util.List;
+import java.util.Locale;
 
 @Data
 @AllArgsConstructor
@@ -26,30 +28,33 @@ import java.util.List;
 @Builder
 @Entity
 @Table(name = "UserGroup", schema = "PlexDeleter")
+@ToString(onlyExplicitlyIncluded = true)
 public class UserGroupEntity{
 	@GeneratedValue(strategy = GenerationType.IDENTITY)
 	@Id
 	@Column(name = "ID", nullable = false)
+	@ToString.Include
 	private Integer id;
 	@Basic
 	@Column(name = "Name", nullable = false)
 	@NotNull
+	@ToString.Include
 	private String name;
 	@Enumerated(EnumType.STRING)
 	@Column(name = "NotificationType", nullable = false)
 	@NotNull
-	private NotificationType type;
+	private NotificationType notificationType;
 	@Basic
 	@Column(name = "NotificationValue", nullable = false)
 	@NotNull
-	private String value;
+	private String notificationValue;
 	@Basic
 	@Column(name = "Locale")
-	@Nullable
+	@NotNull
 	private String locale;
 	@Basic
 	@Column(name = "LastNotification")
-	@Nullable
+	@NotNull
 	private Instant lastNotification;
 	@Basic
 	@Column(name = "Display", nullable = false)
@@ -63,4 +68,12 @@ public class UserGroupEntity{
 	@OneToMany(targetEntity = UserPersonEntity.class)
 	@JoinColumn(name = "GroupID", referencedColumnName = "ID")
 	private List<UserPersonEntity> persons;
+	@OneToMany(targetEntity = MediaRequirementEntity.class)
+	@JoinColumn(name = "GroupID", referencedColumnName = "ID")
+	private List<MediaRequirementEntity> requirements;
+	
+	@NotNull
+	public Locale getLocaleAsObject(){
+		return new Locale.Builder().setLanguage(locale).build();
+	}
 }

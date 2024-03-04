@@ -9,11 +9,11 @@ import org.springframework.lang.NonNull;
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
-public class SonarrConfiguration{
+public class MailConfiguration{
 	@NotNull
 	@NonNull
-	private String endpoint;
+	private String fromAddress;
 	@NotNull
 	@NonNull
-	private String apiKey;
+	private String fromName;
 }
