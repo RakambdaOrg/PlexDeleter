@@ -21,4 +21,15 @@ public class TautulliWebhook{
 	@Nullable
 	@JsonProperty("user_id")
 	private Integer userId;
+	@Nullable
+	private String title;
+	@Nullable
+	@JsonProperty("rating_key")
+	private Integer ratingKey;
+	@Nullable
+	@JsonProperty("parent_rating_key")
+	private Integer parentRatingKey;
+	@Nullable
+	@JsonProperty("grandparent_rating_key")
+	private Integer grandparentRatingKey;
 }
