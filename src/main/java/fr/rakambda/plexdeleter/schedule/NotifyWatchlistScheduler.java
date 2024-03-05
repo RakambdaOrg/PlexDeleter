@@ -1,18 +1,12 @@
 package fr.rakambda.plexdeleter.schedule;
 
-import fr.rakambda.plexdeleter.api.overseerr.OverseerrService;
-import fr.rakambda.plexdeleter.api.radarr.RadarrService;
-import fr.rakambda.plexdeleter.api.sonarr.SonarrService;
-import fr.rakambda.plexdeleter.api.tautulli.TautulliService;
 import fr.rakambda.plexdeleter.config.ApplicationConfiguration;
-import fr.rakambda.plexdeleter.messaging.SupervisionService;
 import fr.rakambda.plexdeleter.notify.NotificationService;
 import fr.rakambda.plexdeleter.notify.NotifyException;
 import fr.rakambda.plexdeleter.storage.entity.MediaEntity;
 import fr.rakambda.plexdeleter.storage.entity.MediaRequirementEntity;
 import fr.rakambda.plexdeleter.storage.entity.MediaRequirementStatus;
 import fr.rakambda.plexdeleter.storage.entity.UserGroupEntity;
-import fr.rakambda.plexdeleter.storage.repository.MediaRepository;
 import fr.rakambda.plexdeleter.storage.repository.MediaRequirementRepository;
 import fr.rakambda.plexdeleter.storage.repository.UserGroupRepository;
 import lombok.extern.slf4j.Slf4j;
@@ -32,17 +26,13 @@ public class NotifyWatchlistScheduler implements IScheduler{
 	private static final Predicate<MediaEntity> hasPartsPredicate = m -> m.getPartsCount() > 0;
 	private static final Predicate<MediaEntity> isFullyDownloadedPredicate = m -> m.getAvailablePartsCount() >= m.getPartsCount();
 	
-	private final TautulliService tautulliService;
-	private final SupervisionService supervisionService;
 	private final MediaRequirementRepository mediaRequirementRepository;
 	private final UserGroupRepository userGroupRepository;
 	private final NotificationService notificationService;
 	private final int daysDelay;
 	
 	@Autowired
-	public NotifyWatchlistScheduler(MediaRepository mediaRepository, OverseerrService overseerrService, TautulliService tautulliService, SonarrService sonarrService, RadarrService radarrService, SupervisionService supervisionService, MediaRequirementRepository mediaRequirementRepository, UserGroupRepository userGroupRepository, NotificationService notificationService, ApplicationConfiguration applicationConfiguration){
-		this.tautulliService = tautulliService;
-		this.supervisionService = supervisionService;
+	public NotifyWatchlistScheduler(MediaRequirementRepository mediaRequirementRepository, UserGroupRepository userGroupRepository, NotificationService notificationService, ApplicationConfiguration applicationConfiguration){
 		this.mediaRequirementRepository = mediaRequirementRepository;
 		this.userGroupRepository = userGroupRepository;
 		this.notificationService = notificationService;
@@ -81,12 +71,12 @@ public class NotifyWatchlistScheduler implements IScheduler{
 		
 		var fullyAvailable = requirements.stream()
 				.map(MediaRequirementEntity::getMedia)
-				.filter(isFullyDownloadedPredicate.and(isFullyDownloadedPredicate))
+				.filter(hasPartsPredicate.and(isFullyDownloadedPredicate))
 				.filter(m -> m.getAvailablePartsCount() >= m.getPartsCount())
 				.toList();
 		var notYetAvailable = requirements.stream()
 				.map(MediaRequirementEntity::getMedia)
-				.filter(isFullyDownloadedPredicate.negate().or(isFullyDownloadedPredicate.negate()))
+				.filter(hasPartsPredicate.negate().or(isFullyDownloadedPredicate.negate()))
 				.toList();
 		
 		notificationService.notifyWatchlist(userGroupEntity, fullyAvailable, notYetAvailable);

@@ -54,6 +54,7 @@ server:
 
 app:
   applicationUrl: "http://app.url"
+  exclude-tag: "no-deleter"
   overseerr:
     endpoint: "https://overseerr"
     api-key: "api-key"

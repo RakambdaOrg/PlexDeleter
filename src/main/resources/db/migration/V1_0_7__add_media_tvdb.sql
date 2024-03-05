@@ -1,0 +1,2 @@
+ALTER TABLE `Media`
+    ADD COLUMN IF NOT EXISTS `TvdbId` INT AFTER `ServarrId`;

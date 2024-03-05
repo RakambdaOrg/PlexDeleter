@@ -5,18 +5,22 @@ import fr.rakambda.plexdeleter.api.RequestFailedException;
 import fr.rakambda.plexdeleter.config.ApplicationConfiguration;
 import fr.rakambda.plexdeleter.config.TautulliConfiguration;
 import fr.rakambda.plexdeleter.storage.entity.MediaType;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.when;
 
 class TautulliServiceTest{
-	private TautulliService tested = new TautulliService(
-			new ApplicationConfiguration(
-					null,
-					new TautulliConfiguration(SecretsUtils.getSecret("tautulli.endpoint"), SecretsUtils.getSecret("tautulli.api-key")),
-					null,
-					null,
-					null
-			));
+	private TautulliService tested;
+	
+	@BeforeEach
+	void setUp(){
+		var conf = mock(ApplicationConfiguration.class);
+		when(conf.getTautulli()).thenReturn(new TautulliConfiguration(SecretsUtils.getSecret("tautulli.endpoint"), SecretsUtils.getSecret("tautulli.api-key")));
+		
+		tested = new TautulliService(conf);
+	}
 	
 	@Test
 	void itShouldGetMovieRatingKeys() throws RequestFailedException{

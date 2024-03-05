@@ -14,7 +14,7 @@ public class MediaInfo{
 	private Set<Object> downloadStatus = new HashSet<>();
 	private Set<Object> downloadStatus4k = new HashSet<>();
 	private int id;
-	private String mediaType;
+	private MediaType mediaType;
 	private Integer tmdbId;
 	private Integer tvdbId;
 	private Integer imdbId;
@@ -24,10 +24,10 @@ public class MediaInfo{
 	private Instant updatedAt;
 	private Instant lastSeasonChange;
 	private Instant mediaAddedAt;
-	private int serviceId;
-	private int serviceId4k;
-	private int externalServiceId;
-	private int externalServiceId4k;
+	private Integer serviceId;
+	private Integer serviceId4k;
+	private Integer externalServiceId;
+	private Integer externalServiceId4k;
 	private String externalServiceSlug;
 	private String externalServiceSlug4k;
 	private Integer ratingKey;

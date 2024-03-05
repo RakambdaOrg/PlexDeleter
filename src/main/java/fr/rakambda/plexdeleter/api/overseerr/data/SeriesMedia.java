@@ -1,5 +1,6 @@
 package fr.rakambda.plexdeleter.api.overseerr.data;
 
+import com.fasterxml.jackson.annotation.JsonTypeName;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
@@ -14,6 +15,7 @@ import java.util.Set;
 @AllArgsConstructor
 @EqualsAndHashCode(callSuper = true)
 @ToString(callSuper = true)
+@JsonTypeName("tv")
 public final class SeriesMedia extends Media{
 	private Set<CreatedBy> createdBy = new HashSet<>();
 	private Set<Integer> episodeRunTime = new HashSet<>();

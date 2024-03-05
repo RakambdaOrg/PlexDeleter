@@ -24,8 +24,17 @@ public interface MediaRepository extends JpaRepository<MediaEntity, Integer>{
 	List<MediaEntity> findAllReadyToDelete();
 	
 	@NotNull
-	List<MediaEntity> findAllByAvailabilityIs(@NotNull MediaAvailability availability);
+	List<MediaEntity> findAllByAvailability(@NotNull MediaAvailability availability);
 	
 	@NotNull
 	Optional<MediaEntity> findByPlexId(int plexId);
+	
+	@NotNull
+	List<MediaEntity> findAllByTvdbIdAndAvailability(int tvdbId, @NotNull MediaAvailability availability);
+	
+	@NotNull
+	Optional<MediaEntity> findByTvdbIdAndIndex(int tvdbId, int index);
+	
+	@NotNull
+	Optional<MediaEntity> findByOverseerrIdAndIndex(int overseerrId, int index);
 }

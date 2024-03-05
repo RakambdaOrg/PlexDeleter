@@ -48,6 +48,10 @@ public class MediaEntity{
 	@Nullable
 	private Integer servarrId;
 	@Basic
+	@Column(name = "TvdbId")
+	@Nullable
+	private Integer tvdbId;
+	@Basic
 	@Column(name = "Name", nullable = false)
 	@NotNull
 	@ToString.Include

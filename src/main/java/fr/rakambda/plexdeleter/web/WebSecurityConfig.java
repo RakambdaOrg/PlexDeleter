@@ -19,11 +19,14 @@ public class WebSecurityConfig{
 		return http.csrf(AbstractHttpConfigurer::disable)
 				.authorizeHttpRequests(auth -> auth
 						.requestMatchers("/static/**").permitAll()
-						.requestMatchers("/webhook/tautulli").hasRole("TAUTULLI")
+						.requestMatchers("/webhook/overseerr/**").hasRole("OVERSEERR")
+						.requestMatchers("/webhook/radarr/**").hasRole("RADARR")
+						.requestMatchers("/webhook/sonarr/**").hasRole("SONARR")
+						.requestMatchers("/webhook/tautulli/**").hasRole("TAUTULLI") // TODO Update hook with basic auth
 						.anyRequest().hasRole("ADMIN")
 				)
 				.httpBasic(basic -> basic.realmName("basic"))
-				.formLogin(form -> form.defaultSuccessUrl("/home", false).permitAll())
+				.formLogin(form -> form.defaultSuccessUrl("/", false).permitAll())
 				.logout(LogoutConfigurer::permitAll)
 				.build();
 	}

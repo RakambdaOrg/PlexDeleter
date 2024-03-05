@@ -2,13 +2,12 @@ package fr.rakambda.plexdeleter.service;
 
 import fr.rakambda.plexdeleter.api.RequestFailedException;
 import fr.rakambda.plexdeleter.api.overseerr.OverseerrService;
-import fr.rakambda.plexdeleter.api.overseerr.data.MediaInfo;
 import fr.rakambda.plexdeleter.api.overseerr.data.MovieMedia;
 import fr.rakambda.plexdeleter.api.overseerr.data.SeriesMedia;
-import fr.rakambda.plexdeleter.api.radarr.RadarrService;
-import fr.rakambda.plexdeleter.api.sonarr.SonarrService;
-import fr.rakambda.plexdeleter.api.sonarr.data.Season;
-import fr.rakambda.plexdeleter.api.sonarr.data.Statistics;
+import fr.rakambda.plexdeleter.api.servarr.radarr.RadarrService;
+import fr.rakambda.plexdeleter.api.servarr.sonarr.SonarrService;
+import fr.rakambda.plexdeleter.api.servarr.sonarr.data.Season;
+import fr.rakambda.plexdeleter.api.servarr.sonarr.data.Statistics;
 import fr.rakambda.plexdeleter.api.tautulli.TautulliService;
 import fr.rakambda.plexdeleter.messaging.SupervisionService;
 import fr.rakambda.plexdeleter.storage.entity.MediaAvailability;
@@ -41,7 +40,8 @@ public class MediaService{
 		this.radarrService = radarrService;
 	}
 	
-	public void update(@NotNull MediaEntity mediaEntity) throws UpdateException, RequestFailedException{
+	@NotNull
+	public MediaEntity update(@NotNull MediaEntity mediaEntity) throws UpdateException, RequestFailedException{
 		log.info("Updating media {}", mediaEntity);
 		updateFromOverseerr(mediaEntity);
 		updateFromTautulli(mediaEntity);
@@ -57,7 +57,7 @@ public class MediaService{
 			supervisionService.send("\uD83C\uDD97 Marked %d as finished: %s (%d/%d)", mediaEntity.getId(), mediaEntity, mediaEntity.getPartsCount(), mediaEntity.getAvailablePartsCount());
 		}
 		
-		mediaRepository.save(mediaEntity);
+		return mediaRepository.save(mediaEntity);
 	}
 	
 	private void updateFromOverseerr(@NotNull MediaEntity mediaEntity) throws UpdateException, RequestFailedException{
@@ -65,18 +65,15 @@ public class MediaService{
 			log.warn("Cannot update media {} as it does not seem to be in Overseerr", mediaEntity);
 			return;
 		}
-		var mediaDetails = overseerrService.getMediaDetails(mediaEntity.getOverseerrId(), mediaEntity.getType());
+		var mediaDetails = overseerrService.getMediaDetails(mediaEntity.getOverseerrId(), mediaEntity.getType().getOverseerrType());
 		
-		Optional.ofNullable(mediaDetails.getMediaInfo())
-				.map(MediaInfo::getRatingKey)
+		Optional.ofNullable(mediaDetails.getMediaInfo().getRatingKey())
 				.flatMap(key -> getActualRatingKey(mediaEntity, key))
 				.ifPresent(mediaEntity::setPlexId);
-		Optional.ofNullable(mediaDetails.getMediaInfo())
-				.map(MediaInfo::getExternalServiceId)
+		Optional.ofNullable(mediaDetails.getMediaInfo().getExternalServiceId())
 				.ifPresent(mediaEntity::setServarrId);
-		Optional.ofNullable(mediaDetails.getMediaInfo())
-				.map(MediaInfo::getExternalServiceId)
-				.ifPresent(mediaEntity::setServarrId);
+		Optional.ofNullable(mediaDetails.getMediaInfo().getTvdbId())
+				.ifPresent(mediaEntity::setTvdbId);
 		
 		var partsCount = switch(mediaDetails){
 			case MovieMedia ignored -> 1;

@@ -18,6 +18,9 @@ public class ApplicationConfiguration{
 	@NotNull
 	@NonNull
 	private String applicationUrl;
+	@NotNull
+	@NonNull
+	private String excludeTag;
 	@NestedConfigurationProperty
 	private OverseerrConfiguration overseerr;
 	@NestedConfigurationProperty

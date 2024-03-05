@@ -1,4 +1,3 @@
-import flask
 import logging
 from action.deleter import Deleter
 from action.notifier import Notifier
@@ -7,9 +6,8 @@ from action.watch_updater import WatchUpdater
 from api.discord.discord_helper import DiscordHelper
 from api.overseerr.overseerr_helper import OverseerrHelper
 from database.database import Database
-from flask import Flask, request, Response
+from flask import Flask, request
 from flask_httpauth import HTTPBasicAuth, HTTPTokenAuth
-from threading import Thread
 from typing import Optional
 from waitress import serve
 from web.admin import Admin
@@ -42,27 +40,6 @@ class WebServer:
         basic_auth = HTTPBasicAuth()
         bearer_auth = HTTPTokenAuth()
         access_token_auth = HTTPTokenAuth(header="Access-Token")
-
-        @self.__app.before_request
-        def log_request_info():
-            if not request.path or not request.path.startswith("/static/"):
-                return
-            self.__app.logger.info('Received %s request on %s', request.method, request.path)
-            self.__app.logger.debug('Headers: %s', request.headers)
-
-        @self.__app.after_request
-        def log_response_info(response: Response) -> Response:
-            if request.path and request.path.startswith("/static/") and response.status_code == 200:
-                return response
-
-            response_data = '<<Passthrough>>' if response.direct_passthrough else response.get_data(True)[:50].replace("\n", " § ")
-            self.__app.logger.info(f'Done handling {request.method} request on {request.path} : {response.status_code} ({response_data})')
-
-            return response
-
-        @self.__app.route('/favicon.svg')
-        def on_favicon():
-            return flask.send_from_directory('static', 'favicon.svg', mimetype='image/svg+xml')
 
         @self.__app.route('/')
         def on_home():
@@ -112,45 +89,6 @@ class WebServer:
         @basic_auth.login_required
         def on_api_requirement_complete():
             return api.on_complete_requirement(request.form)
-
-        @self.__app.route('/maintenance/full')
-        @bearer_auth.login_required
-        def on_maintenance_full():
-            thread = Thread(target=web_utils.run_maintenance_full)
-            thread.start()
-            return Response(status=200)
-
-        @self.__app.route('/maintenance/updates')
-        @bearer_auth.login_required
-        def on_maintenance_updates():
-            thread = Thread(target=web_utils.run_maintenance_updates)
-            thread.start()
-            return Response(status=200)
-
-        @self.__app.route('/webhook/ombi', methods=["POST"])
-        @access_token_auth.login_required
-        def on_webhook_ombi():
-            return webhook_ombi.on_call(request.json)
-
-        @self.__app.route('/webhook/overseerr', methods=["POST"])
-        @bearer_auth.login_required
-        def on_webhook_overseerr():
-            return webhook_overseerr.on_call(request.json)
-
-        @self.__app.route('/webhook/radarr', methods=["POST"])
-        @basic_auth.login_required
-        def on_webhook_radarr():
-            return webhook_radarr.on_call()
-
-        @self.__app.route('/webhook/sonarr', methods=["POST"])
-        @basic_auth.login_required
-        def on_webhook_sonarr():
-            return webhook_sonarr.on_call(request.json)
-
-        @self.__app.route('/webhook/tautulli', methods=["POST"])
-        @bearer_auth.login_required
-        def on_webhook_tautulli():
-            return webhook_tautulli.on_call(request.json)
 
         @basic_auth.verify_password
         def verify_password(username, password) -> Optional[str]:
