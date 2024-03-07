@@ -10,6 +10,7 @@ import fr.rakambda.plexdeleter.api.servarr.sonarr.data.Season;
 import fr.rakambda.plexdeleter.api.servarr.sonarr.data.Statistics;
 import fr.rakambda.plexdeleter.api.tautulli.TautulliService;
 import fr.rakambda.plexdeleter.messaging.SupervisionService;
+import fr.rakambda.plexdeleter.notify.NotificationService;
 import fr.rakambda.plexdeleter.storage.entity.MediaAvailability;
 import fr.rakambda.plexdeleter.storage.entity.MediaEntity;
 import fr.rakambda.plexdeleter.storage.repository.MediaRepository;
@@ -29,15 +30,17 @@ public class MediaService{
 	private final OverseerrService overseerrService;
 	private final SonarrService sonarrService;
 	private final RadarrService radarrService;
+	private final NotificationService notificationService;
 	
 	@Autowired
-	public MediaService(TautulliService tautulliService, SupervisionService supervisionService, MediaRepository mediaRepository, OverseerrService overseerrService, SonarrService sonarrService, RadarrService radarrService){
+	public MediaService(TautulliService tautulliService, SupervisionService supervisionService, MediaRepository mediaRepository, OverseerrService overseerrService, SonarrService sonarrService, RadarrService radarrService, NotificationService notificationService){
 		this.tautulliService = tautulliService;
 		this.supervisionService = supervisionService;
 		this.mediaRepository = mediaRepository;
 		this.overseerrService = overseerrService;
 		this.sonarrService = sonarrService;
 		this.radarrService = radarrService;
+		this.notificationService = notificationService;
 	}
 	
 	@NotNull
@@ -54,6 +57,7 @@ public class MediaService{
 		else if(mediaEntity.getAvailablePartsCount() >= mediaEntity.getPartsCount()){
 			mediaEntity.setAvailability(MediaAvailability.DOWNLOADED);
 			log.info("Marked media {} as finished", mediaEntity);
+			notificationService.notifyMediaAvailable(mediaEntity);
 			supervisionService.send("\uD83C\uDD97 Marked %d as finished: %s (%d/%d)", mediaEntity.getId(), mediaEntity, mediaEntity.getPartsCount(), mediaEntity.getAvailablePartsCount());
 		}
 		

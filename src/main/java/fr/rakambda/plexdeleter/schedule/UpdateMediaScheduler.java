@@ -32,6 +32,7 @@ public class UpdateMediaScheduler implements IScheduler{
 	@Override
 	@Scheduled(cron = "0 0 0,8,15 * * *")
 	public void run(){
+		log.info("Updating medias");
 		var medias = mediaRepository.findAllByAvailability(MediaAvailability.DOWNLOADING);
 		for(var media : medias){
 			try{

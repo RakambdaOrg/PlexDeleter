@@ -34,6 +34,7 @@ public class UpdateMediaRequirementScheduler implements IScheduler{
 	@Scheduled(cron = "0 30 0,8,15 * * *")
 	@Transactional
 	public void run(){
+		log.info("Updating media requirements");
 		var requirements = mediaRequirementRepository.findAllByStatusIs(MediaRequirementStatus.WAITING);
 		for(var requirement : requirements){
 			try{

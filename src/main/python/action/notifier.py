@@ -8,8 +8,6 @@ from action.notification.notifier_mail import MailNotifier
 from action.notification.types.AbandonedType import AbandonedType
 from action.notification.types.CompletedType import CompletedType
 from action.notification.types.DeletedType import DeletedType
-from action.notification.types.MediaAvailableType import MediaAvailableType
-from action.notification.types.RequirementAddedType import RequirementAddedType
 from action.notification.types.WatchlistType import WatchlistType
 from action.status.user_group_status import UserGroupStatus
 from database.database import Database
@@ -28,27 +26,6 @@ class Notifier:
         self.__discord_notifier = discord_notifier
         self.__discord_notifier_thread = discord_notifier_thread
         self.__logger = logging.getLogger(__name__)
-
-    def notify_watchlist(self, user_group_statuses: dict[UserGroup, UserGroupStatus] = None) -> None:
-        if not user_group_statuses:
-            user_group_statuses = {}
-
-        self.__logger.info("Notifying watchlist for all groups")
-        user_groups = self.__database.user_group_get_all()
-        for user_group in user_groups:
-            user_group_status = user_group_statuses[user_group] if user_group in user_group_statuses else UserGroupStatus()
-            self.__notify_group_watchlist(user_group, user_group_status)
-
-    def notify_requirement_added(self, user_group: UserGroup, media: Media) -> None:
-        self.__logger.info(f"Notifying requirement added to {user_group} on {media}")
-        self.__get_notifier(user_group.notification_type).notify(user_group, [media], None, RequirementAddedType())
-
-    def notify_available(self, media: Media) -> None:
-        self.__logger.info(f"Notifying media {media} is available")
-        user_groups = self.__database.user_group_get_watching_media(media.id)
-
-        for user_group in user_groups:
-            self.__get_notifier(user_group.notification_type).notify(user_group, [media], None, MediaAvailableType())
 
     def notify_abandoned(self, media: Media, user_group_id: int) -> None:
         self.__logger.info(f"Notifying media {media} is abandoned by {user_group_id}")

@@ -43,8 +43,6 @@ public class MailNotificationService{
 	
 	public void notifyWatchlist(@NotNull UserGroupEntity userGroupEntity, @NotNull Collection<MediaEntity> availableMedia, @NotNull Collection<MediaEntity> notYetAvailableMedia) throws MessagingException, UnsupportedEncodingException{
 		var locale = userGroupEntity.getLocaleAsObject();
-		var mailAddresses = userGroupEntity.getNotificationValue().split(",");
-		
 		var body = new StringBuilder();
 		
 		if(!availableMedia.isEmpty()){
@@ -55,12 +53,30 @@ public class MailNotificationService{
 			writeWatchlistSection(body, "mail.watchlist.body.header.not-yet-available", locale, userGroupEntity, notYetAvailableMedia);
 		}
 		
+		sendMail(userGroupEntity, messageSource.getMessage("mail.watchlist.subject", new Object[0], locale), body.toString());
+	}
+	
+	public void notifyRequirementAdded(@NotNull UserGroupEntity userGroupEntity, @NotNull MediaEntity media) throws MessagingException, UnsupportedEncodingException{
+		notifySimple(userGroupEntity, media, "mail.requirement.added.subject");
+	}
+	
+	public void notifyMediaAvailable(@NotNull UserGroupEntity userGroupEntity, @NotNull MediaEntity media) throws MessagingException, UnsupportedEncodingException{
+		notifySimple(userGroupEntity, media, "mail.media.available.subject");
+	}
+	
+	private void notifySimple(@NotNull UserGroupEntity userGroupEntity, @NotNull MediaEntity media, @NotNull String subjectKey) throws MessagingException, UnsupportedEncodingException{
+		var locale = userGroupEntity.getLocaleAsObject();
+		sendMail(userGroupEntity, messageSource.getMessage(subjectKey, new Object[0], locale), getWatchlistMediaText(userGroupEntity, media, locale));
+	}
+	
+	private void sendMail(@NotNull UserGroupEntity userGroupEntity, @NotNull String subject, @NotNull String body) throws MessagingException, UnsupportedEncodingException{
+		var mailAddresses = userGroupEntity.getNotificationValue().split(",");
 		var mimeMessage = emailSender.createMimeMessage();
 		var mailHelper = new MimeMessageHelper(mimeMessage, "utf-8");
 		mailHelper.setFrom(mailConfiguration.getFromAddress(), mailConfiguration.getFromName());
 		mailHelper.setTo(mailAddresses);
-		mailHelper.setSubject(messageSource.getMessage("mail.watchlist.subject", new Object[0], locale));
-		mailHelper.setText(body.toString(), true);
+		mailHelper.setSubject(subject);
+		mailHelper.setText(body, true);
 		emailSender.send(mimeMessage);
 	}
 	
@@ -78,7 +94,7 @@ public class MailNotificationService{
 	}
 	
 	@SneakyThrows(RequestFailedException.class)
-	private Object getWatchlistMediaText(@NotNull UserGroupEntity userGroupEntity, @NotNull MediaEntity media, @NotNull Locale locale){
+	private String getWatchlistMediaText(@NotNull UserGroupEntity userGroupEntity, @NotNull MediaEntity media, @NotNull Locale locale){
 		var sb = new StringBuilder();
 		sb.append(switch(media.getType()){
 			case MOVIE -> messageSource.getMessage("mail.watchlist.body.media.movie", new Object[]{

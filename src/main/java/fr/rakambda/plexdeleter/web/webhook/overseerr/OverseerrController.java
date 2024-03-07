@@ -10,6 +10,7 @@ import fr.rakambda.plexdeleter.api.servarr.radarr.RadarrService;
 import fr.rakambda.plexdeleter.api.servarr.sonarr.SonarrService;
 import fr.rakambda.plexdeleter.config.ApplicationConfiguration;
 import fr.rakambda.plexdeleter.messaging.SupervisionService;
+import fr.rakambda.plexdeleter.notify.NotificationService;
 import fr.rakambda.plexdeleter.service.MediaService;
 import fr.rakambda.plexdeleter.service.UpdateException;
 import fr.rakambda.plexdeleter.storage.entity.MediaActionStatus;
@@ -49,9 +50,10 @@ public class OverseerrController{
 	private final UserGroupRepository userGroupRepository;
 	private final SupervisionService supervisionService;
 	private final MediaRequirementRepository mediaRequirementRepository;
+	private final NotificationService notificationService;
 	private final String excludeTag;
 	
-	public OverseerrController(MediaRepository mediaRepository, MediaService mediaService, OverseerrService overseerrService, SonarrService sonarrService, RadarrService radarrService, UserGroupRepository userGroupRepository, SupervisionService supervisionService, MediaRequirementRepository mediaRequirementRepository, ApplicationConfiguration applicationConfiguration){
+	public OverseerrController(MediaRepository mediaRepository, MediaService mediaService, OverseerrService overseerrService, SonarrService sonarrService, RadarrService radarrService, UserGroupRepository userGroupRepository, SupervisionService supervisionService, MediaRequirementRepository mediaRequirementRepository, NotificationService notificationService, ApplicationConfiguration applicationConfiguration){
 		this.mediaRepository = mediaRepository;
 		this.mediaService = mediaService;
 		this.overseerrService = overseerrService;
@@ -60,6 +62,7 @@ public class OverseerrController{
 		this.userGroupRepository = userGroupRepository;
 		this.supervisionService = supervisionService;
 		this.mediaRequirementRepository = mediaRequirementRepository;
+		this.notificationService = notificationService;
 		this.excludeTag = applicationConfiguration.getExcludeTag();
 	}
 	
@@ -152,6 +155,7 @@ public class OverseerrController{
 					.status(MediaRequirementStatus.WAITING)
 					.build());
 			supervisionService.send("Added requirement %s to %s", media, userGroupEntity);
+			notificationService.notifyRequirementAdded(userGroupEntity, media);
 			return;
 		}
 		
@@ -166,6 +170,7 @@ public class OverseerrController{
 				})
 				.ifPresent(mediaRequirementRepository::save);
 		supervisionService.send("Updated requirement %s to %s", media, userGroupEntity);
+		notificationService.notifyRequirementAdded(userGroupEntity, media);
 	}
 	
 	@NotNull

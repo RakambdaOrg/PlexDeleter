@@ -62,6 +62,7 @@ public class DeleteMediaScheduler implements IScheduler{
 	@Override
 	@Scheduled(cron = "0 0 1 * * *")
 	public void run(){
+		log.info("Staring to delete old media");
 		var medias = mediaRepository.findAllReadyToDelete();
 		var size = 0L;
 		for(var media : medias){
@@ -81,7 +82,7 @@ public class DeleteMediaScheduler implements IScheduler{
 	long delete(MediaEntity mediaEntity) throws DeletionException, RequestFailedException, IOException{
 		log.info("Deleting media {}", mediaEntity);
 		if(Objects.isNull(mediaEntity.getPlexId())){
-			throw new DeletionException("Cannot delete media %s as it does not seem to be in Plex/Tautulli".formatted(mediaEntity));
+			throw new DeletionException("Cannot delete media %s as it does not have any Plex Id".formatted(mediaEntity));
 		}
 		
 		var ratingKeys = tautulliService.getElementsRatingKeys(mediaEntity.getPlexId(), mediaEntity.getType());
@@ -121,7 +122,7 @@ public class DeleteMediaScheduler implements IScheduler{
 		mediaEntity.setActionStatus(MediaActionStatus.DELETED);
 		mediaRepository.save(mediaEntity);
 		
-		supervisionService.send("\uD83D\uDDD1 Deleted media %s %s", mediaEntity, supervisionService.sizeToHuman(size));
+		supervisionService.send("\uD83D\uDDD1 Deleted media %s with a size of %s", mediaEntity, supervisionService.sizeToHuman(size));
 		
 		return size;
 	}
@@ -228,7 +229,7 @@ public class DeleteMediaScheduler implements IScheduler{
 		var size = Files.size(path);
 		Files.delete(path);
 		sizeDeleted.addAndGet(size);
-		supervisionService.send("\uD83D\uDDD1 Deleted file %s (%s)", path, supervisionService.sizeToHuman(size));
+		supervisionService.send("\uD83D\uDDD1 Deleted file %s for a size of %s", path, supervisionService.sizeToHuman(size));
 	}
 	
 	@VisibleForTesting

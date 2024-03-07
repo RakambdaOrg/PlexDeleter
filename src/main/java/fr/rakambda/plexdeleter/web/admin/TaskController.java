@@ -1,4 +1,4 @@
-package fr.rakambda.plexdeleter.web;
+package fr.rakambda.plexdeleter.web.admin;
 
 import fr.rakambda.plexdeleter.schedule.IScheduler;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -14,7 +14,7 @@ import java.util.List;
 import java.util.Objects;
 
 @RestController
-@RequestMapping("/task")
+@RequestMapping("/admin/task")
 public class TaskController{
 	private final TaskScheduler taskScheduler;
 	private final Collection<IScheduler> tasks;

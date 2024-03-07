@@ -49,6 +49,7 @@ public class NotifyWatchlistScheduler implements IScheduler{
 	@Scheduled(cron = "0 30 1 * * *")
 	@Transactional
 	public void run(){
+		log.info("Notifying user groups");
 		var before = ZonedDateTime.now().minusDays(daysDelay).toInstant();
 		var userGroups = userGroupRepository.findAllByLastNotificationBefore(before);
 		for(var userGroup : userGroups){

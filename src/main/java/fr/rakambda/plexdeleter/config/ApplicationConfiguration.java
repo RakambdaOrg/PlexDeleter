@@ -35,4 +35,6 @@ public class ApplicationConfiguration{
 	private NotifyWatchlistConfiguration notifyWatchlist;
 	@NestedConfigurationProperty
 	private MailConfiguration mail;
+	@NestedConfigurationProperty
+	private SupervisionConfiguration supervision;
 }

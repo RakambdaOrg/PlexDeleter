@@ -1,5 +1,6 @@
 package fr.rakambda.plexdeleter.storage.repository;
 
+import fr.rakambda.plexdeleter.storage.entity.MediaRequirementStatus;
 import fr.rakambda.plexdeleter.storage.entity.UserGroupEntity;
 import org.jetbrains.annotations.NotNull;
 import org.springframework.data.jpa.repository.JpaRepository;
@@ -31,4 +32,12 @@ public interface UserGroupRepository extends JpaRepository<UserGroupEntity, Inte
 			WHERE M.overseerrId = ?1 AND M.index = ?2"""
 	)
 	List<UserGroupEntity> findAllByHasRequirementOn(int overseerrId, int index);
+	
+	@Query(value = """
+			SELECT G
+			FROM UserGroupEntity G
+			INNER JOIN MediaRequirementEntity MR ON MR.group.id = G.id
+			WHERE MR.media.id = ?1 AND MR.status = ?2"""
+	)
+	List<UserGroupEntity> findAllByHasRequirementOn(int overseerrId, @NotNull MediaRequirementStatus status);
 }

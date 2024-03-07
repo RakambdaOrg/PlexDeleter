@@ -18,6 +18,7 @@ public class WebSecurityConfig{
 	public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception{
 		return http.csrf(AbstractHttpConfigurer::disable)
 				.authorizeHttpRequests(auth -> auth
+						.requestMatchers("/admin/**").hasRole("ADMIN")
 						.requestMatchers("/static/**").permitAll()
 						.requestMatchers("/webhook/overseerr/**").hasRole("OVERSEERR")
 						.requestMatchers("/webhook/radarr/**").hasRole("RADARR")
