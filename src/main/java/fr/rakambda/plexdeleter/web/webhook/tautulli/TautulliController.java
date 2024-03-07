@@ -12,9 +12,11 @@ import fr.rakambda.plexdeleter.storage.repository.UserPersonRepository;
 import fr.rakambda.plexdeleter.web.webhook.tautulli.data.TautulliWebhook;
 import lombok.extern.slf4j.Slf4j;
 import org.jetbrains.annotations.NotNull;
+import org.springframework.http.HttpStatus;
 import org.springframework.lang.NonNull;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestController;
 import java.io.IOException;
 import java.util.Objects;
@@ -38,6 +40,7 @@ public class TautulliController{
 	}
 	
 	@PostMapping("/")
+	@ResponseStatus(HttpStatus.NO_CONTENT)
 	public void onCall(@NonNull TautulliWebhook data) throws RequestFailedException, IOException, UpdateException, NotifyException{
 		switch(data.getType()){
 			case "watched" -> updateRequirement(data);
