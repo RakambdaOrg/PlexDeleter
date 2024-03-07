@@ -1,22 +1,15 @@
 package fr.rakambda.plexdeleter.api.overseerr.data;
 
-import com.fasterxml.jackson.annotation.JsonSubTypes;
-import com.fasterxml.jackson.annotation.JsonTypeInfo;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
-import lombok.NonNull;
+import org.jetbrains.annotations.Nullable;
 import java.util.HashSet;
 import java.util.Set;
 
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
-@JsonTypeInfo(use = JsonTypeInfo.Id.NAME, property = "mediaInfo.mediaType")
-@JsonSubTypes(value = {
-		@JsonSubTypes.Type(value = MovieMedia.class, name = "movie"),
-		@JsonSubTypes.Type(value = SeriesMedia.class, name = "tv"),
-})
 public sealed class Media permits MovieMedia, SeriesMedia{
 	private Set<Genre> genres = new HashSet<>();
 	private Set<RelatedVideo> relatedVideos = new HashSet<>();
@@ -36,7 +29,7 @@ public sealed class Media permits MovieMedia, SeriesMedia{
 	private String posterPath;
 	private Credits credits;
 	private ExternalIds externalIds;
-	@NonNull
+	@Nullable
 	private MediaInfo mediaInfo;
 	private Set<Keyword> keywords = new HashSet<>();
 	private Set<WatchProvider> watchProviders = new HashSet<>();

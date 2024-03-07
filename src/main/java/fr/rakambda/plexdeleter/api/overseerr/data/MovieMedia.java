@@ -1,6 +1,5 @@
 package fr.rakambda.plexdeleter.api.overseerr.data;
 
-import com.fasterxml.jackson.annotation.JsonTypeName;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
@@ -13,7 +12,6 @@ import java.time.LocalDate;
 @AllArgsConstructor
 @EqualsAndHashCode(callSuper = true)
 @ToString(callSuper = true)
-@JsonTypeName("movie")
 public final class MovieMedia extends Media{
 	private boolean adult;
 	private Long budget;

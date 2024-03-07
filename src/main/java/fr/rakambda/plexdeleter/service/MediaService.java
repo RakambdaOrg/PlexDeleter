@@ -2,6 +2,7 @@ package fr.rakambda.plexdeleter.service;
 
 import fr.rakambda.plexdeleter.api.RequestFailedException;
 import fr.rakambda.plexdeleter.api.overseerr.OverseerrService;
+import fr.rakambda.plexdeleter.api.overseerr.data.MediaInfo;
 import fr.rakambda.plexdeleter.api.overseerr.data.MovieMedia;
 import fr.rakambda.plexdeleter.api.overseerr.data.SeriesMedia;
 import fr.rakambda.plexdeleter.api.servarr.radarr.RadarrService;
@@ -72,12 +73,15 @@ public class MediaService{
 		}
 		var mediaDetails = overseerrService.getMediaDetails(mediaEntity.getOverseerrId(), mediaEntity.getType().getOverseerrType());
 		
-		Optional.ofNullable(mediaDetails.getMediaInfo().getRatingKey())
+		Optional.ofNullable(mediaDetails.getMediaInfo())
+				.map(MediaInfo::getRatingKey)
 				.flatMap(key -> getActualRatingKey(mediaEntity, key))
 				.ifPresent(mediaEntity::setPlexId);
-		Optional.ofNullable(mediaDetails.getMediaInfo().getExternalServiceId())
+		Optional.ofNullable(mediaDetails.getMediaInfo())
+				.map(MediaInfo::getExternalServiceId)
 				.ifPresent(mediaEntity::setServarrId);
-		Optional.ofNullable(mediaDetails.getMediaInfo().getTvdbId())
+		Optional.ofNullable(mediaDetails.getMediaInfo())
+				.map(MediaInfo::getTvdbId)
 				.ifPresent(mediaEntity::setTvdbId);
 		
 		var partsCount = switch(mediaDetails){

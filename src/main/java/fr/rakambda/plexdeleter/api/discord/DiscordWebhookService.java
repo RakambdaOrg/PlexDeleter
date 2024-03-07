@@ -41,7 +41,7 @@ public class DiscordWebhookService{
 		lock.acquire();
 		try{
 			return HttpUtils.withStatusOkAndBody(apiClient.post()
-					.uri(b -> {
+					.uri(url, b -> {
 						b = b.queryParam("wait", true);
 						if(Objects.nonNull(threadId)){
 							b.queryParam("thread_id", threadId);
