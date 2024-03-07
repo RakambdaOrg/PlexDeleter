@@ -11,6 +11,7 @@ import fr.rakambda.plexdeleter.api.servarr.sonarr.data.Statistics;
 import fr.rakambda.plexdeleter.api.tautulli.TautulliService;
 import fr.rakambda.plexdeleter.messaging.SupervisionService;
 import fr.rakambda.plexdeleter.notify.NotificationService;
+import fr.rakambda.plexdeleter.notify.NotifyException;
 import fr.rakambda.plexdeleter.storage.entity.MediaAvailability;
 import fr.rakambda.plexdeleter.storage.entity.MediaEntity;
 import fr.rakambda.plexdeleter.storage.repository.MediaRepository;
@@ -44,7 +45,7 @@ public class MediaService{
 	}
 	
 	@NotNull
-	public MediaEntity update(@NotNull MediaEntity mediaEntity) throws UpdateException, RequestFailedException{
+	public MediaEntity update(@NotNull MediaEntity mediaEntity) throws UpdateException, RequestFailedException, NotifyException{
 		log.info("Updating media {}", mediaEntity);
 		updateFromOverseerr(mediaEntity);
 		updateFromTautulli(mediaEntity);

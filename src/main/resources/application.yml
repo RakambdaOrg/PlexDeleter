@@ -75,4 +75,6 @@ app:
   mail:
     from-address: "from@sender.com"
     from-name: "Plex Watcher"
+  supervision:
+    webhook-url: "https://webhook"
 

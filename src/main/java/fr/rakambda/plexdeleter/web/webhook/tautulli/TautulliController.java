@@ -1,6 +1,7 @@
 package fr.rakambda.plexdeleter.web.webhook.tautulli;
 
 import fr.rakambda.plexdeleter.api.RequestFailedException;
+import fr.rakambda.plexdeleter.notify.NotifyException;
 import fr.rakambda.plexdeleter.service.MediaService;
 import fr.rakambda.plexdeleter.service.UpdateException;
 import fr.rakambda.plexdeleter.service.WatchService;
@@ -37,7 +38,7 @@ public class TautulliController{
 	}
 	
 	@PostMapping("/")
-	public void onCall(@NonNull TautulliWebhook data) throws RequestFailedException, IOException, UpdateException{
+	public void onCall(@NonNull TautulliWebhook data) throws RequestFailedException, IOException, UpdateException, NotifyException{
 		switch(data.getType()){
 			case "watched" -> updateRequirement(data);
 			case "added" -> updateMedia(data);
@@ -83,7 +84,7 @@ public class TautulliController{
 		watchService.update(mediaRequirementEntity.get());
 	}
 	
-	private void updateMedia(TautulliWebhook data) throws RequestFailedException, UpdateException{
+	private void updateMedia(TautulliWebhook data) throws RequestFailedException, UpdateException, NotifyException{
 		var ratingKey = switch(data.getType()){
 			case "movie" -> data.getRatingKey();
 			case "episode" -> data.getParentRatingKey();

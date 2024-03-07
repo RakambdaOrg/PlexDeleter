@@ -11,6 +11,7 @@ import fr.rakambda.plexdeleter.api.servarr.sonarr.SonarrService;
 import fr.rakambda.plexdeleter.config.ApplicationConfiguration;
 import fr.rakambda.plexdeleter.messaging.SupervisionService;
 import fr.rakambda.plexdeleter.notify.NotificationService;
+import fr.rakambda.plexdeleter.notify.NotifyException;
 import fr.rakambda.plexdeleter.service.MediaService;
 import fr.rakambda.plexdeleter.service.UpdateException;
 import fr.rakambda.plexdeleter.storage.entity.MediaActionStatus;
@@ -67,14 +68,14 @@ public class OverseerrController{
 	}
 	
 	@PostMapping("/")
-	public void onCall(@NonNull OverseerrWebhook data) throws RequestFailedException, UpdateException{
+	public void onCall(@NonNull OverseerrWebhook data) throws RequestFailedException, UpdateException, NotifyException{
 		switch(data.getNotificationType()){
 			case "MEDIA_AUTO_APPROVED", "MEDIA_APPROVED" -> onMediaApproved(data);
 			case "MEDIA_AVAILABLE" -> onMediaAdded(data);
 		}
 	}
 	
-	private void onMediaAdded(@NotNull OverseerrWebhook data) throws RequestFailedException, UpdateException{
+	private void onMediaAdded(@NotNull OverseerrWebhook data) throws RequestFailedException, UpdateException, NotifyException{
 		var tvdbId = Optional.ofNullable(data.getMedia()).map(Media::getTvdbId);
 		
 		var medias = tvdbId
@@ -86,7 +87,7 @@ public class OverseerrController{
 		}
 	}
 	
-	private void onMediaApproved(@NotNull OverseerrWebhook data) throws RequestFailedException, UpdateException{
+	private void onMediaApproved(@NotNull OverseerrWebhook data) throws RequestFailedException, UpdateException, NotifyException{
 		var requestId = Optional.ofNullable(data.getRequest()).map(Request::getRequestId);
 		if(requestId.isEmpty()){
 			log.warn("Not adding any media, could not determine request id from {}", data);
@@ -147,7 +148,7 @@ public class OverseerrController{
 		}
 	}
 	
-	private void addRequirement(@NotNull MediaEntity media, @NotNull UserGroupEntity userGroupEntity, boolean allowModify){
+	private void addRequirement(@NotNull MediaEntity media, @NotNull UserGroupEntity userGroupEntity, boolean allowModify) throws NotifyException{
 		var id = new MediaRequirementEntity.TableId(media.getId(), userGroupEntity.getId());
 		if(!mediaRequirementRepository.existsById(id)){
 			mediaRequirementRepository.save(MediaRequirementEntity.builder()

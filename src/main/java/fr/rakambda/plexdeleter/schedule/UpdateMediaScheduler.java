@@ -1,6 +1,7 @@
 package fr.rakambda.plexdeleter.schedule;
 
 import fr.rakambda.plexdeleter.api.RequestFailedException;
+import fr.rakambda.plexdeleter.notify.NotifyException;
 import fr.rakambda.plexdeleter.service.MediaService;
 import fr.rakambda.plexdeleter.service.UpdateException;
 import fr.rakambda.plexdeleter.storage.entity.MediaAvailability;
@@ -38,7 +39,7 @@ public class UpdateMediaScheduler implements IScheduler{
 			try{
 				mediaService.update(media);
 			}
-			catch(UpdateException | RequestFailedException e){
+			catch(UpdateException | RequestFailedException | NotifyException e){
 				log.error("Failed to update media {}", media, e);
 			}
 		}
