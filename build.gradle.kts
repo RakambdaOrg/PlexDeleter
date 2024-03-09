@@ -65,6 +65,10 @@ tasks {
     graalvmNative {
         testSupport = false
     }
+
+    bootJar {
+        duplicatesStrategy = DuplicatesStrategy.EXCLUDE
+    }
 }
 
 java {
