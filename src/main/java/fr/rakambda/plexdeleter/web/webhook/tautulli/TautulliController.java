@@ -39,7 +39,7 @@ public class TautulliController{
 		this.mediaRequirementRepository = mediaRequirementRepository;
 	}
 	
-	@PostMapping("/")
+	@PostMapping
 	@ResponseStatus(HttpStatus.NO_CONTENT)
 	public void onCall(@NonNull TautulliWebhook data) throws RequestFailedException, IOException, UpdateException, NotifyException{
 		switch(data.getType()){

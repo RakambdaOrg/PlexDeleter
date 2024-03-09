@@ -11,7 +11,7 @@ import org.springframework.web.bind.annotation.RestController;
 @RestController
 @RequestMapping("/webhook/radarr")
 public class RadarrController{
-	@PostMapping("/")
+	@PostMapping
 	@ResponseStatus(HttpStatus.NO_CONTENT)
 	public void onCall(){
 	}

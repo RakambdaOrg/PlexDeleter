@@ -27,7 +27,7 @@ public class TaskController{
 		this.tasks = tasks;
 	}
 	
-	@GetMapping("/")
+	@GetMapping
 	public List<String> getTasks(){
 		return tasks.stream().map(IScheduler::getTaskId).toList();
 	}

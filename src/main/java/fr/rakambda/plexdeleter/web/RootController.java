@@ -2,6 +2,7 @@ package fr.rakambda.plexdeleter.web;
 
 import lombok.extern.slf4j.Slf4j;
 import org.jetbrains.annotations.NotNull;
+import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.bind.annotation.RestController;
@@ -9,7 +10,7 @@ import org.springframework.web.bind.annotation.RestController;
 @Slf4j
 @RestController
 @RequestMapping("/")
-public class HomeController{
+public class RootController{
 	@RequestMapping(value = {
 			"/robots.txt",
 			"/robot.txt"
@@ -20,5 +21,10 @@ public class HomeController{
 		return """
 				User-agent: *
 				Disallow: /""";
+	}
+	
+	@GetMapping
+	public String getRoot(){
+		return "YES";
 	}
 }

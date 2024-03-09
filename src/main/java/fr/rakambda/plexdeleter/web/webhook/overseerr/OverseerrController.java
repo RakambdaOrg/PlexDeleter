@@ -69,7 +69,7 @@ public class OverseerrController{
 		this.excludeTag = applicationConfiguration.getExcludeTag();
 	}
 	
-	@PostMapping("/")
+	@PostMapping
 	@ResponseStatus(HttpStatus.NO_CONTENT)
 	public void onCall(@NonNull OverseerrWebhook data) throws RequestFailedException, UpdateException, NotifyException{
 		switch(data.getNotificationType()){

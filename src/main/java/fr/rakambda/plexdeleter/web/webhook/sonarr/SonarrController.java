@@ -24,7 +24,7 @@ public class SonarrController{
 		this.mediaRepository = mediaRepository;
 	}
 	
-	@PostMapping("/")
+	@PostMapping
 	@ResponseStatus(HttpStatus.NO_CONTENT)
 	public void onCall(@NonNull SonarrWebhook data){
 		switch(data.getEventType()){

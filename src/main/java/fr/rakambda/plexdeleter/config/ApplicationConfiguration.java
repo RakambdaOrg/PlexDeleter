@@ -22,6 +22,8 @@ public class ApplicationConfiguration{
 	@NonNull
 	private String excludeTag;
 	@NestedConfigurationProperty
+	private PlexConfiguration plex;
+	@NestedConfigurationProperty
 	private OverseerrConfiguration overseerr;
 	@NestedConfigurationProperty
 	private TautulliConfiguration tautulli;
