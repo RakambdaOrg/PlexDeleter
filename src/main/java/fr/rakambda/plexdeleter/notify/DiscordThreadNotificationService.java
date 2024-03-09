@@ -62,8 +62,20 @@ public class DiscordThreadNotificationService{
 		notifySimple(userGroupEntity, media, "discord.requirement.added.subject");
 	}
 	
-	public void notifyMediaAvailable(UserGroupEntity userGroupEntity, MediaEntity media) throws RequestFailedException, InterruptedException{
+	public void notifyMediaAvailable(@NotNull UserGroupEntity userGroupEntity, @NotNull MediaEntity media) throws RequestFailedException, InterruptedException{
 		notifySimple(userGroupEntity, media, "discord.media.available.subject");
+	}
+	
+	public void notifyMediaDeleted(@NotNull UserGroupEntity userGroupEntity, @NotNull MediaEntity media) throws RequestFailedException, InterruptedException{
+		notifySimple(userGroupEntity, media, "discord.media.deleted.subject");
+	}
+	
+	public void notifyRequirementManuallyWatched(@NotNull UserGroupEntity userGroupEntity, @NotNull MediaEntity media) throws MessagingException, UnsupportedEncodingException, RequestFailedException, InterruptedException{
+		notifySimple(userGroupEntity, media, "discord.requirement.manually-watched.subject");
+	}
+	
+	public void notifyRequirementManuallyAbandoned(@NotNull UserGroupEntity userGroupEntity, @NotNull MediaEntity media) throws RequestFailedException, InterruptedException{
+		notifySimple(userGroupEntity, media, "discord.requirement.manually-abandoned.subject");
 	}
 	
 	private void notifySimple(@NotNull UserGroupEntity userGroupEntity, @NotNull MediaEntity media, @NotNull String subjectKey) throws RequestFailedException, InterruptedException{

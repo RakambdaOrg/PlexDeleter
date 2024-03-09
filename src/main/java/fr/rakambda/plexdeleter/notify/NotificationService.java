@@ -70,4 +70,47 @@ public class NotificationService{
 			throw new NotifyException("Failed to notify media added for group %s".formatted(userGroupEntity), e);
 		}
 	}
+	
+	public void notifyMediaDeleted(@NotNull MediaEntity media) throws NotifyException{
+		var userGroups = userGroupRepository.findAllByHasRequirementOn(media.getId(), MediaRequirementStatus.WAITING);
+		for(var userGroup : userGroups){
+			notifyMediaDeleted(userGroup, media);
+		}
+	}
+	
+	public void notifyMediaDeleted(@NotNull UserGroupEntity userGroupEntity, @NotNull MediaEntity media) throws NotifyException{
+		try{
+			switch(userGroupEntity.getNotificationType()){
+				case MAIL -> mailNotificationService.notifyMediaDeleted(userGroupEntity, media);
+				case DISCORD_THREAD -> discordThreadNotificationService.notifyMediaDeleted(userGroupEntity, media);
+			}
+		}
+		catch(MessagingException | UnsupportedEncodingException | InterruptedException | RequestFailedException e){
+			throw new NotifyException("Failed to notify media deleted for group %s".formatted(userGroupEntity), e);
+		}
+	}
+	
+	public void notifyRequirementManuallyWatched(@NotNull UserGroupEntity userGroupEntity, @NotNull MediaEntity media) throws NotifyException{
+		try{
+			switch(userGroupEntity.getNotificationType()){
+				case MAIL -> mailNotificationService.notifyRequirementManuallyWatched(userGroupEntity, media);
+				case DISCORD_THREAD -> discordThreadNotificationService.notifyRequirementManuallyWatched(userGroupEntity, media);
+			}
+		}
+		catch(MessagingException | UnsupportedEncodingException | InterruptedException | RequestFailedException e){
+			throw new NotifyException("Failed to notify media requirement manually marked as watched for group %s".formatted(userGroupEntity), e);
+		}
+	}
+	
+	public void notifyRequirementManuallyAbandoned(@NotNull UserGroupEntity userGroupEntity, @NotNull MediaEntity media) throws NotifyException{
+		try{
+			switch(userGroupEntity.getNotificationType()){
+				case MAIL -> mailNotificationService.notifyRequirementManuallyAbandoned(userGroupEntity, media);
+				case DISCORD_THREAD -> discordThreadNotificationService.notifyRequirementManuallyAbandoned(userGroupEntity, media);
+			}
+		}
+		catch(MessagingException | UnsupportedEncodingException | InterruptedException | RequestFailedException e){
+			throw new NotifyException("Failed to notify media requirement manually marked as abandoned for group %s".formatted(userGroupEntity), e);
+		}
+	}
 }

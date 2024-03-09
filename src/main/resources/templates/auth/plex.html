@@ -21,15 +21,15 @@
         <div class="border border-secondary p-3 rounded">
             <p th:text="#{web.auth.header}"/>
             <p>
-                <label for="username" aria-hidden="true" th:text="#{web.auth.email}"/>
+                <label for="username" th:text="#{web.auth.email}"/>
                 <input id="username" type="email" name="username" class="form-control" placeholder="a@b.c" required autofocus/>
             </p>
             <p>
-                <label for="password" aria-hidden="true" th:text="#{web.auth.password}"/>
+                <label for="password" th:text="#{web.auth.password}"/>
                 <input id="password" type="password" name="password" class="form-control" th:placeholder="#{web.auth.password}" required/>
             </p>
             <p>
-                <label for="otp" aria-hidden="true" th:text="#{web.auth.otp}"/>
+                <label for="otp" th:text="#{web.auth.otp}"/>
                 <input id="otp" type="number" name="otp" class="form-control" placeholder="123456" maxlength=6/>
             </p>
             <p>

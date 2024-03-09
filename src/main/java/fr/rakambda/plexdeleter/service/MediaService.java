@@ -13,13 +13,18 @@ import fr.rakambda.plexdeleter.api.tautulli.TautulliService;
 import fr.rakambda.plexdeleter.messaging.SupervisionService;
 import fr.rakambda.plexdeleter.notify.NotificationService;
 import fr.rakambda.plexdeleter.notify.NotifyException;
+import fr.rakambda.plexdeleter.storage.entity.MediaActionStatus;
 import fr.rakambda.plexdeleter.storage.entity.MediaAvailability;
 import fr.rakambda.plexdeleter.storage.entity.MediaEntity;
+import fr.rakambda.plexdeleter.storage.entity.MediaType;
+import fr.rakambda.plexdeleter.storage.entity.UserGroupEntity;
 import fr.rakambda.plexdeleter.storage.repository.MediaRepository;
+import fr.rakambda.plexdeleter.storage.repository.UserGroupRepository;
 import lombok.extern.slf4j.Slf4j;
 import org.jetbrains.annotations.NotNull;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import java.util.Collection;
 import java.util.Objects;
 import java.util.Optional;
 
@@ -33,9 +38,11 @@ public class MediaService{
 	private final SonarrService sonarrService;
 	private final RadarrService radarrService;
 	private final NotificationService notificationService;
+	private final MediaRequirementService mediaRequirementService;
+	private final UserGroupRepository userGroupRepository;
 	
 	@Autowired
-	public MediaService(TautulliService tautulliService, SupervisionService supervisionService, MediaRepository mediaRepository, OverseerrService overseerrService, SonarrService sonarrService, RadarrService radarrService, NotificationService notificationService){
+	public MediaService(TautulliService tautulliService, SupervisionService supervisionService, MediaRepository mediaRepository, OverseerrService overseerrService, SonarrService sonarrService, RadarrService radarrService, NotificationService notificationService, MediaRequirementService mediaRequirementService, UserGroupRepository userGroupRepository){
 		this.tautulliService = tautulliService;
 		this.supervisionService = supervisionService;
 		this.mediaRepository = mediaRepository;
@@ -43,6 +50,8 @@ public class MediaService{
 		this.sonarrService = sonarrService;
 		this.radarrService = radarrService;
 		this.notificationService = notificationService;
+		this.mediaRequirementService = mediaRequirementService;
+		this.userGroupRepository = userGroupRepository;
 	}
 	
 	@NotNull
@@ -154,5 +163,71 @@ public class MediaService{
 		availablePartsCount
 				.filter(v -> mediaEntity.getAvailablePartsCount() < v)
 				.ifPresent(mediaEntity::setAvailablePartsCount);
+	}
+	
+	public void deleteMedia(int mediaId) throws NotifyException{
+		var media = mediaRepository.findById(mediaId);
+		if(media.isEmpty()){
+			return;
+		}
+		
+		// TODO Delete request from overseer
+		// TODO Remove media from Servarr
+		
+		notificationService.notifyMediaDeleted(media.get());
+		mediaRepository.delete(media.get());
+		supervisionService.send("🗑️ Media deleted %s", media.get());
+	}
+	
+	public void addMedia(@NotNull UserGroupEntity userGroupEntity, int overseerrId, @NotNull MediaType mediaType, @NotNull Collection<Integer> seasons) throws RequestFailedException, UpdateException, NotifyException{
+		for(var season : seasons){
+			var media = getOrCreateMedia(overseerrId, mediaType, season);
+			media.setAvailability(MediaAvailability.DOWNLOADING);
+			media.setActionStatus(MediaActionStatus.TO_DELETE);
+			media.setAvailablePartsCount(0);
+			mediaRepository.save(media);
+			
+			media = update(media);
+			
+			mediaRequirementService.addRequirement(media, userGroupEntity, true);
+			var otherGroups = userGroupRepository.findAllByHasRequirementOn(Objects.requireNonNull(media.getOverseerrId()), media.getIndex() - 1);
+			for(var otherGroup : otherGroups){
+				if(Objects.equals(otherGroup.getId(), userGroupEntity.getId())){
+					continue;
+				}
+				mediaRequirementService.addRequirement(media, otherGroup, false);
+			}
+		}
+	}
+	
+	@NotNull
+	private MediaEntity getOrCreateMedia(int overseerrId, @NotNull MediaType mediaType, int season) throws RequestFailedException{
+		var media = mediaRepository.findByOverseerrIdAndIndex(overseerrId, season);
+		if(media.isPresent()){
+			return media.get();
+		}
+		return createMedia(overseerrId, mediaType, season);
+	}
+	
+	@NotNull
+	private MediaEntity createMedia(int overseerrId, @NotNull MediaType mediaType, int season) throws RequestFailedException{
+		var mediaDetails = overseerrService.getMediaDetails(overseerrId, mediaType.getOverseerrType());
+		var media = MediaEntity.builder()
+				.type(mediaType)
+				.overseerrId(overseerrId)
+				.name(switch(mediaDetails){
+					case MovieMedia movieMedia -> movieMedia.getTitle();
+					case SeriesMedia seriesMedia -> seriesMedia.getName();
+					default -> throw new IllegalStateException("Unexpected value: " + mediaDetails);
+				})
+				.index(season)
+				.partsCount(0)
+				.availablePartsCount(0)
+				.availability(MediaAvailability.DOWNLOADING)
+				.actionStatus(MediaActionStatus.TO_DELETE)
+				.build();
+		
+		supervisionService.send("➕ Added media %s", media);
+		return media;
 	}
 }

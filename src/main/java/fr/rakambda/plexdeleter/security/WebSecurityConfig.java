@@ -26,7 +26,9 @@ public class WebSecurityConfig{
 				.authenticationProvider(daoAuthenticationProvider)
 				.authorizeHttpRequests(auth -> auth
 						.requestMatchers("/admin/**").hasRole("ADMIN")
-						.requestMatchers("/auth/**", "/auth/**").permitAll()
+						.requestMatchers("/auth/**").permitAll()
+						.requestMatchers("/api/admin/**").hasRole("ADMIN")
+						.requestMatchers("/api/user/**").hasRole("USER")
 						.requestMatchers("/login/**").permitAll()
 						.requestMatchers("/static/**").permitAll()
 						.requestMatchers("/user/**").hasRole("USER")

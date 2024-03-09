@@ -1,4 +1,10 @@
-<div th:fragment="navbar" class="topnav">
+<div th:fragment="navbar" class="topnav" xmlns:sec="http://www.w3.org/1999/xhtml">
     <a th:href="@{/}" th:text="#{web.navbar.media-list}"></a>
+    <th:block sec:authorize="hasRole('ROLE_ADMIN')">
+        <a th:href="@{/admin/media/delete}" th:text="#{web.navbar.admin.media.delete}"></a>
+        <a th:href="@{/admin/media-requirement/add}" th:text="#{web.navbar.admin.requirement.add}"></a>
+        <a th:href="@{/admin/media-requirement/complete}" th:text="#{web.navbar.admin.requirement.complete}"></a>
+        <a th:href="@{/admin/media-requirement/abandon}" th:text="#{web.navbar.admin.requirement.abandon}"></a>
+    </th:block>
     <a th:href="@{/logout}" th:text="#{web.navbar.logout}"></a>
 </div>

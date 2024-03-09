@@ -1,0 +1,52 @@
+<!DOCTYPE HTML>
+<html lang="en" xmlns:th="https://www.thymeleaf.org">
+<head>
+    <title th:value="#{web.navbar.admin.requirement.add}"></title>
+    <meta http-equiv="Content-Type" content="text/html; charset=UTF-8"/>
+    <link th:href="@{/static/styles/base.css}" rel="stylesheet"/>
+    <link th:href="@{/static/favicon.png}" rel="icon" type="image/png"/>
+    <link href="https://stackpath.bootstrapcdn.com/bootstrap/4.4.1/css/bootstrap.min.css"
+          rel="stylesheet"
+          integrity="sha384-Vkoo8x4CGsO3+Hhxv8T/Q5PaXtkKtu6ug5TOeNV6gBiFeWPGFN9MuhOf23Q9Ifjh"
+          crossorigin="anonymous"/>
+</head>
+<body>
+<div th:replace="~{fragment/navbar.html::navbar}"></div>
+<div class="container-fluid text-center">
+    <form th:action="@{/api/admin/media-requirement/add}" method="post" style="max-width: 350px; margin: 0 auto;">
+        <div class="border border-secondary p-3 rounded">
+            <p th:text="#{web.admin.requirement.add.header}"/>
+            <p>
+                <label for="group" th:text="#{web.admin.requirement.add.group}"/>
+                <select class="form-control" id="group" name="group" required>
+                    <option th:each="group : ${groups}"
+                            th:value="${group.getId()}"
+                            th:text="${group.getName()}">
+                    </option>
+                </select>
+            </p>
+            <p>
+                <label for="overseerr" th:text="#{web.admin.requirement.add.overseerr}"/>
+                <input id="overseerr" type="number" name="overseerr" class="form-control" placeholder="123456" required autofocus/>
+            </p>
+            <p>
+                <label for="season" th:text="#{web.admin.requirement.add.season}"/>
+                <input id="season" type="number" name="season" class="form-control" placeholder="1" required/>
+            </p>
+            <p>
+                <label for="type" th:text="#{web.admin.requirement.add.type}"/>
+                <select class="form-control" id="type" name="type" required>
+                    <option th:each="type : ${T(fr.rakambda.plexdeleter.storage.entity.MediaType).values()}"
+                            th:value="${type.name()}"
+                            th:text="#{${type.getLocalizationKey()}}">
+                    </option>
+                </select>
+            </p>
+            <p>
+                <input type="submit" th:value="#{web.admin.requirement.add.submit}" class="btn btn-success"/>
+            </p>
+        </div>
+    </form>
+</div>
+</body>
+</html>

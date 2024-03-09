@@ -1,17 +1,16 @@
 package fr.rakambda.plexdeleter.service;
 
 import fr.rakambda.plexdeleter.config.ApplicationConfiguration;
-import fr.rakambda.plexdeleter.security.PlexUser;
 import fr.rakambda.plexdeleter.storage.entity.MediaEntity;
 import fr.rakambda.plexdeleter.storage.entity.MediaRequirementEntity;
 import fr.rakambda.plexdeleter.storage.entity.MediaRequirementStatus;
+import fr.rakambda.plexdeleter.storage.entity.UserPersonEntity;
 import fr.rakambda.plexdeleter.storage.repository.MediaRepository;
 import fr.rakambda.plexdeleter.storage.repository.MediaRequirementRepository;
 import fr.rakambda.plexdeleter.storage.repository.UserPersonRepository;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.security.core.Authentication;
 import org.springframework.stereotype.Service;
 import java.util.List;
 import java.util.Optional;
@@ -39,16 +38,7 @@ public class UserService{
 	}
 	
 	@Nullable
-	public List<MediaEntity> getUserMedias(@NotNull Authentication authentication){
-		var plexId = Optional.ofNullable(authentication.getPrincipal())
-				.filter(PlexUser.class::isInstance)
-				.map(PlexUser.class::cast)
-				.map(PlexUser::getPlexId)
-				.orElseThrow(() -> new IllegalStateException("Could not get Plex id from authorization"));
-		
-		var userPerson = userPersonRepository.findByPlexId(plexId)
-				.orElseThrow(() -> new IllegalStateException("Could not find user with Plex id %d".formatted(plexId)));
-		
+	public List<MediaEntity> getUserMedias(@NotNull UserPersonEntity userPerson){
 		return mediaRequirementRepository.findAllByIdGroupIdAndStatusIs(userPerson.getGroupId(), MediaRequirementStatus.WAITING).stream()
 				.map(MediaRequirementEntity::getMedia)
 				.sorted(MediaEntity.COMPARATOR_BY_TYPE_THEN_NAME)

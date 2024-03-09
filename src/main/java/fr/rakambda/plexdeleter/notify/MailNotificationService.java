@@ -63,6 +63,18 @@ public class MailNotificationService{
 		notifySimple(userGroupEntity, media, "mail.media.available.subject");
 	}
 	
+	public void notifyMediaDeleted(@NotNull UserGroupEntity userGroupEntity, @NotNull MediaEntity media) throws MessagingException, UnsupportedEncodingException{
+		notifySimple(userGroupEntity, media, "mail.media.deleted.subject");
+	}
+	
+	public void notifyRequirementManuallyWatched(@NotNull UserGroupEntity userGroupEntity, @NotNull MediaEntity media) throws MessagingException, UnsupportedEncodingException{
+		notifySimple(userGroupEntity, media, "mail.requirement.manually-watched.subject");
+	}
+	
+	public void notifyRequirementManuallyAbandoned(@NotNull UserGroupEntity userGroupEntity, @NotNull MediaEntity media) throws MessagingException, UnsupportedEncodingException{
+		notifySimple(userGroupEntity, media, "mail.requirement.manually-abandoned.subject");
+	}
+	
 	private void notifySimple(@NotNull UserGroupEntity userGroupEntity, @NotNull MediaEntity media, @NotNull String subjectKey) throws MessagingException, UnsupportedEncodingException{
 		var locale = userGroupEntity.getLocaleAsObject();
 		sendMail(userGroupEntity, messageSource.getMessage(subjectKey, new Object[0], locale), getWatchlistMediaText(userGroupEntity, media, locale));
