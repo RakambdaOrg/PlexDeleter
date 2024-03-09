@@ -8,10 +8,10 @@ permissions:
   contents: write
 
 jobs:
-  #  build:
-  #    uses: RakambdaOrg/rakambda-github-workflows/.github/workflows/gradle-build.yml@main
-  #    with:
-  #      java-version: ${{ vars.JAVA_VERSION }}
+  build:
+    uses: RakambdaOrg/rakambda-github-workflows/.github/workflows/gradle-build.yml@main
+    with:
+      java-version: ${{ vars.JAVA_VERSION }}
 
   docker:
     uses: RakambdaOrg/rakambda-github-workflows/.github/workflows/springboot-native-docker-publish.yml@main
