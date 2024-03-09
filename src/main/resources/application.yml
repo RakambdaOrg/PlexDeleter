@@ -71,6 +71,7 @@ app:
     api-key: "api-key"
   deletion:
     days-delay: 5
+    dry-delete: false
     remote-path-mappings: { }
   notify-watchlist:
     daysDelay: 7

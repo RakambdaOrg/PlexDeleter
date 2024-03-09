@@ -13,6 +13,7 @@ import java.util.Map;
 @AllArgsConstructor
 public class DeletionConfiguration{
 	private int daysDelay = 5;
+	private boolean dryDelete = false;
 	@NotNull
 	@NonNull
 	private Map<String, String> remotePathMappings = new HashMap<>();

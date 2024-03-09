@@ -42,6 +42,7 @@ public class DeleteMediaScheduler implements IScheduler{
 	private final SupervisionService supervisionService;
 	private final TautulliService tautulliService;
 	private final int daysDelay;
+	private final boolean dryDelete;
 	private final Map<String, String> remotePathMappings;
 	
 	@Autowired
@@ -50,6 +51,7 @@ public class DeleteMediaScheduler implements IScheduler{
 		this.supervisionService = supervisionService;
 		this.tautulliService = tautulliService;
 		this.daysDelay = applicationConfiguration.getDeletion().getDaysDelay();
+		this.dryDelete = applicationConfiguration.getDeletion().isDryDelete();
 		this.remotePathMappings = applicationConfiguration.getDeletion().getRemotePathMappings();
 	}
 	
@@ -182,7 +184,9 @@ public class DeleteMediaScheduler implements IScheduler{
 			}
 			
 			log.info("Deleting folder {}", path);
-			Files.delete(path);
+			if(!dryDelete){
+				Files.delete(path);
+			}
 			
 			supervisionService.send("\uD83D\uDDD1 Deleted folder %s", path);
 			return List.of(path.getParent());
@@ -227,7 +231,9 @@ public class DeleteMediaScheduler implements IScheduler{
 	
 	private void deleteFile(@NotNull Path path, @NotNull AtomicLong sizeDeleted) throws IOException{
 		var size = Files.size(path);
-		Files.delete(path);
+		if(!dryDelete){
+			Files.delete(path);
+		}
 		sizeDeleted.addAndGet(size);
 		supervisionService.send("\uD83D\uDDD1 Deleted file %s for a size of %s", path, supervisionService.sizeToHuman(size));
 	}
