@@ -17,7 +17,6 @@ import org.springframework.mail.javamail.MimeMessageHelper;
 import org.springframework.stereotype.Service;
 import java.io.UnsupportedEncodingException;
 import java.util.Collection;
-import java.util.Comparator;
 import java.util.Locale;
 import java.util.Map;
 import java.util.Objects;
@@ -86,7 +85,7 @@ public class MailNotificationService{
 		body.append("</h2>");
 		body.append("<ul>");
 		medias.stream()
-				.sorted(Comparator.comparing(MediaEntity::getType).thenComparing(MediaEntity::getName))
+				.sorted(MediaEntity.COMPARATOR_BY_TYPE_THEN_NAME)
 				.map(media -> getWatchlistMediaText(userGroupEntity, media, locale))
 				.map("<li>%s</li>"::formatted)
 				.forEach(body::append);

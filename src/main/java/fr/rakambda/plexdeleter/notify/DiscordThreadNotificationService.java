@@ -16,7 +16,6 @@ import org.springframework.context.MessageSource;
 import org.springframework.stereotype.Service;
 import java.io.UnsupportedEncodingException;
 import java.util.Collection;
-import java.util.Comparator;
 import java.util.Locale;
 import java.util.Map;
 import java.util.Objects;
@@ -82,7 +81,7 @@ public class DiscordThreadNotificationService{
 	private void writeWatchlistSection(@NotNull String discordUrl, long threadId, @NotNull String sectionHeaderCode, @NotNull Locale locale, @NotNull UserGroupEntity userGroupEntity, @NotNull Collection<MediaEntity> medias) throws RequestFailedException, InterruptedException{
 		discordWebhookService.sendWebhookMessage(discordUrl, threadId, WebhookMessage.builder().content("# %s\n".formatted(messageSource.getMessage(sectionHeaderCode, new Object[0], locale))).build());
 		var messages = medias.stream()
-				.sorted(Comparator.comparing(MediaEntity::getType).thenComparing(MediaEntity::getName))
+				.sorted(MediaEntity.COMPARATOR_BY_TYPE_THEN_NAME)
 				.map(media -> getWatchlistMediaText(userGroupEntity, media, locale))
 				.toList();
 		for(var message : messages){

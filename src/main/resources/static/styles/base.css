@@ -21,3 +21,8 @@
     background-color: #04AA6D;
     color: white;
 }
+
+img.icon {
+    max-height: 15px;
+    transform: translate(0%, 15%);
+}

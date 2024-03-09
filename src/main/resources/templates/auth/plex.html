@@ -15,25 +15,25 @@
             <p class="text-danger">[[${session.SPRING_SECURITY_LAST_EXCEPTION.message}]]</p>
         </div>
         <div th:if="${param.logout}">
-            <p class="text-warning">You have been logged out.</p>
+            <p class="text-warning" th:text="#{web.auth.logged-out}"/>
         </div>
 
         <div class="border border-secondary p-3 rounded">
-            <p>Login with your Plex.tv account</p>
+            <p th:text="#{web.auth.header}"/>
             <p>
-                <label for="username" aria-hidden="true">E-mail</label>
-                <input id="username" type="email" name="username" class="form-control" placeholder="E-mail" required autofocus/>
+                <label for="username" aria-hidden="true" th:text="#{web.auth.email}"/>
+                <input id="username" type="email" name="username" class="form-control" placeholder="a@b.c" required autofocus/>
             </p>
             <p>
-                <label for="password" aria-hidden="true">Password</label>
-                <input id="password" type="password" name="password" class="form-control" placeholder="Password" required/>
+                <label for="password" aria-hidden="true" th:text="#{web.auth.password}"/>
+                <input id="password" type="password" name="password" class="form-control" th:placeholder="#{web.auth.password}" required/>
             </p>
             <p>
-                <label for="otp" aria-hidden="true">OTP</label>
-                <input id="otp" type="number" name="otp" class="form-control" placeholder="123456" maxlength=6/> <br/>
+                <label for="otp" aria-hidden="true" th:text="#{web.auth.otp}"/>
+                <input id="otp" type="number" name="otp" class="form-control" placeholder="123456" maxlength=6/>
             </p>
             <p>
-                <input type="submit" value="Login" class="btn btn-primary"/>
+                <input type="submit" th:value="#{web.auth.login}" class="btn btn-primary"/>
             </p>
         </div>
     </form>

@@ -9,7 +9,6 @@ import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.AuthenticationException;
-import org.springframework.security.core.userdetails.User;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.stereotype.Component;
@@ -42,7 +41,7 @@ public class PlexAuthenticationProvider implements AuthenticationProvider{
 		try{
 			var result = plexApiService.authenticate(username, password, otp);
 			var userDetails = userDetailsService.loadUserByUsername(String.valueOf(result.getId()));
-			return UsernamePasswordAuthenticationToken.authenticated(new User(username, password, userDetails.getAuthorities()), password, userDetails.getAuthorities());
+			return UsernamePasswordAuthenticationToken.authenticated(new PlexUser(result.getId(), username, password, userDetails.getAuthorities()), password, userDetails.getAuthorities());
 		}
 		catch(UsernameNotFoundException e){
 			throw e;

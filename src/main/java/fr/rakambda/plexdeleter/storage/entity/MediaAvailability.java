@@ -6,7 +6,10 @@ import lombok.RequiredArgsConstructor;
 @Getter
 @RequiredArgsConstructor
 public enum MediaAvailability{
-	DOWNLOADED,
-	DOWNLOADING,
-	MANUAL
+	DOWNLOADED(true, "media.availability.downloaded"),
+	DOWNLOADING(false, "media.availability.downloading"),
+	MANUAL(true, "media.availability.manual");
+	
+	private final boolean available;
+	private final String localizationKey;
 }

@@ -6,7 +6,9 @@ import lombok.RequiredArgsConstructor;
 @Getter
 @RequiredArgsConstructor
 public enum MediaRequirementStatus{
-	ABANDONED,
-	WAITING,
-	WATCHED
+	ABANDONED(true),
+	WAITING(false),
+	WATCHED(true);
+	
+	private final boolean completed;
 }

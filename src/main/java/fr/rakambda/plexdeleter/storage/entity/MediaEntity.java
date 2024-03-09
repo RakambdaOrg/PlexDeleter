@@ -8,6 +8,8 @@ import jakarta.persistence.Enumerated;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
+import jakarta.persistence.JoinColumn;
+import jakarta.persistence.OneToMany;
 import jakarta.persistence.Table;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -16,6 +18,8 @@ import lombok.NoArgsConstructor;
 import lombok.ToString;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
+import java.util.Comparator;
+import java.util.List;
 
 @Data
 @AllArgsConstructor
@@ -25,6 +29,8 @@ import org.jetbrains.annotations.Nullable;
 @Table(name = "Media", schema = "PlexDeleter")
 @ToString(onlyExplicitlyIncluded = true)
 public class MediaEntity{
+	public static final Comparator<MediaEntity> COMPARATOR_BY_TYPE_THEN_NAME = Comparator.comparing(MediaEntity::getType).thenComparing(MediaEntity::getName);
+	
 	@GeneratedValue(strategy = GenerationType.IDENTITY)
 	@Id
 	@Column(name = "Id", nullable = false)
@@ -77,4 +83,8 @@ public class MediaEntity{
 	@Column(name = "ActionStatus", nullable = false)
 	@NotNull
 	private MediaActionStatus actionStatus;
+	
+	@OneToMany(targetEntity = MediaRequirementEntity.class)
+	@JoinColumn(name = "MediaID", referencedColumnName = "ID")
+	private List<MediaRequirementEntity> requirements;
 }
