@@ -31,6 +31,14 @@ public class AdminService{
 	
 	@NotNull
 	public List<MediaRequirementEntity> getMediaRequirementsThatCanBeCompleted(){
-		return mediaRequirementRepository.findAllByStatusIs(MediaRequirementStatus.WAITING);
+		return mediaRequirementRepository.findAllByStatusIs(MediaRequirementStatus.WAITING).stream()
+				.sorted((r1, r2) -> {
+					var compareMedia = MediaEntity.COMPARATOR_BY_TYPE_THEN_NAME.compare(r1.getMedia(), r2.getMedia());
+					if(compareMedia != 0){
+						return compareMedia;
+					}
+					return r1.getGroup().getName().compareTo(r2.getGroup().getName());
+				})
+				.toList();
 	}
 }
