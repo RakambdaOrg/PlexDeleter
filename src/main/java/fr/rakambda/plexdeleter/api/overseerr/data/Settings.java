@@ -10,7 +10,7 @@ import org.springframework.aot.hint.annotation.RegisterReflectionForBinding;
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
-@RegisterReflectionForBinding({Settings.class})
+@RegisterReflectionForBinding(Settings.class)
 public class Settings{
 	private int id;
 	@NotNull

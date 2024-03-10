@@ -10,7 +10,7 @@ import java.util.Set;
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
-@RegisterReflectionForBinding({Credits.class})
+@RegisterReflectionForBinding(Credits.class)
 public class Credits{
 	private Set<Cast> cast = new HashSet<>();
 	private Set<Crew> crew = new HashSet<>();

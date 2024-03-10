@@ -9,7 +9,7 @@ import org.springframework.aot.hint.annotation.RegisterReflectionForBinding;
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
-@RegisterReflectionForBinding({NotificationTypes.class})
+@RegisterReflectionForBinding(NotificationTypes.class)
 public class NotificationTypes{
 	@NotNull
 	private String email;

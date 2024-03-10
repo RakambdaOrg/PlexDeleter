@@ -8,7 +8,7 @@ import org.springframework.aot.hint.annotation.RegisterReflectionForBinding;
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
-@RegisterReflectionForBinding({Buy.class})
+@RegisterReflectionForBinding(Buy.class)
 public class Buy{
 	private int displayPriority;
 	private String logoPath;

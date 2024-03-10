@@ -5,19 +5,17 @@ import org.springframework.security.authentication.AbstractAuthenticationToken;
 
 @Getter
 public class PlexAuthenticationToken extends AbstractAuthenticationToken{
-	private final Object principal;
-	private final String otp;
-	private Object credentials;
+	private final Long principal;
+	private String credentials;
 	
-	public static PlexAuthenticationToken unauthenticated(Object principal, Object credentials, String otp){
-		return new PlexAuthenticationToken(principal, credentials, otp);
+	public static PlexAuthenticationToken unauthenticated(Long principal){
+		return new PlexAuthenticationToken(principal, null);
 	}
 	
-	private PlexAuthenticationToken(Object principal, Object credentials, String otp){
+	private PlexAuthenticationToken(Long principal, String credentials){
 		super(null);
 		this.principal = principal;
 		this.credentials = credentials;
-		this.otp = otp;
 	}
 	
 	@Override

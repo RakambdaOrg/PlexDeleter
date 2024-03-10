@@ -12,7 +12,7 @@ import java.util.Set;
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
-@RegisterReflectionForBinding({GetHistoryResponse.class})
+@RegisterReflectionForBinding(GetHistoryResponse.class)
 public class GetHistoryResponse{
 	private int recordsFiltered;
 	private int recordsTotal;

@@ -9,7 +9,7 @@ import org.springframework.aot.hint.annotation.RegisterReflectionForBinding;
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
-@RegisterReflectionForBinding({Season.class})
+@RegisterReflectionForBinding(Season.class)
 public final class Season{
 	private int seasonNumber;
 	private boolean monitored;

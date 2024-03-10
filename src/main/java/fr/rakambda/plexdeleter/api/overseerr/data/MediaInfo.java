@@ -11,7 +11,7 @@ import java.util.Set;
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
-@RegisterReflectionForBinding({MediaInfo.class})
+@RegisterReflectionForBinding(MediaInfo.class)
 public class MediaInfo{
 	private Set<Object> downloadStatus = new HashSet<>();
 	private Set<Object> downloadStatus4k = new HashSet<>();

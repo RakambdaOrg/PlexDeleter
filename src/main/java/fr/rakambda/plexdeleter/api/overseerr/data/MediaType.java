@@ -7,7 +7,7 @@ import org.springframework.aot.hint.annotation.RegisterReflectionForBinding;
 
 @Getter
 @RequiredArgsConstructor
-@RegisterReflectionForBinding({MediaType.class})
+@RegisterReflectionForBinding(MediaType.class)
 public enum MediaType{
 	MOVIE("movie"),
 	TV("tv");

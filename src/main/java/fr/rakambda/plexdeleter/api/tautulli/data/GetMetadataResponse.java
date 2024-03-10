@@ -13,7 +13,7 @@ import java.util.Set;
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
-@RegisterReflectionForBinding({GetMetadataResponse.class})
+@RegisterReflectionForBinding(GetMetadataResponse.class)
 public class GetMetadataResponse{
 	@JsonProperty("media_info")
 	@NotNull

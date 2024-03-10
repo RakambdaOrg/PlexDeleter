@@ -18,7 +18,7 @@ import java.net.URL;
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
-@RegisterReflectionForBinding({Footer.class})
+@RegisterReflectionForBinding(Footer.class)
 public class Footer{
 	@JsonProperty("text")
 	private String text;

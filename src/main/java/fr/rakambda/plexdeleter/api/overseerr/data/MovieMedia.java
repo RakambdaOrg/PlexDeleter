@@ -13,7 +13,7 @@ import java.time.LocalDate;
 @AllArgsConstructor
 @EqualsAndHashCode(callSuper = true)
 @ToString(callSuper = true)
-@RegisterReflectionForBinding({MovieMedia.class})
+@RegisterReflectionForBinding(MovieMedia.class)
 public final class MovieMedia extends Media{
 	private boolean adult;
 	private Long budget;

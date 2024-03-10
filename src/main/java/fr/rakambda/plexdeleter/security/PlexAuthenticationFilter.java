@@ -10,9 +10,8 @@ import org.springframework.security.web.authentication.UsernamePasswordAuthentic
 import java.util.Optional;
 
 public class PlexAuthenticationFilter extends UsernamePasswordAuthenticationFilter{
-	private static final String USERNAME_PARAMETER = "username";
-	private static final String PASSWORD_PARAMETER = "password";
-	private static final String OTP_PARAMETER = "otp";
+	private static final String ID_PARAMETER = "id";
+	private static final String CODE_PARAMETER = "code";
 	
 	public PlexAuthenticationFilter(){
 		super();
@@ -24,11 +23,9 @@ public class PlexAuthenticationFilter extends UsernamePasswordAuthenticationFilt
 			throw new AuthenticationServiceException("Authentication method not supported: " + request.getMethod());
 		}
 		
-		String username = Optional.ofNullable(request.getParameter(USERNAME_PARAMETER)).map(String::trim).orElse(null);
-		String password = Optional.ofNullable(request.getParameter(PASSWORD_PARAMETER)).map(String::trim).orElse(null);
-		String otp = Optional.ofNullable(request.getParameter(OTP_PARAMETER)).map(String::trim).orElse(null);
+		var id = Optional.ofNullable(request.getParameter(ID_PARAMETER)).map(String::trim).map(Long::parseLong).orElse(null);
 		
-		var authRequest = PlexAuthenticationToken.unauthenticated(username, password, otp);
+		var authRequest = PlexAuthenticationToken.unauthenticated(id);
 		authRequest.setDetails(this.authenticationDetailsSource.buildDetails(request));
 		return getAuthenticationManager().authenticate(authRequest);
 	}

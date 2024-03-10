@@ -11,7 +11,7 @@ import java.time.Instant;
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
-@RegisterReflectionForBinding({User.class})
+@RegisterReflectionForBinding(User.class)
 public class User{
 	private int permissions;
 	private int id;

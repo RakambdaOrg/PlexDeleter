@@ -10,7 +10,7 @@ import java.util.Set;
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
-@RegisterReflectionForBinding({ContentRatings.class})
+@RegisterReflectionForBinding(ContentRatings.class)
 public class ContentRatings{
 	private Set<ContentRating> results = new HashSet<>();
 }

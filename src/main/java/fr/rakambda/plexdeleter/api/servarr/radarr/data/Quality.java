@@ -9,7 +9,7 @@ import org.springframework.aot.hint.annotation.RegisterReflectionForBinding;
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
-@RegisterReflectionForBinding({Quality.class})
+@RegisterReflectionForBinding(Quality.class)
 public final class Quality{
 	@NotNull
 	private QualityQuality quality;

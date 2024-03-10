@@ -21,7 +21,7 @@ import static java.lang.Math.min;
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
-@RegisterReflectionForBinding({Field.class})
+@RegisterReflectionForBinding(Field.class)
 public class Field{
 	@JsonProperty("name")
 	private String name;

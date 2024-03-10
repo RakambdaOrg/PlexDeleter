@@ -8,7 +8,7 @@ import org.springframework.aot.hint.annotation.RegisterReflectionForBinding;
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
-@RegisterReflectionForBinding({RelatedVideo.class})
+@RegisterReflectionForBinding(RelatedVideo.class)
 public class RelatedVideo{
 	private String site;
 	private String key;

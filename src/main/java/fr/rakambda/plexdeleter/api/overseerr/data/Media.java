@@ -11,7 +11,7 @@ import java.util.Set;
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
-@RegisterReflectionForBinding({Media.class})
+@RegisterReflectionForBinding(Media.class)
 public sealed class Media permits MovieMedia, SeriesMedia{
 	private Set<Genre> genres = new HashSet<>();
 	private Set<RelatedVideo> relatedVideos = new HashSet<>();

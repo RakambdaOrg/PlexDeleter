@@ -9,7 +9,7 @@ import java.time.Instant;
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
-@RegisterReflectionForBinding({SeasonInfo.class})
+@RegisterReflectionForBinding(SeasonInfo.class)
 public class SeasonInfo{
 	private int id;
 	private int seasonNumber;

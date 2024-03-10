@@ -13,7 +13,7 @@ import java.util.Set;
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
-@RegisterReflectionForBinding({Statistics.class})
+@RegisterReflectionForBinding(Statistics.class)
 public final class Statistics{
 	private int episodeFileCount;
 	private int episodeCount;

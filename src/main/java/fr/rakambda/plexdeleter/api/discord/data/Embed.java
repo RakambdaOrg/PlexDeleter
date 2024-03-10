@@ -26,7 +26,7 @@ import java.util.Collection;
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
-@RegisterReflectionForBinding({Embed.class})
+@RegisterReflectionForBinding(Embed.class)
 public class Embed{
 	@JsonProperty("author")
 	private Author author;

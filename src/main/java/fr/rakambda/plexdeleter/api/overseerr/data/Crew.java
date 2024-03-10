@@ -8,7 +8,7 @@ import org.springframework.aot.hint.annotation.RegisterReflectionForBinding;
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
-@RegisterReflectionForBinding({Crew.class})
+@RegisterReflectionForBinding(Crew.class)
 public class Crew{
 	private String creditId;
 	private String department;

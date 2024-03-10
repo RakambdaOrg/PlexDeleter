@@ -11,7 +11,7 @@ import org.springframework.aot.hint.annotation.RegisterReflectionForBinding;
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
-@RegisterReflectionForBinding({HistoryRecord.class})
+@RegisterReflectionForBinding(HistoryRecord.class)
 public class HistoryRecord{
 	private int id;
 	@JsonProperty("user_id")

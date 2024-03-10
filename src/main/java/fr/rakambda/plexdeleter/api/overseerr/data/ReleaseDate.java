@@ -11,7 +11,7 @@ import java.util.Set;
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
-@RegisterReflectionForBinding({ReleaseDate.class})
+@RegisterReflectionForBinding(ReleaseDate.class)
 public class ReleaseDate{
 	private String certification;
 	private Set<String> descriptors;

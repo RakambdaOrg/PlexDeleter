@@ -18,7 +18,7 @@ import java.net.URL;
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
-@RegisterReflectionForBinding({Author.class})
+@RegisterReflectionForBinding(Author.class)
 public class Author{
 	@JsonProperty("name")
 	private String name;

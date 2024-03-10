@@ -9,7 +9,7 @@ import org.springframework.aot.hint.annotation.RegisterReflectionForBinding;
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
-@RegisterReflectionForBinding({OriginalLanguage.class})
+@RegisterReflectionForBinding(OriginalLanguage.class)
 public final class OriginalLanguage{
 	private int id;
 	@NotNull

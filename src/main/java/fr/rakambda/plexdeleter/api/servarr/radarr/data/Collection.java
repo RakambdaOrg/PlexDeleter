@@ -9,7 +9,7 @@ import org.springframework.aot.hint.annotation.RegisterReflectionForBinding;
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
-@RegisterReflectionForBinding({Collection.class})
+@RegisterReflectionForBinding(Collection.class)
 public final class Collection{
 	@NotNull
 	private String title;

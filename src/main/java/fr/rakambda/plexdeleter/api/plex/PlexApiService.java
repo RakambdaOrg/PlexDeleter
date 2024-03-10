@@ -2,15 +2,14 @@ package fr.rakambda.plexdeleter.api.plex;
 
 import fr.rakambda.plexdeleter.api.HttpUtils;
 import fr.rakambda.plexdeleter.api.RequestFailedException;
+import fr.rakambda.plexdeleter.api.plex.data.Pin;
 import fr.rakambda.plexdeleter.api.plex.data.User;
 import fr.rakambda.plexdeleter.config.ApplicationConfiguration;
 import org.jetbrains.annotations.NotNull;
-import org.jetbrains.annotations.Nullable;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.codec.xml.Jaxb2XmlDecoder;
 import org.springframework.stereotype.Service;
 import org.springframework.util.MimeTypeUtils;
-import org.springframework.web.reactive.function.BodyInserters;
 import org.springframework.web.reactive.function.client.ExchangeStrategies;
 import org.springframework.web.reactive.function.client.WebClient;
 import java.util.UUID;
@@ -25,7 +24,7 @@ public class PlexApiService{
 		
 		apiClient = WebClient.builder()
 				.baseUrl(applicationConfiguration.getPlex().getEndpoint())
-				.defaultHeader(HttpHeaders.ACCEPT, MimeTypeUtils.APPLICATION_XML_VALUE)
+				.defaultHeader(HttpHeaders.ACCEPT, MimeTypeUtils.APPLICATION_JSON_VALUE)
 				.defaultHeader("X-Plex-Product", "PlexDeleter")
 				.defaultHeader("X-Plex-Version", "Plex OAuth")
 				.defaultHeader("X-Plex-Client-Identifier", clientId)
@@ -43,18 +42,38 @@ public class PlexApiService{
 	}
 	
 	@NotNull
-	public User authenticate(@NotNull String username, @NotNull String password, @Nullable String otp) throws RequestFailedException{
+	public Pin generatePin() throws RequestFailedException{
 		return HttpUtils.withStatusOkAndBody(apiClient.post()
-				.uri(b -> b.pathSegment("users", "sign_in.xml")
+				.uri(b -> b.pathSegment("api", "v2", "pins")
+						.queryParam("strong", true)
 						.build())
-				.body(BodyInserters
-						.fromFormData("user[login]", username)
-						.with("user[password]", password)
-						.with("user[verification_code]", otp)
-				)
+				.retrieve()
+				.toEntity(Pin.class)
+				.blockOptional()
+				.orElseThrow(() -> new RequestFailedException("Failed to generate Plex pin")));
+	}
+	
+	@NotNull
+	public Pin pollAuthToken(long id) throws RequestFailedException{
+		return HttpUtils.withStatusOkAndBody(apiClient.get()
+				.uri(b -> b.pathSegment("api", "v2", "pins", "{id}")
+						.queryParam("strong", true)
+						.build(id))
+				.retrieve()
+				.toEntity(Pin.class)
+				.blockOptional()
+				.orElseThrow(() -> new RequestFailedException("Failed to get Plex pin status")));
+	}
+	
+	@NotNull
+	public User getUserInfo(@NotNull String authToken) throws RequestFailedException{
+		return HttpUtils.withStatusOkAndBody(apiClient.get()
+				.uri(b -> b.pathSegment("api", "v2", "user")
+						.build())
+				.header("X-Plex-Token", authToken)
 				.retrieve()
 				.toEntity(User.class)
 				.blockOptional()
-				.orElseThrow(() -> new RequestFailedException("Failed to authenticate with Plex for %s".formatted(username))));
+				.orElseThrow(() -> new RequestFailedException("Failed to get Plex user info")));
 	}
 }

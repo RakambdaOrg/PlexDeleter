@@ -7,6 +7,12 @@
     <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.4.1/css/bootstrap.min.css"
           integrity="sha384-Vkoo8x4CGsO3+Hhxv8T/Q5PaXtkKtu6ug5TOeNV6gBiFeWPGFN9MuhOf23Q9Ifjh"
           crossorigin="anonymous"/>
+    <script type="text/javascript">
+        function onPlexLoginOpen() {
+            document.getElementById("validate-auth").removeAttribute("hidden");
+            return true;
+        }
+    </script>
 </head>
 <body>
 <div class="container-fluid text-center">
@@ -19,22 +25,21 @@
         </div>
 
         <div class="border border-secondary p-3 rounded">
-            <p th:text="#{web.auth.header}"/>
-            <p>
-                <label for="username" th:text="#{web.auth.email}"/>
-                <input id="username" type="email" name="username" class="form-control" placeholder="a@b.c" required autofocus/>
-            </p>
-            <p>
-                <label for="password" th:text="#{web.auth.password}"/>
-                <input id="password" type="password" name="password" class="form-control" th:placeholder="#{web.auth.password}" required/>
-            </p>
-            <p>
-                <label for="otp" th:text="#{web.auth.otp}"/>
-                <input id="otp" type="number" name="otp" class="form-control" placeholder="123456" maxlength=6/>
-            </p>
-            <p>
-                <input type="submit" th:value="#{web.auth.login}" class="btn btn-primary"/>
-            </p>
+            <div>
+                <p th:text="#{web.auth.pre-plex}"></p>
+                <a type="button" class="btn btn-warning" th:href="${authLink}" th:text="#{web.auth.header}" th:target="_blank" onclick="return onPlexLoginOpen();"></a>
+            </div>
+
+            <div id="validate-auth" hidden="hidden">
+                <hr/>
+                <p th:text="#{web.auth.post-plex}"></p>
+
+                <p>
+                    <label for="id" hidden>PIN ID</label>
+                    <input id="id" type="hidden" name="id" class="form-control" th:value="${pinId}"/>
+                    <input type="submit" th:value="#{web.auth.login}" class="btn btn-primary"/>
+                </p>
+            </div>
         </div>
     </form>
 </div>

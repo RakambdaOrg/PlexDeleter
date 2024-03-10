@@ -13,7 +13,7 @@ import java.util.Set;
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
-@RegisterReflectionForBinding({Request.class})
+@RegisterReflectionForBinding(Request.class)
 public final class Request{
 	private int id;
 	private int status;

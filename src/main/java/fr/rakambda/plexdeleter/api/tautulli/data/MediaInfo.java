@@ -11,7 +11,7 @@ import java.util.Set;
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
-@RegisterReflectionForBinding({MediaInfo.class})
+@RegisterReflectionForBinding(MediaInfo.class)
 public class MediaInfo{
 	@NotNull
 	private Set<MediaPart> parts = new HashSet<>();

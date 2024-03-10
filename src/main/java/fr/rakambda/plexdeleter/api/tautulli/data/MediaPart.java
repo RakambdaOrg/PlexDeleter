@@ -10,7 +10,7 @@ import org.springframework.aot.hint.annotation.RegisterReflectionForBinding;
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
-@RegisterReflectionForBinding({MediaPart.class})
+@RegisterReflectionForBinding(MediaPart.class)
 public class MediaPart{
 	private int id;
 	@NotNull

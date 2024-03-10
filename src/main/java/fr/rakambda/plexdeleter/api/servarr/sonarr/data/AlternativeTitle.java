@@ -9,7 +9,7 @@ import org.springframework.aot.hint.annotation.RegisterReflectionForBinding;
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
-@RegisterReflectionForBinding({AlternativeTitle.class})
+@RegisterReflectionForBinding(AlternativeTitle.class)
 public final class AlternativeTitle{
 	@NotNull
 	private String title;

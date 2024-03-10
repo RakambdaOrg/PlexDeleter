@@ -11,7 +11,7 @@ import org.springframework.aot.hint.annotation.RegisterReflectionForBinding;
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
-@RegisterReflectionForBinding({GetNewRatingKeysResponse.class})
+@RegisterReflectionForBinding(GetNewRatingKeysResponse.class)
 public class GetNewRatingKeysResponse{
 	@JsonProperty("0")
 	@NotNull

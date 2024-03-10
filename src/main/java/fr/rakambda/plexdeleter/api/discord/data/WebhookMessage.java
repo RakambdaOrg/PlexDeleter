@@ -19,7 +19,7 @@ import java.util.Collection;
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
-@RegisterReflectionForBinding({WebhookMessage.class})
+@RegisterReflectionForBinding(WebhookMessage.class)
 public class WebhookMessage{
 	@JsonProperty("username")
 	private String username;

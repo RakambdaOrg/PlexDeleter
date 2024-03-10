@@ -10,7 +10,7 @@ import java.util.Set;
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
-@RegisterReflectionForBinding({ContentRating.class})
+@RegisterReflectionForBinding(ContentRating.class)
 public class ContentRating{
 	private Set<String> descriptors = new HashSet<>();
 	private String iso_3166_1;

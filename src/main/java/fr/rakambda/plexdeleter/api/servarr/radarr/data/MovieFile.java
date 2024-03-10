@@ -13,7 +13,7 @@ import java.util.Set;
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
-@RegisterReflectionForBinding({MovieFile.class})
+@RegisterReflectionForBinding(MovieFile.class)
 public final class MovieFile{
 	private int movieId;
 	@NotNull

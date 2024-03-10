@@ -8,7 +8,7 @@ import org.springframework.aot.hint.annotation.RegisterReflectionForBinding;
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
-@RegisterReflectionForBinding({ExternalIds.class})
+@RegisterReflectionForBinding(ExternalIds.class)
 public class ExternalIds{
 	private String facebookId;
 	private String freebaseId;

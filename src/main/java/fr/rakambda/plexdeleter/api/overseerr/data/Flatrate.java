@@ -8,7 +8,7 @@ import org.springframework.aot.hint.annotation.RegisterReflectionForBinding;
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
-@RegisterReflectionForBinding({Flatrate.class})
+@RegisterReflectionForBinding(Flatrate.class)
 public class Flatrate{
 	private int displayPriority;
 	private String logoPath;

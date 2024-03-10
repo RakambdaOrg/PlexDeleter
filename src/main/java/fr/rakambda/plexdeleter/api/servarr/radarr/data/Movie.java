@@ -16,7 +16,7 @@ import java.util.Set;
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
-@RegisterReflectionForBinding({Movie.class})
+@RegisterReflectionForBinding(Movie.class)
 public final class Movie{
 	@NotNull
 	private String title;

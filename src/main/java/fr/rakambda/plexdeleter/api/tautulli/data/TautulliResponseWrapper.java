@@ -8,7 +8,7 @@ import org.springframework.aot.hint.annotation.RegisterReflectionForBinding;
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
-@RegisterReflectionForBinding({TautulliResponseWrapper.class})
+@RegisterReflectionForBinding(TautulliResponseWrapper.class)
 public class TautulliResponseWrapper<T>{
 	private TautulliResponse<T> response;
 }

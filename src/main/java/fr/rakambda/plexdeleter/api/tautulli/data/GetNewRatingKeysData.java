@@ -12,7 +12,7 @@ import java.util.Map;
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
-@RegisterReflectionForBinding({GetNewRatingKeysData.class})
+@RegisterReflectionForBinding(GetNewRatingKeysData.class)
 public class GetNewRatingKeysData{
 	@JsonProperty("rating_key")
 	private int ratingKey;

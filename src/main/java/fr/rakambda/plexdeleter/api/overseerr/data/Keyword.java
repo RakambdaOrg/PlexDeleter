@@ -8,7 +8,7 @@ import org.springframework.aot.hint.annotation.RegisterReflectionForBinding;
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
-@RegisterReflectionForBinding({Keyword.class})
+@RegisterReflectionForBinding(Keyword.class)
 public class Keyword{
 	private int id;
 	private String name;

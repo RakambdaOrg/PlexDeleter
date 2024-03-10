@@ -15,7 +15,7 @@ import org.springframework.aot.hint.annotation.RegisterReflectionForBinding;
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
-@RegisterReflectionForBinding({Image.class})
+@RegisterReflectionForBinding(Image.class)
 public class Image{
 	@JsonProperty("url")
 	private String url;

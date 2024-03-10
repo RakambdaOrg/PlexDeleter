@@ -10,7 +10,7 @@ import java.util.Set;
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
-@RegisterReflectionForBinding({WatchProvider.class})
+@RegisterReflectionForBinding(WatchProvider.class)
 public class WatchProvider{
 	private String iso_3166_1;
 	private String link;

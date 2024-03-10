@@ -8,7 +8,7 @@ import org.springframework.aot.hint.annotation.RegisterReflectionForBinding;
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
-@RegisterReflectionForBinding({MediaInfo.class})
+@RegisterReflectionForBinding(MediaInfo.class)
 public final class MediaInfo{
 	private int audioBitrate;
 	private float audioChannels;

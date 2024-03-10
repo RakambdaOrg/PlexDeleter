@@ -9,7 +9,7 @@ import java.time.LocalDate;
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
-@RegisterReflectionForBinding({Season.class})
+@RegisterReflectionForBinding(Season.class)
 public class Season{
 	private LocalDate airDate;
 	private int episodeCount;

@@ -15,7 +15,7 @@ import java.util.Set;
 @AllArgsConstructor
 @EqualsAndHashCode(callSuper = true)
 @ToString(callSuper = true)
-@RegisterReflectionForBinding({SeriesMedia.class})
+@RegisterReflectionForBinding(SeriesMedia.class)
 public final class SeriesMedia extends Media{
 	private Set<CreatedBy> createdBy = new HashSet<>();
 	private Set<Integer> episodeRunTime = new HashSet<>();

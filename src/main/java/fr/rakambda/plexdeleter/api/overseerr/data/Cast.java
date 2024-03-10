@@ -8,7 +8,7 @@ import org.springframework.aot.hint.annotation.RegisterReflectionForBinding;
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
-@RegisterReflectionForBinding({Cast.class})
+@RegisterReflectionForBinding(Cast.class)
 public class Cast{
 	private int castId;
 	private String character;

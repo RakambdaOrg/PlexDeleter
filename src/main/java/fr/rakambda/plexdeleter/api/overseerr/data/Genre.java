@@ -8,7 +8,7 @@ import org.springframework.aot.hint.annotation.RegisterReflectionForBinding;
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
-@RegisterReflectionForBinding({Genre.class})
+@RegisterReflectionForBinding(Genre.class)
 public class Genre{
 	private int id;
 	private String name;

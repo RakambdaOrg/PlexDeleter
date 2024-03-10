@@ -9,7 +9,7 @@ import org.springframework.aot.hint.annotation.RegisterReflectionForBinding;
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
-@RegisterReflectionForBinding({Tag.class})
+@RegisterReflectionForBinding(Tag.class)
 public class Tag{
 	@NotNull
 	private String label;

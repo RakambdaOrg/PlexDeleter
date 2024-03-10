@@ -8,7 +8,7 @@ import org.springframework.aot.hint.annotation.RegisterReflectionForBinding;
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
-@RegisterReflectionForBinding({Network.class})
+@RegisterReflectionForBinding(Network.class)
 public class Network{
 	private int id;
 	private String name;

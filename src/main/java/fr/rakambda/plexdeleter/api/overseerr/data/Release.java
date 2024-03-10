@@ -10,7 +10,7 @@ import java.util.Set;
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
-@RegisterReflectionForBinding({Release.class})
+@RegisterReflectionForBinding(Release.class)
 public class Release{
 	private String iso_3166_1;
 	@JsonProperty("release_dates")

@@ -15,7 +15,7 @@ import java.util.Set;
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
-@RegisterReflectionForBinding({Series.class})
+@RegisterReflectionForBinding(Series.class)
 public final class Series{
 	@NotNull
 	private String title;

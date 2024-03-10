@@ -9,7 +9,7 @@ import org.springframework.aot.hint.annotation.RegisterReflectionForBinding;
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
-@RegisterReflectionForBinding({RequestMedia.class})
+@RegisterReflectionForBinding(RequestMedia.class)
 public class RequestMedia{
 	private int id;
 	@NonNull

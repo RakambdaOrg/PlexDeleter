@@ -9,7 +9,7 @@ import org.springframework.aot.hint.annotation.RegisterReflectionForBinding;
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
-@RegisterReflectionForBinding({Image.class})
+@RegisterReflectionForBinding(Image.class)
 public final class Image{
 	@NotNull
 	private String coverType;

@@ -14,7 +14,7 @@ import org.springframework.aot.hint.annotation.RegisterReflectionForBinding;
 @Getter
 @NoArgsConstructor
 @ToString
-@RegisterReflectionForBinding({DiscordResponse.class})
+@RegisterReflectionForBinding(DiscordResponse.class)
 public class DiscordResponse{
 	@JsonProperty("global")
 	private boolean global;
