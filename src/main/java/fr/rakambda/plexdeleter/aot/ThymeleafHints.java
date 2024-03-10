@@ -22,6 +22,7 @@ public class ThymeleafHints implements RuntimeHintsRegistrar{
 			hints.reflection().registerMethod(UserService.class.getMethod("getMediaOverseerrUrl", MediaEntity.class), ExecutableMode.INVOKE);
 			hints.reflection().registerMethod(UserService.class.getMethod("getUserMedias", UserPersonEntity.class), ExecutableMode.INVOKE);
 			hints.reflection().registerMethod(Lists.class.getMethod("isEmpty", List.class), ExecutableMode.INVOKE);
+			hints.reflection().registerMethod(IterationStatusVar.class.getMethod("getIndex"), ExecutableMode.INVOKE);
 			hints.reflection().registerField(IterationStatusVar.class.getDeclaredField("index"));
 		}
 		catch(NoSuchMethodException | NoSuchFieldException e){

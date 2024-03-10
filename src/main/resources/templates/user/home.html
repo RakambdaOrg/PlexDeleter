@@ -18,7 +18,6 @@
         <table class="table table-striped table-bordered table-hover">
             <thead class="thead-light">
             <tr>
-                <th scope="col"></th>
                 <th scope="col" th:text="#{web.media-list.table.type}"/>
                 <th scope="col" th:text="#{web.media-list.table.name}"/>
                 <th scope="col" th:text="#{web.media-list.table.season}"/>
@@ -29,8 +28,7 @@
             </tr>
             </thead>
             <tbody>
-            <tr th:each="media,iter : ${medias}">
-                <th scope="row" th:text="${iter.index}"></th>
+            <tr th:each="media : ${medias}">
                 <td>
                     <img class="icon align-middle" th:alt="${media.getType()}" th:src="@{/static/__${media.getType().getIcon()}__}"/>
                     <th:block th:text="#{${media.getType().getLocalizationKey()}}"></th:block>
@@ -70,8 +68,7 @@
             </tr>
             </thead>
             <tbody>
-            <tr th:each="media,iter : ${medias}" th:class="${media.getAvailability().isAvailable() ? 'table-success' : 'media-not-available'}">
-                <th scope="row" th:text="${iter.index}"></th>
+            <tr th:each="media : ${medias}" th:class="${media.getAvailability().isAvailable() ? 'table-success' : 'media-not-available'}">
                 <td>
                     <img class="icon align-middle" th:alt="${media.getType()}" th:src="@{/static/__${media.getType().getIcon()}__}"/>
                     <th:block th:text="#{${media.getType().getLocalizationKey()}}"></th:block>
