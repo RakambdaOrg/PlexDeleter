@@ -52,7 +52,7 @@ public class MediaRequirementEntity{
 		@Column(name = "MediaId", nullable = false)
 		@NotNull
 		private Integer mediaId;
-		@Column(name = "GroupID", nullable = false)
+		@Column(name = "GroupId", nullable = false)
 		@NotNull
 		private Integer groupId;
 	}
