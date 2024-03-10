@@ -3,6 +3,7 @@ package fr.rakambda.plexdeleter.web;
 import lombok.extern.slf4j.Slf4j;
 import org.jetbrains.annotations.NotNull;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.servlet.ModelAndView;
@@ -23,7 +24,10 @@ public class RootController{
 				Disallow: /""";
 	}
 	
-	@RequestMapping
+	@RequestMapping(method = {
+			RequestMethod.GET,
+			RequestMethod.POST
+	})
 	public ModelAndView getRoot(){
 		return new ModelAndView("redirect:/user/home");
 	}
