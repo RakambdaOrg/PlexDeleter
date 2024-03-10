@@ -41,7 +41,14 @@ public class JacksonHints implements RuntimeHintsRegistrar{
 		var klasses = findAllClassesUsingClassLoader(classLoader, packageName);
 		for(var klass : klasses){
 			log.info("Registering Jackson hint for {}", klass);
-			hints.reflection().registerType(klass, MemberCategory.DECLARED_FIELDS, MemberCategory.INTROSPECT_DECLARED_CONSTRUCTORS);
+			hints.reflection()
+					.registerType(klass,
+							MemberCategory.DECLARED_FIELDS,
+							MemberCategory.INVOKE_DECLARED_CONSTRUCTORS,
+							MemberCategory.INVOKE_DECLARED_METHODS,
+							MemberCategory.INVOKE_PUBLIC_CONSTRUCTORS,
+							MemberCategory.INVOKE_PUBLIC_METHODS
+					);
 		}
 	}
 	
