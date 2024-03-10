@@ -40,7 +40,8 @@ public class PlexAuthenticationProvider implements AuthenticationProvider{
 	private UsernamePasswordAuthenticationToken authenticateAgainstThirdPartyAndGetAuthentication(@NotNull String username, @NotNull String password, @Nullable String otp){
 		try{
 			var result = plexApiService.authenticate(username, password, otp);
-			var userDetails = userDetailsService.loadUserByUsername(String.valueOf(result.getId()));
+			var dbUsername = "plexid_%d".formatted(result.getId());
+			var userDetails = userDetailsService.loadUserByUsername(dbUsername);
 			return UsernamePasswordAuthenticationToken.authenticated(new PlexUser(result.getId(), username, password, userDetails.getAuthorities()), password, userDetails.getAuthorities());
 		}
 		catch(UsernameNotFoundException e){

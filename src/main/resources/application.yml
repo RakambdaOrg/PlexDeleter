@@ -4,18 +4,6 @@ logging:
     root: INFO
 
 spring:
-  jpa:
-    generate-ddl: false
-    database-platform: org.hibernate.dialect.MariaDBDialect
-    hibernate:
-      ddl-auto: none
-  jackson:
-    visibility:
-      field: any
-      getter: none
-      setter: none
-      creator: none
-      is-getter: none
   datasource:
     url: "jdbc:mariadb://fake:3306/PlexDeleter"
     username: ""
@@ -23,6 +11,20 @@ spring:
     hikari:
       maximum-pool-size: 3
       connectionTimeout: 180000
+  flyway:
+    baseline-on-migrate: true
+  jackson:
+    visibility:
+      field: any
+      getter: none
+      setter: none
+      creator: none
+      is-getter: none
+  jpa:
+    generate-ddl: false
+    database-platform: org.hibernate.dialect.MariaDBDialect
+    hibernate:
+      ddl-auto: none
   mail:
     host: "smtp.host"
     port: 587
@@ -38,6 +40,9 @@ spring:
     basename: lang/messages
   mvc:
     static-path-pattern: "/static/**"
+  threads:
+    virtual:
+      enabled: true
   web:
     resources:
       static-locations: "classpath:/static/"
