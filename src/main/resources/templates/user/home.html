@@ -89,11 +89,13 @@
                 </td>
                 <td th:text="${media.getId()}"></td>
                 <td>
-                    <form th:action="@{/api/user/media-requirement/abandon}" method="post">
-                        <label for="media" th:text="#{web.media-list.table.abandon}" hidden/>
-                        <input id="media" type="hidden" name="media" class="form-control" th:value="${media.getId()}"/>
-                        <input type="submit" th:value="#{web.media-list.table.abandon}" class="btn btn-danger"/>
-                    </form>
+                    <th:block th:if="${media.getAvailability().isAvailable()}">
+                        <form th:action="@{/api/user/media-requirement/abandon}" method="post">
+                            <label for="media" th:text="#{web.media-list.table.abandon}" hidden/>
+                            <input id="media" type="hidden" name="media" class="form-control" th:value="${media.getId()}"/>
+                            <input type="submit" th:value="#{web.media-list.table.abandon}" class="btn btn-danger"/>
+                        </form>
+                    </th:block>
                 </td>
             </tr>
             </tbody>
