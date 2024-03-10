@@ -3,6 +3,7 @@ package fr.rakambda.plexdeleter.api.overseerr.data;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+import org.springframework.aot.hint.annotation.RegisterReflectionForBinding;
 import java.time.Instant;
 import java.util.HashSet;
 import java.util.Set;
@@ -10,6 +11,7 @@ import java.util.Set;
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
+@RegisterReflectionForBinding({MediaInfo.class})
 public class MediaInfo{
 	private Set<Object> downloadStatus = new HashSet<>();
 	private Set<Object> downloadStatus4k = new HashSet<>();

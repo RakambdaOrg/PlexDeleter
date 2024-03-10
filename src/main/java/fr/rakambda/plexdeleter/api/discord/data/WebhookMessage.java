@@ -9,6 +9,7 @@ import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
+import org.springframework.aot.hint.annotation.RegisterReflectionForBinding;
 import java.net.URL;
 import java.util.Collection;
 
@@ -18,6 +19,7 @@ import java.util.Collection;
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
+@RegisterReflectionForBinding({WebhookMessage.class})
 public class WebhookMessage{
 	@JsonProperty("username")
 	private String username;

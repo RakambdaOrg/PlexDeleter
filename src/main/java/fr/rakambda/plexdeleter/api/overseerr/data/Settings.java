@@ -5,10 +5,12 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
+import org.springframework.aot.hint.annotation.RegisterReflectionForBinding;
 
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
+@RegisterReflectionForBinding({Settings.class})
 public class Settings{
 	private int id;
 	@NotNull

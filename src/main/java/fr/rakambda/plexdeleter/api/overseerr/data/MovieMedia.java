@@ -5,6 +5,7 @@ import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.NoArgsConstructor;
 import lombok.ToString;
+import org.springframework.aot.hint.annotation.RegisterReflectionForBinding;
 import java.time.LocalDate;
 
 @Data
@@ -12,6 +13,7 @@ import java.time.LocalDate;
 @AllArgsConstructor
 @EqualsAndHashCode(callSuper = true)
 @ToString(callSuper = true)
+@RegisterReflectionForBinding({MovieMedia.class})
 public final class MovieMedia extends Media{
 	private boolean adult;
 	private Long budget;

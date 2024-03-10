@@ -13,6 +13,7 @@ import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Singular;
+import org.springframework.aot.hint.annotation.RegisterReflectionForBinding;
 import java.awt.*;
 import java.io.IOException;
 import java.time.Instant;
@@ -25,6 +26,7 @@ import java.util.Collection;
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
+@RegisterReflectionForBinding({Embed.class})
 public class Embed{
 	@JsonProperty("author")
 	private Author author;

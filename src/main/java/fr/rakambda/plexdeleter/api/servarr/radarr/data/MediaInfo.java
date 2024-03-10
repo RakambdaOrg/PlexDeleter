@@ -3,10 +3,12 @@ package fr.rakambda.plexdeleter.api.servarr.radarr.data;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+import org.springframework.aot.hint.annotation.RegisterReflectionForBinding;
 
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
+@RegisterReflectionForBinding({MediaInfo.class})
 public final class MediaInfo{
 	private int audioBitrate;
 	private float audioChannels;

@@ -8,12 +8,14 @@ import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 import org.jetbrains.annotations.Nullable;
+import org.springframework.aot.hint.annotation.RegisterReflectionForBinding;
 
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
 @XmlRootElement(name = "user")
 @XmlAccessorType(XmlAccessType.FIELD)
+@RegisterReflectionForBinding({User.class})
 public class User{
 	@Nullable
 	@XmlAttribute

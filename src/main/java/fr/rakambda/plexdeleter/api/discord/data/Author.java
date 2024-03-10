@@ -9,6 +9,7 @@ import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
+import org.springframework.aot.hint.annotation.RegisterReflectionForBinding;
 import java.net.URL;
 
 @JsonIgnoreProperties(ignoreUnknown = true)
@@ -17,6 +18,7 @@ import java.net.URL;
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
+@RegisterReflectionForBinding({Author.class})
 public class Author{
 	@JsonProperty("name")
 	private String name;

@@ -7,12 +7,14 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.ToString;
 import org.jetbrains.annotations.Nullable;
+import org.springframework.aot.hint.annotation.RegisterReflectionForBinding;
 
 @JsonIgnoreProperties(ignoreUnknown = true)
 @JsonInclude(JsonInclude.Include.NON_NULL)
 @Getter
 @NoArgsConstructor
 @ToString
+@RegisterReflectionForBinding({DiscordResponse.class})
 public class DiscordResponse{
 	@JsonProperty("global")
 	private boolean global;

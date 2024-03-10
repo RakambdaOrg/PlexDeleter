@@ -11,6 +11,7 @@ import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
+import org.springframework.aot.hint.annotation.RegisterReflectionForBinding;
 import java.io.IOException;
 import static java.lang.Math.min;
 
@@ -20,6 +21,7 @@ import static java.lang.Math.min;
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
+@RegisterReflectionForBinding({Field.class})
 public class Field{
 	@JsonProperty("name")
 	private String name;

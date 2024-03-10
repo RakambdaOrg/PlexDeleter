@@ -7,6 +7,7 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
+import org.springframework.aot.hint.annotation.RegisterReflectionForBinding;
 import java.time.Instant;
 import java.util.HashSet;
 import java.util.Set;
@@ -14,6 +15,7 @@ import java.util.Set;
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
+@RegisterReflectionForBinding({Series.class})
 public final class Series{
 	@NotNull
 	private String title;

@@ -3,11 +3,13 @@ package fr.rakambda.plexdeleter.api.overseerr.data;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+import org.springframework.aot.hint.annotation.RegisterReflectionForBinding;
 import java.time.LocalDate;
 
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
+@RegisterReflectionForBinding({Episode.class})
 public class Episode{
 	private int id;
 	private LocalDate airDate;
