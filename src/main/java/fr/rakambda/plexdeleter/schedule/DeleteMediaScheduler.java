@@ -108,8 +108,10 @@ public class DeleteMediaScheduler implements IScheduler{
 		
 		var files = metadata.stream()
 				.map(GetMetadataResponse::getMediaInfo)
+				.filter(Objects::nonNull)
 				.flatMap(java.util.Collection::stream)
 				.map(MediaInfo::getParts)
+				.filter(Objects::nonNull)
 				.flatMap(java.util.Collection::stream)
 				.map(MediaPart::getFile)
 				.map(this::extractPath)

@@ -9,7 +9,6 @@ import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import org.springframework.aot.hint.annotation.RegisterReflectionForBinding;
 import java.time.Instant;
-import java.util.HashSet;
 import java.util.Set;
 
 @Data
@@ -30,20 +29,20 @@ public final class Series{
 	@Nullable
 	private String airTime;
 	private boolean ended;
-	@NotNull
-	private Set<AlternativeTitle> alternateTitles = new HashSet<>();
-	@NotNull
-	private Set<Image> images = new HashSet<>();
+	@Nullable
+	private Set<AlternativeTitle> alternateTitles;
+	@Nullable
+	private Set<Image> images;
 	@Nullable
 	private Instant previousAiring;
 	@NotNull
 	private OriginalLanguage originalLanguage;
-	@NotNull
-	private Set<Season> seasons = new HashSet<>();
-	@NotNull
-	private Set<String> genres = new HashSet<>();
-	@NotNull
-	private Set<Integer> tags = new HashSet<>();
+	@Nullable
+	private Set<Season> seasons;
+	@Nullable
+	private Set<String> genres;
+	@Nullable
+	private Set<Integer> tags;
 	private int year;
 	@NotNull
 	private String path;

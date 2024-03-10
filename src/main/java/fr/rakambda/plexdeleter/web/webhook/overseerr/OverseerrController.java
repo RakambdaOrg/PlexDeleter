@@ -30,6 +30,7 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
+import java.util.Set;
 import java.util.stream.Collectors;
 
 @Slf4j
@@ -92,7 +93,7 @@ public class OverseerrController{
 		};
 		var mappedTags = tags.stream().collect(Collectors.toMap(Tag::getId, Tag::getLabel));
 		
-		if(requestDetails.getTags().stream()
+		if(Optional.ofNullable(requestDetails.getTags()).orElseGet(Set::of).stream()
 				.map(mappedTags::get)
 				.anyMatch(name -> Objects.equals(name, excludeTag))){
 			log.warn("Not adding any media, it is excluded by tag {}", data);
@@ -101,7 +102,7 @@ public class OverseerrController{
 		
 		var seasons = switch(requestDetails.getMedia().getMediaType()){
 			case MOVIE -> List.of(1);
-			case TV -> data.getExtra().stream()
+			case TV -> Optional.ofNullable(data.getExtra()).orElseGet(Set::of).stream()
 					.filter(extra -> Objects.equals(extra.getName(), "Requested Seasons"))
 					.map(Extra::getValue)
 					.map(value -> value.split(","))

@@ -5,8 +5,8 @@ import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 import lombok.NonNull;
+import org.jetbrains.annotations.Nullable;
 import org.springframework.aot.hint.annotation.RegisterReflectionForBinding;
-import java.util.HashSet;
 import java.util.Set;
 
 @Data
@@ -23,6 +23,6 @@ public class GetHistoryResponse{
 	@NonNull
 	@JsonProperty("total_duration")
 	private String totalDuration;
-	@NonNull
-	private Set<HistoryRecord> data = new HashSet<>();
+	@Nullable
+	private Set<HistoryRecord> data;
 }

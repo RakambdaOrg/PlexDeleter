@@ -7,7 +7,6 @@ import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import org.springframework.aot.hint.annotation.RegisterReflectionForBinding;
 import java.time.Instant;
-import java.util.HashSet;
 import java.util.Set;
 
 @Data
@@ -28,8 +27,8 @@ public final class MovieFile{
 	private boolean qualityCutoffNotMet;
 	private Quality quality;
 	private MediaInfo mediaInfo;
-	@NotNull
-	private Set<Language> languages = new HashSet<>();
+	@Nullable
+	private Set<Language> languages;
 	@Nullable
 	private String releaseGroup;
 	@NotNull

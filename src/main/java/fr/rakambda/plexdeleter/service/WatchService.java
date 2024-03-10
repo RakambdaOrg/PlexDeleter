@@ -48,6 +48,7 @@ public class WatchService{
 		
 		return history.stream()
 				.map(GetHistoryResponse::getData)
+				.filter(Objects::nonNull)
 				.flatMap(Collection::stream)
 				.collect(Collectors.groupingBy(HistoryRecord::getMediaIndex));
 	}
