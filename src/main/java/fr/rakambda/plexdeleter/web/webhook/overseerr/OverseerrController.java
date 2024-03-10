@@ -22,6 +22,7 @@ import org.jetbrains.annotations.NotNull;
 import org.springframework.http.HttpStatus;
 import org.springframework.lang.NonNull;
 import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestController;
@@ -55,7 +56,7 @@ public class OverseerrController{
 	
 	@PostMapping
 	@ResponseStatus(HttpStatus.NO_CONTENT)
-	public void onCall(@NonNull OverseerrWebhook data) throws RequestFailedException, UpdateException, NotifyException{
+	public void onCall(@NonNull @RequestBody OverseerrWebhook data) throws RequestFailedException, UpdateException, NotifyException{
 		switch(data.getNotificationType()){
 			case "MEDIA_AUTO_APPROVED", "MEDIA_APPROVED" -> onMediaApproved(data);
 			case "MEDIA_AVAILABLE" -> onMediaAdded(data);
