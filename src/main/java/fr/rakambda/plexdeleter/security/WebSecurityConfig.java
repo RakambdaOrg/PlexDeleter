@@ -25,6 +25,7 @@ public class WebSecurityConfig{
 				.authenticationProvider(plexAuthenticationProvider)
 				.authenticationProvider(daoAuthenticationProvider)
 				.authorizeHttpRequests(auth -> auth
+						.requestMatchers("/").authenticated()
 						.requestMatchers("/admin/**").hasRole("ADMIN")
 						.requestMatchers("/auth/**").permitAll()
 						.requestMatchers("/api/admin/**").hasRole("ADMIN")
