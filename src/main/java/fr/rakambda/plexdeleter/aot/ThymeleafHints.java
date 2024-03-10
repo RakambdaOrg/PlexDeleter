@@ -9,6 +9,7 @@ import org.jetbrains.annotations.Nullable;
 import org.springframework.aot.hint.ExecutableMode;
 import org.springframework.aot.hint.RuntimeHints;
 import org.springframework.aot.hint.RuntimeHintsRegistrar;
+import org.thymeleaf.engine.IterationStatusVar;
 import org.thymeleaf.expression.Lists;
 import java.util.List;
 
@@ -21,8 +22,9 @@ public class ThymeleafHints implements RuntimeHintsRegistrar{
 			hints.reflection().registerMethod(UserService.class.getMethod("getMediaOverseerrUrl", MediaEntity.class), ExecutableMode.INVOKE);
 			hints.reflection().registerMethod(UserService.class.getMethod("getUserMedias", UserPersonEntity.class), ExecutableMode.INVOKE);
 			hints.reflection().registerMethod(Lists.class.getMethod("isEmpty", List.class), ExecutableMode.INVOKE);
+			hints.reflection().registerField(IterationStatusVar.class.getDeclaredField("index"));
 		}
-		catch(NoSuchMethodException e){
+		catch(NoSuchMethodException | NoSuchFieldException e){
 			throw new RuntimeException(e);
 		}
 	}
