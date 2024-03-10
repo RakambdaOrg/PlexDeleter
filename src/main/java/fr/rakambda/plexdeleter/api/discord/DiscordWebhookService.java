@@ -8,6 +8,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import org.springframework.stereotype.Service;
+import org.springframework.web.reactive.function.BodyInserters;
 import org.springframework.web.reactive.function.client.WebClient;
 import org.springframework.web.reactive.function.client.WebClientResponseException;
 import reactor.core.publisher.Mono;
@@ -48,7 +49,7 @@ public class DiscordWebhookService{
 						}
 						return b.build();
 					})
-					.bodyValue(message)
+					.bodyValue(BodyInserters.fromValue(message))
 					.retrieve()
 					.toEntity(DiscordResponse.class)
 					.retryWhen(Retry.indefinitely()
