@@ -121,8 +121,10 @@ public class DeleteMediaScheduler implements IScheduler{
 		
 		var size = deleteRecursive(paths);
 		
-		mediaEntity.setActionStatus(MediaActionStatus.DELETED);
-		mediaRepository.save(mediaEntity);
+		if(!dryDelete){
+			mediaEntity.setActionStatus(MediaActionStatus.DELETED);
+			mediaRepository.save(mediaEntity);
+		}
 		
 		supervisionService.send("\uD83D\uDDD1 Deleted media %s with a size of %s", mediaEntity, supervisionService.sizeToHuman(size));
 		
