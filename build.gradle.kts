@@ -19,6 +19,8 @@ configurations {
     }
 }
 
+ext["hibernate.version"] = "6.4.2.Final"
+
 dependencies {
     implementation("org.springframework.boot:spring-boot-starter-data-jpa")
     implementation("org.springframework.boot:spring-boot-starter-mail")
