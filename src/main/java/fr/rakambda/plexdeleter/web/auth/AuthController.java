@@ -2,7 +2,6 @@ package fr.rakambda.plexdeleter.web.auth;
 
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.servlet.ModelAndView;
 
@@ -15,11 +14,13 @@ public class AuthController{
 		return new ModelAndView("auth/plex");
 	}
 	
-	@RequestMapping(value = "/success", method = {
-			RequestMethod.GET,
-			RequestMethod.POST
-	})
+	@RequestMapping(value = "/success")
 	public ModelAndView success(){
-		return new ModelAndView("redirect:user/home");
+		return new ModelAndView("auth/success");
+	}
+	
+	@RequestMapping(value = "/error")
+	public ModelAndView error(){
+		return new ModelAndView("auth/error");
 	}
 }

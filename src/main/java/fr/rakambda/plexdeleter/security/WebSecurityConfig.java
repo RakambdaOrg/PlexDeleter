@@ -43,7 +43,7 @@ public class WebSecurityConfig{
 				.with(new PlexFormLoginConfigurer<>(), c -> c
 						.authenticationFilter(new PlexAuthenticationFilter())
 						.loginPage("/auth")
-						.failureForwardUrl("/auth?error")
+						.failureForwardUrl("/auth/error")
 						.successForwardUrl("/auth/success")
 						.loginProcessingUrl("/login")
 						.permitAll()
