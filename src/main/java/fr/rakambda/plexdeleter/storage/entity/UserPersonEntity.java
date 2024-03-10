@@ -19,25 +19,25 @@ import org.jetbrains.annotations.NotNull;
 @NoArgsConstructor
 @Builder
 @Entity
-@Table(name = "UserPerson", schema = "PlexDeleter")
+@Table(name = "user_person", schema = "PlexDeleter")
 @ToString(onlyExplicitlyIncluded = true)
 public class UserPersonEntity{
 	@Id
 	@GeneratedValue(strategy = GenerationType.IDENTITY)
-	@Column(name = "ID", nullable = false)
+	@Column(nullable = false)
 	@ToString.Include
 	private Integer id;
 	@Basic
-	@Column(name = "Name", nullable = false)
+	@Column(nullable = false)
 	@NotNull
 	@ToString.Include
 	private String name;
 	@Basic
-	@Column(name = "PlexId", nullable = false)
+	@Column(nullable = false)
 	@NotNull
 	private Integer plexId;
 	@Basic
-	@Column(name = "GroupId", nullable = false)
+	@Column(nullable = false)
 	@NotNull
 	private Integer groupId;
 }

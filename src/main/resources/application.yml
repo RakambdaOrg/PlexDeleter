@@ -9,9 +9,6 @@ spring:
     database-platform: org.hibernate.dialect.MariaDBDialect
     hibernate:
       ddl-auto: none
-      naming:
-        implicit-strategy: "org.hibernate.boot.model.naming.ImplicitNamingStrategyLegacyJpaImpl"
-        physical-strategy: "org.hibernate.boot.model.naming.PhysicalNamingStrategyStandardImpl"
   jackson:
     visibility:
       field: any

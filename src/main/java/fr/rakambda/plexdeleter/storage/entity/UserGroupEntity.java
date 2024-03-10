@@ -27,49 +27,49 @@ import java.util.Locale;
 @NoArgsConstructor
 @Builder
 @Entity
-@Table(name = "UserGroup", schema = "PlexDeleter")
+@Table(name = "user_group", schema = "PlexDeleter")
 @ToString(onlyExplicitlyIncluded = true)
 public class UserGroupEntity{
 	@GeneratedValue(strategy = GenerationType.IDENTITY)
 	@Id
-	@Column(name = "ID", nullable = false)
+	@Column(nullable = false)
 	@ToString.Include
 	private Integer id;
 	@Basic
-	@Column(name = "Name", nullable = false)
+	@Column(nullable = false)
 	@NotNull
 	@ToString.Include
 	private String name;
 	@Enumerated(EnumType.STRING)
-	@Column(name = "NotificationType", nullable = false)
+	@Column(nullable = false)
 	@NotNull
 	private NotificationType notificationType;
 	@Basic
-	@Column(name = "NotificationValue", nullable = false)
+	@Column(nullable = false)
 	@NotNull
 	private String notificationValue;
 	@Basic
-	@Column(name = "Locale")
+	@Column
 	@NotNull
 	private String locale;
 	@Basic
-	@Column(name = "LastNotification")
+	@Column
 	@NotNull
 	private Instant lastNotification;
 	@Basic
-	@Column(name = "Display", nullable = false)
+	@Column(nullable = false)
 	@NotNull
 	private Boolean display;
 	@Basic
-	@Column(name = "ServarrTag")
+	@Column
 	@Nullable
 	private String servarrTag;
 	
 	@OneToMany(targetEntity = UserPersonEntity.class)
-	@JoinColumn(name = "GroupID", referencedColumnName = "ID")
+	@JoinColumn(name = "groupId", referencedColumnName = "id")
 	private List<UserPersonEntity> persons;
 	@OneToMany(targetEntity = MediaRequirementEntity.class)
-	@JoinColumn(name = "GroupID", referencedColumnName = "ID")
+	@JoinColumn(name = "groupId", referencedColumnName = "id")
 	private List<MediaRequirementEntity> requirements;
 	
 	@NotNull

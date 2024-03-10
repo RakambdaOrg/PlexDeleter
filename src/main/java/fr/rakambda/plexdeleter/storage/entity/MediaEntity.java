@@ -26,39 +26,39 @@ import java.util.List;
 @NoArgsConstructor
 @Builder
 @Entity
-@Table(name = "Media", schema = "PlexDeleter")
+@Table(name = "media", schema = "PlexDeleter")
 @ToString(onlyExplicitlyIncluded = true)
 public class MediaEntity{
 	public static final Comparator<MediaEntity> COMPARATOR_BY_TYPE_THEN_NAME = Comparator.comparing(MediaEntity::getType).thenComparing(MediaEntity::getName);
 	
 	@GeneratedValue(strategy = GenerationType.IDENTITY)
 	@Id
-	@Column(name = "Id", nullable = false)
+	@Column(nullable = false)
 	@ToString.Include
 	private Integer id;
 	@Enumerated(EnumType.STRING)
-	@Column(name = "Type", nullable = false)
+	@Column(nullable = false)
 	@NotNull
 	@ToString.Include
 	private MediaType type;
 	@Basic
-	@Column(name = "PlexId")
+	@Column
 	@Nullable
 	private Integer plexId;
 	@Basic
-	@Column(name = "OverseerrId")
+	@Column
 	@Nullable
 	private Integer overseerrId;
 	@Basic
-	@Column(name = "ServarrId")
+	@Column
 	@Nullable
 	private Integer servarrId;
 	@Basic
-	@Column(name = "TvdbId")
+	@Column
 	@Nullable
 	private Integer tvdbId;
 	@Basic
-	@Column(name = "Name", nullable = false)
+	@Column(nullable = false)
 	@NotNull
 	@ToString.Include
 	private String name;
@@ -68,23 +68,23 @@ public class MediaEntity{
 	@ToString.Include
 	private Integer index;
 	@Basic
-	@Column(name = "PartsCount", nullable = false)
+	@Column(nullable = false)
 	@NotNull
 	private Integer partsCount;
 	@Basic
-	@Column(name = "AvailablePartsCount", nullable = false)
+	@Column(nullable = false)
 	@NotNull
 	private Integer availablePartsCount;
 	@Enumerated(EnumType.STRING)
-	@Column(name = "Availability", nullable = false)
+	@Column(nullable = false)
 	@NotNull
 	private MediaAvailability availability;
 	@Enumerated(EnumType.STRING)
-	@Column(name = "ActionStatus", nullable = false)
+	@Column(nullable = false)
 	@NotNull
 	private MediaActionStatus actionStatus;
 	
 	@OneToMany(targetEntity = MediaRequirementEntity.class)
-	@JoinColumn(name = "MediaID", referencedColumnName = "ID")
+	@JoinColumn(name = "mediaId", referencedColumnName = "id")
 	private List<MediaRequirementEntity> requirements;
 }

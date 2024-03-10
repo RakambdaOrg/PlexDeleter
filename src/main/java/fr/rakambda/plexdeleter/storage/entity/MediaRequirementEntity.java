@@ -23,25 +23,25 @@ import java.io.Serializable;
 @NoArgsConstructor
 @Builder
 @Entity
-@Table(name = "MediaRequirement", schema = "PlexDeleter")
+@Table(name = "media_requirement", schema = "PlexDeleter")
 @ToString(onlyExplicitlyIncluded = true)
 public class MediaRequirementEntity{
 	@EmbeddedId
 	@ToString.Include
 	private TableId id;
 	@Enumerated(EnumType.STRING)
-	@Column(name = "Status", nullable = false)
+	@Column(nullable = false)
 	@NotNull
 	@ToString.Include
 	private MediaRequirementStatus status;
 	
 	@ManyToOne
-	@JoinColumn(name = "MediaId", referencedColumnName = "ID", updatable = false, nullable = false)
-	@MapsId("mediaId")
+	@JoinColumn(name = "mediaId", referencedColumnName = "id", updatable = false, nullable = false)
+	@MapsId("media_id")
 	private MediaEntity media;
 	@ManyToOne
-	@JoinColumn(name = "GroupId", referencedColumnName = "ID", updatable = false, nullable = false)
-	@MapsId("groupId")
+	@JoinColumn(name = "groupId", referencedColumnName = "id", updatable = false, nullable = false)
+	@MapsId("group_id")
 	private UserGroupEntity group;
 	
 	@Embeddable
@@ -49,10 +49,10 @@ public class MediaRequirementEntity{
 	@NoArgsConstructor
 	@AllArgsConstructor
 	public static class TableId implements Serializable{
-		@Column(name = "MediaId", nullable = false)
+		@Column(nullable = false)
 		@NotNull
 		private Integer mediaId;
-		@Column(name = "GroupId", nullable = false)
+		@Column(nullable = false)
 		@NotNull
 		private Integer groupId;
 	}
