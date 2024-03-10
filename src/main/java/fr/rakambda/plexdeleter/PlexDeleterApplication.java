@@ -1,5 +1,7 @@
 package fr.rakambda.plexdeleter;
 
+import fr.rakambda.plexdeleter.aot.JacksonHints;
+import fr.rakambda.plexdeleter.aot.ResourceHints;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.boot.autoconfigure.domain.EntityScan;
@@ -11,7 +13,10 @@ import org.springframework.scheduling.annotation.EnableScheduling;
 @EntityScan("fr.rakambda.plexdeleter.storage")
 @EnableJpaRepositories("fr.rakambda.plexdeleter.storage")
 @SpringBootApplication(scanBasePackages = "fr.rakambda.plexdeleter")
-@ImportRuntimeHints(NativeHints.class)
+@ImportRuntimeHints({
+		JacksonHints.class,
+		ResourceHints.class
+})
 public class PlexDeleterApplication{
 	public static void main(String[] args){
 		SpringApplication.run(PlexDeleterApplication.class, args);

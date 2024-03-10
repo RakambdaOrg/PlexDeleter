@@ -13,13 +13,6 @@ spring:
       connectionTimeout: 180000
   flyway:
     baseline-on-migrate: true
-  jackson:
-    visibility:
-      field: any
-      getter: none
-      setter: none
-      creator: none
-      is-getter: none
   jpa:
     generate-ddl: false
     database-platform: org.hibernate.dialect.MariaDBDialect
