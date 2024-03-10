@@ -9,6 +9,8 @@ import org.jetbrains.annotations.Nullable;
 import org.springframework.aot.hint.ExecutableMode;
 import org.springframework.aot.hint.RuntimeHints;
 import org.springframework.aot.hint.RuntimeHintsRegistrar;
+import org.thymeleaf.expression.Lists;
+import java.util.List;
 
 @Slf4j
 public class ThymeleafHints implements RuntimeHintsRegistrar{
@@ -18,6 +20,7 @@ public class ThymeleafHints implements RuntimeHintsRegistrar{
 			hints.reflection().registerMethod(UserService.class.getMethod("getSoonDeletedMedias"), ExecutableMode.INVOKE);
 			hints.reflection().registerMethod(UserService.class.getMethod("getMediaOverseerrUrl", MediaEntity.class), ExecutableMode.INVOKE);
 			hints.reflection().registerMethod(UserService.class.getMethod("getUserMedias", UserPersonEntity.class), ExecutableMode.INVOKE);
+			hints.reflection().registerMethod(Lists.class.getMethod("isEmpty", List.class), ExecutableMode.INVOKE);
 		}
 		catch(NoSuchMethodException e){
 			throw new RuntimeException(e);
