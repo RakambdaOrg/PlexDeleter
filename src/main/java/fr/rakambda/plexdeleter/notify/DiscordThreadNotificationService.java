@@ -50,11 +50,11 @@ public class DiscordThreadNotificationService{
 				.orElseThrow(() -> new RequestFailedException("Couldn't get new thread channel id"));
 		
 		if(!availableMedia.isEmpty()){
-			writeWatchlistSection(discordUserId, threadId, "discord.watchlist.body.header.available", locale, userGroupEntity, availableMedia);
+			writeWatchlistSection(discordUrl, threadId, "discord.watchlist.body.header.available", locale, userGroupEntity, availableMedia);
 			discordWebhookService.sendWebhookMessage(discordUrl, threadId, WebhookMessage.builder().content("---").build());
 		}
 		if(!notYetAvailableMedia.isEmpty()){
-			writeWatchlistSection(discordUserId, threadId, "discord.watchlist.body.header.not-yet-available", locale, userGroupEntity, notYetAvailableMedia);
+			writeWatchlistSection(discordUrl, threadId, "discord.watchlist.body.header.not-yet-available", locale, userGroupEntity, notYetAvailableMedia);
 		}
 	}
 	
