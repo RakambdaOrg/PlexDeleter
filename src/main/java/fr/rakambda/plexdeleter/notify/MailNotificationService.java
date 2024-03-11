@@ -86,6 +86,9 @@ public class MailNotificationService{
 		var mailHelper = new MimeMessageHelper(mimeMessage, "utf-8");
 		mailHelper.setFrom(mailConfiguration.getFromAddress(), mailConfiguration.getFromName());
 		mailHelper.setTo(mailAddresses);
+		if(Objects.nonNull(mailConfiguration.getBccAddresses()) && !mailConfiguration.getBccAddresses().isEmpty()){
+			mailHelper.setBcc(mailConfiguration.getBccAddresses().toArray(new String[0]));
+		}
 		mailHelper.setSubject(subject);
 		mailHelper.setText(body, true);
 		emailSender.send(mimeMessage);
