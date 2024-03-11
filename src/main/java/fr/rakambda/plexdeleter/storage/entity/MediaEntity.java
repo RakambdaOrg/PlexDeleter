@@ -84,7 +84,7 @@ public class MediaEntity{
 	@NotNull
 	private MediaActionStatus actionStatus;
 	
-	@OneToMany(targetEntity = MediaRequirementEntity.class)
+	@OneToMany(targetEntity = MediaRequirementEntity.class, orphanRemoval = true)
 	@JoinColumn(name = "mediaId", referencedColumnName = "id")
 	private List<MediaRequirementEntity> requirements;
 }

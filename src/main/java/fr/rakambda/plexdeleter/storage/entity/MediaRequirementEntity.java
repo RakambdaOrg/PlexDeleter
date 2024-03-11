@@ -15,8 +15,6 @@ import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 import lombok.ToString;
-import org.hibernate.annotations.OnDelete;
-import org.hibernate.annotations.OnDeleteAction;
 import org.jetbrains.annotations.NotNull;
 import java.io.Serializable;
 
@@ -40,7 +38,6 @@ public class MediaRequirementEntity{
 	@ManyToOne
 	@JoinColumn(name = "mediaId", referencedColumnName = "id", updatable = false, nullable = false)
 	@MapsId("media_id")
-	@OnDelete(action = OnDeleteAction.CASCADE)
 	private MediaEntity media;
 	@ManyToOne
 	@JoinColumn(name = "groupId", referencedColumnName = "id", updatable = false, nullable = false)
