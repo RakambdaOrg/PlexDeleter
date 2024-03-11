@@ -2,7 +2,6 @@ package fr.rakambda.plexdeleter.aot;
 
 import fr.rakambda.plexdeleter.service.UserService;
 import fr.rakambda.plexdeleter.storage.entity.MediaEntity;
-import fr.rakambda.plexdeleter.storage.entity.UserPersonEntity;
 import lombok.extern.slf4j.Slf4j;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
@@ -18,9 +17,7 @@ public class ThymeleafHints implements RuntimeHintsRegistrar{
 	@Override
 	public void registerHints(@NotNull RuntimeHints hints, @Nullable ClassLoader classLoader){
 		try{
-			hints.reflection().registerMethod(UserService.class.getMethod("getSoonDeletedMedias"), ExecutableMode.INVOKE);
 			hints.reflection().registerMethod(UserService.class.getMethod("getMediaOverseerrUrl", MediaEntity.class), ExecutableMode.INVOKE);
-			hints.reflection().registerMethod(UserService.class.getMethod("getUserMedias", UserPersonEntity.class), ExecutableMode.INVOKE);
 			hints.reflection().registerMethod(Lists.class.getMethod("isEmpty", List.class), ExecutableMode.INVOKE);
 			hints.reflection().registerMethod(IterationStatusVar.class.getMethod("getIndex"), ExecutableMode.INVOKE);
 			hints.reflection().registerField(IterationStatusVar.class.getDeclaredField("index"));

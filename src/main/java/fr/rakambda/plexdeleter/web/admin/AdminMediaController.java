@@ -1,6 +1,7 @@
 package fr.rakambda.plexdeleter.web.admin;
 
 import fr.rakambda.plexdeleter.service.AdminService;
+import fr.rakambda.plexdeleter.service.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -11,10 +12,20 @@ import org.springframework.web.servlet.ModelAndView;
 @RequestMapping("/admin/media")
 public class AdminMediaController{
 	private final AdminService adminService;
+	private final UserService userService;
 	
 	@Autowired
-	public AdminMediaController(AdminService adminService){
+	public AdminMediaController(AdminService adminService, UserService userService){
 		this.adminService = adminService;
+		this.userService = userService;
+	}
+	
+	@GetMapping("/list/soon-deleted")
+	public ModelAndView listSoonDeleted(){
+		var mav = new ModelAndView("admin/media/list-soon-deleted");
+		mav.addObject("medias", adminService.getSoonDeletedMedias());
+		mav.addObject("userService", userService);
+		return mav;
 	}
 	
 	@GetMapping("/delete")

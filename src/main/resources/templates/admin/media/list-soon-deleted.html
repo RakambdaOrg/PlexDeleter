@@ -1,7 +1,7 @@
 <!DOCTYPE HTML>
 <html lang="en" xmlns:th="https://www.thymeleaf.org">
 <head>
-    <title th:text="#{web.navbar.media-list}"></title>
+    <title th:text="#{web.navbar.admin.media.list-soon-deleted}"></title>
     <meta http-equiv="Content-Type" content="text/html; charset=UTF-8"/>
     <meta name="viewport" content="width=device-width, initial-scale=1.0, minimum-scale=1.0">
     <link th:href="@{/static/styles/base.css}" rel="stylesheet"/>
@@ -14,7 +14,7 @@
 <body>
 <div th:replace="~{fragment/navbar.html::navbar}"></div>
 <div>
-    <h2 th:text="#{web.media-list.watch-list.header}"/>
+    <h2 th:text="#{web.media-list.soon-removed.header}"/>
     <table class="table table-striped table-bordered table-hover">
         <thead class="thead-light">
         <tr>
@@ -25,11 +25,10 @@
             <th scope="col" th:text="#{web.media-list.table.availability}"/>
             <th scope="col">Overseerr</th>
             <th scope="col" th:text="#{web.media-list.table.id}"/>
-            <th scope="col" th:text="#{web.media-list.table.abandon}"/>
         </tr>
         </thead>
         <tbody>
-        <tr th:each="media : ${medias}" th:class="${media.getAvailability().isAvailable() ? 'table-success' : 'media-not-available'}">
+        <tr th:each="media : ${medias}">
             <td>
                 <img class="icon align-middle" th:alt="${media.getType()}" th:src="@{/static/__${media.getType().getIcon()}__}"/>
                 <th:block th:text="#{${media.getType().getLocalizationKey()}}"></th:block>
@@ -46,15 +45,6 @@
                 </th:block>
             </td>
             <td th:text="${media.getId()}"></td>
-            <td>
-                <th:block th:if="${media.getAvailability().isAvailable()}">
-                    <form th:action="@{/api/user/media-requirement/abandon}" method="post">
-                        <label for="media" th:text="#{web.media-list.table.abandon}" hidden/>
-                        <input id="media" type="hidden" name="media" class="form-control" th:value="${media.getId()}"/>
-                        <input type="submit" th:value="#{web.media-list.table.abandon}" class="btn btn-danger"/>
-                    </form>
-                </th:block>
-            </td>
         </tr>
         </tbody>
     </table>

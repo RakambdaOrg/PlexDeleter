@@ -38,8 +38,8 @@ public class UserController{
 				.orElseThrow(() -> new IllegalStateException("Could not find user with Plex id %d".formatted(plexId)));
 		
 		var mav = new ModelAndView("user/home");
+		mav.addObject("medias", userService.getUserMedias(userPerson));
 		mav.addObject("userService", userService);
-		mav.addObject("person", userPerson);
 		return mav;
 	}
 }

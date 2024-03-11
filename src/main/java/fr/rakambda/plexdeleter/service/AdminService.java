@@ -41,4 +41,11 @@ public class AdminService{
 				})
 				.toList();
 	}
+	
+	@NotNull
+	public List<MediaEntity> getSoonDeletedMedias(){
+		return mediaRepository.findAllReadyToDelete().stream()
+				.sorted(MediaEntity.COMPARATOR_BY_TYPE_THEN_NAME)
+				.toList();
+	}
 }
