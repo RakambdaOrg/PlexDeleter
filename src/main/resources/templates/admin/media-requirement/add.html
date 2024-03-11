@@ -28,11 +28,11 @@
             </p>
             <p>
                 <label for="overseerr" th:text="#{web.admin.requirement.add.overseerr}"/>
-                <input id="overseerr" type="number" name="overseerr" class="form-control" placeholder="123456" required autofocus/>
+                <input id="overseerr" type="text" inputmode="numeric" pattern="[0-9]*" name="overseerr" class="form-control" placeholder="123456" required autofocus/>
             </p>
             <p>
                 <label for="season" th:text="#{web.admin.requirement.add.season}"/>
-                <input id="season" type="number" name="season" class="form-control" placeholder="1" required/>
+                <input id="season" type="text" inputmode="numeric" pattern="[0-9]*" name="season" class="form-control" placeholder="1" required/>
             </p>
             <p>
                 <label for="type" th:text="#{web.admin.requirement.add.type}"/>

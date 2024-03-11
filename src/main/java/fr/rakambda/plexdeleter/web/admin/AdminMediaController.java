@@ -20,9 +20,9 @@ public class AdminMediaController{
 		this.userService = userService;
 	}
 	
-	@GetMapping("/list/soon-deleted")
+	@GetMapping("/soon-deleted")
 	public ModelAndView listSoonDeleted(){
-		var mav = new ModelAndView("admin/media/list-soon-deleted");
+		var mav = new ModelAndView("admin/media/soon-deleted");
 		mav.addObject("medias", adminService.getSoonDeletedMedias());
 		mav.addObject("userService", userService);
 		return mav;
