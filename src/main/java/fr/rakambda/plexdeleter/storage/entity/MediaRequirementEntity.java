@@ -36,11 +36,11 @@ public class MediaRequirementEntity{
 	private MediaRequirementStatus status;
 	
 	@ManyToOne(optional = false)
-	@JoinColumn(name = "media_id", referencedColumnName = "id", updatable = false, nullable = false)
+	@JoinColumn(name = "mediaId", referencedColumnName = "id", updatable = false, nullable = false)
 	@MapsId("mediaId")
 	private MediaEntity media;
 	@ManyToOne(optional = false)
-	@JoinColumn(name = "group_id", referencedColumnName = "id", updatable = false, nullable = false)
+	@JoinColumn(name = "groupId", referencedColumnName = "id", updatable = false, nullable = false)
 	@MapsId("groupId")
 	private UserGroupEntity group;
 	

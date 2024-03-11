@@ -1,8 +1,8 @@
 <!DOCTYPE html>
-<html xmlns:th="http://www.thymeleaf.org" xmlns:sec="http://www.w3.org/1999/xhtml" lang="en">
+<html xmlns:th="http://www.thymeleaf.org" lang="en">
 <head>
-    <title th:text="#{web.auth.login-success}"></title>
-    <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+    <title th:text="#{web.api.success}"></title>
+    <meta http-equiv="Content-Type" content="text/html; charset=UTF-8"/>
     <meta name="viewport" content="width=device-width, initial-scale=1.0, minimum-scale=1.0">
     <link th:href="@{/static/styles/base.css}" rel="stylesheet"/>
     <link th:href="@{/static/favicon.png}" rel="icon" type="image/png"/>
@@ -12,8 +12,7 @@
     <meta http-equiv="refresh" content="3; url=/"/>
 </head>
 <body>
-<div sec:authorize="isAuthenticated()" class="container-fluid text-center">
-    <h2 class="text-success" th:text="#{web.auth.success.header}"></h2>
-</div>
+<div th:replace="~{fragment/navbar.html::navbar}"></div>
+<h2 class="text-success" th:text="#{web.api.success}"></h2>
 </body>
 </html>

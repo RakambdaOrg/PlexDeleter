@@ -5,11 +5,9 @@ import fr.rakambda.plexdeleter.service.MediaService;
 import jakarta.validation.constraints.NotNull;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.servlet.ModelAndView;
 
@@ -25,9 +23,8 @@ public class ApiAdminMediaController{
 	}
 	
 	@PostMapping("/delete")
-	@ResponseStatus(HttpStatus.NO_CONTENT)
 	public ModelAndView delete(@NotNull @RequestParam("media") int mediaId) throws NotifyException{
 		mediaService.deleteMedia(mediaId);
-		return new ModelAndView("redirect:/");
+		return new ModelAndView("api/success");
 	}
 }

@@ -7,12 +7,10 @@ import fr.rakambda.plexdeleter.storage.repository.UserPersonRepository;
 import jakarta.validation.constraints.NotNull;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.http.HttpStatus;
 import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.servlet.ModelAndView;
 import java.util.Optional;
@@ -31,7 +29,6 @@ public class ApiUserMediaRequirementController{
 	}
 	
 	@PostMapping("/abandon")
-	@ResponseStatus(HttpStatus.NO_CONTENT)
 	public ModelAndView abandon(@org.jetbrains.annotations.NotNull Authentication authentication, @NotNull @RequestParam("media") int mediaId) throws NotifyException{
 		var plexId = Optional.ofNullable(authentication.getPrincipal())
 				.filter(PlexUser.class::isInstance)
@@ -43,6 +40,6 @@ public class ApiUserMediaRequirementController{
 				.orElseThrow(() -> new IllegalStateException("Could not find user with Plex id %d".formatted(plexId)));
 		
 		mediaRequirementService.abandon(mediaId, userPerson.getGroupId());
-		return new ModelAndView("redirect:/");
+		return new ModelAndView("/api/success");
 	}
 }
