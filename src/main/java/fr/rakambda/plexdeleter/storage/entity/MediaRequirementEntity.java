@@ -37,11 +37,11 @@ public class MediaRequirementEntity{
 	
 	@ManyToOne(optional = false)
 	@JoinColumn(name = "media_id", referencedColumnName = "id", updatable = false, nullable = false)
-	@MapsId("media_id")
+	@MapsId("mediaId")
 	private MediaEntity media;
 	@ManyToOne(optional = false)
 	@JoinColumn(name = "group_id", referencedColumnName = "id", updatable = false, nullable = false)
-	@MapsId("group_id")
+	@MapsId("groupId")
 	private UserGroupEntity group;
 	
 	@Embeddable
