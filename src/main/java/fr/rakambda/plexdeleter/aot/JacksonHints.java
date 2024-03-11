@@ -9,6 +9,8 @@ import org.springframework.aot.hint.RuntimeHintsRegistrar;
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
+import java.util.HashMap;
+import java.util.HashSet;
 import java.util.Objects;
 import java.util.Optional;
 import java.util.Set;
@@ -29,6 +31,8 @@ public class JacksonHints implements RuntimeHintsRegistrar{
 				"fr.rakambda.plexdeleter.api.servarr.sonarr.data",
 				"fr.rakambda.plexdeleter.api.tautulli.data"
 		);
+		
+		register(hints, HashSet.class);
 	}
 	
 	private void registerAll(@NotNull RuntimeHints hints, @NotNull ClassLoader classLoader, @NotNull String... packageNames){
@@ -40,16 +44,20 @@ public class JacksonHints implements RuntimeHintsRegistrar{
 	private void register(@NotNull RuntimeHints hints, @NotNull ClassLoader classLoader, @NotNull String packageName){
 		var klasses = findAllClassesUsingClassLoader(classLoader, packageName);
 		for(var klass : klasses){
-			log.info("Registering Jackson hint for {}", klass);
-			hints.reflection()
-					.registerType(klass,
-							MemberCategory.DECLARED_FIELDS,
-							MemberCategory.INVOKE_DECLARED_CONSTRUCTORS,
-							MemberCategory.INVOKE_DECLARED_METHODS,
-							MemberCategory.INVOKE_PUBLIC_CONSTRUCTORS,
-							MemberCategory.INVOKE_PUBLIC_METHODS
-					);
+			register(hints, klass);
 		}
+	}
+	
+	private void register(@NotNull RuntimeHints hints, @NotNull Class<?> klass){
+		log.info("Registering Jackson hint for {}", klass);
+		hints.reflection()
+				.registerType(klass,
+						MemberCategory.DECLARED_FIELDS,
+						MemberCategory.INVOKE_DECLARED_CONSTRUCTORS,
+						MemberCategory.INVOKE_DECLARED_METHODS,
+						MemberCategory.INVOKE_PUBLIC_CONSTRUCTORS,
+						MemberCategory.INVOKE_PUBLIC_METHODS
+				);
 	}
 	
 	@NotNull
