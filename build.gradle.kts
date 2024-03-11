@@ -56,8 +56,6 @@ tasks {
     }
 
     bootBuildImage {
-        builder = "paketobuildpacks/builder-jammy-tiny:latest"
-
         environment = mapOf("BP_NATIVE_IMAGE_BUILD_ARGUMENTS" to "-march=compatibility")
     }
 
