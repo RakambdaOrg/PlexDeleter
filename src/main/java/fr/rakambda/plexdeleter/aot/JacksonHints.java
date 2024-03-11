@@ -23,6 +23,7 @@ public class JacksonHints implements RuntimeHintsRegistrar{
 		var cl = Optional.ofNullable(classLoader).orElseGet(ClassLoader::getSystemClassLoader);
 		
 		registerAll(hints, cl,
+				"fr.rakambda.plexdeleter.json",
 				"fr.rakambda.plexdeleter.api.discord.data",
 				"fr.rakambda.plexdeleter.api.overseerr.data",
 				"fr.rakambda.plexdeleter.api.plex.data",
