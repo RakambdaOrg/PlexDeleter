@@ -3,9 +3,9 @@ package fr.rakambda.plexdeleter.api.overseerr.data;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
-import org.jetbrains.annotations.Nullable;
 import org.springframework.aot.hint.annotation.RegisterReflectionForBinding;
 import java.time.Instant;
+import java.util.HashSet;
 import java.util.Set;
 
 @Data
@@ -13,10 +13,8 @@ import java.util.Set;
 @AllArgsConstructor
 @RegisterReflectionForBinding(MediaInfo.class)
 public class MediaInfo{
-	@Nullable
-	private Set<Object> downloadStatus;
-	@Nullable
-	private Set<Object> downloadStatus4k;
+	private Set<Object> downloadStatus = new HashSet<>();
+	private Set<Object> downloadStatus4k = new HashSet<>();
 	private int id;
 	private MediaType mediaType;
 	private Integer tmdbId;
@@ -36,11 +34,8 @@ public class MediaInfo{
 	private String externalServiceSlug4k;
 	private Integer ratingKey;
 	private String ratingKey4k;
-	@Nullable
-	private Set<Object> requests;
-	@Nullable
-	private Set<Object> issues;
-	@Nullable
-	private Set<SeasonInfo> seasons;
+	private Set<Object> requests = new HashSet<>();
+	private Set<Object> issues = new HashSet<>();
+	private Set<SeasonInfo> seasons = new HashSet<>();
 	private String serviceUrl;
 }

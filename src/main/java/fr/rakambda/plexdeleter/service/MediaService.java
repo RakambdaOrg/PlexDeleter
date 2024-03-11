@@ -27,7 +27,6 @@ import org.springframework.stereotype.Service;
 import java.util.Collection;
 import java.util.Objects;
 import java.util.Optional;
-import java.util.Set;
 
 @Slf4j
 @Service
@@ -96,7 +95,7 @@ public class MediaService{
 		
 		var partsCount = switch(mediaDetails){
 			case MovieMedia ignored -> 1;
-			case SeriesMedia seriesMedia -> Optional.ofNullable(seriesMedia.getSeasons()).orElseGet(Set::of).stream()
+			case SeriesMedia seriesMedia -> seriesMedia.getSeasons().stream()
 					.filter(s -> Objects.equals(s.getSeasonNumber(), mediaEntity.getIndex()))
 					.findFirst()
 					.map(fr.rakambda.plexdeleter.api.overseerr.data.Season::getEpisodeCount)
@@ -149,7 +148,7 @@ public class MediaService{
 				availablePartsCount = Optional.of(radarrService.getMovie(mediaEntity.getServarrId()).isHasFile() ? 1 : 0);
 			}
 			case SEASON -> {
-				var stats = Optional.ofNullable(sonarrService.getSeries(mediaEntity.getServarrId()).getSeasons()).orElseGet(Set::of).stream()
+				var stats = sonarrService.getSeries(mediaEntity.getServarrId()).getSeasons().stream()
 						.filter(f -> Objects.equals(f.getSeasonNumber(), mediaEntity.getIndex()))
 						.findFirst()
 						.map(Season::getStatistics);

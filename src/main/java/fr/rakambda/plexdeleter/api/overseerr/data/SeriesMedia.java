@@ -5,9 +5,9 @@ import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.NoArgsConstructor;
 import lombok.ToString;
-import org.jetbrains.annotations.Nullable;
 import org.springframework.aot.hint.annotation.RegisterReflectionForBinding;
 import java.time.LocalDate;
+import java.util.HashSet;
 import java.util.Set;
 
 @Data
@@ -17,26 +17,20 @@ import java.util.Set;
 @ToString(callSuper = true)
 @RegisterReflectionForBinding(SeriesMedia.class)
 public final class SeriesMedia extends Media{
-	@Nullable
-	private Set<CreatedBy> createdBy;
-	@Nullable
-	private Set<Integer> episodeRunTime;
+	private Set<CreatedBy> createdBy = new HashSet<>();
+	private Set<Integer> episodeRunTime = new HashSet<>();
 	private LocalDate firstAirDate;
 	private LocalDate lastAirDate;
 	private boolean inProduction;
-	@Nullable
-	private Set<String> languages;
+	private Set<String> languages = new HashSet<>();
 	private String name;
-	@Nullable
-	private Set<Network> networks;
+	private Set<Network> networks = new HashSet<>();
 	private int numberOfEpisodes;
 	private int numberOfSeasons;
-	@Nullable
-	private Set<String> originCountry;
+	private Set<String> originCountry = new HashSet<>();
 	private String originalName;
 	private ContentRatings contentRatings;
-	@Nullable
-	private Set<Season> seasons;
+	private Set<Season> seasons = new HashSet<>();
 	private String type;
 	private Episode lastEpisodeToAir;
 }

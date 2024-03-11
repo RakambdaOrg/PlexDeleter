@@ -5,9 +5,9 @@ import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 import org.jetbrains.annotations.NotNull;
-import org.jetbrains.annotations.Nullable;
 import org.springframework.aot.hint.annotation.RegisterReflectionForBinding;
 import java.time.Instant;
+import java.util.HashSet;
 import java.util.Set;
 
 @Data
@@ -16,8 +16,8 @@ import java.util.Set;
 @RegisterReflectionForBinding(GetMetadataResponse.class)
 public class GetMetadataResponse{
 	@JsonProperty("media_info")
-	@Nullable
-	private Set<MediaInfo> mediaInfo;
+	@NotNull
+	private Set<MediaInfo> mediaInfo = new HashSet<>();
 	@JsonProperty("added_at")
 	@NotNull
 	private Instant addedAt;

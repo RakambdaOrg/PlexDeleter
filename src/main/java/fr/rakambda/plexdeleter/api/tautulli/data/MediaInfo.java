@@ -3,8 +3,9 @@ package fr.rakambda.plexdeleter.api.tautulli.data;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
-import org.jetbrains.annotations.Nullable;
+import org.jetbrains.annotations.NotNull;
 import org.springframework.aot.hint.annotation.RegisterReflectionForBinding;
+import java.util.HashSet;
 import java.util.Set;
 
 @Data
@@ -12,6 +13,6 @@ import java.util.Set;
 @AllArgsConstructor
 @RegisterReflectionForBinding(MediaInfo.class)
 public class MediaInfo{
-	@Nullable
-	private Set<MediaPart> parts;
+	@NotNull
+	private Set<MediaPart> parts = new HashSet<>();
 }

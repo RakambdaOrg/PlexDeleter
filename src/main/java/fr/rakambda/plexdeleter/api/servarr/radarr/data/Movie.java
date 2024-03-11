@@ -10,6 +10,7 @@ import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import org.springframework.aot.hint.annotation.RegisterReflectionForBinding;
 import java.time.Instant;
+import java.util.HashSet;
 import java.util.Set;
 
 @Data
@@ -23,8 +24,8 @@ public final class Movie{
 	private String originalTitle;
 	@NotNull
 	private OriginalLanguage originalLanguage;
-	@Nullable
-	private Set<AlternativeTitle> alternateTitles;
+	@NotNull
+	private Set<AlternativeTitle> alternateTitles = new HashSet<>();
 	private int secondaryYearSourceId;
 	@NotNull
 	private String sortTitle;
@@ -39,8 +40,8 @@ public final class Movie{
 	private Instant physicalRelease;
 	@Nullable
 	private Instant digitalRelease;
-	@Nullable
-	private Set<Image> images;
+	@NotNull
+	private Set<Image> images = new HashSet<>();
 	@Nullable
 	private String website;
 	@Nullable
@@ -72,10 +73,10 @@ public final class Movie{
 	private String rootFolderPath;
 	@Nullable
 	private String certification;
-	@Nullable
-	private Set<String> genres;
-	@Nullable
-	private Set<Integer> tags;
+	@NotNull
+	private Set<String> genres = new HashSet<>();
+	@NotNull
+	private Set<Integer> tags = new HashSet<>();
 	@Nullable
 	private Instant added;
 	@Nullable
