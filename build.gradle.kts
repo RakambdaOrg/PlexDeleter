@@ -56,7 +56,10 @@ tasks {
     }
 
     bootBuildImage {
-        environment = mapOf("BP_NATIVE_IMAGE_BUILD_ARGUMENTS" to "-march=compatibility")
+        environment = mapOf(
+            "BP_NATIVE_IMAGE_BUILD_ARGUMENTS" to "-march=compatibility",
+            "BP_DISABLE_SBOM" to "true"
+        )
     }
 
     graalvmNative {
