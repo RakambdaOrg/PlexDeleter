@@ -35,11 +35,11 @@ public class MediaRequirementEntity{
 	@ToString.Include
 	private MediaRequirementStatus status;
 	
-	@ManyToOne
+	@ManyToOne(optional = false)
 	@JoinColumn(name = "mediaId", referencedColumnName = "id", updatable = false, nullable = false)
 	@MapsId("media_id")
 	private MediaEntity media;
-	@ManyToOne
+	@ManyToOne(optional = false)
 	@JoinColumn(name = "groupId", referencedColumnName = "id", updatable = false, nullable = false)
 	@MapsId("group_id")
 	private UserGroupEntity group;

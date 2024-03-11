@@ -86,17 +86,7 @@ public class MediaEntity{
 	@NotNull
 	private MediaActionStatus actionStatus;
 	
-	@OneToMany(cascade = {
-			CascadeType.PERSIST,
-			CascadeType.MERGE,
-			CascadeType.REFRESH
-	}, targetEntity = MediaRequirementEntity.class)
+	@OneToMany(cascade = CascadeType.REMOVE, targetEntity = MediaRequirementEntity.class, mappedBy = "mediaId")
 	@JoinColumn(name = "mediaId", referencedColumnName = "id")
-	@Cascade({
-			org.hibernate.annotations.CascadeType.REMOVE,
-			org.hibernate.annotations.CascadeType.MERGE,
-			org.hibernate.annotations.CascadeType.PERSIST,
-			org.hibernate.annotations.CascadeType.DELETE_ORPHAN
-	})
 	private List<MediaRequirementEntity> requirements;
 }
