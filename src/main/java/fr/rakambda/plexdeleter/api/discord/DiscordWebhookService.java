@@ -81,9 +81,12 @@ public class DiscordWebhookService{
 	
 	@NotNull
 	private static Duration calculateDelay(@NotNull Throwable failure){
-		var headers = ((WebClientResponseException.ServiceUnavailable) failure).getHeaders();
+		if(!(failure instanceof WebClientResponseException webClientResponseException)){
+			return Duration.ofMinutes(1);
+		}
 		
-		var retryAfter = Duration.ofMillis(Optional.ofNullable(headers.getFirst("Retry-After"))
+		var retryAfterHeader = webClientResponseException.getHeaders().getFirst("Retry-After");
+		var retryAfter = Duration.ofMillis(Optional.ofNullable(retryAfterHeader)
 				.filter(s -> !s.isBlank())
 				.map(Integer::parseInt)
 				.orElse(60000));
