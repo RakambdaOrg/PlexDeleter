@@ -77,7 +77,7 @@ public class DeleteMediaScheduler implements IScheduler{
 		}
 		
 		log.info("Deleted {} media for a total size of {}", medias.size(), size);
-		supervisionService.send("\uD83D\uDDD1 Deleted a total of %s", supervisionService.sizeToHuman(size));
+		supervisionService.send("♻\uFE0F✅ Deleted a total of %s", supervisionService.sizeToHuman(size));
 	}
 	
 	@VisibleForTesting
@@ -126,7 +126,7 @@ public class DeleteMediaScheduler implements IScheduler{
 			mediaRepository.save(mediaEntity);
 		}
 		
-		supervisionService.send("\uD83D\uDDD1 Deleted media %s with a size of %s", mediaEntity, supervisionService.sizeToHuman(size));
+		supervisionService.send("♻\uFE0F Deleted media %s with a size of %s", mediaEntity, supervisionService.sizeToHuman(size));
 		
 		return size;
 	}
@@ -190,7 +190,7 @@ public class DeleteMediaScheduler implements IScheduler{
 				Files.delete(path);
 			}
 			
-			supervisionService.send("\uD83D\uDDD1 Deleted folder %s", path);
+			supervisionService.send("\uD83D\uDEAE Deleted folder %s", path);
 			return List.of(path.getParent());
 		}
 	}
@@ -237,7 +237,7 @@ public class DeleteMediaScheduler implements IScheduler{
 			Files.delete(path);
 		}
 		sizeDeleted.addAndGet(size);
-		supervisionService.send("\uD83D\uDDD1 Deleted file %s for a size of %s", path, supervisionService.sizeToHuman(size));
+		supervisionService.send("\uD83D\uDEAE Deleted file %s for a size of %s", path, supervisionService.sizeToHuman(size));
 	}
 	
 	@VisibleForTesting

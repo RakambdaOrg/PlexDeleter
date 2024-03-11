@@ -70,7 +70,7 @@ public class WatchService{
 		if(everythingWatchedFully && historyPerPart.size() >= media.getPartsCount()){
 			log.info("Setting {} as watched", mediaRequirementEntity);
 			mediaRequirementEntity.setStatus(MediaRequirementStatus.WATCHED);
-			supervisionService.send("\uD83D\uDC41 %s watched %s", group.getName(), media);
+			supervisionService.send("\uD83D\uDC41\uFE0F %s watched %s", group.getName(), media);
 		}
 		
 		mediaRequirementRepository.save(mediaRequirementEntity);

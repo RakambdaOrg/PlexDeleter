@@ -76,13 +76,6 @@ public class NotificationService{
 		}
 	}
 	
-	public void notifyMediaDeleted(@NotNull MediaEntity media) throws NotifyException{
-		var userGroups = userGroupRepository.findAllByHasRequirementOn(media.getId(), MediaRequirementStatus.WAITING);
-		for(var userGroup : userGroups){
-			notifyMediaDeleted(userGroup, media);
-		}
-	}
-	
 	public void notifyMediaDeleted(@NotNull UserGroupEntity userGroupEntity, @NotNull MediaEntity media) throws NotifyException{
 		try{
 			log.info("Notifying {} has been deleted to {}", media, userGroupEntity);

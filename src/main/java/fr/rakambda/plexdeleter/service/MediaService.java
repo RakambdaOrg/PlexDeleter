@@ -16,6 +16,7 @@ import fr.rakambda.plexdeleter.notify.NotifyException;
 import fr.rakambda.plexdeleter.storage.entity.MediaActionStatus;
 import fr.rakambda.plexdeleter.storage.entity.MediaAvailability;
 import fr.rakambda.plexdeleter.storage.entity.MediaEntity;
+import fr.rakambda.plexdeleter.storage.entity.MediaRequirementEntity;
 import fr.rakambda.plexdeleter.storage.entity.MediaType;
 import fr.rakambda.plexdeleter.storage.entity.UserGroupEntity;
 import fr.rakambda.plexdeleter.storage.repository.MediaRepository;
@@ -63,13 +64,13 @@ public class MediaService{
 		
 		if(mediaEntity.getPartsCount() <= 0){
 			log.warn("Failed to update {}, not enough info", mediaEntity);
-			supervisionService.send("❌ Could not update %s", mediaEntity);
+			supervisionService.send("\uD83D\uDEAB Could not update %s", mediaEntity);
 		}
 		else if(mediaEntity.getAvailablePartsCount() >= mediaEntity.getPartsCount()){
 			mediaEntity.setAvailability(MediaAvailability.DOWNLOADED);
 			log.info("Marked media {} as finished", mediaEntity);
 			notificationService.notifyMediaAvailable(mediaEntity);
-			supervisionService.send("\uD83C\uDD97 Marked %d as finished: %s (%d/%d)", mediaEntity.getId(), mediaEntity, mediaEntity.getPartsCount(), mediaEntity.getAvailablePartsCount());
+			supervisionService.send("\uD83C\uDD97 Marked %d as downloaded: %s (%d/%d)", mediaEntity.getId(), mediaEntity, mediaEntity.getPartsCount(), mediaEntity.getAvailablePartsCount());
 		}
 		
 		return mediaRepository.save(mediaEntity);
@@ -171,13 +172,18 @@ public class MediaService{
 			return;
 		}
 		log.info("Deleting media {}", media.get());
-		
+		var groups = media.get().getRequirements().stream()
+				.map(MediaRequirementEntity::getGroup)
+				.toList();
 		// TODO Delete request from overseer
 		// TODO Remove media from Servarr
 		
 		mediaRepository.delete(media.get());
-		notificationService.notifyMediaDeleted(media.get());
-		supervisionService.send("🗑️ Media deleted %s", media.get());
+		
+		for(var group : groups){
+			notificationService.notifyMediaDeleted(group, media.get());
+		}
+		supervisionService.send("\uD83D\uDCDB Media deleted from database %s", media.get());
 	}
 	
 	public void addMedia(@NotNull UserGroupEntity userGroupEntity, int overseerrId, @NotNull MediaType mediaType, @NotNull Collection<Integer> seasons) throws RequestFailedException, UpdateException, NotifyException{
@@ -231,7 +237,7 @@ public class MediaService{
 				.build();
 		
 		log.info("Creating new media {} for Overseerr id {}", media, overseerrId);
-		supervisionService.send("➕ Added media %s", media);
+		supervisionService.send("\uD83C\uDD95 Added media %s", media);
 		return media;
 	}
 }

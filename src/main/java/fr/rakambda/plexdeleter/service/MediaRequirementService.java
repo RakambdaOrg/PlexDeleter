@@ -41,7 +41,7 @@ public class MediaRequirementService{
 		
 		notificationService.notifyRequirementManuallyWatched(group, media);
 		mediaRequirementRepository.save(requirement.get());
-		supervisionService.send("👁️ Media manually watched %s for %s", media, group);
+		supervisionService.send("✍\uFE0F\uD83D\uDC41\uFE0F Media manually watched %s for %s", media, group);
 	}
 	
 	public void abandon(int mediaId, int groupId) throws NotifyException{
@@ -58,7 +58,7 @@ public class MediaRequirementService{
 		
 		notificationService.notifyRequirementManuallyAbandoned(group, media);
 		mediaRequirementRepository.save(requirement.get());
-		supervisionService.send("👁️ Media manually abandoned %s for %s", media, group);
+		supervisionService.send("✍\uFE0F\uD83D\uDE48 Media manually abandoned %s for %s", media, group);
 	}
 	
 	public void addRequirement(@NotNull MediaEntity media, @NotNull UserGroupEntity userGroupEntity, boolean allowModify) throws NotifyException{
@@ -71,7 +71,7 @@ public class MediaRequirementService{
 					.group(userGroupEntity)
 					.media(media)
 					.build());
-			supervisionService.send("Added requirement %s to %s", media, userGroupEntity);
+			supervisionService.send("\uD83D\uDED2 Added requirement %s to %s", media, userGroupEntity);
 			notificationService.notifyRequirementAdded(userGroupEntity, media);
 			return;
 		}
