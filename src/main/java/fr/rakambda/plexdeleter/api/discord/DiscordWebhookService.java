@@ -7,7 +7,9 @@ import fr.rakambda.plexdeleter.api.discord.data.WebhookMessage;
 import lombok.extern.slf4j.Slf4j;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
+import org.springframework.http.HttpHeaders;
 import org.springframework.stereotype.Service;
+import org.springframework.util.MimeTypeUtils;
 import org.springframework.web.reactive.function.BodyInserters;
 import org.springframework.web.reactive.function.client.WebClient;
 import org.springframework.web.reactive.function.client.WebClientResponseException;
@@ -50,6 +52,7 @@ public class DiscordWebhookService{
 						}
 						return b.build();
 					})
+					.header(HttpHeaders.CONTENT_TYPE, MimeTypeUtils.APPLICATION_JSON_VALUE)
 					.body(BodyInserters.fromValue(message))
 					.retrieve()
 					.toEntity(DiscordResponse.class)
