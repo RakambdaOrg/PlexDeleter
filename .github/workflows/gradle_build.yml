@@ -15,13 +15,12 @@ jobs:
 
   docker:
     uses: RakambdaOrg/rakambda-github-workflows/.github/workflows/springboot-native-docker-publish.yml@main
-    #    if: ${{ github.ref == format('refs/heads/{0}', github.event.repository.default_branch) }}
-    #    needs:
-    #      - build
+    if: ${{ github.ref == format('refs/heads/{0}', github.event.repository.default_branch) }}
+    needs:
+      - build
     with:
       java-version: ${{ vars.JAVA_VERSION }}
       docker-image: ${{ vars.DOCKER_IMAGE }}
-      docker-tag: native2
     secrets:
       docker-repo: ${{ secrets.DOCKER_REPO }}
       docker-username: ${{ secrets.DOCKER_USERNAME }}
