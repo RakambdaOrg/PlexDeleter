@@ -170,6 +170,7 @@ public class MediaService{
 		if(media.isEmpty()){
 			return;
 		}
+		log.info("Deleting media {}", media);
 		
 		// TODO Delete request from overseer
 		// TODO Remove media from Servarr
@@ -181,6 +182,7 @@ public class MediaService{
 	
 	public void addMedia(@NotNull UserGroupEntity userGroupEntity, int overseerrId, @NotNull MediaType mediaType, @NotNull Collection<Integer> seasons) throws RequestFailedException, UpdateException, NotifyException{
 		for(var season : seasons){
+			log.info("Adding media with Overseerr id {} and season {} to {}", overseerrId, season, userGroupEntity);
 			var media = getOrCreateMedia(overseerrId, mediaType, season);
 			media.setAvailability(MediaAvailability.DOWNLOADING);
 			media.setActionStatus(MediaActionStatus.TO_DELETE);
@@ -189,6 +191,7 @@ public class MediaService{
 			
 			media = update(media);
 			
+			log.info("Adding requirements");
 			mediaRequirementService.addRequirement(media, userGroupEntity, true);
 			var otherGroups = userGroupRepository.findAllByHasRequirementOn(Objects.requireNonNull(media.getOverseerrId()), media.getIndex() - 1);
 			for(var otherGroup : otherGroups){
@@ -227,6 +230,7 @@ public class MediaService{
 				.actionStatus(MediaActionStatus.TO_DELETE)
 				.build();
 		
+		log.info("Creating new media {} for Overseerr id {}", media, overseerrId);
 		supervisionService.send("➕ Added media %s", media);
 		return media;
 	}

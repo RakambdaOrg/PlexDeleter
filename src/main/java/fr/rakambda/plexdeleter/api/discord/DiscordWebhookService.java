@@ -9,7 +9,6 @@ import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import org.springframework.stereotype.Service;
 import org.springframework.web.reactive.function.BodyInserters;
-import org.springframework.web.reactive.function.client.ExchangeFilterFunction;
 import org.springframework.web.reactive.function.client.WebClient;
 import org.springframework.web.reactive.function.client.WebClientResponseException;
 import reactor.core.publisher.Mono;
@@ -42,6 +41,7 @@ public class DiscordWebhookService{
 		var lock = locks.computeIfAbsent(url, key -> new Semaphore(1));
 		lock.acquire();
 		try{
+			log.info("Sending webhook message to discord");
 			return HttpUtils.withStatusOkAndBody(apiClient.post()
 					.uri(url, b -> {
 						b = b.queryParam("wait", true);
@@ -59,9 +59,6 @@ public class DiscordWebhookService{
 					.blockOptional()
 					.orElseThrow(() -> new RequestFailedException("Failed to send discord webhook message %s".formatted(message))));
 		}
-		catch(WebClientResponseException e){
-			throw e;
-		}
 		finally{
 			lock.release();
 		}
@@ -71,11 +68,12 @@ public class DiscordWebhookService{
 	private static Duration calculateDelay(@NotNull Throwable failure){
 		var headers = ((WebClientResponseException.ServiceUnavailable) failure).getHeaders();
 		
-		var retryAfter = Optional.ofNullable(headers.getFirst("Retry-After"))
+		var retryAfter = Duration.ofMillis(Optional.ofNullable(headers.getFirst("Retry-After"))
 				.filter(s -> !s.isBlank())
 				.map(Integer::parseInt)
-				.orElse(60000);
+				.orElse(60000));
 		
-		return Duration.ofMillis(retryAfter);
+		log.warn("Discord webhook retry later : {}", retryAfter);
+		return retryAfter;
 	}
 }

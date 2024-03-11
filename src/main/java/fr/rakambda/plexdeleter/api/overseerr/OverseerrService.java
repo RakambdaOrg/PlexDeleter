@@ -35,6 +35,7 @@ public class OverseerrService{
 	
 	@NotNull
 	private MovieMedia getMovieDetails(int mediaId) throws RequestFailedException{
+		log.info("Getting movie details for media id {}", mediaId);
 		return HttpUtils.withStatusOkAndBody(apiClient.get()
 				.uri(b -> b.pathSegment("api", "v1", "movie", "{mediaId}")
 						.build(mediaId))
@@ -46,6 +47,7 @@ public class OverseerrService{
 	
 	@NotNull
 	private SeriesMedia getTvDetails(int mediaId) throws RequestFailedException{
+		log.info("Getting tv details for media id {}", mediaId);
 		return HttpUtils.withStatusOkAndBody(apiClient.get()
 				.uri(b -> b.pathSegment("api", "v1", "tv", "{mediaId}")
 						.build(mediaId))
@@ -57,6 +59,7 @@ public class OverseerrService{
 	
 	@NotNull
 	public Request getRequestDetails(int requestId) throws RequestFailedException{
+		log.info("Getting request details for request id {}", requestId);
 		return HttpUtils.withStatusOkAndBody(apiClient.get()
 				.uri(b -> b.pathSegment("api", "v1", "request", "{requestId}")
 						.build(requestId))

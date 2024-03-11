@@ -24,6 +24,7 @@ public class AuthController{
 	
 	@RequestMapping
 	public ModelAndView plexLogin() throws RequestFailedException{
+		log.info("New login request");
 		var pin = plexApiService.generatePin();
 		
 		var mav = new ModelAndView("auth/plex");

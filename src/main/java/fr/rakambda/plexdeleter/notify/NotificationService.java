@@ -6,12 +6,14 @@ import fr.rakambda.plexdeleter.storage.entity.MediaRequirementStatus;
 import fr.rakambda.plexdeleter.storage.entity.UserGroupEntity;
 import fr.rakambda.plexdeleter.storage.repository.UserGroupRepository;
 import jakarta.mail.MessagingException;
+import lombok.extern.slf4j.Slf4j;
 import org.jetbrains.annotations.NotNull;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import java.io.UnsupportedEncodingException;
 import java.util.Collection;
 
+@Slf4j
 @Service
 public class NotificationService{
 	private final MailNotificationService mailNotificationService;
@@ -30,6 +32,7 @@ public class NotificationService{
 			if(availableMedia.isEmpty() && notYetAvailableMedia.isEmpty()){
 				return;
 			}
+			log.info("Notifying watchlist to {}", userGroupEntity);
 			switch(userGroupEntity.getNotificationType()){
 				case MAIL -> mailNotificationService.notifyWatchlist(userGroupEntity, availableMedia, notYetAvailableMedia);
 				case DISCORD_THREAD -> discordThreadNotificationService.notifyWatchlist(userGroupEntity, availableMedia, notYetAvailableMedia);
@@ -42,6 +45,7 @@ public class NotificationService{
 	
 	public void notifyRequirementAdded(@NotNull UserGroupEntity userGroupEntity, @NotNull MediaEntity media) throws NotifyException{
 		try{
+			log.info("Notifying a requirement on {} has been added to {}", media, userGroupEntity);
 			switch(userGroupEntity.getNotificationType()){
 				case MAIL -> mailNotificationService.notifyRequirementAdded(userGroupEntity, media);
 				case DISCORD_THREAD -> discordThreadNotificationService.notifyRequirementAdded(userGroupEntity, media);
@@ -61,6 +65,7 @@ public class NotificationService{
 	
 	public void notifyMediaAvailable(@NotNull UserGroupEntity userGroupEntity, @NotNull MediaEntity media) throws NotifyException{
 		try{
+			log.info("Notifying {} is available to {}", media, userGroupEntity);
 			switch(userGroupEntity.getNotificationType()){
 				case MAIL -> mailNotificationService.notifyMediaAvailable(userGroupEntity, media);
 				case DISCORD_THREAD -> discordThreadNotificationService.notifyMediaAvailable(userGroupEntity, media);
@@ -80,6 +85,7 @@ public class NotificationService{
 	
 	public void notifyMediaDeleted(@NotNull UserGroupEntity userGroupEntity, @NotNull MediaEntity media) throws NotifyException{
 		try{
+			log.info("Notifying {} has been deleted to {}", media, userGroupEntity);
 			switch(userGroupEntity.getNotificationType()){
 				case MAIL -> mailNotificationService.notifyMediaDeleted(userGroupEntity, media);
 				case DISCORD_THREAD -> discordThreadNotificationService.notifyMediaDeleted(userGroupEntity, media);
@@ -92,6 +98,7 @@ public class NotificationService{
 	
 	public void notifyRequirementManuallyWatched(@NotNull UserGroupEntity userGroupEntity, @NotNull MediaEntity media) throws NotifyException{
 		try{
+			log.info("Notifying {} has been manually marked as watched to {}", media, userGroupEntity);
 			switch(userGroupEntity.getNotificationType()){
 				case MAIL -> mailNotificationService.notifyRequirementManuallyWatched(userGroupEntity, media);
 				case DISCORD_THREAD -> discordThreadNotificationService.notifyRequirementManuallyWatched(userGroupEntity, media);
@@ -104,6 +111,7 @@ public class NotificationService{
 	
 	public void notifyRequirementManuallyAbandoned(@NotNull UserGroupEntity userGroupEntity, @NotNull MediaEntity media) throws NotifyException{
 		try{
+			log.info("Notifying {} has been manually marked as abandoned to {}", media, userGroupEntity);
 			switch(userGroupEntity.getNotificationType()){
 				case MAIL -> mailNotificationService.notifyRequirementManuallyAbandoned(userGroupEntity, media);
 				case DISCORD_THREAD -> discordThreadNotificationService.notifyRequirementManuallyAbandoned(userGroupEntity, media);

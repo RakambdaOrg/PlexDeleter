@@ -8,10 +8,12 @@ import fr.rakambda.plexdeleter.storage.entity.MediaRequirementEntity;
 import fr.rakambda.plexdeleter.storage.entity.MediaRequirementStatus;
 import fr.rakambda.plexdeleter.storage.entity.UserGroupEntity;
 import fr.rakambda.plexdeleter.storage.repository.MediaRequirementRepository;
+import lombok.extern.slf4j.Slf4j;
 import org.jetbrains.annotations.NotNull;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+@Slf4j
 @Service
 public class MediaRequirementService{
 	private final MediaRequirementRepository mediaRequirementRepository;
@@ -30,6 +32,7 @@ public class MediaRequirementService{
 		if(requirement.isEmpty()){
 			return;
 		}
+		log.info("Marking requirement {} as completed", requirement);
 		
 		requirement.get().setStatus(MediaRequirementStatus.WATCHED);
 		
@@ -46,6 +49,7 @@ public class MediaRequirementService{
 		if(requirement.isEmpty()){
 			return;
 		}
+		log.info("Marking requirement {} as abandoned", requirement);
 		
 		requirement.get().setStatus(MediaRequirementStatus.ABANDONED);
 		
@@ -58,6 +62,7 @@ public class MediaRequirementService{
 	}
 	
 	public void addRequirement(@NotNull MediaEntity media, @NotNull UserGroupEntity userGroupEntity, boolean allowModify) throws NotifyException{
+		log.info("Adding requirement on {} for {}", media, userGroupEntity);
 		var id = new MediaRequirementEntity.TableId(media.getId(), userGroupEntity.getId());
 		if(!mediaRequirementRepository.existsById(id)){
 			mediaRequirementRepository.save(MediaRequirementEntity.builder()
@@ -72,9 +77,11 @@ public class MediaRequirementService{
 		}
 		
 		if(!allowModify){
+			log.info("Requirement already exists but we're not modifying it");
 			return;
 		}
 		
+		log.info("Updating already existing requirement");
 		mediaRequirementRepository.findById(id)
 				.map(requirement -> {
 					requirement.setStatus(MediaRequirementStatus.WAITING);

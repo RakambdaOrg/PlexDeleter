@@ -68,6 +68,7 @@ public class WatchService{
 						.anyMatch(watch -> Objects.equals(watch.getWatchedStatus(), 1)));
 		
 		if(everythingWatchedFully && historyPerPart.size() >= media.getPartsCount()){
+			log.info("Setting {} as watched", mediaRequirementEntity);
 			mediaRequirementEntity.setStatus(MediaRequirementStatus.WATCHED);
 			supervisionService.send("\uD83D\uDC41 %s watched %s", group.getName(), media);
 		}

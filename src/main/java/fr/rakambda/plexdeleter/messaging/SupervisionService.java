@@ -27,7 +27,7 @@ public class SupervisionService{
 				.content(body)
 				.build();
 		try{
-			log.info("Sending supervision message : {}", body);
+			log.info("Sending supervision message: {}", body);
 			discordWebhookService.sendWebhookMessage(supervisionConfiguration.getWebhookUrl(), webhookMessage);
 		}
 		catch(InterruptedException | RequestFailedException e){

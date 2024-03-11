@@ -28,6 +28,7 @@ public class SonarrController{
 	@PostMapping
 	@ResponseStatus(HttpStatus.NO_CONTENT)
 	public void onCall(@NonNull @RequestBody SonarrWebhook data){
+		log.info("Received new Sonarr webhook {}", data);
 		switch(data.getEventType()){
 			case "Grab" -> onEpisodeGrabbed(data);
 		}

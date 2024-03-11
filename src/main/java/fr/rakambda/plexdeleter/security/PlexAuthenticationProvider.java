@@ -31,9 +31,10 @@ public class PlexAuthenticationProvider implements AuthenticationProvider{
 		if(!(authentication instanceof PlexAuthenticationToken plexAuthenticationToken)){
 			return authentication;
 		}
-		log.info("Processing Plex authentication with {}", authentication.getName());
+		var id = plexAuthenticationToken.getPrincipal();
+		log.info("Processing Plex authentication with id {}", id);
 		
-		return authenticateAgainstThirdPartyAndGetAuthentication(plexAuthenticationToken.getPrincipal());
+		return authenticateAgainstThirdPartyAndGetAuthentication(id);
 	}
 	
 	private UsernamePasswordAuthenticationToken authenticateAgainstThirdPartyAndGetAuthentication(long id){
@@ -51,7 +52,7 @@ public class PlexAuthenticationProvider implements AuthenticationProvider{
 			var userDetails = userDetailsService.loadUserByUsername(dbUsername);
 			var principal = new PlexUser(userInfo.getId(), userInfo.getUsername(), authToken, userDetails.getAuthorities());
 			
-			log.info("Got principal {}", principal);
+			log.info("Got principal {} from id {}", principal, id);
 			return UsernamePasswordAuthenticationToken.authenticated(principal, id, userDetails.getAuthorities());
 		}
 		catch(UsernameNotFoundException e){

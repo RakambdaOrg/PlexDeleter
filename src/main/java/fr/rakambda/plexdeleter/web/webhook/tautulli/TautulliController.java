@@ -43,6 +43,7 @@ public class TautulliController{
 	@PostMapping
 	@ResponseStatus(HttpStatus.NO_CONTENT)
 	public void onCall(@NonNull @RequestBody TautulliWebhook data) throws RequestFailedException, IOException, UpdateException, NotifyException{
+		log.info("Received new Tautulli webhook {}", data);
 		switch(data.getType()){
 			case "watched" -> updateRequirement(data);
 			case "added" -> updateMedia(data);

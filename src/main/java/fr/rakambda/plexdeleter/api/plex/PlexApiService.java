@@ -5,6 +5,7 @@ import fr.rakambda.plexdeleter.api.RequestFailedException;
 import fr.rakambda.plexdeleter.api.plex.data.Pin;
 import fr.rakambda.plexdeleter.api.plex.data.User;
 import fr.rakambda.plexdeleter.config.ApplicationConfiguration;
+import lombok.extern.slf4j.Slf4j;
 import org.jetbrains.annotations.NotNull;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.codec.xml.Jaxb2XmlDecoder;
@@ -14,6 +15,7 @@ import org.springframework.web.reactive.function.client.ExchangeStrategies;
 import org.springframework.web.reactive.function.client.WebClient;
 import java.util.UUID;
 
+@Slf4j
 @Service
 public class PlexApiService{
 	private final WebClient apiClient;
@@ -43,6 +45,7 @@ public class PlexApiService{
 	
 	@NotNull
 	public Pin generatePin() throws RequestFailedException{
+		log.info("Generating Plex authentication PIN");
 		return HttpUtils.withStatusOkAndBody(apiClient.post()
 				.uri(b -> b.pathSegment("api", "v2", "pins")
 						.queryParam("strong", true)
@@ -55,6 +58,7 @@ public class PlexApiService{
 	
 	@NotNull
 	public Pin pollAuthToken(long id) throws RequestFailedException{
+		log.info("Polling Plex auth token for id {}", id);
 		return HttpUtils.withStatusOkAndBody(apiClient.get()
 				.uri(b -> b.pathSegment("api", "v2", "pins", "{id}")
 						.queryParam("strong", true)
@@ -67,6 +71,7 @@ public class PlexApiService{
 	
 	@NotNull
 	public User getUserInfo(@NotNull String authToken) throws RequestFailedException{
+		log.info("Getting user info from auth token");
 		return HttpUtils.withStatusOkAndBody(apiClient.get()
 				.uri(b -> b.pathSegment("api", "v2", "user")
 						.build())

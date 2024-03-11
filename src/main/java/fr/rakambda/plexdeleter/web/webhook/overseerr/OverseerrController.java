@@ -57,6 +57,7 @@ public class OverseerrController{
 	@PostMapping
 	@ResponseStatus(HttpStatus.NO_CONTENT)
 	public void onCall(@NonNull @RequestBody OverseerrWebhook data) throws RequestFailedException, UpdateException, NotifyException{
+		log.info("Received new Overseerr webhook {}", data);
 		switch(data.getNotificationType()){
 			case "MEDIA_AUTO_APPROVED", "MEDIA_APPROVED" -> onMediaApproved(data);
 			case "MEDIA_AVAILABLE" -> onMediaAdded(data);
