@@ -84,7 +84,7 @@ public class OverseerrController{
 		}
 		
 		var requestDetails = overseerrService.getRequestDetails(requestId.get());
-		var overseerrId = requestDetails.getMedia().getId();
+		var overseerrId = requestDetails.getMedia().getTmdbId();
 		var plexUserId = requestDetails.getRequestedBy().getPlexId();
 		
 		var tags = switch(requestDetails.getMedia().getMediaType()){
