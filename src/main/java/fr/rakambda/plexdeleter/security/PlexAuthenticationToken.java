@@ -2,9 +2,13 @@ package fr.rakambda.plexdeleter.security;
 
 import lombok.Getter;
 import org.springframework.security.authentication.AbstractAuthenticationToken;
+import java.io.Serial;
 
 @Getter
 public class PlexAuthenticationToken extends AbstractAuthenticationToken{
+	@Serial
+	private static final long serialVersionUID = -1890394212162001287L;
+	
 	private final Long principal;
 	private String credentials;
 	
