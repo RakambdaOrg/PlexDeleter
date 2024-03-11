@@ -45,9 +45,9 @@ public class SonarrController{
 				.collect(Collectors.toMap(Episode::getSeasonNumber, Episode::getEpisodeNumber, Math::max));
 		
 		for(var entry : maxEpisodePerSeason.entrySet()){
-			var mediaEntity = mediaRepository.findByTvdbIdAndIndex(series.getTvdbId(), entry.getKey());
+			var mediaEntity = mediaRepository.findByServarrIdAndIndex(series.getId(), entry.getKey());
 			if(mediaEntity.isEmpty()){
-				log.warn("Not updating any media, could not find media with tvdb id {}, season {}, from {}", series.getTvdbId(), entry.getKey(), data);
+				log.warn("Not updating any media, could not find media with servarr id {}, season {}, from {}", series.getId(), entry.getKey(), data);
 				return;
 			}
 			
