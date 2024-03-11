@@ -170,13 +170,13 @@ public class MediaService{
 		if(media.isEmpty()){
 			return;
 		}
-		log.info("Deleting media {}", media);
+		log.info("Deleting media {}", media.get());
 		
 		// TODO Delete request from overseer
 		// TODO Remove media from Servarr
 		
-		notificationService.notifyMediaDeleted(media.get());
 		mediaRepository.delete(media.get());
+		notificationService.notifyMediaDeleted(media.get());
 		supervisionService.send("🗑️ Media deleted %s", media.get());
 	}
 	
