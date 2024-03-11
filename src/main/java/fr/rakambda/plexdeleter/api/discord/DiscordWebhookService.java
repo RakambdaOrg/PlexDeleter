@@ -9,6 +9,7 @@ import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import org.springframework.stereotype.Service;
 import org.springframework.web.reactive.function.BodyInserters;
+import org.springframework.web.reactive.function.client.ExchangeFilterFunction;
 import org.springframework.web.reactive.function.client.WebClient;
 import org.springframework.web.reactive.function.client.WebClientResponseException;
 import reactor.core.publisher.Mono;
@@ -49,7 +50,7 @@ public class DiscordWebhookService{
 						}
 						return b.build();
 					})
-					.bodyValue(BodyInserters.fromValue(message))
+					.body(BodyInserters.fromValue(message))
 					.retrieve()
 					.toEntity(DiscordResponse.class)
 					.retryWhen(Retry.indefinitely()
@@ -57,6 +58,9 @@ public class DiscordWebhookService{
 							.doBeforeRetryAsync(signal -> Mono.delay(calculateDelay(signal.failure())).then()))
 					.blockOptional()
 					.orElseThrow(() -> new RequestFailedException("Failed to send discord webhook message %s".formatted(message))));
+		}
+		catch(WebClientResponseException e){
+			throw e;
 		}
 		finally{
 			lock.release();
