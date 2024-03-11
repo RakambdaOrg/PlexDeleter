@@ -1,0 +1,53 @@
+<!DOCTYPE HTML>
+<html lang="en" xmlns:th="https://www.thymeleaf.org">
+<head>
+    <title th:text="#{web.navbar.admin.media.list-soon-deleted}"></title>
+    <meta http-equiv="Content-Type" content="text/html; charset=UTF-8"/>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, minimum-scale=1.0">
+    <link th:href="@{/static/styles/base.css}" rel="stylesheet"/>
+    <link th:href="@{/static/favicon.png}" rel="icon" type="image/png"/>
+    <link href="https://stackpath.bootstrapcdn.com/bootstrap/4.4.1/css/bootstrap.min.css"
+          rel="stylesheet"
+          integrity="sha384-Vkoo8x4CGsO3+Hhxv8T/Q5PaXtkKtu6ug5TOeNV6gBiFeWPGFN9MuhOf23Q9Ifjh"
+          crossorigin="anonymous"/>
+</head>
+<body>
+<div th:replace="~{fragment/navbar.html::navbar}"></div>
+<div>
+    <h2 th:text="#{web.media-list.soon-removed.header}"/>
+    <table class="table table-striped table-bordered table-hover">
+        <thead class="thead-light">
+        <tr>
+            <th scope="col" th:text="#{web.media-list.table.type}"/>
+            <th scope="col" th:text="#{web.media-list.table.name}"/>
+            <th scope="col" th:text="#{web.media-list.table.season}"/>
+            <th scope="col" th:text="#{web.media-list.table.count}"/>
+            <th scope="col" th:text="#{web.media-list.table.availability}"/>
+            <th scope="col">Overseerr</th>
+            <th scope="col" th:text="#{web.media-list.table.id}"/>
+        </tr>
+        </thead>
+        <tbody>
+        <tr th:each="media : ${medias}">
+            <td>
+                <img class="icon align-middle" th:alt="${media.getType()}" th:src="@{/static/__${media.getType().getIcon()}__}"/>
+                <th:block th:text="#{${media.getType().getLocalizationKey()}}"></th:block>
+            </td>
+            <td th:text="${media.getName()}"></td>
+            <td th:text="${media.getIndex()}"></td>
+            <td th:text="${media.getPartsCount()}"></td>
+            <td th:text="#{${media.getAvailability().getLocalizationKey()}}"></td>
+            <td>
+                <th:block th:if="${media.getOverseerrId()}">
+                    <a th:href="${userService.getMediaOverseerrUrl(media)}" th:target="_blank">
+                        <img class="icon" alt="Overseerr logo" th:src="@{/static/overseerr.png}"/>
+                    </a>
+                </th:block>
+            </td>
+            <td th:text="${media.getId()}"></td>
+        </tr>
+        </tbody>
+    </table>
+</div>
+</body>
+</html>

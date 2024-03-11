@@ -1,0 +1,79 @@
+logging:
+  level:
+    org.mariadb.jdbc: WARN
+    root: INFO
+
+spring:
+  datasource:
+    url: "jdbc:mariadb://fake:3306/PlexDeleter"
+    username: ""
+    password: ""
+    hikari:
+      maximum-pool-size: 3
+      connectionTimeout: 180000
+  flyway:
+    baseline-on-migrate: true
+  jpa:
+    generate-ddl: false
+    database-platform: org.hibernate.dialect.MariaDBDialect
+    hibernate:
+      ddl-auto: none
+  mail:
+    host: "smtp.host"
+    port: 587
+    username: "username"
+    password: "password"
+    properties:
+      mail:
+        smtp:
+          auth: true
+          starttls:
+            enable: true
+  messages:
+    basename: lang/messages
+  mvc:
+    static-path-pattern: "/static/**"
+  threads:
+    virtual:
+      enabled: true
+  web:
+    resources:
+      static-locations: "classpath:/static/"
+
+server:
+  port: 8080
+  forward-headers-strategy: native
+  servlet:
+    session:
+      timeout: 12h
+
+app:
+  applicationUrl: "http://app.url"
+  exclude-tag: "no-deleter"
+  plex:
+    app-endpoint: "https://app.plex.tv"
+    endpoint: "https://plex.tv"
+  overseerr:
+    endpoint: "https://overseerr"
+    api-key: "api-key"
+  tautulli:
+    endpoint: "https://tautulli"
+    api-key: "api-key"
+  radarr:
+    endpoint: "https://radarr"
+    api-key: "api-key"
+  sonarr:
+    endpoint: "https://sonarr"
+    api-key: "api-key"
+  deletion:
+    days-delay: 5
+    dry-delete: false
+    remote-path-mappings: { }
+  notify-watchlist:
+    daysDelay: 7
+  mail:
+    from-address: "from@sender.com"
+    from-name: "Plex Watcher"
+  supervision:
+    webhook-url: "https://webhook"
+

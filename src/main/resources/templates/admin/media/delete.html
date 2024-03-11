@@ -1,0 +1,36 @@
+<!DOCTYPE HTML>
+<html lang="en" xmlns:th="https://www.thymeleaf.org">
+<head>
+    <title th:text="#{web.navbar.admin.media.delete}"></title>
+    <meta http-equiv="Content-Type" content="text/html; charset=UTF-8"/>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, minimum-scale=1.0">
+    <link th:href="@{/static/styles/base.css}" rel="stylesheet"/>
+    <link th:href="@{/static/favicon.png}" rel="icon" type="image/png"/>
+    <link href="https://stackpath.bootstrapcdn.com/bootstrap/4.4.1/css/bootstrap.min.css"
+          rel="stylesheet"
+          integrity="sha384-Vkoo8x4CGsO3+Hhxv8T/Q5PaXtkKtu6ug5TOeNV6gBiFeWPGFN9MuhOf23Q9Ifjh"
+          crossorigin="anonymous"/>
+</head>
+<body>
+<div th:replace="~{fragment/navbar.html::navbar}"></div>
+<div class="container-fluid text-center">
+    <form th:action="@{/api/admin/media/delete}" method="post" style="max-width: 350px; margin: 0 auto;">
+        <div class="border border-secondary p-3 rounded">
+            <p th:text="#{web.admin.media.delete.header}"/>
+            <p>
+                <label for="media" th:text="#{web.admin.media.delete.media}"/>
+                <select class="form-control" id="media" name="media" required>
+                    <option th:each="media : ${medias}"
+                            th:value="${media.getId()}"
+                            th:text="${media.getName()} + ' - ' + ${media.getIndex()}">
+                    </option>
+                </select>
+            </p>
+            <p>
+                <input type="submit" th:value="#{web.admin.media.delete.delete}" class="btn btn-danger"/>
+            </p>
+        </div>
+    </form>
+</div>
+</body>
+</html>

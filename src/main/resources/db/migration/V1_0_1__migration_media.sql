@@ -1,0 +1,31 @@
+ALTER TABLE `Media`
+    MODIFY COLUMN `Type` ENUM ('SEASON', 'SHOW', 'MOVIE') NOT NULL;
+UPDATE `Media`
+SET `Type` = 'SEASON'
+WHERE `Type` = 'SHOW';
+ALTER TABLE `Media`
+    MODIFY COLUMN `Type` ENUM ('MOVIE', 'SEASON') NOT NULL AFTER `Id`;
+
+ALTER TABLE `Media`
+    ADD COLUMN IF NOT EXISTS `PlexId` INT AFTER `Type`;
+ALTER TABLE `Media`
+    ADD COLUMN IF NOT EXISTS `ServarrId` INT AFTER `OverseerrId`;
+
+ALTER TABLE `Media` RENAME COLUMN `Season` TO `Index`;
+ALTER TABLE `Media` RENAME COLUMN `ElementCount` TO `PartsCount`;
+
+ALTER TABLE `Media`
+    ADD COLUMN IF NOT EXISTS `AvailablePartsCount` INT NOT NULL DEFAULT 0 AFTER `PartsCount`;
+
+ALTER TABLE `Media` RENAME COLUMN `Status` TO `Availability`;
+
+ALTER TABLE `Media`
+    MODIFY COLUMN `Availability` ENUM ('FINISHED', 'RELEASING', 'MANUAL', 'DOWNLOADED', 'DOWNLOADING') NOT NULL AFTER `AvailablePartsCount`;
+UPDATE `Media`
+SET `Availability` = 'DOWNLOADED'
+WHERE `Availability` = 'FINISHED';
+UPDATE `Media`
+SET `Availability` = 'DOWNLOADING'
+WHERE `Availability` = 'RELEASING';
+ALTER TABLE `Media`
+    MODIFY COLUMN `Availability` ENUM ('DOWNLOADED', 'DOWNLOADING', 'MANUAL') NOT NULL DEFAULT 'DOWNLOADING';

@@ -1,0 +1,14 @@
+ALTER TABLE `Media`
+    DROP COLUMN IF EXISTS `TvdbId`;
+
+UPDATE `Media`
+SET `PartsCount` = 0
+WHERE `PartsCount` IS NULL;
+UPDATE `Media`
+SET `Index` = 1
+WHERE `Index` IS NULL;
+
+ALTER TABLE `Media`
+    MODIFY COLUMN `Index` INT NOT NULL DEFAULT 1;
+ALTER TABLE `Media`
+    MODIFY COLUMN `PartsCount` INT NOT NULL DEFAULT 0;

@@ -1,5 +1,11 @@
-/.idea
+.gradle
+.idea
+/build
+/logs
+/out
+/target
 /venv
-__pycache__
 
-config.json
+*.iml
+/config.json
+/src/main/resources/application-*.yml
