@@ -1,6 +1,7 @@
 package fr.rakambda.plexdeleter.storage.entity;
 
 import jakarta.persistence.Basic;
+import jakarta.persistence.CascadeType;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.EnumType;
@@ -16,6 +17,7 @@ import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 import lombok.ToString;
+import org.hibernate.annotations.Cascade;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import java.util.Comparator;
@@ -84,7 +86,17 @@ public class MediaEntity{
 	@NotNull
 	private MediaActionStatus actionStatus;
 	
-	@OneToMany(targetEntity = MediaRequirementEntity.class, orphanRemoval = true)
+	@OneToMany(cascade = {
+			CascadeType.PERSIST,
+			CascadeType.MERGE,
+			CascadeType.REFRESH
+	}, targetEntity = MediaRequirementEntity.class)
 	@JoinColumn(name = "mediaId", referencedColumnName = "id")
+	@Cascade({
+			org.hibernate.annotations.CascadeType.REMOVE,
+			org.hibernate.annotations.CascadeType.MERGE,
+			org.hibernate.annotations.CascadeType.PERSIST,
+			org.hibernate.annotations.CascadeType.DELETE_ORPHAN
+	})
 	private List<MediaRequirementEntity> requirements;
 }
