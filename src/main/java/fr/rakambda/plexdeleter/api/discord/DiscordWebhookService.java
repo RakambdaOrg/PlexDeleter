@@ -1,5 +1,6 @@
 package fr.rakambda.plexdeleter.api.discord;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
 import fr.rakambda.plexdeleter.api.HttpUtils;
 import fr.rakambda.plexdeleter.api.RequestFailedException;
 import fr.rakambda.plexdeleter.api.discord.data.DiscordResponse;
@@ -7,7 +8,9 @@ import fr.rakambda.plexdeleter.api.discord.data.WebhookMessage;
 import lombok.extern.slf4j.Slf4j;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.MediaType;
+import org.springframework.http.codec.json.Jackson2JsonEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.web.reactive.function.BodyInserters;
 import org.springframework.web.reactive.function.UnsupportedMediaTypeException;
@@ -28,8 +31,13 @@ public class DiscordWebhookService{
 	private final WebClient apiClient;
 	private final Map<String, Semaphore> locks;
 	
-	public DiscordWebhookService(){
-		apiClient = WebClient.builder().build();
+	@Autowired
+	public DiscordWebhookService(ObjectMapper objectMapper){
+		apiClient = WebClient.builder()
+				.codecs(clientCodecConfigurer -> clientCodecConfigurer.defaultCodecs()
+						.jackson2JsonEncoder(new Jackson2JsonEncoder(objectMapper, MediaType.APPLICATION_JSON))
+				)
+				.build();
 		locks = new ConcurrentHashMap<>();
 	}
 	
