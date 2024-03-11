@@ -7,10 +7,10 @@ import fr.rakambda.plexdeleter.api.discord.data.WebhookMessage;
 import lombok.extern.slf4j.Slf4j;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
-import org.springframework.http.HttpHeaders;
+import org.springframework.http.MediaType;
 import org.springframework.stereotype.Service;
-import org.springframework.util.MimeTypeUtils;
 import org.springframework.web.reactive.function.BodyInserters;
+import org.springframework.web.reactive.function.UnsupportedMediaTypeException;
 import org.springframework.web.reactive.function.client.WebClient;
 import org.springframework.web.reactive.function.client.WebClientResponseException;
 import reactor.core.publisher.Mono;
@@ -52,7 +52,7 @@ public class DiscordWebhookService{
 						}
 						return b.build();
 					})
-					.header(HttpHeaders.CONTENT_TYPE, MimeTypeUtils.APPLICATION_JSON_VALUE)
+					.contentType(MediaType.APPLICATION_JSON)
 					.body(BodyInserters.fromValue(message))
 					.retrieve()
 					.toEntity(DiscordResponse.class)
@@ -61,6 +61,10 @@ public class DiscordWebhookService{
 							.doBeforeRetryAsync(signal -> Mono.delay(calculateDelay(signal.failure())).then()))
 					.blockOptional()
 					.orElseThrow(() -> new RequestFailedException("Failed to send discord webhook message %s".formatted(message))));
+		}
+		catch(UnsupportedMediaTypeException e){
+			log.info("Supported media types: {}", e.getSupportedMediaTypes());
+			throw e;
 		}
 		finally{
 			lock.release();

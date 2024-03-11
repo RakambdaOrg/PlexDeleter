@@ -30,7 +30,7 @@ public class SupervisionService{
 			log.info("Sending supervision message: {}", body);
 			discordWebhookService.sendWebhookMessage(supervisionConfiguration.getWebhookUrl(), webhookMessage);
 		}
-		catch(InterruptedException | RequestFailedException e){
+		catch(Exception e){
 			log.error("Failed to send supervision message `{}`", body, e);
 		}
 	}
