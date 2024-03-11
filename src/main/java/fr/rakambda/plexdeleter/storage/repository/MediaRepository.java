@@ -30,10 +30,7 @@ public interface MediaRepository extends JpaRepository<MediaEntity, Integer>{
 	Optional<MediaEntity> findByPlexId(int plexId);
 	
 	@NotNull
-	List<MediaEntity> findAllByTvdbIdAndAvailability(int tvdbId, @NotNull MediaAvailability availability);
-	
-	@NotNull
-	Optional<MediaEntity> findByTvdbIdAndIndex(int tvdbId, int index);
+	List<MediaEntity> findAllByOverseerrIdAndAvailability(int tvdbId, @NotNull MediaAvailability availability);
 	
 	@NotNull
 	Optional<MediaEntity> findByOverseerrIdAndIndex(int overseerrId, int index);

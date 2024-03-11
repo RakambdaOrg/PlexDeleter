@@ -10,5 +10,7 @@ import org.jetbrains.annotations.Nullable;
 @AllArgsConstructor
 public class Media{
 	@Nullable
-	private Integer tvdbId;
+	private Integer tmdbId;
+	@Nullable
+	private String tvdbId;
 }

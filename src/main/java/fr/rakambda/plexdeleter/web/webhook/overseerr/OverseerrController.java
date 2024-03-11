@@ -65,10 +65,10 @@ public class OverseerrController{
 	}
 	
 	private void onMediaAdded(@NotNull OverseerrWebhook data) throws RequestFailedException, UpdateException, NotifyException{
-		var tvdbId = Optional.ofNullable(data.getMedia()).map(Media::getTvdbId);
+		var overseerrId = Optional.ofNullable(data.getMedia()).map(Media::getTmdbId);
 		
-		var medias = tvdbId
-				.map(id -> mediaRepository.findAllByTvdbIdAndAvailability(id, MediaAvailability.DOWNLOADING))
+		var medias = overseerrId
+				.map(id -> mediaRepository.findAllByOverseerrIdAndAvailability(id, MediaAvailability.DOWNLOADING))
 				.orElseGet(() -> mediaRepository.findAllByAvailability(MediaAvailability.DOWNLOADING));
 		
 		for(var media : medias){
