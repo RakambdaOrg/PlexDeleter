@@ -43,9 +43,9 @@ public class WebSecurityConfig{
 				.httpBasic(Customizer.withDefaults())
 				.with(new PlexFormLoginConfigurer<>(), c -> c
 						.authenticationFilter(new PlexAuthenticationFilter())
+						.defaultSuccessUrl("/auth/success", false)
 						.loginPage("/auth")
 						.failureForwardUrl("/auth/error")
-						.successForwardUrl("/auth/success")
 						.loginProcessingUrl("/login")
 						.permitAll()
 				)
