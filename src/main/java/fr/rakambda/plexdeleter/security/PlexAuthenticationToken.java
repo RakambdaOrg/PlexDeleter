@@ -1,30 +1,41 @@
 package fr.rakambda.plexdeleter.security;
 
 import lombok.Getter;
+import org.jetbrains.annotations.Nullable;
 import org.springframework.security.authentication.AbstractAuthenticationToken;
 import java.io.Serial;
 
 @Getter
 public class PlexAuthenticationToken extends AbstractAuthenticationToken{
 	@Serial
-	private static final long serialVersionUID = -1890394212162001287L;
+	private static final long serialVersionUID = -6986445552335701701L;
 	
-	private final Long principal;
-	private String credentials;
+	private String authToken;
 	
-	public static PlexAuthenticationToken unauthenticated(Long principal){
-		return new PlexAuthenticationToken(principal, null);
+	public static PlexAuthenticationToken unauthenticated(@Nullable String authToken){
+		return new PlexAuthenticationToken(authToken);
 	}
 	
-	private PlexAuthenticationToken(Long principal, String credentials){
+	private PlexAuthenticationToken(@Nullable String authToken){
 		super(null);
-		this.principal = principal;
-		this.credentials = credentials;
+		this.authToken = authToken;
 	}
 	
 	@Override
 	public void eraseCredentials(){
 		super.eraseCredentials();
-		this.credentials = null;
+		this.authToken = null;
+	}
+	
+	@Nullable
+	@Override
+	public Object getCredentials(){
+		return authToken;
+	}
+	
+	@Nullable
+	@Override
+	public Object getPrincipal(){
+		return null;
 	}
 }

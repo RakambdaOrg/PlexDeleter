@@ -1,0 +1,179 @@
+<th:block th:fragment="plex-login-script">
+    <script src="//code.jquery.com/jquery-3.7.1.min.js"
+            integrity="sha256-/JqT3SQfawRcv/BIHPThkBvs0OEvtFFmqPF/lYI/Cxo="
+            crossorigin="anonymous"></script>
+    <script src="//cdn.jsdelivr.net/npm/ua-parser-js@1.0.37/src/ua-parser.min.js"></script>
+    <script>
+        const PLEX_OAUTH_LOADER = "<style>.login-loader-container {font-family: \"Open Sans\", Arial, sans-serif;position: absolute;top: 0;right: 0;bottom: 0;left: 0;}.login-loader-message {color: #282A2D;text-align: center;position: absolute;left: 50%;top: 25%;transform: translate(-50%, -50%);}.login-loader {border: 5px solid #ccc;-webkit-animation: spin 1s linear infinite;animation: spin 1s linear infinite;border-top: 5px solid #282A2D;border-radius: 50%;width: 50px;height: 50px;position: relative;left: calc(50% - 25px);}@keyframes spin {0% { transform: rotate(0deg); }100% { transform: rotate(360deg); }}</style><div class=\"login-loader-container\"><div class=\"login-loader-message\"><div class=\"login-loader\"></div><br>Redirecting to the Plex login page...</div></div>";
+
+        let plex_oauth_window = null;
+        let polling = null;
+
+        function runPlexOauth(success, error) {
+            closePlexOAuthWindow();
+
+            plex_oauth_window = openPopupCenter('', 'Plex-OAuth', 600, 700);
+            $(plex_oauth_window.document.body).html(PLEX_OAUTH_LOADER);
+
+            getPlexOAuthPin().then(function (data) {
+                const x_plex_headers = getPlexHeaders();
+                const pin = data.pin;
+                const code = data.code;
+
+                const oauth_params = {
+                    'clientID': x_plex_headers['X-Plex-Client-Identifier'],
+                    'context[device][product]': x_plex_headers['X-Plex-Product'],
+                    'context[device][version]': x_plex_headers['X-Plex-Version'],
+                    'context[device][platform]': x_plex_headers['X-Plex-Platform'],
+                    'context[device][platformVersion]': x_plex_headers['X-Plex-Platform-Version'],
+                    'context[device][device]': x_plex_headers['X-Plex-Device'],
+                    'context[device][deviceName]': x_plex_headers['X-Plex-Device-Name'],
+                    'context[device][model]': x_plex_headers['X-Plex-Model'],
+                    'context[device][screenResolution]': x_plex_headers['X-Plex-Device-Screen-Resolution'],
+                    'context[device][layout]': 'desktop',
+                    'code': code
+                };
+
+                plex_oauth_window.location = 'https://app.plex.tv/auth/#!?' + encodeData(oauth_params);
+                polling = pin;
+
+                pollToken(pin, x_plex_headers, success, error);
+            }, function () {
+                closePlexOAuthWindow();
+                if (typeof error === "function") {
+                    error()
+                }
+            });
+        }
+
+        function pollToken(pin, x_plex_headers, success, error) {
+            $.ajax({
+                url: 'https://plex.tv/api/v2/pins/' + pin,
+                type: 'GET',
+                headers: x_plex_headers,
+                success: function (data) {
+                    if (data.authToken) {
+                        closePlexOAuthWindow();
+                        if (typeof success === "function") {
+                            success(data.authToken)
+                        }
+                    }
+                },
+                error: function (jqXHR, textStatus, errorThrown) {
+                    if (textStatus !== "timeout") {
+                        closePlexOAuthWindow();
+                        if (typeof error === "function") {
+                            error()
+                        }
+                    }
+                },
+                complete: function () {
+                    if (!plex_oauth_window.closed && polling === pin) {
+                        setTimeout(function () {
+                            pollToken(pin, x_plex_headers, success, error);
+                        }, 1000);
+                    }
+                },
+                timeout: 10000
+            });
+        }
+
+        function getPlexOAuthPin(clientID) {
+            let x_plex_headers = getPlexHeaders(clientID);
+            let deferred = $.Deferred();
+
+            $.ajax({
+                url: 'https://plex.tv/api/v2/pins?strong=true',
+                type: 'POST',
+                headers: x_plex_headers,
+                success: function (data) {
+                    deferred.resolve({pin: data.id, code: data.code});
+                },
+                error: function () {
+                    closePlexOAuthWindow();
+                    deferred.reject();
+                }
+            });
+            return deferred;
+        }
+
+        function openPopupCenter(url, title, w, h) {
+            // Fixes dual-screen position                         Most browsers      Firefox
+            let dualScreenLeft = window.screenLeft !== undefined ? window.screenLeft : window.screenX;
+            let dualScreenTop = window.screenTop !== undefined ? window.screenTop : window.screenY;
+
+            let width = window.innerWidth ? window.innerWidth : document.documentElement.clientWidth ? document.documentElement.clientWidth : screen.width;
+            let height = window.innerHeight ? window.innerHeight : document.documentElement.clientHeight ? document.documentElement.clientHeight : screen.height;
+
+            let left = ((width / 2) - (w / 2)) + dualScreenLeft;
+            let top = ((height / 2) - (h / 2)) + dualScreenTop;
+            let newWindow = window.open(url, title, 'scrollbars=yes, width=' + w + ', height=' + h + ', top=' + top + ', left=' + left);
+
+            // Puts focus on the newWindow
+            if (window.focus) {
+                newWindow.focus();
+            }
+
+            return newWindow;
+        }
+
+        function setLocalStorage(key, value, path) {
+            let key_path = key;
+            if (path !== false) {
+                key_path = key_path + '_' + window.location.pathname;
+            }
+            localStorage.setItem(key_path, value);
+        }
+
+        function getLocalStorage(key, default_value, path) {
+            let key_path = key;
+            if (path !== false) {
+                key_path = key_path + '_' + window.location.pathname;
+            }
+            let value = localStorage.getItem(key_path);
+            if (value !== null) {
+                return value
+            } else if (default_value !== undefined) {
+                setLocalStorage(key, default_value, path);
+                return default_value
+            }
+        }
+
+        function uuidV4() {
+            return ([1e7] + -1e3 + -4e3 + -8e3 + -1e11).replace(/[018]/g, function (c) {
+                let cryptoObj = window.crypto || window.msCrypto; // for IE 11
+                return (c ^ cryptoObj.getRandomValues(new Uint8Array(1))[0] & 15 >> c / 4).toString(16)
+            });
+        }
+
+        function getPlexHeaders() {
+            let parser = new UAParser(window.navigator.userAgent);
+
+            return {
+                'Accept': 'application/json',
+                'X-Plex-Product': 'PlexDeleter',
+                'X-Plex-Version': 'Plex OAuth',
+                'X-Plex-Client-Identifier': getLocalStorage('[[${clientIdLocalStorage}]]', uuidV4(), false),
+                'X-Plex-Platform': parser.getBrowser().name,
+                'X-Plex-Platform-Version': parser.getBrowser().version,
+                'X-Plex-Model': 'Plex OAuth',
+                'X-Plex-Device': parser.getOS().name,
+                'X-Plex-Device-Name': parser.getDevice().model + ' ([[${appId}]])',
+                'X-Plex-Device-Screen-Resolution': window.screen.width + 'x' + window.screen.height,
+                'X-Plex-Language': 'en'
+            };
+        }
+
+        function closePlexOAuthWindow() {
+            if (plex_oauth_window) {
+                plex_oauth_window.close();
+            }
+        }
+
+        function encodeData(data) {
+            return Object.keys(data).map(function (key) {
+                return [key, data[key]].map(encodeURIComponent).join("=");
+            }).join("&");
+        }
+    </script>
+</th:block>

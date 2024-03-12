@@ -9,16 +9,27 @@
     <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.4.1/css/bootstrap.min.css"
           integrity="sha384-Vkoo8x4CGsO3+Hhxv8T/Q5PaXtkKtu6ug5TOeNV6gBiFeWPGFN9MuhOf23Q9Ifjh"
           crossorigin="anonymous"/>
-    <script type="text/javascript">
-        function onPlexLoginOpen() {
-            document.getElementById("validate-auth").removeAttribute("hidden");
-            return true;
+    <script th:replace="~{fragment/plex-login-script::plex-login-script}"></script>
+    <script>
+        function onAuthSuccess(authToken) {
+            document.getElementById("authToken").value = authToken;
+            document.getElementById("login-form").submit();
+        }
+
+        function onAuthError() {
+            console.error("Failed to login with Plex");
+            document.getElementById("login-with-plex").removeAttribute("disabled");
+        }
+
+        function onPlexLoginClick() {
+            document.getElementById("login-with-plex").setAttribute("disabled", "true");
+            runPlexOauth(onAuthSuccess, onAuthError);
         }
     </script>
 </head>
 <body>
 <div class="container-fluid text-center">
-    <form th:action="@{/login}" method="post" style="max-width: 350px; margin: 0 auto;">
+    <form id="login-form" th:action="@{/login}" method="post" style="max-width: 350px; margin: 0 auto;">
         <div th:if="${param.error}">
             <p class="text-danger" th:text="${param.error}"/>
         </div>
@@ -29,19 +40,12 @@
         <div class="border border-secondary p-3 rounded">
             <div>
                 <p th:text="#{web.auth.pre-plex}"></p>
-                <a type="button" class="btn btn-warning" th:href="${authLink}" th:text="#{web.auth.header}" th:target="_blank" onclick="return onPlexLoginOpen();"></a>
+                <button id="login-with-plex" class="btn btn-warning" th:text="#{web.auth.header}" onclick="return onPlexLoginClick();"></button>
             </div>
 
-            <div id="validate-auth" hidden="hidden">
-                <hr/>
-                <p th:text="#{web.auth.post-plex}"></p>
-
-                <p>
-                    <label for="id" hidden>PIN ID</label>
-                    <input id="id" type="hidden" name="id" class="form-control" th:value="${pinId}"/>
-                    <input type="submit" th:value="#{web.auth.login}" class="btn btn-primary"/>
-                </p>
-            </div>
+            <label for="authToken" hidden>PIN ID</label>
+            <input id="authToken" type="hidden" name="authToken" class="form-control" required hidden/>
+            <input type="submit" th:value="#{web.auth.login}" class="btn btn-primary" hidden/>
         </div>
     </form>
 </div>

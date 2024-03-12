@@ -12,8 +12,7 @@ import java.util.Optional;
 
 @Slf4j
 public class PlexAuthenticationFilter extends UsernamePasswordAuthenticationFilter{
-	private static final String ID_PARAMETER = "id";
-	private static final String CODE_PARAMETER = "code";
+	private static final String AUTH_TOKEN_PARAMETER = "authToken";
 	
 	public PlexAuthenticationFilter(){
 		super();
@@ -25,10 +24,10 @@ public class PlexAuthenticationFilter extends UsernamePasswordAuthenticationFilt
 			throw new AuthenticationServiceException("Authentication method not supported: " + request.getMethod());
 		}
 		
-		var id = Optional.ofNullable(request.getParameter(ID_PARAMETER)).map(String::trim).map(Long::parseLong).orElse(null);
-		log.info("Received a new authentication request with id {}", id);
+		log.info("Received a new authentication request with");
+		var authToken = Optional.ofNullable(request.getParameter(AUTH_TOKEN_PARAMETER)).map(String::trim).orElse(null);
 		
-		var authRequest = PlexAuthenticationToken.unauthenticated(id);
+		var authRequest = PlexAuthenticationToken.unauthenticated(authToken);
 		authRequest.setDetails(this.authenticationDetailsSource.buildDetails(request));
 		return getAuthenticationManager().authenticate(authRequest);
 	}

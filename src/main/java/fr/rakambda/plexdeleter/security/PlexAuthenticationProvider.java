@@ -2,6 +2,7 @@ package fr.rakambda.plexdeleter.security;
 
 import fr.rakambda.plexdeleter.api.plex.PlexApiService;
 import lombok.extern.slf4j.Slf4j;
+import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.authentication.AuthenticationProvider;
@@ -31,29 +32,26 @@ public class PlexAuthenticationProvider implements AuthenticationProvider{
 		if(!(authentication instanceof PlexAuthenticationToken plexAuthenticationToken)){
 			return authentication;
 		}
-		var id = plexAuthenticationToken.getPrincipal();
-		log.info("Processing Plex authentication with id {}", id);
+		log.info("Processing Plex authentication");
+		var authToken = plexAuthenticationToken.getAuthToken();
 		
-		return authenticateAgainstThirdPartyAndGetAuthentication(id);
+		return authenticateAgainstThirdPartyAndGetAuthentication(authToken);
 	}
 	
-	private UsernamePasswordAuthenticationToken authenticateAgainstThirdPartyAndGetAuthentication(long id){
+	@NotNull
+	private UsernamePasswordAuthenticationToken authenticateAgainstThirdPartyAndGetAuthentication(@Nullable String authToken){
 		try{
-			var result = plexApiService.pollAuthToken(id);
-			log.info("Successfully authenticated on Plex with pin {}", result.getId());
-			
-			var authToken = result.getAuthToken();
 			if(Objects.isNull(authToken)){
-				throw new BadCredentialsException("Could not get auth token from Plex");
+				throw new BadCredentialsException("Plex authentication token is null");
 			}
-			var userInfo = plexApiService.getUserInfo(result.getAuthToken());
+			var userInfo = plexApiService.getUserInfo(authToken);
 			
 			var dbUsername = "plexid_%d".formatted(userInfo.getId());
 			var userDetails = userDetailsService.loadUserByUsername(dbUsername);
 			var principal = new PlexUser(userInfo.getId(), userInfo.getUsername(), authToken, userDetails.getAuthorities());
 			
-			log.info("Got principal {} from id {}", principal, id);
-			return UsernamePasswordAuthenticationToken.authenticated(principal, id, userDetails.getAuthorities());
+			log.info("Got principal {}", principal);
+			return UsernamePasswordAuthenticationToken.authenticated(principal, authToken, userDetails.getAuthorities());
 		}
 		catch(UsernameNotFoundException e){
 			log.error("Failed to get user from database", e);
@@ -66,7 +64,7 @@ public class PlexAuthenticationProvider implements AuthenticationProvider{
 	}
 	
 	@Override
-	public boolean supports(Class<?> authentication){
+	public boolean supports(@NotNull Class<?> authentication){
 		return PlexAuthenticationToken.class.isAssignableFrom(authentication);
 	}
 }

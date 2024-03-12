@@ -28,6 +28,8 @@ public class AuthController{
 		var pin = plexApiService.generatePin();
 		
 		var mav = new ModelAndView("auth/plex");
+		mav.addObject("appId", "PlexDeleter");
+		mav.addObject("clientIdLocalStorage", "PlexDeleterClientId");
 		mav.addObject("pinId", pin.getId());
 		mav.addObject("authLink", "%s/auth/#!?code=%s&clientID=%s".formatted(appPlexEndpoint, pin.getCode(), pin.getClientIdentifier()));
 		return mav;
