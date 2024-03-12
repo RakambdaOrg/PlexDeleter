@@ -32,4 +32,6 @@ public class WebhookMessage{
 	private String threadName;
 	@JsonProperty("embeds")
 	private Collection<Embed> embeds;
+	@JsonProperty
+	private Integer flags;
 }

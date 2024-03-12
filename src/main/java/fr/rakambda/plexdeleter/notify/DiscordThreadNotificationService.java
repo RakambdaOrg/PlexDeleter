@@ -23,6 +23,8 @@ import java.util.Optional;
 
 @Service
 public class DiscordThreadNotificationService{
+	private static final int FLAG_SUPPRESS_EMBEDS = 1 << 2;
+	
 	private final DiscordWebhookService discordWebhookService;
 	private final MessageSource messageSource;
 	private final WatchService watchService;
@@ -51,7 +53,6 @@ public class DiscordThreadNotificationService{
 		
 		if(!availableMedia.isEmpty()){
 			writeWatchlistSection(discordUrl, threadId, "discord.watchlist.body.header.available", locale, userGroupEntity, availableMedia);
-			discordWebhookService.sendWebhookMessage(discordUrl, threadId, WebhookMessage.builder().content("---").build());
 		}
 		if(!notYetAvailableMedia.isEmpty()){
 			writeWatchlistSection(discordUrl, threadId, "discord.watchlist.body.header.not-yet-available", locale, userGroupEntity, notYetAvailableMedia);
@@ -97,7 +98,10 @@ public class DiscordThreadNotificationService{
 				.map(media -> getWatchlistMediaText(userGroupEntity, media, locale))
 				.toList();
 		for(var message : messages){
-			discordWebhookService.sendWebhookMessage(discordUrl, threadId, WebhookMessage.builder().content("* %s".formatted(message)).build());
+			discordWebhookService.sendWebhookMessage(discordUrl, threadId, WebhookMessage.builder()
+					.content("* %s".formatted(message))
+					.flags(FLAG_SUPPRESS_EMBEDS)
+					.build());
 		}
 	}
 	
