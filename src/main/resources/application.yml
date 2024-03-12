@@ -51,7 +51,6 @@ app:
   applicationUrl: "http://app.url"
   exclude-tag: "no-deleter"
   plex:
-    app-endpoint: "https://app.plex.tv"
     endpoint: "https://plex.tv"
   overseerr:
     endpoint: "https://overseerr"

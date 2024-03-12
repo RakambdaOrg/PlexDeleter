@@ -2,13 +2,7 @@
 <html xmlns:th="http://www.thymeleaf.org" lang="en">
 <head>
     <title th:text="#{web.auth.login}"></title>
-    <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, minimum-scale=1.0">
-    <link th:href="@{/static/styles/base.css}" rel="stylesheet"/>
-    <link th:href="@{/static/favicon.png}" rel="icon" type="image/png"/>
-    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.4.1/css/bootstrap.min.css"
-          integrity="sha384-Vkoo8x4CGsO3+Hhxv8T/Q5PaXtkKtu6ug5TOeNV6gBiFeWPGFN9MuhOf23Q9Ifjh"
-          crossorigin="anonymous"/>
+    <script th:replace="~{fragment/common-head::common-head}"></script>
     <script th:replace="~{fragment/plex-login-script::plex-login-script}"></script>
     <script>
         function onAuthSuccess(authToken) {
@@ -28,25 +22,16 @@
     </script>
 </head>
 <body>
-<div class="container-fluid text-center">
-    <form id="login-form" th:action="@{/login}" method="post" style="max-width: 350px; margin: 0 auto;">
-        <div th:if="${param.error}">
-            <p class="text-danger" th:text="${param.error}"/>
-        </div>
-        <div th:if="${param.logout}">
-            <p class="text-warning" th:text="#{web.auth.logged-out}"/>
-        </div>
+<div class="d-flex justify-content-center align-items-center vh-100 text-center flex-fill">
+    <form id="login-form" th:action="@{/login}" method="post">
+        <label for="authToken" hidden>PIN ID</label>
+        <input id="authToken" type="hidden" name="authToken" class="form-control" required hidden/>
 
-        <div class="border border-secondary p-3 rounded">
-            <div>
-                <p th:text="#{web.auth.pre-plex}"></p>
-                <button id="login-with-plex" class="btn btn-warning" th:text="#{web.auth.header}" onclick="return onPlexLoginClick();"></button>
-            </div>
+        <div th:if="${param.error}" th:text="${param.error}" class="alert danger fs-2" role="alert"></div>
+        <div th:if="${param.logout}" th:text="#{web.auth.logged-out}" class="alert alert-success fs-2" role="alert"></div>
 
-            <label for="authToken" hidden>PIN ID</label>
-            <input id="authToken" type="hidden" name="authToken" class="form-control" required hidden/>
-            <input type="submit" th:value="#{web.auth.login}" class="btn btn-primary" hidden/>
-        </div>
+        <label for="login-with-plex" class="form-label" th:text="#{web.auth.header}" hidden="hidden"></label>
+        <button id="login-with-plex" class="btn btn-warning form-control form-control-lg fs-2" th:text="#{web.auth.header}" onclick="return onPlexLoginClick();"></button>
     </form>
 </div>
 </body>
