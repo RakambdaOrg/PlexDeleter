@@ -143,9 +143,7 @@ public class MailNotificationService{
 			});
 			sb.append("/");
 			sb.append(media.getOverseerrId());
-			sb.append("'><img style='max-height: 15px; max-width: 15px;' src='");
-			sb.append(applicationUrl);
-			sb.append("/static/overseerr.png'/></a>");
+			sb.append("'><img style='max-height: 15px; max-width: 15px;' src='https://raw.githubusercontent.com/sct/overseerr/develop/public/os_logo_filled.png'/></a>");
 		}
 		
 		return sb.toString();
