@@ -2,17 +2,12 @@
 <html xmlns:th="http://www.thymeleaf.org" lang="en">
 <head>
     <title th:text="#{web.api.success}"></title>
-    <meta http-equiv="Content-Type" content="text/html; charset=UTF-8"/>
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, minimum-scale=1.0">
-    <link th:href="@{/static/styles/base.css}" rel="stylesheet"/>
-    <link th:href="@{/static/favicon.png}" rel="icon" type="image/png"/>
-    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.4.1/css/bootstrap.min.css"
-          integrity="sha384-Vkoo8x4CGsO3+Hhxv8T/Q5PaXtkKtu6ug5TOeNV6gBiFeWPGFN9MuhOf23Q9Ifjh"
-          crossorigin="anonymous"/>
+    <script th:replace="~{fragment/common-head::common-head}"></script>
     <meta http-equiv="refresh" content="3; url=/"/>
 </head>
 <body>
-<div th:replace="~{fragment/navbar.html::navbar}"></div>
-<h2 class="text-success" th:text="#{web.api.success}"></h2>
+<div class="d-flex justify-content-center align-items-center vh-100 text-center">
+    <div th:text="#{web.api.success}" class="alert alert-success fs-1" role="alert"></div>
+</div>
 </body>
 </html>

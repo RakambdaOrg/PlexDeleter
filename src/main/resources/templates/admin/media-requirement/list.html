@@ -2,14 +2,7 @@
 <html lang="en" xmlns:th="https://www.thymeleaf.org">
 <head>
     <title th:text="#{web.navbar.admin.requirement.list}"></title>
-    <meta http-equiv="Content-Type" content="text/html; charset=UTF-8"/>
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, minimum-scale=1.0">
-    <link th:href="@{/static/styles/base.css}" rel="stylesheet"/>
-    <link th:href="@{/static/favicon.png}" rel="icon" type="image/png"/>
-    <link href="https://stackpath.bootstrapcdn.com/bootstrap/4.4.1/css/bootstrap.min.css"
-          rel="stylesheet"
-          integrity="sha384-Vkoo8x4CGsO3+Hhxv8T/Q5PaXtkKtu6ug5TOeNV6gBiFeWPGFN9MuhOf23Q9Ifjh"
-          crossorigin="anonymous"/>
+    <script th:replace="~{fragment/common-head::common-head}"></script>
 </head>
 <body>
 <div th:replace="~{fragment/navbar.html::navbar}"></div>
