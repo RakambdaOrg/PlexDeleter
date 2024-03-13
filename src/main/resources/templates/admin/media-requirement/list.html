@@ -47,19 +47,19 @@
                 </div>
             </td>
             <td>
-                <div class="d-flex flex-row p-2 bd-highlight justify-content-center align-items-center">
+                <div class="d-flex flex-row justify-content-center align-items-center">
                     <div class="m-1" th:if="${requirement.getMedia().getAvailability().isAvailable()}">
                         <form th:action="@{/api/admin/media-requirement/complete}" method="post">
                             <input type="hidden" name="mediaId" class="form-control" th:value="${requirement.getMedia().getId()}"/>
                             <input type="hidden" name="groupId" class="form-control" th:value="${requirement.getGroup().getId()}"/>
-                            <input type="submit" th:value="#{web.media-list.table.action.complete}" class="btn btn-success"/>
+                            <input type="submit" th:value="#{web.media-list.table.action.complete}" class="btn btn-success btn-sm"/>
                         </form>
                     </div>
                     <div class="m-1" th:if="${requirement.getMedia().getAvailability().isAvailable()}">
                         <form th:action="@{/api/admin/media-requirement/abandon}" method="post">
                             <input type="hidden" name="mediaId" class="form-control" th:value="${requirement.getMedia().getId()}"/>
                             <input type="hidden" name="groupId" class="form-control" th:value="${requirement.getGroup().getId()}"/>
-                            <input type="submit" th:value="#{web.media-list.table.action.abandon}" class="btn btn-danger"/>
+                            <input type="submit" th:value="#{web.media-list.table.action.abandon}" class="btn btn-danger btn-sm"/>
                         </form>
                     </div>
                 </div>
