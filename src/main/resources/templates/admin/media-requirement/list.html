@@ -18,6 +18,7 @@
             <th scope="col" th:text="#{web.media-list.table.count}"/>
             <th scope="col" th:text="#{web.media-list.table.availability}"/>
             <th scope="col">Overseerr</th>
+            <th scope="col" th:text="#{web.media-list.table.action}"/>
         </tr>
         </thead>
         <tbody class="table-group-divider">
@@ -43,6 +44,24 @@
                             <image th:xlink:href="@{/static/overseerr.svg}" height="20" width="20"/>
                         </svg>
                     </a>
+                </div>
+            </td>
+            <td>
+                <div class="d-flex flex-row p-2 bd-highlight justify-content-center align-items-center">
+                    <div class="m-1" th:if="${requirement.getMedia().getAvailability().isAvailable()}">
+                        <form th:action="@{/api/admin/media-requirement/complete}" method="post">
+                            <input type="hidden" name="mediaId" class="form-control" th:value="${requirement.getMedia().getId()}"/>
+                            <input type="hidden" name="groupId" class="form-control" th:value="${requirement.getGroup().getId()}"/>
+                            <input type="submit" th:value="#{web.media-list.table.action.complete}" class="btn btn-success"/>
+                        </form>
+                    </div>
+                    <div class="m-1" th:if="${requirement.getMedia().getAvailability().isAvailable()}">
+                        <form th:action="@{/api/admin/media-requirement/abandon}" method="post">
+                            <input type="hidden" name="mediaId" class="form-control" th:value="${requirement.getMedia().getId()}"/>
+                            <input type="hidden" name="groupId" class="form-control" th:value="${requirement.getGroup().getId()}"/>
+                            <input type="submit" th:value="#{web.media-list.table.action.abandon}" class="btn btn-danger"/>
+                        </form>
+                    </div>
                 </div>
             </td>
         </tr>

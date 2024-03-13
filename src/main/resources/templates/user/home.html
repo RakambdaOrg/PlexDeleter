@@ -19,7 +19,7 @@
             <th scope="col" th:text="#{web.media-list.table.count}"/>
             <th scope="col" th:text="#{web.media-list.table.availability}"/>
             <th scope="col">Overseerr</th>
-            <th scope="col" th:text="#{web.media-list.table.abandon}"/>
+            <th scope="col" th:text="#{web.media-list.table.action}"/>
         </tr>
         </thead>
         <tbody class="table-group-divider">
@@ -49,13 +49,20 @@
                 </div>
             </td>
             <td>
-                <th:block th:if="${media.getAvailability().isAvailable()}">
-                    <form th:action="@{/api/user/media-requirement/abandon}" method="post">
-                        <label for="media" th:text="#{web.media-list.table.abandon}" hidden/>
-                        <input id="media" type="hidden" name="media" class="form-control" th:value="${media.getId()}"/>
-                        <input type="submit" th:value="#{web.media-list.table.abandon}" class="btn btn-danger"/>
-                    </form>
-                </th:block>
+                <div class="d-flex flex-row p-2 bd-highlight justify-content-center align-items-center">
+                    <div class="m-1" th:if="${media.getAvailability().isAvailable()}">
+                        <form th:action="@{/api/user/media-requirement/complete}" method="post">
+                            <input type="hidden" name="media" class="form-control" th:value="${media.getId()}"/>
+                            <input type="submit" th:value="#{web.media-list.table.action.complete}" class="btn btn-success"/>
+                        </form>
+                    </div>
+                    <div class="m-1" th:if="${media.getAvailability().isAvailable()}">
+                        <form th:action="@{/api/user/media-requirement/abandon}" method="post">
+                            <input type="hidden" name="media" class="form-control" th:value="${media.getId()}"/>
+                            <input type="submit" th:value="#{web.media-list.table.action.abandon}" class="btn btn-danger"/>
+                        </form>
+                    </div>
+                </div>
             </td>
         </tr>
         </tbody>

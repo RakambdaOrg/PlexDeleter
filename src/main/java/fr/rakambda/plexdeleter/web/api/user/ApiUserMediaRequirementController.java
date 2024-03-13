@@ -3,6 +3,7 @@ package fr.rakambda.plexdeleter.web.api.user;
 import fr.rakambda.plexdeleter.notify.NotifyException;
 import fr.rakambda.plexdeleter.security.PlexUser;
 import fr.rakambda.plexdeleter.service.MediaRequirementService;
+import fr.rakambda.plexdeleter.storage.entity.UserPersonEntity;
 import fr.rakambda.plexdeleter.storage.repository.UserPersonRepository;
 import jakarta.validation.constraints.NotNull;
 import lombok.extern.slf4j.Slf4j;
@@ -30,16 +31,26 @@ public class ApiUserMediaRequirementController{
 	
 	@PostMapping("/abandon")
 	public ModelAndView abandon(@org.jetbrains.annotations.NotNull Authentication authentication, @NotNull @RequestParam("media") int mediaId) throws NotifyException{
+		var userPerson = getUserPersonEntityFromAuth(authentication);
+		mediaRequirementService.abandon(mediaId, userPerson.getGroupId());
+		return new ModelAndView("/api/success");
+	}
+	
+	@PostMapping("/complete")
+	public ModelAndView complete(@org.jetbrains.annotations.NotNull Authentication authentication, @NotNull @RequestParam("media") int mediaId) throws NotifyException{
+		var userPerson = getUserPersonEntityFromAuth(authentication);
+		mediaRequirementService.complete(mediaId, userPerson.getGroupId());
+		return new ModelAndView("/api/success");
+	}
+	
+	private UserPersonEntity getUserPersonEntityFromAuth(@org.jetbrains.annotations.NotNull Authentication authentication){
 		var plexId = Optional.ofNullable(authentication.getPrincipal())
 				.filter(PlexUser.class::isInstance)
 				.map(PlexUser.class::cast)
 				.map(PlexUser::getPlexId)
 				.orElseThrow(() -> new IllegalStateException("Could not get Plex id from authorization"));
 		
-		var userPerson = userPersonRepository.findByPlexId(plexId)
+		return userPersonRepository.findByPlexId(plexId)
 				.orElseThrow(() -> new IllegalStateException("Could not find user with Plex id %d".formatted(plexId)));
-		
-		mediaRequirementService.abandon(mediaId, userPerson.getGroupId());
-		return new ModelAndView("/api/success");
 	}
 }

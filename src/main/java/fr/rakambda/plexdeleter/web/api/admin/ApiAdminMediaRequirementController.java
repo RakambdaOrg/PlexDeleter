@@ -7,9 +7,7 @@ import fr.rakambda.plexdeleter.service.MediaService;
 import fr.rakambda.plexdeleter.service.UpdateException;
 import fr.rakambda.plexdeleter.storage.entity.MediaType;
 import fr.rakambda.plexdeleter.storage.repository.UserGroupRepository;
-import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
-import jakarta.validation.constraints.Pattern;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -49,19 +47,13 @@ public class ApiAdminMediaRequirementController{
 	}
 	
 	@PostMapping("/complete")
-	public ModelAndView complete(@NotNull @NotBlank @Pattern(regexp = "\\d+\\|\\d+") @RequestParam("requirement") String requirement) throws NotifyException{
-		var parts = requirement.split("\\|", 2);
-		var mediaId = Integer.parseInt(parts[0]);
-		var groupId = Integer.parseInt(parts[1]);
+	public ModelAndView complete(@NotNull @RequestParam("mediaId") int mediaId, @NotNull @RequestParam("groupId") int groupId) throws NotifyException{
 		mediaRequirementService.complete(mediaId, groupId);
 		return new ModelAndView("api/success");
 	}
 	
 	@PostMapping("/abandon")
-	public ModelAndView abandon(@NotNull @NotBlank @Pattern(regexp = "\\d+\\|\\d+") @RequestParam("requirement") String requirement) throws NotifyException{
-		var parts = requirement.split("\\|", 2);
-		var mediaId = Integer.parseInt(parts[0]);
-		var groupId = Integer.parseInt(parts[1]);
+	public ModelAndView abandon(@NotNull @RequestParam("mediaId") int mediaId, @NotNull @RequestParam("groupId") int groupId) throws NotifyException{
 		mediaRequirementService.abandon(mediaId, groupId);
 		return new ModelAndView("api/success");
 	}

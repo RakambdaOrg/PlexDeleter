@@ -6,9 +6,7 @@
                 <th:block sec:authorize="hasRole('ROLE_ADMIN')">
                     <a class="nav-link" th:href="@{/admin/media/soon-deleted}" th:text="#{web.navbar.admin.media.list-soon-deleted}"></a>
                     <a class="nav-link" th:href="@{/admin/media/delete}" th:text="#{web.navbar.admin.media.delete}"></a>
-                    <a class="nav-link" th:href="@{/admin/media-requirement/abandon}" th:text="#{web.navbar.admin.requirement.abandon}"></a>
                     <a class="nav-link" th:href="@{/admin/media-requirement/add}" th:text="#{web.navbar.admin.requirement.add}"></a>
-                    <a class="nav-link" th:href="@{/admin/media-requirement/complete}" th:text="#{web.navbar.admin.requirement.complete}"></a>
                     <a class="nav-link" th:href="@{/admin/media-requirement/list}" th:text="#{web.navbar.admin.requirement.list}"></a>
                 </th:block>
                 <a class="nav-link" th:href="@{/logout}" th:text="#{web.navbar.logout}"></a>

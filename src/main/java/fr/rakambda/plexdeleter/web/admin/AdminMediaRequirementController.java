@@ -30,20 +30,6 @@ public class AdminMediaRequirementController{
 		return mav;
 	}
 	
-	@GetMapping("/complete")
-	public ModelAndView complete(){
-		var mav = new ModelAndView("admin/media-requirement/complete");
-		mav.addObject("requirements", adminService.getMediaRequirementsThatCanBeCompleted());
-		return mav;
-	}
-	
-	@GetMapping("/abandon")
-	public ModelAndView abandon(){
-		var mav = new ModelAndView("admin/media-requirement/abandon");
-		mav.addObject("requirements", adminService.getMediaRequirementsThatCanBeCompleted());
-		return mav;
-	}
-	
 	@GetMapping("/list")
 	public ModelAndView list(){
 		var mav = new ModelAndView("admin/media-requirement/list");
