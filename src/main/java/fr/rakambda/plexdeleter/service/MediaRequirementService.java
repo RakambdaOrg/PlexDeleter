@@ -1,5 +1,8 @@
 package fr.rakambda.plexdeleter.service;
 
+import fr.rakambda.plexdeleter.api.RequestFailedException;
+import fr.rakambda.plexdeleter.api.servarr.radarr.RadarrService;
+import fr.rakambda.plexdeleter.api.servarr.sonarr.SonarrService;
 import fr.rakambda.plexdeleter.messaging.SupervisionService;
 import fr.rakambda.plexdeleter.notify.NotificationService;
 import fr.rakambda.plexdeleter.notify.NotifyException;
@@ -12,6 +15,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.jetbrains.annotations.NotNull;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import java.util.Objects;
 
 @Slf4j
 @Service
@@ -19,18 +23,25 @@ public class MediaRequirementService{
 	private final MediaRequirementRepository mediaRequirementRepository;
 	private final NotificationService notificationService;
 	private final SupervisionService supervisionService;
+	private final SonarrService sonarrService;
+	private final RadarrService radarrService;
 	
 	@Autowired
-	public MediaRequirementService(MediaRequirementRepository mediaRequirementRepository, NotificationService notificationService, SupervisionService supervisionService){
+	public MediaRequirementService(MediaRequirementRepository mediaRequirementRepository, NotificationService notificationService, SupervisionService supervisionService, SonarrService sonarrService, RadarrService radarrService){
 		this.mediaRequirementRepository = mediaRequirementRepository;
 		this.notificationService = notificationService;
 		this.supervisionService = supervisionService;
+		this.sonarrService = sonarrService;
+		this.radarrService = radarrService;
 	}
 	
-	public void complete(int mediaId, int groupId) throws NotifyException{
+	public void complete(int mediaId, int groupId) throws NotifyException, ServiceException{
 		var requirement = mediaRequirementRepository.findById(new MediaRequirementEntity.TableId(mediaId, groupId));
 		if(requirement.isEmpty()){
 			return;
+		}
+		if(!requirement.get().getMedia().isCompletable()){
+			throw new ServiceException("Cannot complete a media that isn't fully available");
 		}
 		log.info("Marking requirement {} as completed", requirement);
 		
@@ -44,7 +55,7 @@ public class MediaRequirementService{
 		supervisionService.send("✍\uFE0F\uD83D\uDC41\uFE0F Media manually watched %s for %s", media, group);
 	}
 	
-	public void abandon(int mediaId, int groupId) throws NotifyException{
+	public void abandon(int mediaId, int groupId) throws NotifyException, RequestFailedException{
 		var requirement = mediaRequirementRepository.findById(new MediaRequirementEntity.TableId(mediaId, groupId));
 		if(requirement.isEmpty()){
 			return;
@@ -55,6 +66,15 @@ public class MediaRequirementService{
 		
 		var group = requirement.get().getGroup();
 		var media = requirement.get().getMedia();
+		
+		if(Objects.nonNull(media.getServarrId())
+				&& media.getAvailablePartsCount() <= 0
+				&& media.getRequirements().stream().map(MediaRequirementEntity::getStatus).allMatch(MediaRequirementStatus::isCompleted)){
+			switch(media.getType()){
+				case MOVIE -> radarrService.delete(media.getServarrId());
+				case SEASON -> sonarrService.delete(media.getId());
+			}
+		}
 		
 		notificationService.notifyRequirementManuallyAbandoned(group, media);
 		mediaRequirementRepository.save(requirement.get());

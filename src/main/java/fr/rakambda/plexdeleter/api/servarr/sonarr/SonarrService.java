@@ -2,7 +2,9 @@ package fr.rakambda.plexdeleter.api.servarr.sonarr;
 
 import fr.rakambda.plexdeleter.api.HttpUtils;
 import fr.rakambda.plexdeleter.api.RequestFailedException;
+import fr.rakambda.plexdeleter.api.servarr.data.PagedResponse;
 import fr.rakambda.plexdeleter.api.servarr.data.Tag;
+import fr.rakambda.plexdeleter.api.servarr.sonarr.data.Queue;
 import fr.rakambda.plexdeleter.api.servarr.sonarr.data.Series;
 import fr.rakambda.plexdeleter.config.ApplicationConfiguration;
 import lombok.extern.slf4j.Slf4j;
@@ -49,5 +51,51 @@ public class SonarrService{
 				.toEntity(new ParameterizedTypeReference<Set<Tag>>(){})
 				.blockOptional()
 				.orElseThrow(() -> new RequestFailedException("Failed to get tags")));
+	}
+	
+	public void delete(int mediaId) throws RequestFailedException{
+		var queues = getQueue(mediaId).getRecords();
+		for(var queue : queues){
+			deleteQueue(queue.getId(), true);
+		}
+		deleteSeries(mediaId, true);
+	}
+	
+	public PagedResponse<Queue> getQueue(int mediaId) throws RequestFailedException{
+		log.info("Getting queue for media {}", mediaId);
+		return HttpUtils.withStatusOkAndBody(apiClient.get()
+				.uri(b -> b.pathSegment("api", "v3", "queue")
+						.queryParam("pageSize", 100)
+						.queryParam("includeSeries", true)
+						.queryParam("seriesIds", mediaId)
+						.build())
+				.retrieve()
+				.toEntity(new ParameterizedTypeReference<PagedResponse<Queue>>(){})
+				.blockOptional()
+				.orElseThrow(() -> new RequestFailedException("Failed to get queue for mediaId %d".formatted(mediaId))));
+	}
+	
+	public void deleteQueue(int queueId, boolean removeFromClient) throws RequestFailedException{
+		log.info("Deleting queue with id {} and removing from client {}", queueId, removeFromClient);
+		HttpUtils.withStatusOk(apiClient.delete()
+				.uri(b -> b.pathSegment("api", "v3", "queue", "{mediaId}")
+						.queryParam("removeFromClient", removeFromClient)
+						.build(queueId))
+				.retrieve()
+				.toBodilessEntity()
+				.blockOptional()
+				.orElseThrow(() -> new RequestFailedException("Failed to delete queue with id %d".formatted(queueId))));
+	}
+	
+	public void deleteSeries(int mediaId, boolean deleteFiles) throws RequestFailedException{
+		log.info("Deleting media with mediaId {} and deleting files {}", mediaId, deleteFiles);
+		HttpUtils.withStatusOk(apiClient.delete()
+				.uri(b -> b.pathSegment("api", "v3", "series", "{mediaId}")
+						.queryParam("deleteFiles", deleteFiles)
+						.build(mediaId))
+				.retrieve()
+				.toBodilessEntity()
+				.blockOptional()
+				.orElseThrow(() -> new RequestFailedException("Failed to delete media with id %d".formatted(mediaId))));
 	}
 }

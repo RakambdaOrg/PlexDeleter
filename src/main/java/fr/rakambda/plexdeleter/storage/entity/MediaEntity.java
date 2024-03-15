@@ -86,4 +86,8 @@ public class MediaEntity{
 	
 	@OneToMany(cascade = CascadeType.REMOVE, targetEntity = MediaRequirementEntity.class, mappedBy = "media")
 	private List<MediaRequirementEntity> requirements;
+	
+	public boolean isCompletable(){
+		return availablePartsCount >= partsCount;
+	}
 }

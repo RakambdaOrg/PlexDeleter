@@ -4,6 +4,7 @@ import fr.rakambda.plexdeleter.api.RequestFailedException;
 import fr.rakambda.plexdeleter.notify.NotifyException;
 import fr.rakambda.plexdeleter.service.MediaRequirementService;
 import fr.rakambda.plexdeleter.service.MediaService;
+import fr.rakambda.plexdeleter.service.ServiceException;
 import fr.rakambda.plexdeleter.service.UpdateException;
 import fr.rakambda.plexdeleter.storage.entity.MediaType;
 import fr.rakambda.plexdeleter.storage.repository.UserGroupRepository;
@@ -47,13 +48,13 @@ public class ApiAdminMediaRequirementController{
 	}
 	
 	@PostMapping("/complete")
-	public ModelAndView complete(@NotNull @RequestParam("mediaId") int mediaId, @NotNull @RequestParam("groupId") int groupId) throws NotifyException{
+	public ModelAndView complete(@NotNull @RequestParam("mediaId") int mediaId, @NotNull @RequestParam("groupId") int groupId) throws NotifyException, ServiceException{
 		mediaRequirementService.complete(mediaId, groupId);
 		return new ModelAndView("api/success");
 	}
 	
 	@PostMapping("/abandon")
-	public ModelAndView abandon(@NotNull @RequestParam("mediaId") int mediaId, @NotNull @RequestParam("groupId") int groupId) throws NotifyException{
+	public ModelAndView abandon(@NotNull @RequestParam("mediaId") int mediaId, @NotNull @RequestParam("groupId") int groupId) throws NotifyException, RequestFailedException{
 		mediaRequirementService.abandon(mediaId, groupId);
 		return new ModelAndView("api/success");
 	}

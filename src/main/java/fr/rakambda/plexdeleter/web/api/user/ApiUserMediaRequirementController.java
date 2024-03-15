@@ -1,8 +1,10 @@
 package fr.rakambda.plexdeleter.web.api.user;
 
+import fr.rakambda.plexdeleter.api.RequestFailedException;
 import fr.rakambda.plexdeleter.notify.NotifyException;
 import fr.rakambda.plexdeleter.security.PlexUser;
 import fr.rakambda.plexdeleter.service.MediaRequirementService;
+import fr.rakambda.plexdeleter.service.ServiceException;
 import fr.rakambda.plexdeleter.storage.entity.UserPersonEntity;
 import fr.rakambda.plexdeleter.storage.repository.UserPersonRepository;
 import jakarta.validation.constraints.NotNull;
@@ -30,14 +32,14 @@ public class ApiUserMediaRequirementController{
 	}
 	
 	@PostMapping("/abandon")
-	public ModelAndView abandon(@org.jetbrains.annotations.NotNull Authentication authentication, @NotNull @RequestParam("media") int mediaId) throws NotifyException{
+	public ModelAndView abandon(@org.jetbrains.annotations.NotNull Authentication authentication, @NotNull @RequestParam("media") int mediaId) throws NotifyException, RequestFailedException{
 		var userPerson = getUserPersonEntityFromAuth(authentication);
 		mediaRequirementService.abandon(mediaId, userPerson.getGroupId());
 		return new ModelAndView("/api/success");
 	}
 	
 	@PostMapping("/complete")
-	public ModelAndView complete(@org.jetbrains.annotations.NotNull Authentication authentication, @NotNull @RequestParam("media") int mediaId) throws NotifyException{
+	public ModelAndView complete(@org.jetbrains.annotations.NotNull Authentication authentication, @NotNull @RequestParam("media") int mediaId) throws NotifyException, ServiceException{
 		var userPerson = getUserPersonEntityFromAuth(authentication);
 		mediaRequirementService.complete(mediaId, userPerson.getGroupId());
 		return new ModelAndView("/api/success");
