@@ -30,6 +30,7 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
+import java.util.Set;
 import java.util.stream.Collectors;
 
 @Slf4j
@@ -68,8 +69,8 @@ public class OverseerrController{
 		var overseerrId = Optional.ofNullable(data.getMedia()).map(Media::getTmdbId);
 		
 		var medias = overseerrId
-				.map(id -> mediaRepository.findAllByOverseerrIdAndAvailability(id, MediaAvailability.DOWNLOADING))
-				.orElseGet(() -> mediaRepository.findAllByAvailability(MediaAvailability.DOWNLOADING));
+				.map(mediaRepository::findAllByOverseerrId)
+				.orElseGet(() -> mediaRepository.findAllByAvailabilityIn(Set.of(MediaAvailability.WAITING, MediaAvailability.DOWNLOADING)));
 		
 		for(var media : medias){
 			mediaService.update(media);

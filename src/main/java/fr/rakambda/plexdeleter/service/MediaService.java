@@ -72,6 +72,9 @@ public class MediaService{
 			notificationService.notifyMediaAvailable(mediaEntity);
 			supervisionService.send("\uD83C\uDD97 Marked %d as downloaded: %s (%d/%d)", mediaEntity.getId(), mediaEntity, mediaEntity.getPartsCount(), mediaEntity.getAvailablePartsCount());
 		}
+		else if(mediaEntity.getAvailablePartsCount() > 0){
+			mediaEntity.setAvailability(MediaAvailability.DOWNLOADING);
+		}
 		
 		return mediaRepository.save(mediaEntity);
 	}
@@ -190,7 +193,7 @@ public class MediaService{
 		for(var season : seasons){
 			log.info("Adding media with Overseerr id {} and season {} to {}", overseerrId, season, userGroupEntity);
 			var media = getOrCreateMedia(overseerrId, mediaType, season);
-			media.setAvailability(MediaAvailability.DOWNLOADING);
+			media.setAvailability(MediaAvailability.WAITING);
 			media.setActionStatus(MediaActionStatus.TO_DELETE);
 			media.setAvailablePartsCount(0);
 			mediaRepository.save(media);
@@ -232,7 +235,7 @@ public class MediaService{
 				.index(season)
 				.partsCount(0)
 				.availablePartsCount(0)
-				.availability(MediaAvailability.DOWNLOADING)
+				.availability(MediaAvailability.WAITING)
 				.actionStatus(MediaActionStatus.TO_DELETE)
 				.build();
 		

@@ -10,6 +10,7 @@ import org.jetbrains.annotations.NotNull;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import java.util.List;
+import java.util.Set;
 
 @Service
 public class AdminService{
@@ -24,7 +25,7 @@ public class AdminService{
 	
 	@NotNull
 	public List<MediaEntity> getMediasThatCanBeDeleted(){
-		return mediaRepository.findAllByAvailability(MediaAvailability.DOWNLOADING).stream()
+		return mediaRepository.findAllByAvailabilityIn(Set.of(MediaAvailability.WAITING, MediaAvailability.DOWNLOADING)).stream()
 				.sorted(MediaEntity.COMPARATOR_BY_TYPE_THEN_NAME)
 				.toList();
 	}

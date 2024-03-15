@@ -16,14 +16,14 @@
             <th scope="col" th:text="#{web.media-list.table.type}"/>
             <th scope="col" th:text="#{web.media-list.table.name}"/>
             <th scope="col" th:text="#{web.media-list.table.season}"/>
-            <th scope="col" th:text="#{web.media-list.table.count}"/>
+            <th scope="col" th:text="#{web.media-list.table.episodes}"/>
             <th scope="col" th:text="#{web.media-list.table.availability}"/>
             <th scope="col">Overseerr</th>
             <th scope="col" th:text="#{web.media-list.table.action}"/>
         </tr>
         </thead>
         <tbody class="table-group-divider">
-        <tr th:each="media : ${medias}" th:class="${media.getAvailability().isAvailable() ? 'table-success' : 'media-not-available'}">
+        <tr th:each="media : ${medias}" th:class="${media.getAvailability().getTableClass()}">
             <th:block sec:authorize="hasRole('ROLE_ADMIN')">
                 <td th:text="${media.getId()}"></td>
             </th:block>
@@ -37,7 +37,7 @@
             </td>
             <td th:text="${media.getName()}"></td>
             <td th:text="${media.getIndex()}"></td>
-            <td th:text="${media.getPartsCount()}"></td>
+            <td th:text="${media.getAvailablePartsCount() + ' / ' + media.getPartsCount()}"></td>
             <td th:text="#{${media.getAvailability().getLocalizationKey()}}"></td>
             <td>
                 <div th:if="${media.getOverseerrId()}" class="d-flex flex-row justify-content-center align-items-center col-auto">

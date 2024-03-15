@@ -15,14 +15,14 @@
             <th scope="col" th:text="#{web.media-list.table.type}"/>
             <th scope="col" th:text="#{web.media-list.table.name}"/>
             <th scope="col" th:text="#{web.media-list.table.season}"/>
-            <th scope="col" th:text="#{web.media-list.table.count}"/>
+            <th scope="col" th:text="#{web.media-list.table.episodes}"/>
             <th scope="col" th:text="#{web.media-list.table.availability}"/>
             <th scope="col">Overseerr</th>
             <th scope="col" th:text="#{web.media-list.table.action}"/>
         </tr>
         </thead>
         <tbody class="table-group-divider">
-        <tr th:each="requirement : ${requirements}" th:class="${requirement.getMedia().getAvailability().isAvailable() ? 'table-success' : 'media-not-available'}">
+        <tr th:each="requirement : ${requirements}" th:class="${requirement.getMedia().getAvailability().getTableClass()}">
             <td th:text="${requirement.getMedia().getId()}"></td>
             <td th:text="${requirement.getGroup().getName()}"></td>
             <td>
@@ -35,7 +35,7 @@
             </td>
             <td th:text="${requirement.getMedia().getName()}"></td>
             <td th:text="${requirement.getMedia().getIndex()}"></td>
-            <td th:text="${requirement.getMedia().getPartsCount()}"></td>
+            <td th:text="${requirement.getMedia().getAvailablePartsCount() + ' / ' + requirement.getMedia().getPartsCount()}"></td>
             <td th:text="#{${requirement.getMedia().getAvailability().getLocalizationKey()}}"></td>
             <td>
                 <div th:if="${requirement.getMedia().getOverseerrId()}" class="d-flex flex-row justify-content-center align-items-center col-auto">

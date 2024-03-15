@@ -12,6 +12,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
+import java.util.Set;
 
 @Slf4j
 @Component
@@ -36,7 +37,7 @@ public class UpdateMediaScheduler implements IScheduler{
 	@Transactional
 	public void run(){
 		log.info("Updating medias");
-		var medias = mediaRepository.findAllByAvailability(MediaAvailability.DOWNLOADING);
+		var medias = mediaRepository.findAllByAvailabilityIn(Set.of(MediaAvailability.WAITING, MediaAvailability.DOWNLOADING));
 		for(var media : medias){
 			try{
 				mediaService.update(media);
