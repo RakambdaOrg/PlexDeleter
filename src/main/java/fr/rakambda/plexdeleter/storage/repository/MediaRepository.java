@@ -1,5 +1,6 @@
 package fr.rakambda.plexdeleter.storage.repository;
 
+import fr.rakambda.plexdeleter.storage.entity.MediaActionStatus;
 import fr.rakambda.plexdeleter.storage.entity.MediaAvailability;
 import fr.rakambda.plexdeleter.storage.entity.MediaEntity;
 import org.jetbrains.annotations.NotNull;
@@ -26,6 +27,9 @@ public interface MediaRepository extends JpaRepository<MediaEntity, Integer>{
 	
 	@NotNull
 	List<MediaEntity> findAllByAvailabilityIn(@NotNull Collection<MediaAvailability> availability);
+	
+	@NotNull
+	List<MediaEntity> findAllByActionStatusIn(@NotNull Collection<MediaActionStatus> statuses);
 	
 	@NotNull
 	Optional<MediaEntity> findByPlexId(int plexId);
