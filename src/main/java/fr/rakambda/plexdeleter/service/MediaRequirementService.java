@@ -10,7 +10,9 @@ import fr.rakambda.plexdeleter.storage.entity.MediaEntity;
 import fr.rakambda.plexdeleter.storage.entity.MediaRequirementEntity;
 import fr.rakambda.plexdeleter.storage.entity.MediaRequirementStatus;
 import fr.rakambda.plexdeleter.storage.entity.UserGroupEntity;
+import fr.rakambda.plexdeleter.storage.repository.MediaRepository;
 import fr.rakambda.plexdeleter.storage.repository.MediaRequirementRepository;
+import fr.rakambda.plexdeleter.storage.repository.UserGroupRepository;
 import lombok.extern.slf4j.Slf4j;
 import org.jetbrains.annotations.NotNull;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -27,15 +29,21 @@ public class MediaRequirementService{
 	private final SupervisionService supervisionService;
 	private final SonarrService sonarrService;
 	private final RadarrService radarrService;
+	private final MediaService mediaService;
+	private final MediaRepository mediaRepository;
+	private final UserGroupRepository userGroupRepository;
 	private final Lock requirementOperationLock;
 	
 	@Autowired
-	public MediaRequirementService(MediaRequirementRepository mediaRequirementRepository, NotificationService notificationService, SupervisionService supervisionService, SonarrService sonarrService, RadarrService radarrService){
+	public MediaRequirementService(MediaRequirementRepository mediaRequirementRepository, NotificationService notificationService, SupervisionService supervisionService, SonarrService sonarrService, RadarrService radarrService, MediaService mediaService, MediaRepository mediaRepository, UserGroupRepository userGroupRepository){
 		this.mediaRequirementRepository = mediaRequirementRepository;
 		this.notificationService = notificationService;
 		this.supervisionService = supervisionService;
 		this.sonarrService = sonarrService;
 		this.radarrService = radarrService;
+		this.mediaService = mediaService;
+		this.mediaRepository = mediaRepository;
+		this.userGroupRepository = userGroupRepository;
 		this.requirementOperationLock = new ReentrantLock();
 	}
 	
@@ -79,14 +87,7 @@ public class MediaRequirementService{
 			var group = requirement.get().getGroup();
 			var media = requirement.get().getMedia();
 			
-			if(Objects.nonNull(media.getServarrId())
-					&& media.getAvailablePartsCount() <= 0
-					&& media.getRequirements().stream().map(MediaRequirementEntity::getStatus).allMatch(MediaRequirementStatus::isCompleted)){
-				switch(media.getType()){
-					case MOVIE -> radarrService.delete(media.getServarrId());
-					case SEASON -> sonarrService.delete(media.getId());
-				}
-			}
+			mediaService.deleteMedia(mediaId, true);
 			
 			notificationService.notifyRequirementManuallyAbandoned(group, media);
 			mediaRequirementRepository.save(requirement.get());
@@ -131,6 +132,22 @@ public class MediaRequirementService{
 		}
 		finally{
 			requirementOperationLock.unlock();
+		}
+	}
+	
+	public void addRequirementForNewMedia(int mediaId, UserGroupEntity userGroupEntity) throws ServiceException, NotifyException{
+		log.info("Adding requirements to media with id {}", mediaId);
+		var media = mediaRepository.findById(mediaId)
+				.orElseThrow(() -> new ServiceException("Could not find media with id %d".formatted(mediaId)));
+		
+		addRequirement(media, userGroupEntity, true);
+		
+		var otherGroups = userGroupRepository.findAllByHasRequirementOn(Objects.requireNonNull(media.getOverseerrId()), media.getIndex() - 1);
+		for(var otherGroup : otherGroups){
+			if(Objects.equals(otherGroup.getId(), userGroupEntity.getId())){
+				continue;
+			}
+			addRequirement(media, otherGroup, false);
 		}
 	}
 }

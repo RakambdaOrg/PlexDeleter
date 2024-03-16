@@ -16,7 +16,6 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.servlet.ModelAndView;
-import java.util.List;
 
 @Slf4j
 @RestController
@@ -43,7 +42,7 @@ public class ApiAdminMediaRequirementController{
 		var userGroupEntity = userGroupRepository.findById(groupId)
 				.orElseThrow(() -> new IllegalArgumentException("Could not find user group with id %d".formatted(groupId)));
 		
-		mediaService.addMedia(userGroupEntity, overseerrId, type, List.of(season));
+		mediaService.addMedia(userGroupEntity, overseerrId, type, season);
 		return new ModelAndView("api/success");
 	}
 	

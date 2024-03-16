@@ -68,4 +68,8 @@ public class OverseerrService{
 				.blockOptional()
 				.orElseThrow(() -> new RequestFailedException("Failed to get request details with id %d".formatted(requestId))));
 	}
+	
+	public void deleteRequestForMedia(int mediaId){
+	
+	}
 }

@@ -1,5 +1,6 @@
 package fr.rakambda.plexdeleter.web.api.admin;
 
+import fr.rakambda.plexdeleter.api.RequestFailedException;
 import fr.rakambda.plexdeleter.notify.NotifyException;
 import fr.rakambda.plexdeleter.service.MediaService;
 import jakarta.validation.constraints.NotNull;
@@ -23,8 +24,8 @@ public class ApiAdminMediaController{
 	}
 	
 	@PostMapping("/delete")
-	public ModelAndView delete(@NotNull @RequestParam("media") int mediaId) throws NotifyException{
-		mediaService.deleteMedia(mediaId);
+	public ModelAndView delete(@NotNull @RequestParam("media") int mediaId) throws NotifyException, RequestFailedException{
+		mediaService.deleteMedia(mediaId, true);
 		return new ModelAndView("api/success");
 	}
 }

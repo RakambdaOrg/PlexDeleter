@@ -7,8 +7,11 @@ import fr.rakambda.plexdeleter.api.servarr.radarr.RadarrService;
 import fr.rakambda.plexdeleter.api.servarr.sonarr.SonarrService;
 import fr.rakambda.plexdeleter.config.ApplicationConfiguration;
 import fr.rakambda.plexdeleter.notify.NotifyException;
+import fr.rakambda.plexdeleter.service.MediaRequirementService;
 import fr.rakambda.plexdeleter.service.MediaService;
+import fr.rakambda.plexdeleter.service.ServiceException;
 import fr.rakambda.plexdeleter.service.UpdateException;
+import fr.rakambda.plexdeleter.service.UserService;
 import fr.rakambda.plexdeleter.storage.entity.MediaAvailability;
 import fr.rakambda.plexdeleter.storage.entity.MediaType;
 import fr.rakambda.plexdeleter.storage.repository.MediaRepository;
@@ -38,26 +41,30 @@ import java.util.stream.Collectors;
 @RequestMapping("/webhook/overseerr")
 public class OverseerrController{
 	private final MediaRepository mediaRepository;
+	private final MediaRequirementService mediaRequirementService;
 	private final MediaService mediaService;
 	private final OverseerrService overseerrService;
 	private final SonarrService sonarrService;
 	private final RadarrService radarrService;
 	private final UserGroupRepository userGroupRepository;
 	private final String excludeTag;
+	private final UserService userService;
 	
-	public OverseerrController(MediaRepository mediaRepository, MediaService mediaService, OverseerrService overseerrService, SonarrService sonarrService, RadarrService radarrService, UserGroupRepository userGroupRepository, ApplicationConfiguration applicationConfiguration){
+	public OverseerrController(MediaRepository mediaRepository, MediaRequirementService mediaRequirementService, MediaService mediaService, OverseerrService overseerrService, SonarrService sonarrService, RadarrService radarrService, UserGroupRepository userGroupRepository, ApplicationConfiguration applicationConfiguration, UserService userService){
 		this.mediaRepository = mediaRepository;
+		this.mediaRequirementService = mediaRequirementService;
 		this.mediaService = mediaService;
 		this.overseerrService = overseerrService;
 		this.sonarrService = sonarrService;
 		this.radarrService = radarrService;
 		this.userGroupRepository = userGroupRepository;
 		this.excludeTag = applicationConfiguration.getExcludeTag();
+		this.userService = userService;
 	}
 	
 	@PostMapping
 	@ResponseStatus(HttpStatus.NO_CONTENT)
-	public void onCall(@NonNull @RequestBody OverseerrWebhook data) throws RequestFailedException, UpdateException, NotifyException{
+	public void onCall(@NonNull @RequestBody OverseerrWebhook data) throws RequestFailedException, UpdateException, NotifyException, ServiceException{
 		log.info("Received new Overseerr webhook {}", data);
 		switch(data.getNotificationType()){
 			case "MEDIA_AUTO_APPROVED", "MEDIA_APPROVED" -> onMediaApproved(data);
@@ -77,7 +84,7 @@ public class OverseerrController{
 		}
 	}
 	
-	private void onMediaApproved(@NotNull OverseerrWebhook data) throws RequestFailedException, UpdateException, NotifyException{
+	private void onMediaApproved(@NotNull OverseerrWebhook data) throws RequestFailedException, UpdateException, NotifyException, ServiceException{
 		var requestId = Optional.ofNullable(data.getRequest()).map(Request::getRequestId);
 		if(requestId.isEmpty()){
 			log.warn("Not adding any media, could not determine request id from {}", data);
@@ -123,6 +130,9 @@ public class OverseerrController{
 			case TV -> MediaType.SEASON;
 		};
 		
-		mediaService.addMedia(userGroupEntity.get(), overseerrId, mediaType, seasons);
+		for(var season : seasons){
+			var mediaId = mediaService.addMedia(userGroupEntity.get(), overseerrId, mediaType, season);
+			mediaRequirementService.addRequirementForNewMedia(mediaId, userGroupEntity.get());
+		}
 	}
 }

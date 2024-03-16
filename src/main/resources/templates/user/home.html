@@ -50,13 +50,13 @@
             </td>
             <td>
                 <div class="d-flex flex-row justify-content-center align-items-center">
-                    <div class="m-1" th:if="${media.getAvailability().isAvailable() && media.isCompletable()}">
+                    <div class="m-1" th:if="${media.isCompletable()}">
                         <form th:action="@{/api/user/media-requirement/complete}" method="post">
                             <input type="hidden" name="media" class="form-control" th:value="${media.getId()}"/>
                             <input type="submit" th:value="#{web.media-list.table.action.complete}" class="btn btn-success btn-sm"/>
                         </form>
                     </div>
-                    <div class="m-1" th:if="${media.getAvailability().isAvailable()}">
+                    <div class="m-1">
                         <form th:action="@{/api/user/media-requirement/abandon}" method="post">
                             <input type="hidden" name="media" class="form-control" th:value="${media.getId()}"/>
                             <input type="submit" th:value="#{web.media-list.table.action.abandon}" class="btn btn-danger btn-sm"/>
