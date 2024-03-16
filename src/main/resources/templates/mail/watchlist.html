@@ -1,0 +1,27 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <title></title>
+    <th:block th:replace="~{fragment/common-head::common-head}"></th:block>
+</head>
+<body>
+<div>
+    <div th:unless="${#lists.isEmpty(availableMedias)}">
+        <h2 th:text="#{mail.watchlist.body.header.available}"></h2>
+        <ul>
+            <li th:each="availableMedia : ${availableMedias}">
+                <th:block th:replace="~{fragment/mail::media(media=${availableMedia}, service=${service}, userGroup=${userGroup}, overseerrEndpoint=${overseerrEndpoint})}"></th:block>
+            </li>
+        </ul>
+    </div>
+    <div th:unless="${#lists.isEmpty(notYetAvailableMedias)}">
+        <h2 th:text="#{mail.watchlist.body.header.available}"></h2>
+        <ul>
+            <li th:each="notYetAvailableMedia : ${notYetAvailableMedias}">
+                <th:block th:replace="~{fragment/mail::media(media=${notYetAvailableMedia}, service=${service}, userGroup=${userGroup}, overseerrEndpoint=${overseerrEndpoint})}"></th:block>
+            </li>
+        </ul>
+    </div>
+</div>
+</body>
+</html>

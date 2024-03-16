@@ -1,0 +1,12 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <title></title>
+    <th:block th:replace="~{fragment/common-head::common-head}"></th:block>
+</head>
+<body>
+<div>
+    <th:block th:replace="~{fragment/mail::media(media=${media}, service=${service}, userGroup=${userGroup}, overseerrEndpoint=${overseerrEndpoint})}"></th:block>
+</div>
+</body>
+</html>

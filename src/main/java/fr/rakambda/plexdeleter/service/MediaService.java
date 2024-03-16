@@ -238,7 +238,7 @@ public class MediaService{
 	public int addMedia(@NotNull UserGroupEntity userGroupEntity, int overseerrId, @NotNull MediaType mediaType, int season) throws RequestFailedException, UpdateException, NotifyException{
 		mediaOperationLock.lock();
 		try{
-			log.info("Adding mediaOptional with Overseerr id {} and season {} to {}", overseerrId, season, userGroupEntity);
+			log.info("Adding media with Overseerr id {} and season {} to {}", overseerrId, season, userGroupEntity);
 			var media = getOrCreateMedia(overseerrId, mediaType, season);
 			media.setAvailability(MediaAvailability.WAITING);
 			media.setActionStatus(MediaActionStatus.TO_DELETE);

@@ -12,7 +12,6 @@ import fr.rakambda.plexdeleter.api.tautulli.data.SubtitlesMediaPartStream;
 import fr.rakambda.plexdeleter.config.ApplicationConfiguration;
 import fr.rakambda.plexdeleter.service.WatchService;
 import fr.rakambda.plexdeleter.storage.entity.MediaEntity;
-import fr.rakambda.plexdeleter.storage.entity.MediaType;
 import fr.rakambda.plexdeleter.storage.entity.UserGroupEntity;
 import jakarta.mail.MessagingException;
 import lombok.SneakyThrows;
@@ -28,7 +27,6 @@ import java.time.Duration;
 import java.util.Collection;
 import java.util.List;
 import java.util.Locale;
-import java.util.Map;
 import java.util.Objects;
 import java.util.Optional;
 import java.util.stream.Collectors;
@@ -40,15 +38,14 @@ public class DiscordThreadNotificationService extends AbstractNotificationServic
 	
 	private final DiscordWebhookService discordWebhookService;
 	private final MessageSource messageSource;
-	private final WatchService watchService;
 	private final String tautulliEndpoint;
 	private final String overseerrEndpoint;
 	
 	@Autowired
 	public DiscordThreadNotificationService(DiscordWebhookService discordWebhookService, ApplicationConfiguration applicationConfiguration, MessageSource messageSource, WatchService watchService){
+		super(watchService);
 		this.discordWebhookService = discordWebhookService;
 		this.messageSource = messageSource;
-		this.watchService = watchService;
 		this.tautulliEndpoint = applicationConfiguration.getTautulli().getEndpoint();
 		this.overseerrEndpoint = applicationConfiguration.getOverseerr().getEndpoint();
 	}
@@ -207,26 +204,15 @@ public class DiscordThreadNotificationService extends AbstractNotificationServic
 	@SneakyThrows(RequestFailedException.class)
 	private String getWatchlistMediaText(@NotNull UserGroupEntity userGroupEntity, @NotNull MediaEntity media, @NotNull Locale locale){
 		var sb = new StringBuilder();
-		sb.append(switch(media.getType()){
-			case MOVIE -> messageSource.getMessage("discord.watchlist.body.media.movie", new Object[]{
-					media.getName(),
-					}, locale);
-			case SEASON -> messageSource.getMessage("discord.watchlist.body.media.series", new Object[]{
-					media.getName(),
-					media.getIndex(),
-					}, locale);
-		});
+		sb.append(messageSource.getMessage(getTypeKey(media), new Object[]{
+				media.getName(),
+				media.getIndex(),
+				}, locale));
 		
-		if(media.getType() == MediaType.SEASON && Objects.nonNull(media.getPlexId())){
-			var episodes = watchService.getGroupWatchHistory(userGroupEntity, media).entrySet().stream()
-					.filter(entry -> entry.getValue().stream().allMatch(r -> Objects.equals(r.getWatchedStatus(), 0)))
-					.map(Map.Entry::getKey)
-					.map(String::valueOf)
-					.toList();
-			if(!episodes.isEmpty()){
-				sb.append(" | ");
-				sb.append(messageSource.getMessage("discord.watchlist.body.media.series.episodes", new Object[]{String.join(", ", episodes)}, locale));
-			}
+		var episodes = getEpisodes(media, userGroupEntity);
+		if(!episodes.isEmpty()){
+			sb.append(" | ");
+			sb.append(messageSource.getMessage("discord.watchlist.body.media.series.episodes", new Object[]{String.join(", ", episodes)}, locale));
 		}
 		
 		if(Objects.nonNull(media.getOverseerrId())){
@@ -234,10 +220,7 @@ public class DiscordThreadNotificationService extends AbstractNotificationServic
 			sb.append("[Overseerr](");
 			sb.append(overseerrEndpoint);
 			sb.append("/");
-			sb.append(switch(media.getType()){
-				case MOVIE -> "movie";
-				case SEASON -> "tv";
-			});
+			sb.append(media.getType().getOverseerrType().getValue());
 			sb.append("/");
 			sb.append(media.getOverseerrId());
 			sb.append(")");

@@ -38,11 +38,12 @@ public class ApiAdminMediaRequirementController{
 			@NotNull @RequestParam("overseerr") int overseerrId,
 			@NotNull @RequestParam("season") int season,
 			@NotNull @RequestParam("type") MediaType type
-	) throws NotifyException, RequestFailedException, UpdateException{
+	) throws NotifyException, RequestFailedException, UpdateException, ServiceException{
 		var userGroupEntity = userGroupRepository.findById(groupId)
 				.orElseThrow(() -> new IllegalArgumentException("Could not find user group with id %d".formatted(groupId)));
 		
-		mediaService.addMedia(userGroupEntity, overseerrId, type, season);
+		var mediaId = mediaService.addMedia(userGroupEntity, overseerrId, type, season);
+		mediaRequirementService.addRequirementForNewMedia(mediaId, userGroupEntity);
 		return new ModelAndView("api/success");
 	}
 	
