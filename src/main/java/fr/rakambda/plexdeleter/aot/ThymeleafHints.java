@@ -1,6 +1,6 @@
 package fr.rakambda.plexdeleter.aot;
 
-import fr.rakambda.plexdeleter.notify.MailNotificationService;
+import fr.rakambda.plexdeleter.notify.AbstractNotificationService;
 import fr.rakambda.plexdeleter.service.UserService;
 import fr.rakambda.plexdeleter.storage.entity.MediaEntity;
 import fr.rakambda.plexdeleter.storage.entity.UserGroupEntity;
@@ -23,7 +23,8 @@ public class ThymeleafHints implements RuntimeHintsRegistrar{
 			hints.reflection().registerMethod(UserService.class.getMethod("getMediaOverseerrUrl", MediaEntity.class), ExecutableMode.INVOKE);
 			hints.reflection().registerMethod(UserService.class.getMethod("getMediaRadarrUrl", MediaEntity.class), ExecutableMode.INVOKE);
 			hints.reflection().registerMethod(UserService.class.getMethod("getMediaSonarrUrl", MediaEntity.class), ExecutableMode.INVOKE);
-			hints.reflection().registerMethod(MailNotificationService.class.getMethod("getEpisodes", MediaEntity.class, UserGroupEntity.class), ExecutableMode.INVOKE);
+			hints.reflection().registerMethod(AbstractNotificationService.class.getMethod("getEpisodes", MediaEntity.class, UserGroupEntity.class), ExecutableMode.INVOKE);
+			hints.reflection().registerMethod(AbstractNotificationService.class.getMethod("getTypeKey", MediaEntity.class), ExecutableMode.INVOKE);
 			hints.reflection().registerMethod(Lists.class.getMethod("isEmpty", List.class), ExecutableMode.INVOKE);
 			hints.reflection().registerMethod(Strings.class.getMethod("isEmpty", Object.class), ExecutableMode.INVOKE);
 			hints.reflection().registerMethod(Strings.class.getMethod("listJoin", List.class, String.class), ExecutableMode.INVOKE);
