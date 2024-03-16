@@ -16,6 +16,8 @@ import org.jetbrains.annotations.NotNull;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import java.util.Objects;
+import java.util.concurrent.locks.Lock;
+import java.util.concurrent.locks.ReentrantLock;
 
 @Slf4j
 @Service
@@ -25,6 +27,7 @@ public class MediaRequirementService{
 	private final SupervisionService supervisionService;
 	private final SonarrService sonarrService;
 	private final RadarrService radarrService;
+	private final Lock requirementOperationLock;
 	
 	@Autowired
 	public MediaRequirementService(MediaRequirementRepository mediaRequirementRepository, NotificationService notificationService, SupervisionService supervisionService, SonarrService sonarrService, RadarrService radarrService){
@@ -33,82 +36,101 @@ public class MediaRequirementService{
 		this.supervisionService = supervisionService;
 		this.sonarrService = sonarrService;
 		this.radarrService = radarrService;
+		this.requirementOperationLock = new ReentrantLock();
 	}
 	
 	public void complete(int mediaId, int groupId) throws NotifyException, ServiceException{
-		var requirement = mediaRequirementRepository.findById(new MediaRequirementEntity.TableId(mediaId, groupId));
-		if(requirement.isEmpty()){
-			return;
+		requirementOperationLock.lock();
+		try{
+			var requirement = mediaRequirementRepository.findById(new MediaRequirementEntity.TableId(mediaId, groupId));
+			if(requirement.isEmpty()){
+				return;
+			}
+			if(!requirement.get().getMedia().isCompletable()){
+				throw new ServiceException("Cannot complete a media that isn't fully available");
+			}
+			log.info("Marking requirement {} as completed", requirement);
+			
+			requirement.get().setStatus(MediaRequirementStatus.WATCHED);
+			
+			var group = requirement.get().getGroup();
+			var media = requirement.get().getMedia();
+			
+			notificationService.notifyRequirementManuallyWatched(group, media);
+			mediaRequirementRepository.save(requirement.get());
+			supervisionService.send("✍\uFE0F\uD83D\uDC41\uFE0F Media manually watched %s for %s", media, group);
 		}
-		if(!requirement.get().getMedia().isCompletable()){
-			throw new ServiceException("Cannot complete a media that isn't fully available");
+		finally{
+			requirementOperationLock.unlock();
 		}
-		log.info("Marking requirement {} as completed", requirement);
-		
-		requirement.get().setStatus(MediaRequirementStatus.WATCHED);
-		
-		var group = requirement.get().getGroup();
-		var media = requirement.get().getMedia();
-		
-		notificationService.notifyRequirementManuallyWatched(group, media);
-		mediaRequirementRepository.save(requirement.get());
-		supervisionService.send("✍\uFE0F\uD83D\uDC41\uFE0F Media manually watched %s for %s", media, group);
 	}
 	
 	public void abandon(int mediaId, int groupId) throws NotifyException, RequestFailedException{
-		var requirement = mediaRequirementRepository.findById(new MediaRequirementEntity.TableId(mediaId, groupId));
-		if(requirement.isEmpty()){
-			return;
-		}
-		log.info("Marking requirement {} as abandoned", requirement);
-		
-		requirement.get().setStatus(MediaRequirementStatus.ABANDONED);
-		
-		var group = requirement.get().getGroup();
-		var media = requirement.get().getMedia();
-		
-		if(Objects.nonNull(media.getServarrId())
-				&& media.getAvailablePartsCount() <= 0
-				&& media.getRequirements().stream().map(MediaRequirementEntity::getStatus).allMatch(MediaRequirementStatus::isCompleted)){
-			switch(media.getType()){
-				case MOVIE -> radarrService.delete(media.getServarrId());
-				case SEASON -> sonarrService.delete(media.getId());
+		requirementOperationLock.lock();
+		try{
+			var requirement = mediaRequirementRepository.findById(new MediaRequirementEntity.TableId(mediaId, groupId));
+			if(requirement.isEmpty()){
+				return;
 			}
+			log.info("Marking requirement {} as abandoned", requirement);
+			
+			requirement.get().setStatus(MediaRequirementStatus.ABANDONED);
+			
+			var group = requirement.get().getGroup();
+			var media = requirement.get().getMedia();
+			
+			if(Objects.nonNull(media.getServarrId())
+					&& media.getAvailablePartsCount() <= 0
+					&& media.getRequirements().stream().map(MediaRequirementEntity::getStatus).allMatch(MediaRequirementStatus::isCompleted)){
+				switch(media.getType()){
+					case MOVIE -> radarrService.delete(media.getServarrId());
+					case SEASON -> sonarrService.delete(media.getId());
+				}
+			}
+			
+			notificationService.notifyRequirementManuallyAbandoned(group, media);
+			mediaRequirementRepository.save(requirement.get());
+			supervisionService.send("✍\uFE0F\uD83D\uDE48 Media manually abandoned %s for %s", media, group);
 		}
-		
-		notificationService.notifyRequirementManuallyAbandoned(group, media);
-		mediaRequirementRepository.save(requirement.get());
-		supervisionService.send("✍\uFE0F\uD83D\uDE48 Media manually abandoned %s for %s", media, group);
+		finally{
+			requirementOperationLock.unlock();
+		}
 	}
 	
 	public void addRequirement(@NotNull MediaEntity media, @NotNull UserGroupEntity userGroupEntity, boolean allowModify) throws NotifyException{
-		log.info("Adding requirement on {} for {}", media, userGroupEntity);
-		var id = new MediaRequirementEntity.TableId(media.getId(), userGroupEntity.getId());
-		if(!mediaRequirementRepository.existsById(id)){
-			mediaRequirementRepository.save(MediaRequirementEntity.builder()
-					.status(MediaRequirementStatus.WAITING)
-					.id(new MediaRequirementEntity.TableId(media.getId(), userGroupEntity.getId()))
-					.group(userGroupEntity)
-					.media(media)
-					.build());
-			supervisionService.send("\uD83D\uDED2 Added requirement %s to %s", media, userGroupEntity);
+		requirementOperationLock.lock();
+		try{
+			log.info("Adding requirement on {} for {}", media, userGroupEntity);
+			var id = new MediaRequirementEntity.TableId(media.getId(), userGroupEntity.getId());
+			if(!mediaRequirementRepository.existsById(id)){
+				mediaRequirementRepository.save(MediaRequirementEntity.builder()
+						.status(MediaRequirementStatus.WAITING)
+						.id(new MediaRequirementEntity.TableId(media.getId(), userGroupEntity.getId()))
+						.group(userGroupEntity)
+						.media(media)
+						.build());
+				supervisionService.send("\uD83D\uDED2 Added requirement %s to %s", media, userGroupEntity);
+				notificationService.notifyRequirementAdded(userGroupEntity, media);
+				return;
+			}
+			
+			if(!allowModify){
+				log.info("Requirement already exists but we're not modifying it");
+				return;
+			}
+			
+			log.info("Updating already existing requirement");
+			mediaRequirementRepository.findById(id)
+					.map(requirement -> {
+						requirement.setStatus(MediaRequirementStatus.WAITING);
+						return requirement;
+					})
+					.ifPresent(mediaRequirementRepository::save);
+			supervisionService.send("Updated requirement %s to %s", media, userGroupEntity);
 			notificationService.notifyRequirementAdded(userGroupEntity, media);
-			return;
 		}
-		
-		if(!allowModify){
-			log.info("Requirement already exists but we're not modifying it");
-			return;
+		finally{
+			requirementOperationLock.unlock();
 		}
-		
-		log.info("Updating already existing requirement");
-		mediaRequirementRepository.findById(id)
-				.map(requirement -> {
-					requirement.setStatus(MediaRequirementStatus.WAITING);
-					return requirement;
-				})
-				.ifPresent(mediaRequirementRepository::save);
-		supervisionService.send("Updated requirement %s to %s", media, userGroupEntity);
-		notificationService.notifyRequirementAdded(userGroupEntity, media);
 	}
 }

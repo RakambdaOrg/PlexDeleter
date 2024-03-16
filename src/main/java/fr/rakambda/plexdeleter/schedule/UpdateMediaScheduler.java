@@ -11,7 +11,6 @@ import org.jetbrains.annotations.NotNull;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Component;
-import org.springframework.transaction.annotation.Transactional;
 import java.util.Set;
 
 @Slf4j
@@ -34,13 +33,12 @@ public class UpdateMediaScheduler implements IScheduler{
 	
 	@Override
 	@Scheduled(cron = "0 0 0,8,15 * * *")
-	@Transactional
 	public void run(){
 		log.info("Updating medias");
 		var medias = mediaRepository.findAllByAvailabilityIn(Set.of(MediaAvailability.WAITING, MediaAvailability.DOWNLOADING));
 		for(var media : medias){
 			try{
-				mediaService.update(media);
+				mediaService.update(media.getId());
 			}
 			catch(UpdateException | RequestFailedException | NotifyException e){
 				log.error("Failed to update media {}", media, e);

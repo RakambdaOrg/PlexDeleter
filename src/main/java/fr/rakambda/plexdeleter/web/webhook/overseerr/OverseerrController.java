@@ -73,7 +73,7 @@ public class OverseerrController{
 				.orElseGet(() -> mediaRepository.findAllByAvailabilityIn(Set.of(MediaAvailability.WAITING, MediaAvailability.DOWNLOADING)));
 		
 		for(var media : medias){
-			mediaService.update(media);
+			mediaService.update(media.getId());
 		}
 	}
 	

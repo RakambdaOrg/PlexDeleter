@@ -28,6 +28,8 @@ import org.springframework.stereotype.Service;
 import java.util.Collection;
 import java.util.Objects;
 import java.util.Optional;
+import java.util.concurrent.locks.Lock;
+import java.util.concurrent.locks.ReentrantLock;
 
 @Slf4j
 @Service
@@ -41,6 +43,7 @@ public class MediaService{
 	private final NotificationService notificationService;
 	private final MediaRequirementService mediaRequirementService;
 	private final UserGroupRepository userGroupRepository;
+	private final Lock mediaOperationLock;
 	
 	@Autowired
 	public MediaService(TautulliService tautulliService, SupervisionService supervisionService, MediaRepository mediaRepository, OverseerrService overseerrService, SonarrService sonarrService, RadarrService radarrService, NotificationService notificationService, MediaRequirementService mediaRequirementService, UserGroupRepository userGroupRepository){
@@ -53,30 +56,40 @@ public class MediaService{
 		this.notificationService = notificationService;
 		this.mediaRequirementService = mediaRequirementService;
 		this.userGroupRepository = userGroupRepository;
+		this.mediaOperationLock = new ReentrantLock();
 	}
 	
 	@NotNull
-	public MediaEntity update(@NotNull MediaEntity mediaEntity) throws UpdateException, RequestFailedException, NotifyException{
-		log.info("Updating media {}", mediaEntity);
-		updateFromOverseerr(mediaEntity);
-		updateFromTautulli(mediaEntity);
-		updateFromServarr(mediaEntity);
-		
-		if(mediaEntity.getPartsCount() <= 0){
-			log.warn("Failed to update {}, not enough info", mediaEntity);
-			supervisionService.send("\uD83D\uDEAB Could not update %s", mediaEntity);
+	public MediaEntity update(int mediaId) throws UpdateException, RequestFailedException, NotifyException{
+		mediaOperationLock.lock();
+		try{
+			var mediaEntity = mediaRepository.findById(mediaId)
+					.orElseThrow(() -> new UpdateException("Media with id %d not found".formatted(mediaId)));
+			log.info("Updating media {}", mediaEntity);
+			
+			updateFromOverseerr(mediaEntity);
+			updateFromTautulli(mediaEntity);
+			updateFromServarr(mediaEntity);
+			
+			if(mediaEntity.getPartsCount() <= 0){
+				log.warn("Failed to update {}, not enough info", mediaEntity);
+				supervisionService.send("\uD83D\uDEAB Could not update %s", mediaEntity);
+			}
+			else if(mediaEntity.getAvailablePartsCount() >= mediaEntity.getPartsCount()){
+				mediaEntity.setAvailability(MediaAvailability.DOWNLOADED);
+				log.info("Marked media {} as finished", mediaEntity);
+				notificationService.notifyMediaAvailable(mediaEntity);
+				supervisionService.send("\uD83C\uDD97 Marked %d as downloaded: %s (%d/%d)", mediaEntity.getId(), mediaEntity, mediaEntity.getPartsCount(), mediaEntity.getAvailablePartsCount());
+			}
+			else if(mediaEntity.getAvailablePartsCount() > 0){
+				mediaEntity.setAvailability(MediaAvailability.DOWNLOADING);
+			}
+			
+			return mediaRepository.save(mediaEntity);
 		}
-		else if(mediaEntity.getAvailablePartsCount() >= mediaEntity.getPartsCount()){
-			mediaEntity.setAvailability(MediaAvailability.DOWNLOADED);
-			log.info("Marked media {} as finished", mediaEntity);
-			notificationService.notifyMediaAvailable(mediaEntity);
-			supervisionService.send("\uD83C\uDD97 Marked %d as downloaded: %s (%d/%d)", mediaEntity.getId(), mediaEntity, mediaEntity.getPartsCount(), mediaEntity.getAvailablePartsCount());
+		finally{
+			mediaOperationLock.unlock();
 		}
-		else if(mediaEntity.getAvailablePartsCount() > 0){
-			mediaEntity.setAvailability(MediaAvailability.DOWNLOADING);
-		}
-		
-		return mediaRepository.save(mediaEntity);
 	}
 	
 	private void updateFromOverseerr(@NotNull MediaEntity mediaEntity) throws UpdateException, RequestFailedException{
@@ -170,44 +183,56 @@ public class MediaService{
 	}
 	
 	public void deleteMedia(int mediaId) throws NotifyException{
-		var media = mediaRepository.findById(mediaId);
-		if(media.isEmpty()){
-			return;
+		mediaOperationLock.lock();
+		try{
+			var media = mediaRepository.findById(mediaId);
+			if(media.isEmpty()){
+				return;
+			}
+			log.info("Deleting media {}", media.get());
+			var groups = media.get().getRequirements().stream()
+					.map(MediaRequirementEntity::getGroup)
+					.toList();
+			// TODO Delete request from overseer
+			// TODO Remove media from Servarr
+			
+			mediaRepository.delete(media.get());
+			
+			for(var group : groups){
+				notificationService.notifyMediaDeleted(group, media.get());
+			}
+			supervisionService.send("\uD83D\uDCDB Media deleted from database %s", media.get());
 		}
-		log.info("Deleting media {}", media.get());
-		var groups = media.get().getRequirements().stream()
-				.map(MediaRequirementEntity::getGroup)
-				.toList();
-		// TODO Delete request from overseer
-		// TODO Remove media from Servarr
-		
-		mediaRepository.delete(media.get());
-		
-		for(var group : groups){
-			notificationService.notifyMediaDeleted(group, media.get());
+		finally{
+			mediaOperationLock.unlock();
 		}
-		supervisionService.send("\uD83D\uDCDB Media deleted from database %s", media.get());
 	}
 	
 	public void addMedia(@NotNull UserGroupEntity userGroupEntity, int overseerrId, @NotNull MediaType mediaType, @NotNull Collection<Integer> seasons) throws RequestFailedException, UpdateException, NotifyException{
 		for(var season : seasons){
-			log.info("Adding media with Overseerr id {} and season {} to {}", overseerrId, season, userGroupEntity);
-			var media = getOrCreateMedia(overseerrId, mediaType, season);
-			media.setAvailability(MediaAvailability.WAITING);
-			media.setActionStatus(MediaActionStatus.TO_DELETE);
-			media.setAvailablePartsCount(0);
-			mediaRepository.save(media);
-			
-			media = update(media);
-			
-			log.info("Adding requirements");
-			mediaRequirementService.addRequirement(media, userGroupEntity, true);
-			var otherGroups = userGroupRepository.findAllByHasRequirementOn(Objects.requireNonNull(media.getOverseerrId()), media.getIndex() - 1);
-			for(var otherGroup : otherGroups){
-				if(Objects.equals(otherGroup.getId(), userGroupEntity.getId())){
-					continue;
+			mediaOperationLock.lock();
+			try{
+				log.info("Adding media with Overseerr id {} and season {} to {}", overseerrId, season, userGroupEntity);
+				var media = getOrCreateMedia(overseerrId, mediaType, season);
+				media.setAvailability(MediaAvailability.WAITING);
+				media.setActionStatus(MediaActionStatus.TO_DELETE);
+				media.setAvailablePartsCount(0);
+				mediaRepository.save(media);
+				
+				media = update(media.getId());
+				
+				log.info("Adding requirements");
+				mediaRequirementService.addRequirement(media, userGroupEntity, true);
+				var otherGroups = userGroupRepository.findAllByHasRequirementOn(Objects.requireNonNull(media.getOverseerrId()), media.getIndex() - 1);
+				for(var otherGroup : otherGroups){
+					if(Objects.equals(otherGroup.getId(), userGroupEntity.getId())){
+						continue;
+					}
+					mediaRequirementService.addRequirement(media, otherGroup, false);
 				}
-				mediaRequirementService.addRequirement(media, otherGroup, false);
+			}
+			finally{
+				mediaOperationLock.unlock();
 			}
 		}
 	}

@@ -55,8 +55,11 @@ public class TautulliController{
 			log.warn("Not updating any requirement, could not determine user id from {}", data);
 			return;
 		}
-		
-		var ratingKey = switch(data.getType()){
+		if(Objects.isNull(data.getMediaType())){
+			log.warn("Not updating any requirement, media type is unknown in {}", data);
+			return;
+		}
+		var ratingKey = switch(data.getMediaType()){
 			case "movie" -> data.getRatingKey();
 			case "episode" -> data.getParentRatingKey();
 			default -> null;
@@ -107,6 +110,6 @@ public class TautulliController{
 			return;
 		}
 		
-		mediaService.update(mediaEntity.get());
+		mediaService.update(mediaEntity.get().getId());
 	}
 }
