@@ -63,7 +63,7 @@ public final class Movie{
 	private int runtime;
 	@NotNull
 	private String cleanTitle;
-	@NotNull
+	@Nullable
 	private String titleSlug;
 	@Nullable
 	private String imdbId;

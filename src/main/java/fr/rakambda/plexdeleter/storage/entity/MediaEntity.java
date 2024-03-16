@@ -58,12 +58,24 @@ public class MediaEntity{
 	@Nullable
 	private Integer tvdbId;
 	@Basic
+	@Column
+	@Nullable
+	private Integer tmdbId;
+	@Basic
+	@Column
+	@Nullable
+	private String sonarrSlug;
+	@Basic
+	@Column
+	@Nullable
+	private String radarrSlug;
+	@Basic
 	@Column(nullable = false)
 	@NotNull
 	@ToString.Include
 	private String name;
 	@Basic
-	@Column(name = "MediaIndex")
+	@Column(name = "media_index")
 	@NotNull
 	@ToString.Include
 	private Integer index;

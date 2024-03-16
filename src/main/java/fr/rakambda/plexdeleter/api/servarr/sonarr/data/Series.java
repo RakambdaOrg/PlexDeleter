@@ -60,7 +60,8 @@ public final class Series{
 	@NotNull
 	private String monitorNewItems;
 	private int runtime;
-	private int tvdbId;
+	@Nullable
+	private Integer tvdbId;
 	@Nullable
 	private Integer tvRageId;
 	@Nullable
@@ -77,7 +78,7 @@ public final class Series{
 	private String seriesType;
 	@NotNull
 	private String cleanTitle;
-	@NotNull
+	@Nullable
 	private String titleSlug;
 	@NotNull
 	private Statistics statistics;

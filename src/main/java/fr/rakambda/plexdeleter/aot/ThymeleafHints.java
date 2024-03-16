@@ -18,6 +18,8 @@ public class ThymeleafHints implements RuntimeHintsRegistrar{
 	public void registerHints(@NotNull RuntimeHints hints, @Nullable ClassLoader classLoader){
 		try{
 			hints.reflection().registerMethod(UserService.class.getMethod("getMediaOverseerrUrl", MediaEntity.class), ExecutableMode.INVOKE);
+			hints.reflection().registerMethod(UserService.class.getMethod("getMediaRadarrUrl", MediaEntity.class), ExecutableMode.INVOKE);
+			hints.reflection().registerMethod(UserService.class.getMethod("getMediaSonarrUrl", MediaEntity.class), ExecutableMode.INVOKE);
 			hints.reflection().registerMethod(Lists.class.getMethod("isEmpty", List.class), ExecutableMode.INVOKE);
 			hints.reflection().registerMethod(IterationStatusVar.class.getMethod("getIndex"), ExecutableMode.INVOKE);
 			hints.reflection().registerField(IterationStatusVar.class.getDeclaredField("index"));

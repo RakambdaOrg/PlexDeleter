@@ -1,8 +1,6 @@
 package fr.rakambda.plexdeleter.service;
 
 import fr.rakambda.plexdeleter.api.RequestFailedException;
-import fr.rakambda.plexdeleter.api.servarr.radarr.RadarrService;
-import fr.rakambda.plexdeleter.api.servarr.sonarr.SonarrService;
 import fr.rakambda.plexdeleter.messaging.SupervisionService;
 import fr.rakambda.plexdeleter.notify.NotificationService;
 import fr.rakambda.plexdeleter.notify.NotifyException;
@@ -27,20 +25,16 @@ public class MediaRequirementService{
 	private final MediaRequirementRepository mediaRequirementRepository;
 	private final NotificationService notificationService;
 	private final SupervisionService supervisionService;
-	private final SonarrService sonarrService;
-	private final RadarrService radarrService;
 	private final MediaService mediaService;
 	private final MediaRepository mediaRepository;
 	private final UserGroupRepository userGroupRepository;
 	private final Lock requirementOperationLock;
 	
 	@Autowired
-	public MediaRequirementService(MediaRequirementRepository mediaRequirementRepository, NotificationService notificationService, SupervisionService supervisionService, SonarrService sonarrService, RadarrService radarrService, MediaService mediaService, MediaRepository mediaRepository, UserGroupRepository userGroupRepository){
+	public MediaRequirementService(MediaRequirementRepository mediaRequirementRepository, NotificationService notificationService, SupervisionService supervisionService, MediaService mediaService, MediaRepository mediaRepository, UserGroupRepository userGroupRepository){
 		this.mediaRequirementRepository = mediaRequirementRepository;
 		this.notificationService = notificationService;
 		this.supervisionService = supervisionService;
-		this.sonarrService = sonarrService;
-		this.radarrService = radarrService;
 		this.mediaService = mediaService;
 		this.mediaRepository = mediaRepository;
 		this.userGroupRepository = userGroupRepository;

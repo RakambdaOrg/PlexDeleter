@@ -21,7 +21,6 @@ import fr.rakambda.plexdeleter.storage.entity.MediaRequirementStatus;
 import fr.rakambda.plexdeleter.storage.entity.MediaType;
 import fr.rakambda.plexdeleter.storage.entity.UserGroupEntity;
 import fr.rakambda.plexdeleter.storage.repository.MediaRepository;
-import fr.rakambda.plexdeleter.storage.repository.UserGroupRepository;
 import lombok.extern.slf4j.Slf4j;
 import org.jetbrains.annotations.NotNull;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -41,11 +40,10 @@ public class MediaService{
 	private final SonarrService sonarrService;
 	private final RadarrService radarrService;
 	private final NotificationService notificationService;
-	private final UserGroupRepository userGroupRepository;
 	private final Lock mediaOperationLock;
 	
 	@Autowired
-	public MediaService(TautulliService tautulliService, SupervisionService supervisionService, MediaRepository mediaRepository, OverseerrService overseerrService, SonarrService sonarrService, RadarrService radarrService, NotificationService notificationService, UserGroupRepository userGroupRepository){
+	public MediaService(TautulliService tautulliService, SupervisionService supervisionService, MediaRepository mediaRepository, OverseerrService overseerrService, SonarrService sonarrService, RadarrService radarrService, NotificationService notificationService){
 		this.tautulliService = tautulliService;
 		this.supervisionService = supervisionService;
 		this.mediaRepository = mediaRepository;
@@ -53,7 +51,6 @@ public class MediaService{
 		this.sonarrService = sonarrService;
 		this.radarrService = radarrService;
 		this.notificationService = notificationService;
-		this.userGroupRepository = userGroupRepository;
 		this.mediaOperationLock = new ReentrantLock();
 	}
 	
@@ -107,6 +104,17 @@ public class MediaService{
 		Optional.ofNullable(mediaDetails.getMediaInfo())
 				.map(MediaInfo::getTvdbId)
 				.ifPresent(mediaEntity::setTvdbId);
+		Optional.ofNullable(mediaDetails.getMediaInfo())
+				.map(MediaInfo::getTmdbId)
+				.ifPresent(mediaEntity::setTmdbId);
+		Optional.ofNullable(mediaDetails.getMediaInfo())
+				.map(MediaInfo::getExternalServiceSlug)
+				.ifPresent(slug -> {
+					switch(mediaEntity.getType()){
+						case MOVIE -> mediaEntity.setRadarrSlug(slug);
+						case SEASON -> mediaEntity.setSonarrSlug(slug);
+					}
+				});
 		
 		var partsCount = switch(mediaDetails){
 			case MovieMedia ignored -> 1;
@@ -160,13 +168,19 @@ public class MediaService{
 		switch(mediaEntity.getType()){
 			case MOVIE -> {
 				partsCount = Optional.of(1);
-				availablePartsCount = Optional.of(radarrService.getMovie(mediaEntity.getServarrId()).isHasFile() ? 1 : 0);
+				var movie = radarrService.getMovie(mediaEntity.getServarrId());
+				availablePartsCount = Optional.of(movie.isHasFile() ? 1 : 0);
+				Optional.ofNullable(movie.getTmdbId()).ifPresent(mediaEntity::setTmdbId);
+				Optional.ofNullable(movie.getTitleSlug()).ifPresent(mediaEntity::setRadarrSlug);
 			}
 			case SEASON -> {
-				var stats = sonarrService.getSeries(mediaEntity.getServarrId()).getSeasons().stream()
+				var series = sonarrService.getSeries(mediaEntity.getServarrId());
+				var stats = series.getSeasons().stream()
 						.filter(f -> Objects.equals(f.getSeasonNumber(), mediaEntity.getIndex()))
 						.findFirst()
 						.map(Season::getStatistics);
+				Optional.ofNullable(series.getTvdbId()).ifPresent(mediaEntity::setTvdbId);
+				Optional.ofNullable(series.getTitleSlug()).ifPresent(mediaEntity::setSonarrSlug);
 				partsCount = stats.map(Statistics::getTotalEpisodeCount);
 				availablePartsCount = stats.map(Statistics::getEpisodeFileCount);
 			}
