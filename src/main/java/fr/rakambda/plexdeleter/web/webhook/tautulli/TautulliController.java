@@ -1,6 +1,8 @@
 package fr.rakambda.plexdeleter.web.webhook.tautulli;
 
 import fr.rakambda.plexdeleter.api.RequestFailedException;
+import fr.rakambda.plexdeleter.api.tautulli.TautulliService;
+import fr.rakambda.plexdeleter.notify.NotificationService;
 import fr.rakambda.plexdeleter.notify.NotifyException;
 import fr.rakambda.plexdeleter.service.MediaService;
 import fr.rakambda.plexdeleter.service.UpdateException;
@@ -31,13 +33,17 @@ public class TautulliController{
 	private final UserPersonRepository userPersonRepository;
 	private final MediaRepository mediaRepository;
 	private final MediaRequirementRepository mediaRequirementRepository;
+	private final TautulliService tautulliService;
+	private final NotificationService notificationService;
 	
-	public TautulliController(WatchService watchService, MediaService mediaService, UserPersonRepository userPersonRepository, MediaRepository mediaRepository, MediaRequirementRepository mediaRequirementRepository){
+	public TautulliController(WatchService watchService, MediaService mediaService, UserPersonRepository userPersonRepository, MediaRepository mediaRepository, MediaRequirementRepository mediaRequirementRepository, TautulliService tautulliService, NotificationService notificationService){
 		this.watchService = watchService;
 		this.mediaService = mediaService;
 		this.userPersonRepository = userPersonRepository;
 		this.mediaRepository = mediaRepository;
 		this.mediaRequirementRepository = mediaRequirementRepository;
+		this.tautulliService = tautulliService;
+		this.notificationService = notificationService;
 	}
 	
 	@PostMapping
@@ -46,7 +52,10 @@ public class TautulliController{
 		log.info("Received new Tautulli webhook {}", data);
 		switch(data.getType()){
 			case "watched" -> updateRequirement(data);
-			case "added" -> updateMedia(data);
+			case "added" -> {
+				updateMedia(data);
+				notifyMedia(data);
+			}
 		}
 	}
 	
@@ -92,9 +101,9 @@ public class TautulliController{
 		watchService.update(mediaRequirementEntity.get());
 	}
 	
-	private void updateMedia(TautulliWebhook data) throws RequestFailedException, UpdateException, NotifyException{
-		var ratingKey = switch(data.getType()){
-			case "movie" -> data.getRatingKey();
+	private void updateMedia(@NotNull TautulliWebhook data) throws RequestFailedException, UpdateException, NotifyException{
+		var ratingKey = switch(Objects.requireNonNull(data.getMediaType())){
+			case "movie", "season" -> data.getRatingKey();
 			case "episode" -> data.getParentRatingKey();
 			default -> null;
 		};
@@ -111,5 +120,30 @@ public class TautulliController{
 		}
 		
 		mediaService.update(mediaEntity.get().getId());
+	}
+	
+	private void notifyMedia(@NotNull TautulliWebhook data) throws RequestFailedException, NotifyException{
+		var ratingKey = data.getRatingKey();
+		if(Objects.isNull(ratingKey)){
+			log.warn("Not notifying any media, could not determine rating key from {}", data);
+			return;
+		}
+		
+		var metadata = tautulliService.getMetadata(ratingKey).getResponse().getData();
+		
+		var rootRatingKey = switch(Objects.requireNonNull(data.getMediaType())){
+			case "movie" -> data.getRatingKey();
+			case "season" -> data.getParentRatingKey();
+			case "episode" -> data.getGrandparentRatingKey();
+			default -> null;
+		};
+		if(Objects.isNull(rootRatingKey)){
+			log.warn("Not notifying any media, could not determine root rating key from {}", data);
+			return;
+		}
+		var rootMetadata = tautulliService.getMetadata(rootRatingKey).getResponse().getData();
+		
+		notificationService.notifyMediaAddedFromWatchlist(metadata, rootMetadata);
+		notificationService.notifyMediaAddedForOther(metadata, rootMetadata);
 	}
 }

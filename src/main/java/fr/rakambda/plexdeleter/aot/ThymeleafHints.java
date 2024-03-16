@@ -10,6 +10,7 @@ import org.springframework.aot.hint.RuntimeHints;
 import org.springframework.aot.hint.RuntimeHintsRegistrar;
 import org.thymeleaf.engine.IterationStatusVar;
 import org.thymeleaf.expression.Lists;
+import org.thymeleaf.expression.Strings;
 import java.util.List;
 
 @Slf4j
@@ -21,6 +22,7 @@ public class ThymeleafHints implements RuntimeHintsRegistrar{
 			hints.reflection().registerMethod(UserService.class.getMethod("getMediaRadarrUrl", MediaEntity.class), ExecutableMode.INVOKE);
 			hints.reflection().registerMethod(UserService.class.getMethod("getMediaSonarrUrl", MediaEntity.class), ExecutableMode.INVOKE);
 			hints.reflection().registerMethod(Lists.class.getMethod("isEmpty", List.class), ExecutableMode.INVOKE);
+			hints.reflection().registerMethod(Strings.class.getMethod("isEmpty", Object.class), ExecutableMode.INVOKE);
 			hints.reflection().registerMethod(IterationStatusVar.class.getMethod("getIndex"), ExecutableMode.INVOKE);
 			hints.reflection().registerField(IterationStatusVar.class.getDeclaredField("index"));
 		}

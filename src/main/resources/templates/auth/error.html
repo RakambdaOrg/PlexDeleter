@@ -2,14 +2,14 @@
 <html xmlns:th="http://www.thymeleaf.org" lang="en">
 <head>
     <title th:text="#{web.auth.login-error}"></title>
-    <script th:replace="~{fragment/common-head::common-head}"></script>
+    <th:block th:replace="~{fragment/common-head::common-head}"></th:block>
     <meta http-equiv="refresh" content="3; url=/"/>
 </head>
 <body>
 <div class="d-flex justify-content-center align-items-center vh-100 text-center">
     <div class="alert alert-danger d-flex align-items-center" role="alert">
         <span th:text="${param.error}"></span>
-        <a th:href="@{/auth}" role="button" class="btn btn-warning" th:text="#{web.auth.error.back}"></a>
+        <a th:href="@{~/auth}" role="button" class="btn btn-warning" th:text="#{web.auth.error.back}"></a>
     </div>
 </div>
 </body>

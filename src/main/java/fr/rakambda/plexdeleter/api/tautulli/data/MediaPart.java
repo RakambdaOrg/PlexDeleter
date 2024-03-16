@@ -6,6 +6,8 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 import org.jetbrains.annotations.NotNull;
 import org.springframework.aot.hint.annotation.RegisterReflectionForBinding;
+import java.util.LinkedList;
+import java.util.List;
 
 @Data
 @NoArgsConstructor
@@ -17,4 +19,6 @@ public class MediaPart{
 	private String file;
 	@JsonProperty("file_size")
 	private long fileSize;
+	@NotNull
+	private List<MediaPartStream> streams = new LinkedList<>();
 }

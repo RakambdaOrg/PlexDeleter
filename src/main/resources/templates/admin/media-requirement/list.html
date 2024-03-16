@@ -2,7 +2,7 @@
 <html lang="en" xmlns:th="https://www.thymeleaf.org">
 <head>
     <title th:text="#{web.navbar.admin.requirement.list}"></title>
-    <script th:replace="~{fragment/common-head::common-head}"></script>
+    <th:block th:replace="~{fragment/common-head::common-head}"></th:block>
 </head>
 <body>
 <div th:replace="~{fragment/navbar.html::navbar}"></div>
@@ -28,7 +28,7 @@
             <td>
                 <div class="d-flex flex-row justify-content-center align-items-center col-auto">
                     <svg class="m-1" height="20" width="20">
-                        <image th:xlink:href="@{/static/__${requirement.getMedia().getType().getIcon()}__}" height="20" width="20"/>
+                        <image th:xlink:href="@{~/static/__${requirement.getMedia().getType().getIcon()}__}" height="20" width="20"/>
                     </svg>
                     <span class="m-1" th:text="#{${requirement.getMedia().getType().getLocalizationKey()}}"></span>
                 </div>
@@ -42,21 +42,21 @@
                     <div th:if="${requirement.getMedia().getOverseerrId()}" class="m-1">
                         <a th:href="${userService.getMediaOverseerrUrl(requirement.getMedia())}" th:target="_blank">
                             <svg class="m-1" height="20" width="20">
-                                <image th:xlink:href="@{/static/overseerr.svg}" height="20" width="20"/>
+                                <image th:xlink:href="@{~/static/overseerr.svg}" height="20" width="20"/>
                             </svg>
                         </a>
                     </div>
                     <div th:if="${requirement.getMedia().getSonarrSlug()}" class="m-1">
                         <a title="Sonarr" th:href="${userService.getSonarrUrl(requirement.getMedia())}" th:target="_blank">
                             <svg class="m-1" height="20" width="20">
-                                <image th:xlink:href="@{/static/sonarr.svg}" height="20" width="20"/>
+                                <image th:xlink:href="@{~/static/sonarr.svg}" height="20" width="20"/>
                             </svg>
                         </a>
                     </div>
                     <div th:if="${requirement.getMedia().getRadarrSlug()}" class="m-1">
                         <a title="Radarr" th:href="${userService.getRadarrUrl(requirement.getMedia())}" th:target="_blank">
                             <svg class="m-1" height="20" width="20">
-                                <image th:xlink:href="@{/static/radarr.svg}" height="20" width="20"/>
+                                <image th:xlink:href="@{~/static/radarr.svg}" height="20" width="20"/>
                             </svg>
                         </a>
                     </div>
@@ -65,14 +65,14 @@
             <td>
                 <div class="d-flex flex-row justify-content-center align-items-center">
                     <div class="m-1" th:if="${requirement.getMedia().isCompletable()}">
-                        <form th:action="@{/api/admin/media-requirement/complete}" method="post">
+                        <form th:action="@{~/api/admin/media-requirement/complete}" method="post">
                             <input type="hidden" name="mediaId" class="form-control" th:value="${requirement.getMedia().getId()}"/>
                             <input type="hidden" name="groupId" class="form-control" th:value="${requirement.getGroup().getId()}"/>
                             <input type="submit" th:value="#{web.media-list.table.action.complete}" class="btn btn-success btn-sm"/>
                         </form>
                     </div>
                     <div class="m-1">
-                        <form th:action="@{/api/admin/media-requirement/abandon}" method="post">
+                        <form th:action="@{~/api/admin/media-requirement/abandon}" method="post">
                             <input type="hidden" name="mediaId" class="form-control" th:value="${requirement.getMedia().getId()}"/>
                             <input type="hidden" name="groupId" class="form-control" th:value="${requirement.getGroup().getId()}"/>
                             <input type="submit" th:value="#{web.media-list.table.action.abandon}" class="btn btn-danger btn-sm"/>

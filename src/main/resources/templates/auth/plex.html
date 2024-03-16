@@ -2,8 +2,8 @@
 <html xmlns:th="http://www.thymeleaf.org" lang="en">
 <head>
     <title th:text="#{web.auth.login}"></title>
-    <script th:replace="~{fragment/common-head::common-head}"></script>
-    <script th:replace="~{fragment/plex-login-script::plex-login-script}"></script>
+    <th:block th:replace="~{fragment/common-head::common-head}"></th:block>
+    <th:block th:replace="~{fragment/plex-login-script::plex-login-script}"></th:block>
     <script>
         function onAuthSuccess(authToken) {
             document.getElementById("authToken").value = authToken;
@@ -23,7 +23,7 @@
 </head>
 <body>
 <div class="d-flex justify-content-center align-items-center vh-100 text-center flex-fill">
-    <form id="login-form" th:action="@{/login}" method="post">
+    <form id="login-form" th:action="@{~/login}" method="post">
         <label for="authToken" hidden>PIN ID</label>
         <input id="authToken" type="hidden" name="authToken" class="form-control" required hidden/>
 

@@ -7,6 +7,7 @@ import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.stereotype.Repository;
 import java.time.Instant;
+import java.util.Collection;
 import java.util.List;
 import java.util.Optional;
 
@@ -39,5 +40,22 @@ public interface UserGroupRepository extends JpaRepository<UserGroupEntity, Inte
 			INNER JOIN MediaRequirementEntity MR ON MR.group.id = G.id
 			WHERE MR.media.id = ?1 AND MR.status = ?2"""
 	)
-	List<UserGroupEntity> findAllByHasRequirementOn(int overseerrId, @NotNull MediaRequirementStatus status);
+	List<UserGroupEntity> findAllByHasRequirementOnOverseerr(int overseerrId, @NotNull MediaRequirementStatus status);
+	
+	@Query(value = """
+			SELECT G
+			FROM UserGroupEntity G
+			INNER JOIN MediaRequirementEntity MR ON MR.group.id = G.id
+			WHERE MR.media.plexId = ?1 AND MR.status = ?2"""
+	)
+	List<UserGroupEntity> findAllByHasRequirementOnPlex(int ratingKey, @NotNull MediaRequirementStatus status);
+	
+	@Query(value = """
+			SELECT DISTINCT G
+			FROM UserGroupEntity G
+			INNER JOIN UserGroupLibraryEntity UGL ON UGL.userGroup = G
+			INNER JOIN MediaRequirementEntity MR ON MR.group.id = G.id AND MR.media.plexId = ?1
+			WHERE MR.media.plexId <> ?1 AND UGL.name = ?2"""
+	)
+	Collection<UserGroupEntity> findAllByDoesNotHaveRequirementOnPlexAndInterestedInLibrary(int ratingKey, @NotNull String libraryName);
 }

@@ -2,7 +2,7 @@
 <html xmlns:th="http://www.thymeleaf.org" lang="en">
 <head>
     <title th:text="#{web.auth.login-success}"></title>
-    <script th:replace="~{fragment/common-head::common-head}"></script>
+    <th:block th:replace="~{fragment/common-head::common-head}"></th:block>
     <meta http-equiv="refresh" content="3; url=/"/>
 </head>
 <body>

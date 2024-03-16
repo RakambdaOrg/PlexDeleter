@@ -1,6 +1,7 @@
 package fr.rakambda.plexdeleter.notify;
 
 import fr.rakambda.plexdeleter.api.RequestFailedException;
+import fr.rakambda.plexdeleter.api.tautulli.data.GetMetadataResponse;
 import fr.rakambda.plexdeleter.storage.entity.MediaEntity;
 import fr.rakambda.plexdeleter.storage.entity.MediaRequirementStatus;
 import fr.rakambda.plexdeleter.storage.entity.UserGroupEntity;
@@ -10,8 +11,11 @@ import lombok.extern.slf4j.Slf4j;
 import org.jetbrains.annotations.NotNull;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 import java.io.UnsupportedEncodingException;
 import java.util.Collection;
+import java.util.Objects;
+import java.util.function.BiFunction;
 
 @Slf4j
 @Service
@@ -56,8 +60,9 @@ public class NotificationService{
 		}
 	}
 	
+	@Transactional
 	public void notifyMediaAvailable(@NotNull MediaEntity media) throws NotifyException{
-		var userGroups = userGroupRepository.findAllByHasRequirementOn(media.getId(), MediaRequirementStatus.WAITING);
+		var userGroups = userGroupRepository.findAllByHasRequirementOnOverseerr(media.getId(), MediaRequirementStatus.WAITING);
 		for(var userGroup : userGroups){
 			notifyMediaAvailable(userGroup, media);
 		}
@@ -112,6 +117,45 @@ public class NotificationService{
 		}
 		catch(MessagingException | UnsupportedEncodingException | InterruptedException | RequestFailedException e){
 			throw new NotifyException("Failed to notify media requirement manually marked as abandoned for group %s".formatted(userGroupEntity), e);
+		}
+	}
+	
+	public void notifyMediaAddedFromWatchlist(@NotNull GetMetadataResponse metadata, @NotNull GetMetadataResponse rootMetadata) throws NotifyException{
+		notifyMediaAddedFor(metadata, rootMetadata, (ratingKey, libraryName) -> userGroupRepository.findAllByHasRequirementOnPlex(ratingKey, MediaRequirementStatus.WAITING));
+	}
+	
+	public void notifyMediaAddedForOther(@NotNull GetMetadataResponse metadata, @NotNull GetMetadataResponse rootMetadata) throws NotifyException{
+		notifyMediaAddedFor(metadata, rootMetadata, userGroupRepository::findAllByDoesNotHaveRequirementOnPlexAndInterestedInLibrary);
+	}
+	
+	private void notifyMediaAddedFor(@NotNull GetMetadataResponse metadata, @NotNull GetMetadataResponse rootMetadata, @NotNull BiFunction<Integer, String, Collection<UserGroupEntity>> groupsForRatingKey) throws NotifyException{
+		var ratingKey = switch(metadata.getMediaType()){
+			case "movie", "season" -> metadata.getRatingKey();
+			case "episode" -> metadata.getParentRatingKey();
+			default -> null;
+		};
+		
+		if(Objects.isNull(ratingKey)){
+			log.warn("Not notifying media file added, could not determine rating key from {}", metadata);
+			return;
+		}
+		
+		var userGroups = groupsForRatingKey.apply(ratingKey, metadata.getLibraryName());
+		for(var userGroup : userGroups){
+			notifyMediaAdded(userGroup, metadata, rootMetadata);
+		}
+	}
+	
+	private void notifyMediaAdded(@NotNull UserGroupEntity userGroupEntity, @NotNull GetMetadataResponse metadata, @NotNull GetMetadataResponse rootMetadata) throws NotifyException{
+		try{
+			log.info("Notifying {} has been added to {}", metadata, userGroupEntity);
+			switch(userGroupEntity.getNotificationType()){
+				case MAIL -> mailNotificationService.notifyMediaAdded(userGroupEntity, metadata, rootMetadata);
+				case DISCORD_THREAD -> discordThreadNotificationService.notifyMediaAdded(userGroupEntity, metadata, rootMetadata);
+			}
+		}
+		catch(MessagingException | UnsupportedEncodingException | RequestFailedException | InterruptedException e){
+			throw new NotifyException("Failed to notify media added for group %s".formatted(userGroupEntity), e);
 		}
 	}
 }

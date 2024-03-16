@@ -71,6 +71,9 @@ public class UserGroupEntity{
 	@OneToMany(targetEntity = MediaRequirementEntity.class)
 	@JoinColumn(name = "groupId", referencedColumnName = "id")
 	private List<MediaRequirementEntity> requirements;
+	@OneToMany(targetEntity = UserGroupLibraryEntity.class)
+	@JoinColumn(name = "groupId", referencedColumnName = "id")
+	private List<UserGroupLibraryEntity> libraries;
 	
 	@NotNull
 	public Locale getLocaleAsObject(){

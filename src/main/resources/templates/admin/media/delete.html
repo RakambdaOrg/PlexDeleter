@@ -2,12 +2,12 @@
 <html lang="en" xmlns:th="https://www.thymeleaf.org">
 <head>
     <title th:text="#{web.navbar.admin.media.delete}"></title>
-    <script th:replace="~{fragment/common-head::common-head}"></script>
+    <th:block th:replace="~{fragment/common-head::common-head}"></th:block>
 </head>
 <body>
 <div th:replace="~{fragment/navbar.html::navbar}"></div>
 <div class="container-fluid text-center">
-    <form th:action="@{/api/admin/media/delete}" method="post" style="max-width: 350px; margin: 0 auto;">
+    <form th:action="@{~/api/admin/media/delete}" method="post" style="max-width: 350px; margin: 0 auto;">
         <div class="border border-secondary p-3 rounded">
             <p th:text="#{web.admin.media.delete.header}"/>
             <p>
