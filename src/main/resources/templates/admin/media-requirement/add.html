@@ -24,7 +24,7 @@
                 <input id="overseerr" type="text" inputmode="numeric" pattern="[0-9]*" list="media-overseerr-ids" name="overseerr" class="form-control" placeholder="123456" required autofocus/>
                 <datalist id="media-overseerr-ids">
                     <option th:each="media : ${medias}"
-                            th:value="${media.getId()}"
+                            th:value="${media.getOverseerrId()}"
                             th:text="${media.getName()} + ' - ' + ${media.getIndex()}">
                     </option>
                 </datalist>

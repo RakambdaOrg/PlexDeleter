@@ -15,6 +15,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.jetbrains.annotations.NotNull;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 import java.util.Objects;
 import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReentrantLock;
@@ -41,6 +42,7 @@ public class MediaRequirementService{
 		this.requirementOperationLock = new ReentrantLock();
 	}
 	
+	@Transactional
 	public void complete(int mediaId, int groupId) throws NotifyException, ServiceException{
 		requirementOperationLock.lock();
 		try{
@@ -67,6 +69,7 @@ public class MediaRequirementService{
 		}
 	}
 	
+	@Transactional
 	public void abandon(int mediaId, int groupId) throws NotifyException, RequestFailedException{
 		requirementOperationLock.lock();
 		try{
@@ -92,6 +95,7 @@ public class MediaRequirementService{
 		}
 	}
 	
+	@Transactional
 	public void addRequirement(@NotNull MediaEntity media, @NotNull UserGroupEntity userGroupEntity, boolean allowModify) throws NotifyException{
 		requirementOperationLock.lock();
 		try{
@@ -129,6 +133,7 @@ public class MediaRequirementService{
 		}
 	}
 	
+	@Transactional
 	public void addRequirementForNewMedia(int mediaId, UserGroupEntity userGroupEntity) throws ServiceException, NotifyException{
 		log.info("Adding requirements to media with id {}", mediaId);
 		var media = mediaRepository.findById(mediaId)

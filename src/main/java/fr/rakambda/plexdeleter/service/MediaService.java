@@ -25,6 +25,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.jetbrains.annotations.NotNull;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 import java.util.Objects;
 import java.util.Optional;
 import java.util.concurrent.locks.Lock;
@@ -55,6 +56,7 @@ public class MediaService{
 	}
 	
 	@NotNull
+	@Transactional
 	public MediaEntity update(int mediaId) throws UpdateException, RequestFailedException, NotifyException{
 		mediaOperationLock.lock();
 		try{
@@ -194,6 +196,7 @@ public class MediaService{
 				.ifPresent(mediaEntity::setAvailablePartsCount);
 	}
 	
+	@Transactional
 	public void deleteMedia(int mediaId, boolean deleteFromServices) throws NotifyException, RequestFailedException{
 		mediaOperationLock.lock();
 		try{
@@ -235,6 +238,7 @@ public class MediaService{
 		}
 	}
 	
+	@Transactional
 	public int addMedia(@NotNull UserGroupEntity userGroupEntity, int overseerrId, @NotNull MediaType mediaType, int season) throws RequestFailedException, UpdateException, NotifyException{
 		mediaOperationLock.lock();
 		try{
