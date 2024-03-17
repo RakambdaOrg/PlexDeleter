@@ -1,5 +1,6 @@
 package fr.rakambda.plexdeleter.web.webhook.sonarr;
 
+import fr.rakambda.plexdeleter.service.MediaService;
 import fr.rakambda.plexdeleter.storage.repository.MediaRepository;
 import fr.rakambda.plexdeleter.web.webhook.sonarr.data.Episode;
 import fr.rakambda.plexdeleter.web.webhook.sonarr.data.SonarrWebhook;
@@ -20,9 +21,11 @@ import java.util.stream.Collectors;
 @RequestMapping("/webhook/sonarr")
 public class SonarrController{
 	private final MediaRepository mediaRepository;
+	private final MediaService mediaService;
 	
-	public SonarrController(MediaRepository mediaRepository){
+	public SonarrController(MediaRepository mediaRepository, MediaService mediaService){
 		this.mediaRepository = mediaRepository;
+		this.mediaService = mediaService;
 	}
 	
 	@PostMapping
@@ -47,7 +50,7 @@ public class SonarrController{
 		for(var entry : maxEpisodePerSeason.entrySet()){
 			var mediaEntity = mediaRepository.findByServarrIdAndIndex(series.getId(), entry.getKey());
 			if(mediaEntity.isEmpty()){
-				log.warn("Not updating any media, could not find media with servarr id {}, season {}, from {}", series.getId(), entry.getKey(), data);
+				mediaService.updateAll();
 				return;
 			}
 			

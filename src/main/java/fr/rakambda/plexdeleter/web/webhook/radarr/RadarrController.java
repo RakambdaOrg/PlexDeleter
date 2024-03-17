@@ -1,5 +1,6 @@
 package fr.rakambda.plexdeleter.web.webhook.radarr;
 
+import fr.rakambda.plexdeleter.service.MediaService;
 import fr.rakambda.plexdeleter.storage.repository.MediaRepository;
 import fr.rakambda.plexdeleter.web.webhook.radarr.data.RadarrWebhook;
 import jakarta.validation.constraints.NotNull;
@@ -18,10 +19,12 @@ import java.util.Objects;
 @RequestMapping("/webhook/radarr")
 public class RadarrController{
 	private final MediaRepository mediaRepository;
+	private final MediaService mediaService;
 	
 	@Autowired
-	public RadarrController(MediaRepository mediaRepository){
+	public RadarrController(MediaRepository mediaRepository, MediaService mediaService){
 		this.mediaRepository = mediaRepository;
+		this.mediaService = mediaService;
 	}
 	
 	@PostMapping
@@ -42,7 +45,7 @@ public class RadarrController{
 		
 		var mediaEntity = mediaRepository.findByServarrIdAndIndex(movie.getId(), 1);
 		if(mediaEntity.isEmpty()){
-			log.warn("Not updating any media, could not find media with servarr id {}, season {}, from {}", movie.getId(), 1, data);
+			mediaService.updateAll();
 			return;
 		}
 		

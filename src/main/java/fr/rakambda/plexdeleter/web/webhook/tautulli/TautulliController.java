@@ -117,7 +117,7 @@ public class TautulliController{
 		
 		var mediaEntity = mediaRepository.findByPlexId(ratingKey);
 		if(mediaEntity.isEmpty()){
-			log.warn("Not updating any media, could not find media from {}", data);
+			mediaService.updateAll();
 			return;
 		}
 		

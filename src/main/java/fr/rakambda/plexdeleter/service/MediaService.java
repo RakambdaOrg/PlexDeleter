@@ -27,6 +27,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import java.util.Objects;
 import java.util.Optional;
+import java.util.Set;
 import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReentrantLock;
 
@@ -52,6 +53,22 @@ public class MediaService{
 		this.radarrService = radarrService;
 		this.notificationService = notificationService;
 		this.mediaOperationLock = new ReentrantLock();
+	}
+	
+	public void updateAll(){
+		log.info("Updating medias");
+		
+		var medias = mediaRepository.findAllByAvailabilityIn(Set.of(MediaAvailability.WAITING, MediaAvailability.DOWNLOADING));
+		for(var media : medias){
+			try{
+				update(media);
+			}
+			catch(UpdateException | RequestFailedException | NotifyException e){
+				log.error("Failed to update media {}", media, e);
+			}
+		}
+		
+		log.info("Done updating {} media", medias.size());
 	}
 	
 	@NotNull
