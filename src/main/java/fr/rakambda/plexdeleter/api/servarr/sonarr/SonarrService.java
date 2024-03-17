@@ -12,10 +12,13 @@ import org.jetbrains.annotations.NotNull;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.ParameterizedTypeReference;
 import org.springframework.http.HttpStatusCode;
+import org.springframework.http.MediaType;
 import org.springframework.stereotype.Service;
+import org.springframework.web.reactive.function.BodyInserters;
 import org.springframework.web.reactive.function.client.WebClient;
 import reactor.core.publisher.Mono;
 import java.util.Collection;
+import java.util.Objects;
 import java.util.Set;
 
 @Slf4j
@@ -97,6 +100,60 @@ public class SonarrService{
 						.build(mediaId))
 				.retrieve()
 				.onStatus(HttpStatusCode::is4xxClientError, err -> Mono.empty())
+				.toBodilessEntity()
+				.blockOptional()
+				.orElseThrow(() -> new RequestFailedException("Failed to delete media with id %d".formatted(mediaId))));
+	}
+	
+	public void addTag(int mediaId, @NotNull String tagName) throws RequestFailedException{
+		var tagId = getTags().stream()
+				.filter(tag -> Objects.equals(tag.getLabel(), tagName))
+				.findFirst()
+				.map(Tag::getId);
+		if(tagId.isEmpty()){
+			log.warn("Could not find tag with label {}", tagName);
+			return;
+		}
+		addTag(mediaId, tagId.get());
+	}
+	
+	public void addTag(int mediaId, int tagId) throws RequestFailedException{
+		var movie = getSeries(mediaId);
+		movie.getTags().add(tagId);
+		
+		HttpUtils.requireStatusOk(apiClient.put()
+				.uri(b -> b.pathSegment("api", "v3", "series", "{mediaId}")
+						.build(mediaId))
+				.contentType(MediaType.APPLICATION_JSON)
+				.body(BodyInserters.fromValue(movie))
+				.retrieve()
+				.toBodilessEntity()
+				.blockOptional()
+				.orElseThrow(() -> new RequestFailedException("Failed to delete media with id %d".formatted(mediaId))));
+	}
+	
+	public void removeTag(int mediaId, @NotNull String tagName) throws RequestFailedException{
+		var tagId = getTags().stream()
+				.filter(tag -> Objects.equals(tag.getLabel(), tagName))
+				.findFirst()
+				.map(Tag::getId);
+		if(tagId.isEmpty()){
+			log.warn("Could not find tag with label {}", tagName);
+			return;
+		}
+		removeTag(mediaId, tagId.get());
+	}
+	
+	public void removeTag(int mediaId, int tagId) throws RequestFailedException{
+		var movie = getSeries(mediaId);
+		movie.getTags().remove(tagId);
+		
+		HttpUtils.requireStatusOk(apiClient.put()
+				.uri(b -> b.pathSegment("api", "v3", "series", "{mediaId}")
+						.build(mediaId))
+				.contentType(MediaType.APPLICATION_JSON)
+				.body(BodyInserters.fromValue(movie))
+				.retrieve()
 				.toBodilessEntity()
 				.blockOptional()
 				.orElseThrow(() -> new RequestFailedException("Failed to delete media with id %d".formatted(mediaId))));

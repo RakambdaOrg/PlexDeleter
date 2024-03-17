@@ -1,6 +1,8 @@
 package fr.rakambda.plexdeleter.service;
 
 import fr.rakambda.plexdeleter.api.RequestFailedException;
+import fr.rakambda.plexdeleter.api.servarr.radarr.RadarrService;
+import fr.rakambda.plexdeleter.api.servarr.sonarr.SonarrService;
 import fr.rakambda.plexdeleter.messaging.SupervisionService;
 import fr.rakambda.plexdeleter.notify.NotificationService;
 import fr.rakambda.plexdeleter.notify.NotifyException;
@@ -27,15 +29,19 @@ public class MediaRequirementService{
 	private final MediaService mediaService;
 	private final UserGroupRepository userGroupRepository;
 	private final Lock requirementOperationLock;
+	private final RadarrService radarrService;
+	private final SonarrService sonarrService;
 	
 	@Autowired
-	public MediaRequirementService(MediaRequirementRepository mediaRequirementRepository, NotificationService notificationService, SupervisionService supervisionService, MediaService mediaService, UserGroupRepository userGroupRepository){
+	public MediaRequirementService(MediaRequirementRepository mediaRequirementRepository, NotificationService notificationService, SupervisionService supervisionService, MediaService mediaService, UserGroupRepository userGroupRepository, RadarrService radarrService, SonarrService sonarrService){
 		this.mediaRequirementRepository = mediaRequirementRepository;
 		this.notificationService = notificationService;
 		this.supervisionService = supervisionService;
 		this.mediaService = mediaService;
 		this.userGroupRepository = userGroupRepository;
 		this.requirementOperationLock = new ReentrantLock();
+		this.radarrService = radarrService;
+		this.sonarrService = sonarrService;
 	}
 	
 	public void complete(@NotNull MediaRequirementEntity requirement) throws NotifyException, ServiceException{
@@ -72,6 +78,7 @@ public class MediaRequirementService{
 			mediaRequirementRepository.save(requirement);
 			
 			mediaService.deleteMedia(media, true);
+			removeServarrTag(media, group);
 			
 			notificationService.notifyRequirementManuallyAbandoned(group, media);
 			supervisionService.send("✍\uFE0F\uD83D\uDE48 Media manually abandoned %s for %s", media, group);
@@ -81,7 +88,20 @@ public class MediaRequirementService{
 		}
 	}
 	
-	public void addRequirement(@NotNull MediaEntity media, @NotNull UserGroupEntity userGroupEntity, boolean allowModify) throws NotifyException{
+	public void addRequirementForNewMedia(@NotNull MediaEntity media, @NotNull UserGroupEntity userGroupEntity) throws NotifyException, RequestFailedException{
+		log.info("Adding requirements to media {}", media);
+		addRequirement(media, userGroupEntity, true);
+		
+		var otherGroups = userGroupRepository.findAllByHasRequirementOn(Objects.requireNonNull(media.getOverseerrId()), media.getIndex() - 1);
+		for(var otherGroup : otherGroups){
+			if(Objects.equals(otherGroup.getId(), userGroupEntity.getId())){
+				continue;
+			}
+			addRequirement(media, otherGroup, false);
+		}
+	}
+	
+	private void addRequirement(@NotNull MediaEntity media, @NotNull UserGroupEntity userGroupEntity, boolean allowModify) throws NotifyException, RequestFailedException{
 		requirementOperationLock.lock();
 		try{
 			log.info("Adding requirement on {} for {}", media, userGroupEntity);
@@ -93,6 +113,7 @@ public class MediaRequirementService{
 						.group(userGroupEntity)
 						.media(media)
 						.build());
+				addServarrTag(media, userGroupEntity);
 				supervisionService.send("\uD83D\uDED2 Added requirement %s to %s", media, userGroupEntity);
 				notificationService.notifyRequirementAdded(userGroupEntity, media);
 				return;
@@ -105,11 +126,13 @@ public class MediaRequirementService{
 			
 			log.info("Updating already existing requirement");
 			mediaRequirementRepository.findById(id)
+					.filter(r -> !Objects.equals(r.getStatus(), MediaRequirementStatus.WAITING))
 					.map(requirement -> {
 						requirement.setStatus(MediaRequirementStatus.WAITING);
 						return requirement;
 					})
 					.ifPresent(mediaRequirementRepository::save);
+			addServarrTag(media, userGroupEntity);
 			supervisionService.send("Updated requirement %s to %s", media, userGroupEntity);
 			notificationService.notifyRequirementAdded(userGroupEntity, media);
 		}
@@ -118,16 +141,21 @@ public class MediaRequirementService{
 		}
 	}
 	
-	public void addRequirementForNewMedia(@NotNull MediaEntity media, @NotNull UserGroupEntity userGroupEntity) throws NotifyException{
-		log.info("Adding requirements to media {}", media);
-		addRequirement(media, userGroupEntity, true);
-		
-		var otherGroups = userGroupRepository.findAllByHasRequirementOn(Objects.requireNonNull(media.getOverseerrId()), media.getIndex() - 1);
-		for(var otherGroup : otherGroups){
-			if(Objects.equals(otherGroup.getId(), userGroupEntity.getId())){
-				continue;
+	private void addServarrTag(@NotNull MediaEntity media, @NotNull UserGroupEntity userGroup) throws RequestFailedException{
+		if(Objects.nonNull(media.getServarrId()) && Objects.nonNull(userGroup.getServarrTag())){
+			switch(media.getType()){
+				case MOVIE -> radarrService.addTag(media.getServarrId(), userGroup.getServarrTag());
+				case SEASON -> sonarrService.addTag(media.getServarrId(), userGroup.getServarrTag());
 			}
-			addRequirement(media, otherGroup, false);
+		}
+	}
+	
+	private void removeServarrTag(@NotNull MediaEntity media, @NotNull UserGroupEntity userGroup) throws RequestFailedException{
+		if(Objects.nonNull(media.getServarrId()) && Objects.nonNull(userGroup.getServarrTag())){
+			switch(media.getType()){
+				case MOVIE -> radarrService.removeTag(media.getServarrId(), userGroup.getServarrTag());
+				case SEASON -> sonarrService.removeTag(media.getServarrId(), userGroup.getServarrTag());
+			}
 		}
 	}
 }
