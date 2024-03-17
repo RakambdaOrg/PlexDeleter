@@ -119,16 +119,7 @@ public class RadarrService{
 	public void addTag(int mediaId, int tagId) throws RequestFailedException{
 		var movie = getMovie(mediaId);
 		movie.getTags().add(tagId);
-		
-		HttpUtils.requireStatusOk(apiClient.put()
-				.uri(b -> b.pathSegment("api", "v3", "movie", "{mediaId}")
-						.build(mediaId))
-				.contentType(MediaType.APPLICATION_JSON)
-				.body(BodyInserters.fromValue(new UpdateMedia(movie.getPath(), movie.getQualityProfileId(), movie.getTags())))
-				.retrieve()
-				.toBodilessEntity()
-				.blockOptional()
-				.orElseThrow(() -> new RequestFailedException("Failed to delete media with id %d".formatted(mediaId))));
+		updateMovie(mediaId, new UpdateMedia(movie.getPath(), movie.getQualityProfileId(), movie.getTags()));
 	}
 	
 	public void removeTag(int mediaId, @NotNull String tagName) throws RequestFailedException{
@@ -146,13 +137,21 @@ public class RadarrService{
 	public void removeTag(int mediaId, int tagId) throws RequestFailedException{
 		var movie = getMovie(mediaId);
 		movie.getTags().remove(tagId);
-		
+		updateMovie(mediaId, new UpdateMedia(movie.getPath(), movie.getQualityProfileId(), movie.getTags()));
+	}
+	
+	private void updateMovie(int mediaId, @NotNull UpdateMedia media) throws RequestFailedException{
 		HttpUtils.requireStatusOk(apiClient.put()
 				.uri(b -> b.pathSegment("api", "v3", "movie", "{mediaId}")
 						.build(mediaId))
 				.contentType(MediaType.APPLICATION_JSON)
-				.body(BodyInserters.fromValue(new UpdateMedia(movie.getPath(), movie.getQualityProfileId(), movie.getTags())))
+				.body(BodyInserters.fromValue(media))
 				.retrieve()
+				.onStatus(HttpStatusCode::is4xxClientError, response -> response.bodyToMono(String.class)
+						.handle((body, sink) -> {
+							log.error("Got error with status {} and body {}", response.statusCode(), body);
+							sink.error(new IllegalStateException());
+						}))
 				.toBodilessEntity()
 				.blockOptional()
 				.orElseThrow(() -> new RequestFailedException("Failed to delete media with id %d".formatted(mediaId))));

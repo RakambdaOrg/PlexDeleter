@@ -11,7 +11,9 @@ import fr.rakambda.plexdeleter.api.tautulli.data.GetMetadataResponse;
 import fr.rakambda.plexdeleter.api.tautulli.data.SubtitlesMediaPartStream;
 import fr.rakambda.plexdeleter.config.ApplicationConfiguration;
 import fr.rakambda.plexdeleter.service.WatchService;
+import fr.rakambda.plexdeleter.storage.entity.MediaAvailability;
 import fr.rakambda.plexdeleter.storage.entity.MediaEntity;
+import fr.rakambda.plexdeleter.storage.entity.MediaRequirementEntity;
 import fr.rakambda.plexdeleter.storage.entity.NotificationEntity;
 import fr.rakambda.plexdeleter.storage.entity.UserGroupEntity;
 import jakarta.mail.MessagingException;
@@ -51,11 +53,30 @@ public class DiscordThreadNotificationService extends AbstractNotificationServic
 		this.overseerrEndpoint = applicationConfiguration.getOverseerr().getEndpoint();
 	}
 	
-	public void notifyWatchlist(@NotNull NotificationEntity notification, @NotNull UserGroupEntity userGroupEntity, @NotNull Collection<MediaEntity> availableMedia, @NotNull Collection<MediaEntity> notYetAvailableMedia) throws MessagingException, UnsupportedEncodingException, InterruptedException, RequestFailedException{
+	public void notifyWatchlist(@NotNull NotificationEntity notification, @NotNull UserGroupEntity userGroupEntity, @NotNull Collection<MediaRequirementEntity> requirements) throws MessagingException, UnsupportedEncodingException, InterruptedException, RequestFailedException{
 		var locale = userGroupEntity.getLocaleAsObject();
 		var params = notification.getValue().split(",");
 		var discordUserId = params[0];
 		var discordUrl = params[1];
+		
+		var availableMedia = requirements.stream()
+				.map(MediaRequirementEntity::getMedia)
+				.filter(m -> Objects.equals(m.getAvailability(), MediaAvailability.DOWNLOADED))
+				.toList();
+		var downloadingMedia = requirements.stream()
+				.map(MediaRequirementEntity::getMedia)
+				.filter(m -> Objects.equals(m.getAvailability(), MediaAvailability.DOWNLOADING))
+				.toList();
+		var notYetAvailableMedia = requirements.stream()
+				.map(MediaRequirementEntity::getMedia)
+				.filter(m -> Objects.equals(m.getAvailability(), MediaAvailability.WAITING))
+				.toList();
+		
+		if(availableMedia.isEmpty()
+				&& downloadingMedia.isEmpty()
+				&& notYetAvailableMedia.isEmpty()){
+			return;
+		}
 		
 		var threadId = Optional.ofNullable(discordWebhookService.sendWebhookMessage(discordUrl, WebhookMessage.builder()
 								.threadName(messageSource.getMessage("discord.watchlist.subject", new Object[0], locale))
@@ -66,6 +87,9 @@ public class DiscordThreadNotificationService extends AbstractNotificationServic
 		
 		if(!availableMedia.isEmpty()){
 			writeWatchlistSection(discordUrl, threadId, "discord.watchlist.body.header.available", locale, userGroupEntity, availableMedia);
+		}
+		if(!downloadingMedia.isEmpty()){
+			writeWatchlistSection(discordUrl, threadId, "discord.watchlist.body.header.downloading", locale, userGroupEntity, downloadingMedia);
 		}
 		if(!notYetAvailableMedia.isEmpty()){
 			writeWatchlistSection(discordUrl, threadId, "discord.watchlist.body.header.not-yet-available", locale, userGroupEntity, notYetAvailableMedia);

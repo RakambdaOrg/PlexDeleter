@@ -3,6 +3,7 @@ package fr.rakambda.plexdeleter.notify;
 import fr.rakambda.plexdeleter.api.RequestFailedException;
 import fr.rakambda.plexdeleter.api.tautulli.data.GetMetadataResponse;
 import fr.rakambda.plexdeleter.storage.entity.MediaEntity;
+import fr.rakambda.plexdeleter.storage.entity.MediaRequirementEntity;
 import fr.rakambda.plexdeleter.storage.entity.MediaRequirementStatus;
 import fr.rakambda.plexdeleter.storage.entity.UserGroupEntity;
 import fr.rakambda.plexdeleter.storage.repository.UserGroupRepository;
@@ -30,9 +31,9 @@ public class NotificationService{
 		this.userGroupRepository = userGroupRepository;
 	}
 	
-	public void notifyWatchlist(@NotNull UserGroupEntity userGroupEntity, @NotNull Collection<MediaEntity> availableMedia, @NotNull Collection<MediaEntity> notYetAvailableMedia) throws NotifyException{
+	public void notifyWatchlist(@NotNull UserGroupEntity userGroupEntity, @NotNull Collection<MediaRequirementEntity> requirements) throws NotifyException{
 		try{
-			if(availableMedia.isEmpty() && notYetAvailableMedia.isEmpty()){
+			if(requirements.isEmpty()){
 				return;
 			}
 			log.info("Notifying watchlist to {}", userGroupEntity);
@@ -41,8 +42,8 @@ public class NotificationService{
 				return;
 			}
 			switch(notification.getType()){
-				case MAIL -> mailNotificationService.notifyWatchlist(notification, userGroupEntity, availableMedia, notYetAvailableMedia);
-				case DISCORD_THREAD -> discordThreadNotificationService.notifyWatchlist(notification, userGroupEntity, availableMedia, notYetAvailableMedia);
+				case MAIL -> mailNotificationService.notifyWatchlist(notification, userGroupEntity, requirements);
+				case DISCORD_THREAD -> discordThreadNotificationService.notifyWatchlist(notification, userGroupEntity, requirements);
 			}
 		}
 		catch(MessagingException | UnsupportedEncodingException | InterruptedException | RequestFailedException e){

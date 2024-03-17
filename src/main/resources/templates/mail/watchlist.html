@@ -14,8 +14,16 @@
             </li>
         </ul>
     </div>
+    <div th:unless="${#lists.isEmpty(downloadingMedias)}">
+        <h2 th:text="#{mail.watchlist.body.header.downloading}"></h2>
+        <ul>
+            <li th:each="downloadingMedia : ${downloadingMedias}">
+                <th:block th:replace="~{fragment/mail::media(media=${downloadingMedia}, service=${service}, userGroup=${userGroup}, overseerrEndpoint=${overseerrEndpoint})}"></th:block>
+            </li>
+        </ul>
+    </div>
     <div th:unless="${#lists.isEmpty(notYetAvailableMedias)}">
-        <h2 th:text="#{mail.watchlist.body.header.available}"></h2>
+        <h2 th:text="#{mail.watchlist.body.header.pending}"></h2>
         <ul>
             <li th:each="notYetAvailableMedia : ${notYetAvailableMedias}">
                 <th:block th:replace="~{fragment/mail::media(media=${notYetAvailableMedia}, service=${service}, userGroup=${userGroup}, overseerrEndpoint=${overseerrEndpoint})}"></th:block>

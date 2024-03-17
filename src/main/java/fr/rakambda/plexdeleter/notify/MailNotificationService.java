@@ -6,7 +6,9 @@ import fr.rakambda.plexdeleter.api.tautulli.data.SubtitlesMediaPartStream;
 import fr.rakambda.plexdeleter.config.ApplicationConfiguration;
 import fr.rakambda.plexdeleter.config.MailConfiguration;
 import fr.rakambda.plexdeleter.service.WatchService;
+import fr.rakambda.plexdeleter.storage.entity.MediaAvailability;
 import fr.rakambda.plexdeleter.storage.entity.MediaEntity;
+import fr.rakambda.plexdeleter.storage.entity.MediaRequirementEntity;
 import fr.rakambda.plexdeleter.storage.entity.NotificationEntity;
 import fr.rakambda.plexdeleter.storage.entity.UserGroupEntity;
 import jakarta.mail.MessagingException;
@@ -48,7 +50,7 @@ public class MailNotificationService extends AbstractNotificationService{
 		this.overseerrEndpoint = applicationConfiguration.getOverseerr().getEndpoint();
 	}
 	
-	public void notifyWatchlist(@NotNull NotificationEntity notification, @NotNull UserGroupEntity userGroupEntity, @NotNull Collection<MediaEntity> availableMedia, @NotNull Collection<MediaEntity> notYetAvailableMedia) throws MessagingException, UnsupportedEncodingException{
+	public void notifyWatchlist(@NotNull NotificationEntity notification, @NotNull UserGroupEntity userGroupEntity, @NotNull Collection<MediaRequirementEntity> requirements) throws MessagingException, UnsupportedEncodingException{
 		var locale = userGroupEntity.getLocaleAsObject();
 		var context = new Context();
 		context.setLocale(userGroupEntity.getLocaleAsObject());
@@ -56,8 +58,18 @@ public class MailNotificationService extends AbstractNotificationService{
 		context.setVariable("service", this);
 		context.setVariable("overseerrEndpoint", overseerrEndpoint);
 		context.setVariable("userGroup", userGroupEntity);
-		context.setVariable("availableMedias", availableMedia);
-		context.setVariable("notYetAvailableMedias", notYetAvailableMedia);
+		context.setVariable("availableMedias", requirements.stream()
+				.map(MediaRequirementEntity::getMedia)
+				.filter(m -> Objects.equals(m.getAvailability(), MediaAvailability.DOWNLOADED))
+				.toList());
+		context.setVariable("downloadingMedias", requirements.stream()
+				.map(MediaRequirementEntity::getMedia)
+				.filter(m -> Objects.equals(m.getAvailability(), MediaAvailability.DOWNLOADING))
+				.toList());
+		context.setVariable("notYetAvailableMedias", requirements.stream()
+				.map(MediaRequirementEntity::getMedia)
+				.filter(m -> Objects.equals(m.getAvailability(), MediaAvailability.WAITING))
+				.toList());
 		
 		sendMail(notification,
 				messageSource.getMessage("mail.watchlist.subject", new Object[0], locale),

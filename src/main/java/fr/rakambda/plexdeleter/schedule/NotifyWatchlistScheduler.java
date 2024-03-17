@@ -3,8 +3,6 @@ package fr.rakambda.plexdeleter.schedule;
 import fr.rakambda.plexdeleter.config.ApplicationConfiguration;
 import fr.rakambda.plexdeleter.notify.NotificationService;
 import fr.rakambda.plexdeleter.notify.NotifyException;
-import fr.rakambda.plexdeleter.storage.entity.MediaEntity;
-import fr.rakambda.plexdeleter.storage.entity.MediaRequirementEntity;
 import fr.rakambda.plexdeleter.storage.entity.MediaRequirementStatus;
 import fr.rakambda.plexdeleter.storage.entity.UserGroupEntity;
 import fr.rakambda.plexdeleter.storage.repository.MediaRequirementRepository;
@@ -18,14 +16,10 @@ import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
 import java.time.Instant;
 import java.time.ZonedDateTime;
-import java.util.function.Predicate;
 
 @Slf4j
 @Component
 public class NotifyWatchlistScheduler implements IScheduler{
-	private static final Predicate<MediaEntity> hasPartsPredicate = m -> m.getPartsCount() > 0;
-	private static final Predicate<MediaEntity> isFullyDownloadedPredicate = m -> m.getAvailablePartsCount() >= m.getPartsCount();
-	
 	private final MediaRequirementRepository mediaRequirementRepository;
 	private final UserGroupRepository userGroupRepository;
 	private final NotificationService notificationService;
@@ -69,18 +63,7 @@ public class NotifyWatchlistScheduler implements IScheduler{
 		log.info("Notifying user group {}", userGroupEntity);
 		
 		var requirements = mediaRequirementRepository.findAllByIdGroupIdAndStatusIs(userGroupEntity.getId(), MediaRequirementStatus.WAITING);
-		
-		var fullyAvailable = requirements.stream()
-				.map(MediaRequirementEntity::getMedia)
-				.filter(hasPartsPredicate.and(isFullyDownloadedPredicate))
-				.filter(m -> m.getAvailablePartsCount() >= m.getPartsCount())
-				.toList();
-		var notYetAvailable = requirements.stream()
-				.map(MediaRequirementEntity::getMedia)
-				.filter(hasPartsPredicate.negate().or(isFullyDownloadedPredicate.negate()))
-				.toList();
-		
-		notificationService.notifyWatchlist(userGroupEntity, fullyAvailable, notYetAvailable);
+		notificationService.notifyWatchlist(userGroupEntity, requirements);
 		
 		userGroupEntity.setLastNotification(Instant.now());
 		userGroupRepository.save(userGroupEntity);
