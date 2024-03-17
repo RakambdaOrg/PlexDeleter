@@ -55,12 +55,10 @@ public class MediaService{
 	}
 	
 	@NotNull
-	public MediaEntity update(int mediaId) throws UpdateException, RequestFailedException, NotifyException{
+	public MediaEntity update(@NotNull MediaEntity mediaEntity) throws UpdateException, RequestFailedException, NotifyException{
 		mediaOperationLock.lock();
 		try{
-			var mediaEntity = mediaRepository.findById(mediaId)
-					.orElseThrow(() -> new UpdateException("Media with id %d not found".formatted(mediaId)));
-			log.info("Updating mediaOptional {}", mediaEntity);
+			log.info("Updating media {}", mediaEntity);
 			
 			updateFromOverseerr(mediaEntity);
 			updateFromTautulli(mediaEntity);
@@ -130,20 +128,6 @@ public class MediaService{
 		}
 	}
 	
-	@NotNull
-	private Optional<Integer> getActualRatingKey(@NotNull MediaEntity mediaEntity, int ratingKey){
-		try{
-			return switch(mediaEntity.getType()){
-				case SEASON -> tautulliService.getSeasonRatingKey(ratingKey, mediaEntity.getIndex());
-				case MOVIE -> Optional.of(ratingKey);
-			};
-		}
-		catch(RequestFailedException e){
-			log.warn("Failed to get actual rating key", e);
-			return Optional.empty();
-		}
-	}
-	
 	private void updateFromTautulli(@NotNull MediaEntity mediaEntity) throws RequestFailedException{
 		if(Objects.isNull(mediaEntity.getPlexId())){
 			log.warn("Cannot update mediaOptional {} as it does not seem to be in Plex/Tautulli", mediaEntity);
@@ -194,35 +178,32 @@ public class MediaService{
 				.ifPresent(mediaEntity::setAvailablePartsCount);
 	}
 	
-	public void deleteMedia(int mediaId, boolean deleteFromServices) throws NotifyException, RequestFailedException{
+	@NotNull
+	private Optional<Integer> getActualRatingKey(@NotNull MediaEntity mediaEntity, int ratingKey){
+		try{
+			return switch(mediaEntity.getType()){
+				case SEASON -> tautulliService.getSeasonRatingKey(ratingKey, mediaEntity.getIndex());
+				case MOVIE -> Optional.of(ratingKey);
+			};
+		}
+		catch(RequestFailedException e){
+			log.warn("Failed to get actual rating key", e);
+			return Optional.empty();
+		}
+	}
+	
+	public void deleteMedia(@NotNull MediaEntity media, boolean deleteFromServices) throws NotifyException, RequestFailedException{
 		mediaOperationLock.lock();
 		try{
-			var mediaOptional = mediaRepository.findById(mediaId);
-			if(mediaOptional.isEmpty()){
-				return;
-			}
-			var media = mediaOptional.get();
-			
-			log.info("Deleting media {}", media);
 			var groups = media.getRequirements().stream()
 					.map(MediaRequirementEntity::getGroup)
 					.toList();
 			
-			if(deleteFromServices
-					&& media.getAvailablePartsCount() <= 0
-					&& media.getRequirements().stream().map(MediaRequirementEntity::getStatus).allMatch(MediaRequirementStatus::isCompleted)){
-				if(Objects.nonNull(media.getServarrId())){
-					switch(media.getType()){
-						case MOVIE -> radarrService.delete(media.getServarrId());
-						case SEASON -> sonarrService.delete(media.getServarrId());
-					}
-				}
-				
-				if(Objects.nonNull(media.getOverseerrId())){
-					overseerrService.deleteRequestForMedia(media.getOverseerrId());
-				}
+			if(media.getRequirements().stream().map(MediaRequirementEntity::getStatus).anyMatch(r -> !r.isCompleted())){
+				return;
 			}
 			
+			deleteMediaFromExternalServices(media, deleteFromServices);
 			mediaRepository.delete(media);
 			
 			for(var group : groups){
@@ -235,7 +216,26 @@ public class MediaService{
 		}
 	}
 	
-	public int addMedia(@NotNull UserGroupEntity userGroupEntity, int overseerrId, @NotNull MediaType mediaType, int season) throws RequestFailedException, UpdateException, NotifyException{
+	private void deleteMediaFromExternalServices(@NotNull MediaEntity media, boolean deleteFromServices) throws RequestFailedException{
+		log.info("Deleting media from external services {}", media);
+		if(deleteFromServices
+				&& media.getAvailablePartsCount() <= 0
+				&& media.getRequirements().stream().map(MediaRequirementEntity::getStatus).allMatch(MediaRequirementStatus::isCompleted)){
+			if(Objects.nonNull(media.getServarrId())){
+				switch(media.getType()){
+					case MOVIE -> radarrService.delete(media.getServarrId());
+					case SEASON -> sonarrService.delete(media.getServarrId());
+				}
+			}
+			
+			if(Objects.nonNull(media.getOverseerrId())){
+				overseerrService.deleteRequestForMedia(media.getOverseerrId());
+			}
+		}
+	}
+	
+	@NotNull
+	public MediaEntity addMedia(@NotNull UserGroupEntity userGroupEntity, int overseerrId, @NotNull MediaType mediaType, int season) throws RequestFailedException, UpdateException, NotifyException{
 		mediaOperationLock.lock();
 		try{
 			log.info("Adding media with Overseerr id {} and season {} to {}", overseerrId, season, userGroupEntity);
@@ -245,7 +245,7 @@ public class MediaService{
 			media.setAvailablePartsCount(0);
 			mediaRepository.save(media);
 			
-			return update(media.getId()).getId();
+			return update(media);
 		}
 		finally{
 			mediaOperationLock.unlock();

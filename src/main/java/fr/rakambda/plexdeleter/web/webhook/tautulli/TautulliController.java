@@ -16,6 +16,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.jetbrains.annotations.NotNull;
 import org.springframework.http.HttpStatus;
 import org.springframework.lang.NonNull;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -46,6 +47,7 @@ public class TautulliController{
 		this.notificationService = notificationService;
 	}
 	
+	@Transactional
 	@PostMapping
 	@ResponseStatus(HttpStatus.NO_CONTENT)
 	public void onCall(@NonNull @RequestBody TautulliWebhook data) throws RequestFailedException, IOException, UpdateException, NotifyException{
@@ -119,7 +121,7 @@ public class TautulliController{
 			return;
 		}
 		
-		mediaService.update(mediaEntity.get().getId());
+		mediaService.update(mediaEntity.get());
 	}
 	
 	private void notifyMedia(@NotNull TautulliWebhook data) throws RequestFailedException, NotifyException{

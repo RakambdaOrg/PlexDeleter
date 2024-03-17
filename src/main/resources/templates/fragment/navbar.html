@@ -5,7 +5,6 @@
                 <a class="nav-link" th:href="@{~/}" th:text="#{web.navbar.media-list}"></a>
                 <th:block sec:authorize="hasRole('ROLE_ADMIN')">
                     <a class="nav-link" th:href="@{~/admin/media/soon-deleted}" th:text="#{web.navbar.admin.media.list-soon-deleted}"></a>
-                    <a class="nav-link" th:href="@{~/admin/media/delete}" th:text="#{web.navbar.admin.media.delete}"></a>
                     <a class="nav-link" th:href="@{~/admin/media-requirement/add}" th:text="#{web.navbar.admin.requirement.add}"></a>
                     <a class="nav-link" th:href="@{~/admin/media-requirement/list}" th:text="#{web.navbar.admin.requirement.list}"></a>
                 </th:block>

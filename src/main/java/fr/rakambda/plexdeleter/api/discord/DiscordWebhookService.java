@@ -52,7 +52,7 @@ public class DiscordWebhookService{
 		lock.acquire();
 		try{
 			log.info("Sending webhook message to discord");
-			return HttpUtils.withStatusOkAndBody(apiClient.post()
+			return HttpUtils.unwrapIfStatusOkAndNotNullBody(apiClient.post()
 					.uri(url, b -> {
 						b = b.queryParam("wait", true);
 						if(Objects.nonNull(threadId)){

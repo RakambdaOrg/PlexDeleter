@@ -5,12 +5,15 @@ import fr.rakambda.plexdeleter.notify.NotifyException;
 import fr.rakambda.plexdeleter.security.PlexUser;
 import fr.rakambda.plexdeleter.service.MediaRequirementService;
 import fr.rakambda.plexdeleter.service.ServiceException;
+import fr.rakambda.plexdeleter.storage.entity.MediaRequirementEntity;
 import fr.rakambda.plexdeleter.storage.entity.UserPersonEntity;
+import fr.rakambda.plexdeleter.storage.repository.MediaRequirementRepository;
 import fr.rakambda.plexdeleter.storage.repository.UserPersonRepository;
 import jakarta.validation.constraints.NotNull;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.core.Authentication;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
@@ -24,24 +27,32 @@ import java.util.Optional;
 public class ApiUserMediaRequirementController{
 	private final MediaRequirementService mediaRequirementService;
 	private final UserPersonRepository userPersonRepository;
+	private final MediaRequirementRepository mediaRequirementRepository;
 	
 	@Autowired
-	public ApiUserMediaRequirementController(MediaRequirementService mediaRequirementService, UserPersonRepository userPersonRepository){
+	public ApiUserMediaRequirementController(MediaRequirementService mediaRequirementService, UserPersonRepository userPersonRepository, MediaRequirementRepository mediaRequirementRepository){
 		this.mediaRequirementService = mediaRequirementService;
 		this.userPersonRepository = userPersonRepository;
+		this.mediaRequirementRepository = mediaRequirementRepository;
 	}
 	
+	@Transactional
 	@PostMapping("/abandon")
 	public ModelAndView abandon(@org.jetbrains.annotations.NotNull Authentication authentication, @NotNull @RequestParam("media") int mediaId) throws NotifyException, RequestFailedException{
 		var userPerson = getUserPersonEntityFromAuth(authentication);
-		mediaRequirementService.abandon(mediaId, userPerson.getGroupId());
+		var requirement = mediaRequirementRepository.findById(new MediaRequirementEntity.TableId(mediaId, userPerson.getGroupId()))
+				.orElseThrow(() -> new RuntimeException("Requirement not found"));
+		mediaRequirementService.abandon(requirement);
 		return new ModelAndView("/api/success");
 	}
 	
+	@Transactional
 	@PostMapping("/complete")
 	public ModelAndView complete(@org.jetbrains.annotations.NotNull Authentication authentication, @NotNull @RequestParam("media") int mediaId) throws NotifyException, ServiceException{
 		var userPerson = getUserPersonEntityFromAuth(authentication);
-		mediaRequirementService.complete(mediaId, userPerson.getGroupId());
+		var requirement = mediaRequirementRepository.findById(new MediaRequirementEntity.TableId(mediaId, userPerson.getGroupId()))
+				.orElseThrow(() -> new RuntimeException("Requirement not found"));
+		mediaRequirementService.complete(requirement);
 		return new ModelAndView("/api/success");
 	}
 	

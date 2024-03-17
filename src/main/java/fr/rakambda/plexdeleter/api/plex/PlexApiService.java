@@ -26,7 +26,7 @@ public class PlexApiService{
 	@NotNull
 	public User getUserInfo(@NotNull String authToken) throws RequestFailedException{
 		log.info("Getting user info from auth token");
-		return HttpUtils.withStatusOkAndBody(apiClient.get()
+		return HttpUtils.unwrapIfStatusOkAndNotNullBody(apiClient.get()
 				.uri(b -> b.pathSegment("api", "v2", "user")
 						.build())
 				.header("X-Plex-Token", authToken)

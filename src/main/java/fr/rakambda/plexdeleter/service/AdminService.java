@@ -1,6 +1,5 @@
 package fr.rakambda.plexdeleter.service;
 
-import fr.rakambda.plexdeleter.storage.entity.MediaAvailability;
 import fr.rakambda.plexdeleter.storage.entity.MediaEntity;
 import fr.rakambda.plexdeleter.storage.entity.MediaRequirementEntity;
 import fr.rakambda.plexdeleter.storage.entity.MediaRequirementStatus;
@@ -10,7 +9,6 @@ import org.jetbrains.annotations.NotNull;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import java.util.List;
-import java.util.Set;
 
 @Service
 public class AdminService{
@@ -21,13 +19,6 @@ public class AdminService{
 	public AdminService(MediaRepository mediaRepository, MediaRequirementRepository mediaRequirementRepository){
 		this.mediaRepository = mediaRepository;
 		this.mediaRequirementRepository = mediaRequirementRepository;
-	}
-	
-	@NotNull
-	public List<MediaEntity> getMediasThatCanBeDeleted(){
-		return mediaRepository.findAllByAvailabilityIn(Set.of(MediaAvailability.WAITING, MediaAvailability.DOWNLOADING)).stream()
-				.sorted(MediaEntity.COMPARATOR_BY_TYPE_THEN_NAME)
-				.toList();
 	}
 	
 	@NotNull

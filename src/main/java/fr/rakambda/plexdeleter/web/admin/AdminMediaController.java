@@ -27,11 +27,4 @@ public class AdminMediaController{
 		mav.addObject("userService", userService);
 		return mav;
 	}
-	
-	@GetMapping("/delete")
-	public ModelAndView delete(){
-		var mav = new ModelAndView("admin/media/delete");
-		mav.addObject("medias", adminService.getMediasThatCanBeDeleted());
-		return mav;
-	}
 }

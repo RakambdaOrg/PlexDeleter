@@ -16,7 +16,7 @@ spring:
   jpa:
     generate-ddl: false
     database-platform: org.hibernate.dialect.MariaDBDialect
-    open-in-view: true
+    open-in-view: false
     hibernate:
       ddl-auto: none
   mail:

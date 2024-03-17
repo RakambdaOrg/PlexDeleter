@@ -15,7 +15,7 @@ import java.util.Objects;
 @NoArgsConstructor(access = AccessLevel.PRIVATE)
 public final class HttpUtils{
 	@Nullable
-	public static <T> T withStatusOk(@NotNull ResponseEntity<T> entity) throws StatusCodeException{
+	public static <T> T unwrapIfStatusOk(@NotNull ResponseEntity<T> entity) throws StatusCodeException{
 		if(!entity.getStatusCode().is2xxSuccessful()){
 			throw new StatusCodeException(entity.getStatusCode());
 		}
@@ -23,12 +23,12 @@ public final class HttpUtils{
 	}
 	
 	@NotNull
-	public static <T> T withStatusOkAndBody(@NotNull ResponseEntity<T> entity) throws RequestFailedException{
-		return verifyBody(verifyStatus(entity)).getBody();
+	public static <T> T unwrapIfStatusOkAndNotNullBody(@NotNull ResponseEntity<T> entity) throws RequestFailedException{
+		return requireNotNullBody(requireStatusOk(entity)).getBody();
 	}
 	
 	@NotNull
-	public static <T> ResponseEntity<T> verifyStatus(@NotNull ResponseEntity<T> entity) throws StatusCodeException{
+	public static <T> ResponseEntity<T> requireStatusOk(@NotNull ResponseEntity<T> entity) throws StatusCodeException{
 		if(!entity.getStatusCode().is2xxSuccessful()){
 			throw new StatusCodeException(entity.getStatusCode());
 		}
@@ -36,7 +36,15 @@ public final class HttpUtils{
 	}
 	
 	@NotNull
-	public static <T> ResponseEntity<T> verifyBody(@NotNull ResponseEntity<T> entity) throws RequestFailedException{
+	public static <T> ResponseEntity<T> requireStatusOkOrNotFound(@NotNull ResponseEntity<T> entity) throws StatusCodeException{
+		if(!entity.getStatusCode().is2xxSuccessful() && entity.getStatusCode().value() != 404){
+			throw new StatusCodeException(entity.getStatusCode());
+		}
+		return entity;
+	}
+	
+	@NotNull
+	public static <T> ResponseEntity<T> requireNotNullBody(@NotNull ResponseEntity<T> entity) throws RequestFailedException{
 		if(Objects.isNull(entity.getBody())){
 			throw new RequestFailedException("No body received");
 		}

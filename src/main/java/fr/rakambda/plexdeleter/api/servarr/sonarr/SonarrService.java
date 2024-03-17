@@ -11,8 +11,10 @@ import lombok.extern.slf4j.Slf4j;
 import org.jetbrains.annotations.NotNull;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.ParameterizedTypeReference;
+import org.springframework.http.HttpStatusCode;
 import org.springframework.stereotype.Service;
 import org.springframework.web.reactive.function.client.WebClient;
+import reactor.core.publisher.Mono;
 import java.util.Collection;
 import java.util.Set;
 
@@ -32,7 +34,7 @@ public class SonarrService{
 	@NotNull
 	public Series getSeries(int id) throws RequestFailedException{
 		log.info("Getting series info with id {}", id);
-		return HttpUtils.withStatusOkAndBody(apiClient.get()
+		return HttpUtils.unwrapIfStatusOkAndNotNullBody(apiClient.get()
 				.uri(b -> b.pathSegment("api", "v3", "series", "{id}")
 						.build(id))
 				.retrieve()
@@ -44,7 +46,7 @@ public class SonarrService{
 	@NotNull
 	public Collection<Tag> getTags() throws RequestFailedException{
 		log.info("Getting Radarr tags");
-		return HttpUtils.withStatusOkAndBody(apiClient.get()
+		return HttpUtils.unwrapIfStatusOkAndNotNullBody(apiClient.get()
 				.uri(b -> b.pathSegment("api", "v3", "tag")
 						.build())
 				.retrieve()
@@ -63,7 +65,7 @@ public class SonarrService{
 	
 	public PagedResponse<Queue> getQueue(int mediaId) throws RequestFailedException{
 		log.info("Getting queue for media {}", mediaId);
-		return HttpUtils.withStatusOkAndBody(apiClient.get()
+		return HttpUtils.unwrapIfStatusOkAndNotNullBody(apiClient.get()
 				.uri(b -> b.pathSegment("api", "v3", "queue")
 						.queryParam("pageSize", 100)
 						.queryParam("includeSeries", true)
@@ -77,7 +79,7 @@ public class SonarrService{
 	
 	public void deleteQueue(int queueId, boolean removeFromClient) throws RequestFailedException{
 		log.info("Deleting queue with id {} and removing from client {}", queueId, removeFromClient);
-		HttpUtils.withStatusOk(apiClient.delete()
+		HttpUtils.unwrapIfStatusOk(apiClient.delete()
 				.uri(b -> b.pathSegment("api", "v3", "queue", "{mediaId}")
 						.queryParam("removeFromClient", removeFromClient)
 						.build(queueId))
@@ -89,11 +91,12 @@ public class SonarrService{
 	
 	public void deleteSeries(int mediaId, boolean deleteFiles) throws RequestFailedException{
 		log.info("Deleting media with mediaId {} and deleting files {}", mediaId, deleteFiles);
-		HttpUtils.withStatusOk(apiClient.delete()
+		HttpUtils.requireStatusOkOrNotFound(apiClient.delete()
 				.uri(b -> b.pathSegment("api", "v3", "series", "{mediaId}")
 						.queryParam("deleteFiles", deleteFiles)
 						.build(mediaId))
 				.retrieve()
+				.onStatus(HttpStatusCode::is4xxClientError, err -> Mono.empty())
 				.toBodilessEntity()
 				.blockOptional()
 				.orElseThrow(() -> new RequestFailedException("Failed to delete media with id %d".formatted(mediaId))));

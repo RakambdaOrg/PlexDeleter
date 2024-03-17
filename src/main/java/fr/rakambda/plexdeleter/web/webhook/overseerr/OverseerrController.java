@@ -11,7 +11,6 @@ import fr.rakambda.plexdeleter.service.MediaRequirementService;
 import fr.rakambda.plexdeleter.service.MediaService;
 import fr.rakambda.plexdeleter.service.ServiceException;
 import fr.rakambda.plexdeleter.service.UpdateException;
-import fr.rakambda.plexdeleter.service.UserService;
 import fr.rakambda.plexdeleter.storage.entity.MediaAvailability;
 import fr.rakambda.plexdeleter.storage.entity.MediaType;
 import fr.rakambda.plexdeleter.storage.repository.MediaRepository;
@@ -24,6 +23,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.jetbrains.annotations.NotNull;
 import org.springframework.http.HttpStatus;
 import org.springframework.lang.NonNull;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -48,9 +48,8 @@ public class OverseerrController{
 	private final RadarrService radarrService;
 	private final UserGroupRepository userGroupRepository;
 	private final String excludeTag;
-	private final UserService userService;
 	
-	public OverseerrController(MediaRepository mediaRepository, MediaRequirementService mediaRequirementService, MediaService mediaService, OverseerrService overseerrService, SonarrService sonarrService, RadarrService radarrService, UserGroupRepository userGroupRepository, ApplicationConfiguration applicationConfiguration, UserService userService){
+	public OverseerrController(MediaRepository mediaRepository, MediaRequirementService mediaRequirementService, MediaService mediaService, OverseerrService overseerrService, SonarrService sonarrService, RadarrService radarrService, UserGroupRepository userGroupRepository, ApplicationConfiguration applicationConfiguration){
 		this.mediaRepository = mediaRepository;
 		this.mediaRequirementService = mediaRequirementService;
 		this.mediaService = mediaService;
@@ -59,9 +58,9 @@ public class OverseerrController{
 		this.radarrService = radarrService;
 		this.userGroupRepository = userGroupRepository;
 		this.excludeTag = applicationConfiguration.getExcludeTag();
-		this.userService = userService;
 	}
 	
+	@Transactional
 	@PostMapping
 	@ResponseStatus(HttpStatus.NO_CONTENT)
 	public void onCall(@NonNull @RequestBody OverseerrWebhook data) throws RequestFailedException, UpdateException, NotifyException, ServiceException{
@@ -80,7 +79,7 @@ public class OverseerrController{
 				.orElseGet(() -> mediaRepository.findAllByAvailabilityIn(Set.of(MediaAvailability.WAITING, MediaAvailability.DOWNLOADING)));
 		
 		for(var media : medias){
-			mediaService.update(media.getId());
+			mediaService.update(media);
 		}
 	}
 	

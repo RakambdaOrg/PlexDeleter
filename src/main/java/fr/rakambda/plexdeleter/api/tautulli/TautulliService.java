@@ -71,7 +71,7 @@ public class TautulliService{
 	@NotNull
 	private TautulliResponseWrapper<GetNewRatingKeysResponse> getNewRatingKeys(int ratingKey, @NotNull String mediaType) throws RequestFailedException{
 		log.info("Getting new rating keys for Plex id {} and type {}", ratingKey, mediaType);
-		return HttpUtils.withStatusOkAndBody(apiClient.get()
+		return HttpUtils.unwrapIfStatusOkAndNotNullBody(apiClient.get()
 				.uri(b -> b.pathSegment("api", "v2")
 						.queryParam("cmd", "get_new_rating_keys")
 						.queryParam("rating_key", ratingKey)
@@ -86,7 +86,7 @@ public class TautulliService{
 	@NotNull
 	public TautulliResponseWrapper<GetMetadataResponse> getMetadata(int ratingKey) throws RequestFailedException{
 		log.info("Getting metadata for Plex id {}", ratingKey);
-		return HttpUtils.withStatusOkAndBody(apiClient.get()
+		return HttpUtils.unwrapIfStatusOkAndNotNullBody(apiClient.get()
 				.uri(b -> b.pathSegment("api", "v2")
 						.queryParam("cmd", "get_metadata")
 						.queryParam("rating_key", ratingKey)
@@ -108,7 +108,7 @@ public class TautulliService{
 	@NotNull
 	private TautulliResponseWrapper<GetHistoryResponse> getHistory(int ratingKey, @NotNull String ratingKeyParamName, int userId, @NotNull String mediaType) throws RequestFailedException{
 		log.info("Getting history for Plex id {} of type {} and user id {}", ratingKey, mediaType, userId);
-		return HttpUtils.withStatusOkAndBody(apiClient.get()
+		return HttpUtils.unwrapIfStatusOkAndNotNullBody(apiClient.get()
 				.uri(b -> b.pathSegment("api", "v2")
 						.queryParam("cmd", "get_history")
 						.queryParam(ratingKeyParamName, ratingKey)

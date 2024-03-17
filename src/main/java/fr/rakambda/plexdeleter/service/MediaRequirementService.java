@@ -8,7 +8,6 @@ import fr.rakambda.plexdeleter.storage.entity.MediaEntity;
 import fr.rakambda.plexdeleter.storage.entity.MediaRequirementEntity;
 import fr.rakambda.plexdeleter.storage.entity.MediaRequirementStatus;
 import fr.rakambda.plexdeleter.storage.entity.UserGroupEntity;
-import fr.rakambda.plexdeleter.storage.repository.MediaRepository;
 import fr.rakambda.plexdeleter.storage.repository.MediaRequirementRepository;
 import fr.rakambda.plexdeleter.storage.repository.UserGroupRepository;
 import lombok.extern.slf4j.Slf4j;
@@ -26,40 +25,34 @@ public class MediaRequirementService{
 	private final NotificationService notificationService;
 	private final SupervisionService supervisionService;
 	private final MediaService mediaService;
-	private final MediaRepository mediaRepository;
 	private final UserGroupRepository userGroupRepository;
 	private final Lock requirementOperationLock;
 	
 	@Autowired
-	public MediaRequirementService(MediaRequirementRepository mediaRequirementRepository, NotificationService notificationService, SupervisionService supervisionService, MediaService mediaService, MediaRepository mediaRepository, UserGroupRepository userGroupRepository){
+	public MediaRequirementService(MediaRequirementRepository mediaRequirementRepository, NotificationService notificationService, SupervisionService supervisionService, MediaService mediaService, UserGroupRepository userGroupRepository){
 		this.mediaRequirementRepository = mediaRequirementRepository;
 		this.notificationService = notificationService;
 		this.supervisionService = supervisionService;
 		this.mediaService = mediaService;
-		this.mediaRepository = mediaRepository;
 		this.userGroupRepository = userGroupRepository;
 		this.requirementOperationLock = new ReentrantLock();
 	}
 	
-	public void complete(int mediaId, int groupId) throws NotifyException, ServiceException{
+	public void complete(@NotNull MediaRequirementEntity requirement) throws NotifyException, ServiceException{
 		requirementOperationLock.lock();
 		try{
-			var requirement = mediaRequirementRepository.findById(new MediaRequirementEntity.TableId(mediaId, groupId));
-			if(requirement.isEmpty()){
-				return;
-			}
-			if(!requirement.get().getMedia().isCompletable()){
+			if(!requirement.getMedia().isCompletable()){
 				throw new ServiceException("Cannot complete a media that isn't fully available");
 			}
 			log.info("Marking requirement {} as completed", requirement);
 			
-			requirement.get().setStatus(MediaRequirementStatus.WATCHED);
+			requirement.setStatus(MediaRequirementStatus.WATCHED);
 			
-			var group = requirement.get().getGroup();
-			var media = requirement.get().getMedia();
+			var group = requirement.getGroup();
+			var media = requirement.getMedia();
 			
 			notificationService.notifyRequirementManuallyWatched(group, media);
-			mediaRequirementRepository.save(requirement.get());
+			mediaRequirementRepository.save(requirement);
 			supervisionService.send("✍\uFE0F\uD83D\uDC41\uFE0F Media manually watched %s for %s", media, group);
 		}
 		finally{
@@ -67,24 +60,20 @@ public class MediaRequirementService{
 		}
 	}
 	
-	public void abandon(int mediaId, int groupId) throws NotifyException, RequestFailedException{
+	public void abandon(@NotNull MediaRequirementEntity requirement) throws NotifyException, RequestFailedException{
 		requirementOperationLock.lock();
 		try{
-			var requirement = mediaRequirementRepository.findById(new MediaRequirementEntity.TableId(mediaId, groupId));
-			if(requirement.isEmpty()){
-				return;
-			}
 			log.info("Marking requirement {} as abandoned", requirement);
 			
-			requirement.get().setStatus(MediaRequirementStatus.ABANDONED);
+			var group = requirement.getGroup();
+			var media = requirement.getMedia();
 			
-			var group = requirement.get().getGroup();
-			var media = requirement.get().getMedia();
+			requirement.setStatus(MediaRequirementStatus.ABANDONED);
+			mediaRequirementRepository.save(requirement);
 			
-			mediaService.deleteMedia(mediaId, true);
+			mediaService.deleteMedia(media, true);
 			
 			notificationService.notifyRequirementManuallyAbandoned(group, media);
-			mediaRequirementRepository.save(requirement.get());
 			supervisionService.send("✍\uFE0F\uD83D\uDE48 Media manually abandoned %s for %s", media, group);
 		}
 		finally{
@@ -129,11 +118,8 @@ public class MediaRequirementService{
 		}
 	}
 	
-	public void addRequirementForNewMedia(int mediaId, UserGroupEntity userGroupEntity) throws ServiceException, NotifyException{
-		log.info("Adding requirements to media with id {}", mediaId);
-		var media = mediaRepository.findById(mediaId)
-				.orElseThrow(() -> new ServiceException("Could not find media with id %d".formatted(mediaId)));
-		
+	public void addRequirementForNewMedia(@NotNull MediaEntity media, @NotNull UserGroupEntity userGroupEntity) throws NotifyException{
+		log.info("Adding requirements to media {}", media);
 		addRequirement(media, userGroupEntity, true);
 		
 		var otherGroups = userGroupRepository.findAllByHasRequirementOn(Objects.requireNonNull(media.getOverseerrId()), media.getIndex() - 1);
