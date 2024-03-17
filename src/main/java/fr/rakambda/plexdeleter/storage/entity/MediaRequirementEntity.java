@@ -17,6 +17,7 @@ import lombok.NoArgsConstructor;
 import lombok.ToString;
 import org.jetbrains.annotations.NotNull;
 import java.io.Serializable;
+import java.util.Comparator;
 
 @Data
 @AllArgsConstructor
@@ -26,6 +27,9 @@ import java.io.Serializable;
 @Table(name = "media_requirement", schema = "PlexDeleter")
 @ToString(onlyExplicitlyIncluded = true)
 public class MediaRequirementEntity{
+	public static final Comparator<? super MediaRequirementEntity> COMPARATOR_BY_MEDIA =
+			(r1, r2) -> MediaEntity.COMPARATOR_BY_TYPE_THEN_NAME.compare(r1.getMedia(), r2.getMedia());
+	
 	@EmbeddedId
 	@ToString.Include
 	private TableId id;
@@ -34,6 +38,10 @@ public class MediaRequirementEntity{
 	@NotNull
 	@ToString.Include
 	private MediaRequirementStatus status;
+	@Column(nullable = false)
+	@NotNull
+	@ToString.Include
+	private Long watchedCount;
 	
 	@ManyToOne(optional = false)
 	@JoinColumn(name = "mediaId", referencedColumnName = "id", updatable = false, nullable = false)

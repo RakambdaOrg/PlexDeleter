@@ -112,6 +112,7 @@ public class MediaRequirementService{
 						.id(new MediaRequirementEntity.TableId(media.getId(), userGroupEntity.getId()))
 						.group(userGroupEntity)
 						.media(media)
+						.watchedCount(0L)
 						.build());
 				addServarrTag(media, userGroupEntity);
 				supervisionService.send("\uD83D\uDED2 Added requirement %s to %s", media, userGroupEntity);
@@ -129,6 +130,7 @@ public class MediaRequirementService{
 					.filter(r -> !Objects.equals(r.getStatus(), MediaRequirementStatus.WAITING))
 					.map(requirement -> {
 						requirement.setStatus(MediaRequirementStatus.WAITING);
+						requirement.setWatchedCount(0L);
 						return requirement;
 					})
 					.ifPresent(mediaRequirementRepository::save);

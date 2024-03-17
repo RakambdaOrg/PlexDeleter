@@ -17,47 +17,49 @@
             <th scope="col" th:text="#{web.media-list.table.name}"/>
             <th scope="col" th:text="#{web.media-list.table.season}"/>
             <th scope="col" th:text="#{web.media-list.table.episodes}"/>
+            <th scope="col" th:text="#{web.media-list.table.watched}"/>
             <th scope="col" th:text="#{web.media-list.table.availability}"/>
             <th scope="col" th:text="#{web.media-list.table.links}"/>
             <th scope="col" th:text="#{web.media-list.table.action}"/>
         </tr>
         </thead>
         <tbody class="table-group-divider">
-        <tr th:each="media : ${medias}" th:class="${media.getAvailability().getTableClass()}">
+        <tr th:each="requirement : ${requirements}" th:class="${requirement.getMedia().getAvailability().getTableClass()}">
             <th:block sec:authorize="hasRole('ROLE_ADMIN')">
-                <td th:text="${media.getId()}"></td>
+                <td th:text="${requirement.getMedia().getId()}"></td>
             </th:block>
             <td>
                 <div class="d-flex flex-row justify-content-center align-items-center col-auto">
                     <svg class="m-1" height="20" width="20">
-                        <image th:xlink:href="@{~/static/__${media.getType().getIcon()}__}" height="20" width="20"/>
+                        <image th:xlink:href="@{~/static/__${requirement.getMedia().getType().getIcon()}__}" height="20" width="20"/>
                     </svg>
-                    <span class="m-1" th:text="#{${media.getType().getLocalizationKey()}}"></span>
+                    <span class="m-1" th:text="#{${requirement.getMedia().getType().getLocalizationKey()}}"></span>
                 </div>
             </td>
-            <td th:text="${media.getName()}"></td>
-            <td th:text="${media.getIndex()}"></td>
-            <td th:text="${media.getAvailablePartsCount() + ' / ' + media.getPartsCount()}"></td>
-            <td th:text="#{${media.getAvailability().getLocalizationKey()}}"></td>
+            <td th:text="${requirement.getMedia().getName()}"></td>
+            <td th:text="${requirement.getMedia().getIndex()}"></td>
+            <td th:text="${requirement.getMedia().getAvailablePartsCount() + ' / ' + requirement.getMedia().getPartsCount()}"></td>
+            <td th:text="${requirement.getWatchedCount() + ' / ' + requirement.getMedia().getPartsCount()}"></td>
+            <td th:text="#{${requirement.getMedia().getAvailability().getLocalizationKey()}}"></td>
             <td>
                 <div class="d-flex flex-row justify-content-center align-items-center">
-                    <div th:if="${media.getOverseerrId()}" class="m-1">
-                        <a title="Overseerr" th:href="${userService.getMediaOverseerrUrl(media)}" th:target="_blank">
+                    <div th:if="${requirement.getMedia().getOverseerrId()}" class="m-1">
+                        <a title="Overseerr" th:href="${userService.getMediaOverseerrUrl(requirement.getMedia())}" th:target="_blank">
                             <svg class="m-1" height="20" width="20">
                                 <image th:xlink:href="@{~/static/overseerr.svg}" height="20" width="20"/>
                             </svg>
                         </a>
                     </div>
                     <th:block sec:authorize="hasRole('ROLE_ADMIN')">
-                        <div th:if="${media.getSonarrSlug()}" class="m-1">
-                            <a title="Sonarr" th:href="${userService.getMediaSonarrUrl(media)}" th:target="_blank">
+                        <div th:if="${requirement.getMedia().getSonarrSlug()}" class="m-1">
+                            <a title="Sonarr" th:href="${userService.getMediaSonarrUrl(requirement.getMedia())}" th:target="_blank">
                                 <svg class="m-1" height="20" width="20">
                                     <image th:xlink:href="@{~/static/sonarr.svg}" height="20" width="20"/>
                                 </svg>
                             </a>
                         </div>
-                        <div th:if="${media.getRadarrSlug()}" class="m-1">
-                            <a title="Radarr" th:href="${userService.getMediaRadarrUrl(media)}" th:target="_blank">
+                        <div th:if="${requirement.getMedia().getRadarrSlug()}" class="m-1">
+                            <a title="Radarr" th:href="${userService.getMediaRadarrUrl(requirement.getMedia())}" th:target="_blank">
                                 <svg class="m-1" height="20" width="20">
                                     <image th:xlink:href="@{~/static/radarr.svg}" height="20" width="20"/>
                                 </svg>
@@ -68,15 +70,15 @@
             </td>
             <td>
                 <div class="d-flex flex-row justify-content-center align-items-center">
-                    <div class="m-1" th:if="${media.isCompletable()}">
+                    <div class="m-1" th:if="${requirement.getMedia().isCompletable()}">
                         <form th:action="@{~/api/user/media-requirement/complete}" method="post">
-                            <input type="hidden" name="media" class="form-control" th:value="${media.getId()}"/>
+                            <input type="hidden" name="media" class="form-control" th:value="${requirement.getMedia().getId()}"/>
                             <input type="submit" th:value="#{web.media-list.table.action.complete}" class="btn btn-success btn-sm"/>
                         </form>
                     </div>
                     <div class="m-1">
                         <form th:action="@{~/api/user/media-requirement/abandon}" method="post">
-                            <input type="hidden" name="media" class="form-control" th:value="${media.getId()}"/>
+                            <input type="hidden" name="media" class="form-control" th:value="${requirement.getMedia().getId()}"/>
                             <input type="submit" th:value="#{web.media-list.table.action.abandon}" class="btn btn-danger btn-sm"/>
                         </form>
                     </div>

@@ -63,11 +63,12 @@ public class WatchService{
 		}
 		
 		var historyPerPart = getGroupWatchHistory(group, media);
-		var everythingWatchedFully = historyPerPart.values().stream()
-				.allMatch(watches -> watches.stream()
-						.anyMatch(watch -> Objects.equals(watch.getWatchedStatus(), 1)));
+		var watchedFullyCount = historyPerPart.values().stream()
+				.filter(watches -> watches.stream().anyMatch(watch -> Objects.equals(watch.getWatchedStatus(), 1)))
+				.count();
 		
-		if(everythingWatchedFully && historyPerPart.size() >= media.getPartsCount()){
+		mediaRequirementEntity.setWatchedCount(watchedFullyCount);
+		if(watchedFullyCount >= media.getPartsCount()){
 			log.info("Setting {} as watched", mediaRequirementEntity);
 			mediaRequirementEntity.setStatus(MediaRequirementStatus.WATCHED);
 			supervisionService.send("\uD83D\uDC41\uFE0F %s watched %s", group.getName(), media);

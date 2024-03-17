@@ -29,10 +29,9 @@ public class UserService{
 	}
 	
 	@Nullable
-	public List<MediaEntity> getUserMedias(@NotNull UserPersonEntity userPerson){
+	public List<MediaRequirementEntity> getUserRequirements(@NotNull UserPersonEntity userPerson){
 		return mediaRequirementRepository.findAllByIdGroupIdAndStatusIs(userPerson.getGroupId(), MediaRequirementStatus.WAITING).stream()
-				.map(MediaRequirementEntity::getMedia)
-				.sorted(MediaEntity.COMPARATOR_BY_TYPE_THEN_NAME)
+				.sorted(MediaRequirementEntity.COMPARATOR_BY_MEDIA)
 				.toList();
 	}
 	
