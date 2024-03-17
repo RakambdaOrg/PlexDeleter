@@ -17,6 +17,7 @@ import java.util.Locale;
 import java.util.Map;
 import java.util.Objects;
 import java.util.Optional;
+import java.util.stream.IntStream;
 import java.util.stream.Stream;
 
 public abstract class AbstractNotificationService{
@@ -59,11 +60,21 @@ public abstract class AbstractNotificationService{
 	public Collection<String> getEpisodes(@NotNull MediaEntity media, @NotNull UserGroupEntity userGroupEntity) throws RequestFailedException{
 		return switch(media.getType()){
 			case MOVIE -> List.of();
-			case SEASON -> Objects.isNull(media.getPlexId()) ? List.of() : watchService.getGroupWatchHistory(userGroupEntity, media).entrySet().stream()
-					.filter(entry -> entry.getValue().stream().allMatch(r -> Objects.equals(r.getWatchedStatus(), 0)))
-					.map(Map.Entry::getKey)
-					.map(String::valueOf)
-					.toList();
+			case SEASON -> {
+				if(Objects.isNull(media.getPlexId())){
+					yield List.of();
+				}
+				
+				var watched = watchService.getGroupWatchHistory(userGroupEntity, media).entrySet().stream()
+						.filter(entry -> entry.getValue().stream().anyMatch(r -> Objects.equals(r.getWatchedStatus(), 1)))
+						.map(Map.Entry::getKey)
+						.toList();
+				
+				yield IntStream.rangeClosed(1, media.getAvailablePartsCount())
+						.filter(index -> !watched.contains(index))
+						.mapToObj(String::valueOf)
+						.toList();
+			}
 		};
 	}
 	

@@ -1,7 +1,15 @@
 <th:block th:fragment="media">
     <span th:text="#{${service.getTypeKey(media)}(${media.getName()}, ${media.getIndex()})}"></span>
-    <span th:unless="${#lists.isEmpty(service.getEpisodes(media, userGroup))}" th:text="${' | ' + #{mail.watchlist.body.media.series.episodes(${#strings.listJoin(service.getEpisodes(media, userGroup), ', ')})}}"></span>
-    <a th:if="${media.getOverseerrId()}" th:href="${overseerrEndpoint + '/' + media.getType().getOverseerrType().getValue() + '/' + media.getOverseerrId()}">
-        <img alt="Overseerr logo" style="max-height: 15px; max-width: 15px;" src="https://raw.githubusercontent.com/sct/overseerr/develop/public/os_logo_filled.png">
-    </a>
+    <th:block th:with="episodes = ${service.getEpisodes(media, userGroup)}">
+        <th:block th:unless="${#lists.isEmpty(episodes)}">
+            <span> | </span>
+            <span th:with="episodesStr = ${#strings.listJoin(episodes, ', ')}" th:text="#{mail.watchlist.body.media.series.episodes(${episodesStr})}"></span>
+        </th:block>
+    </th:block>
+    <th:block th:if="${media.getOverseerrId()}">
+        <span> | </span>
+        <a th:href="${overseerrEndpoint + '/' + media.getType().getOverseerrType().getValue() + '/' + media.getOverseerrId()}">
+            <img alt="Overseerr logo" style="max-height: 15px; max-width: 15px;" src="https://raw.githubusercontent.com/sct/overseerr/develop/public/os_logo_filled.png">
+        </a>
+    </th:block>
 </th:block>
