@@ -48,10 +48,6 @@ public class UserGroupEntity{
 	@NotNull
 	private Instant lastNotification;
 	@Basic
-	@Column(nullable = false)
-	@NotNull
-	private Boolean display;
-	@Basic
 	@Column
 	@Nullable
 	private String servarrTag;
