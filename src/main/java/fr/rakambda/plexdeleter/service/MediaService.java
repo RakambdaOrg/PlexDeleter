@@ -69,10 +69,12 @@ public class MediaService{
 				supervisionService.send("\uD83D\uDEAB Could not update %s", mediaEntity);
 			}
 			else if(mediaEntity.getAvailablePartsCount() >= mediaEntity.getPartsCount()){
-				mediaEntity.setAvailability(MediaAvailability.DOWNLOADED);
-				log.info("Marked mediaOptional {} as finished", mediaEntity);
-				notificationService.notifyMediaAvailable(mediaEntity);
-				supervisionService.send("\uD83C\uDD97 Marked %d as downloaded: %s (%d/%d)", mediaEntity.getId(), mediaEntity, mediaEntity.getPartsCount(), mediaEntity.getAvailablePartsCount());
+				if(!mediaEntity.getAvailability().isAvailable()){
+					mediaEntity.setAvailability(MediaAvailability.DOWNLOADED);
+					log.info("Marked mediaOptional {} as finished", mediaEntity);
+					notificationService.notifyMediaAvailable(mediaEntity);
+					supervisionService.send("\uD83C\uDD97 Marked %d as downloaded: %s (%d/%d)", mediaEntity.getId(), mediaEntity, mediaEntity.getPartsCount(), mediaEntity.getAvailablePartsCount());
+				}
 			}
 			else if(mediaEntity.getAvailablePartsCount() > 0){
 				mediaEntity.setAvailability(MediaAvailability.DOWNLOADING);

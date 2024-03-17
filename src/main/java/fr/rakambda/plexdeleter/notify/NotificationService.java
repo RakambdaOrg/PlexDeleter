@@ -15,7 +15,6 @@ import org.springframework.transaction.annotation.Transactional;
 import java.io.UnsupportedEncodingException;
 import java.util.Collection;
 import java.util.Objects;
-import java.util.function.BiFunction;
 
 @Slf4j
 @Service
@@ -120,15 +119,7 @@ public class NotificationService{
 		}
 	}
 	
-	public void notifyMediaAddedFromWatchlist(@NotNull GetMetadataResponse metadata, @NotNull GetMetadataResponse rootMetadata) throws NotifyException{
-		notifyMediaAddedFor(metadata, rootMetadata, (ratingKey, libraryName) -> userGroupRepository.findAllByHasRequirementOnPlex(ratingKey, MediaRequirementStatus.WAITING));
-	}
-	
-	public void notifyMediaAddedForOther(@NotNull GetMetadataResponse metadata, @NotNull GetMetadataResponse rootMetadata) throws NotifyException{
-		notifyMediaAddedFor(metadata, rootMetadata, userGroupRepository::findAllByDoesNotHaveRequirementOnPlexAndInterestedInLibrary);
-	}
-	
-	private void notifyMediaAddedFor(@NotNull GetMetadataResponse metadata, @NotNull GetMetadataResponse rootMetadata, @NotNull BiFunction<Integer, String, Collection<UserGroupEntity>> groupsForRatingKey) throws NotifyException{
+	public void notifyMediaAdded(@NotNull GetMetadataResponse metadata, @NotNull GetMetadataResponse rootMetadata) throws NotifyException{
 		var ratingKey = switch(metadata.getMediaType()){
 			case "movie", "season" -> metadata.getRatingKey();
 			case "episode" -> metadata.getParentRatingKey();
@@ -140,7 +131,7 @@ public class NotificationService{
 			return;
 		}
 		
-		var userGroups = groupsForRatingKey.apply(ratingKey, metadata.getLibraryName());
+		var userGroups = userGroupRepository.findAllByHasRequirementOnPlexOrWatchesLibrary(ratingKey, MediaRequirementStatus.WAITING, metadata.getLibraryName());
 		for(var userGroup : userGroups){
 			notifyMediaAdded(userGroup, metadata, rootMetadata);
 		}

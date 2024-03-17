@@ -145,7 +145,6 @@ public class TautulliController{
 		}
 		var rootMetadata = tautulliService.getMetadata(rootRatingKey).getResponse().getData();
 		
-		notificationService.notifyMediaAddedFromWatchlist(metadata, rootMetadata);
-		notificationService.notifyMediaAddedForOther(metadata, rootMetadata);
+		notificationService.notifyMediaAdded(metadata, rootMetadata);
 	}
 }
