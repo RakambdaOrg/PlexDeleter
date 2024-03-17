@@ -12,6 +12,7 @@ import fr.rakambda.plexdeleter.api.tautulli.data.SubtitlesMediaPartStream;
 import fr.rakambda.plexdeleter.config.ApplicationConfiguration;
 import fr.rakambda.plexdeleter.service.WatchService;
 import fr.rakambda.plexdeleter.storage.entity.MediaEntity;
+import fr.rakambda.plexdeleter.storage.entity.NotificationEntity;
 import fr.rakambda.plexdeleter.storage.entity.UserGroupEntity;
 import jakarta.mail.MessagingException;
 import lombok.SneakyThrows;
@@ -50,9 +51,9 @@ public class DiscordThreadNotificationService extends AbstractNotificationServic
 		this.overseerrEndpoint = applicationConfiguration.getOverseerr().getEndpoint();
 	}
 	
-	public void notifyWatchlist(@NotNull UserGroupEntity userGroupEntity, @NotNull Collection<MediaEntity> availableMedia, @NotNull Collection<MediaEntity> notYetAvailableMedia) throws MessagingException, UnsupportedEncodingException, InterruptedException, RequestFailedException{
+	public void notifyWatchlist(@NotNull NotificationEntity notification, @NotNull UserGroupEntity userGroupEntity, @NotNull Collection<MediaEntity> availableMedia, @NotNull Collection<MediaEntity> notYetAvailableMedia) throws MessagingException, UnsupportedEncodingException, InterruptedException, RequestFailedException{
 		var locale = userGroupEntity.getLocaleAsObject();
-		var params = userGroupEntity.getNotificationValue().split(",");
+		var params = notification.getValue().split(",");
 		var discordUserId = params[0];
 		var discordUrl = params[1];
 		
@@ -71,29 +72,29 @@ public class DiscordThreadNotificationService extends AbstractNotificationServic
 		}
 	}
 	
-	public void notifyRequirementAdded(@NotNull UserGroupEntity userGroupEntity, @NotNull MediaEntity media) throws MessagingException, UnsupportedEncodingException, RequestFailedException, InterruptedException{
-		notifySimple(userGroupEntity, media, "discord.requirement.added.subject");
+	public void notifyRequirementAdded(@NotNull NotificationEntity notification, @NotNull UserGroupEntity userGroupEntity, @NotNull MediaEntity media) throws MessagingException, UnsupportedEncodingException, RequestFailedException, InterruptedException{
+		notifySimple(notification, userGroupEntity, media, "discord.requirement.added.subject");
 	}
 	
-	public void notifyMediaAvailable(@NotNull UserGroupEntity userGroupEntity, @NotNull MediaEntity media) throws RequestFailedException, InterruptedException{
-		notifySimple(userGroupEntity, media, "discord.media.available.subject");
+	public void notifyMediaAvailable(@NotNull NotificationEntity notification, @NotNull UserGroupEntity userGroupEntity, @NotNull MediaEntity media) throws RequestFailedException, InterruptedException{
+		notifySimple(notification, userGroupEntity, media, "discord.media.available.subject");
 	}
 	
-	public void notifyMediaDeleted(@NotNull UserGroupEntity userGroupEntity, @NotNull MediaEntity media) throws RequestFailedException, InterruptedException{
-		notifySimple(userGroupEntity, media, "discord.media.deleted.subject");
+	public void notifyMediaDeleted(@NotNull NotificationEntity notification, @NotNull UserGroupEntity userGroupEntity, @NotNull MediaEntity media) throws RequestFailedException, InterruptedException{
+		notifySimple(notification, userGroupEntity, media, "discord.media.deleted.subject");
 	}
 	
-	public void notifyRequirementManuallyWatched(@NotNull UserGroupEntity userGroupEntity, @NotNull MediaEntity media) throws MessagingException, UnsupportedEncodingException, RequestFailedException, InterruptedException{
-		notifySimple(userGroupEntity, media, "discord.requirement.manually-watched.subject");
+	public void notifyRequirementManuallyWatched(@NotNull NotificationEntity notification, @NotNull UserGroupEntity userGroupEntity, @NotNull MediaEntity media) throws MessagingException, UnsupportedEncodingException, RequestFailedException, InterruptedException{
+		notifySimple(notification, userGroupEntity, media, "discord.requirement.manually-watched.subject");
 	}
 	
-	public void notifyRequirementManuallyAbandoned(@NotNull UserGroupEntity userGroupEntity, @NotNull MediaEntity media) throws RequestFailedException, InterruptedException{
-		notifySimple(userGroupEntity, media, "discord.requirement.manually-abandoned.subject");
+	public void notifyRequirementManuallyAbandoned(@NotNull NotificationEntity notification, @NotNull UserGroupEntity userGroupEntity, @NotNull MediaEntity media) throws RequestFailedException, InterruptedException{
+		notifySimple(notification, userGroupEntity, media, "discord.requirement.manually-abandoned.subject");
 	}
 	
-	public void notifyMediaAdded(@NotNull UserGroupEntity userGroupEntity, @NotNull GetMetadataResponse metadata, @NotNull GetMetadataResponse rootMetadata) throws RequestFailedException, InterruptedException{
+	public void notifyMediaAdded(@NotNull NotificationEntity notification, @NotNull UserGroupEntity userGroupEntity, @NotNull GetMetadataResponse metadata, @NotNull GetMetadataResponse rootMetadata) throws RequestFailedException, InterruptedException{
 		var locale = userGroupEntity.getLocaleAsObject();
-		var params = userGroupEntity.getNotificationValue().split(",");
+		var params = notification.getValue().split(",");
 		var discordUserId = params[0];
 		var discordUrl = params[1];
 		
@@ -175,9 +176,9 @@ public class DiscordThreadNotificationService extends AbstractNotificationServic
 				.build());
 	}
 	
-	private void notifySimple(@NotNull UserGroupEntity userGroupEntity, @NotNull MediaEntity media, @NotNull String subjectKey) throws RequestFailedException, InterruptedException{
+	private void notifySimple(@NotNull NotificationEntity notification, @NotNull UserGroupEntity userGroupEntity, @NotNull MediaEntity media, @NotNull String subjectKey) throws RequestFailedException, InterruptedException{
 		var locale = userGroupEntity.getLocaleAsObject();
-		var params = userGroupEntity.getNotificationValue().split(",");
+		var params = notification.getValue().split(",");
 		var discordUserId = params[0];
 		var discordUrl = params[1];
 		

@@ -3,12 +3,11 @@ package fr.rakambda.plexdeleter.storage.entity;
 import jakarta.persistence.Basic;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
-import jakarta.persistence.EnumType;
-import jakarta.persistence.Enumerated;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.persistence.JoinColumn;
+import jakarta.persistence.ManyToOne;
 import jakarta.persistence.OneToMany;
 import jakarta.persistence.Table;
 import lombok.AllArgsConstructor;
@@ -40,14 +39,6 @@ public class UserGroupEntity{
 	@NotNull
 	@ToString.Include
 	private String name;
-	@Enumerated(EnumType.STRING)
-	@Column(nullable = false)
-	@NotNull
-	private NotificationType notificationType;
-	@Basic
-	@Column(nullable = false)
-	@NotNull
-	private String notificationValue;
 	@Basic
 	@Column
 	@NotNull
@@ -74,6 +65,15 @@ public class UserGroupEntity{
 	@OneToMany(targetEntity = UserGroupLibraryEntity.class)
 	@JoinColumn(name = "groupId", referencedColumnName = "id")
 	private List<UserGroupLibraryEntity> libraries;
+	
+	@ManyToOne(targetEntity = NotificationEntity.class)
+	@JoinColumn(name = "notificationId", referencedColumnName = "id")
+	@Nullable
+	private NotificationEntity notification;
+	@ManyToOne(targetEntity = NotificationEntity.class)
+	@JoinColumn(name = "notificationMediaAddedId", referencedColumnName = "id")
+	@Nullable
+	private NotificationEntity notificationMediaAdded;
 	
 	@NotNull
 	public Locale getLocaleAsObject(){

@@ -7,6 +7,7 @@ import fr.rakambda.plexdeleter.config.ApplicationConfiguration;
 import fr.rakambda.plexdeleter.config.MailConfiguration;
 import fr.rakambda.plexdeleter.service.WatchService;
 import fr.rakambda.plexdeleter.storage.entity.MediaEntity;
+import fr.rakambda.plexdeleter.storage.entity.NotificationEntity;
 import fr.rakambda.plexdeleter.storage.entity.UserGroupEntity;
 import jakarta.mail.MessagingException;
 import org.jetbrains.annotations.NotNull;
@@ -47,7 +48,7 @@ public class MailNotificationService extends AbstractNotificationService{
 		this.overseerrEndpoint = applicationConfiguration.getOverseerr().getEndpoint();
 	}
 	
-	public void notifyWatchlist(@NotNull UserGroupEntity userGroupEntity, @NotNull Collection<MediaEntity> availableMedia, @NotNull Collection<MediaEntity> notYetAvailableMedia) throws MessagingException, UnsupportedEncodingException{
+	public void notifyWatchlist(@NotNull NotificationEntity notification, @NotNull UserGroupEntity userGroupEntity, @NotNull Collection<MediaEntity> availableMedia, @NotNull Collection<MediaEntity> notYetAvailableMedia) throws MessagingException, UnsupportedEncodingException{
 		var locale = userGroupEntity.getLocaleAsObject();
 		var context = new Context();
 		context.setLocale(userGroupEntity.getLocaleAsObject());
@@ -58,32 +59,32 @@ public class MailNotificationService extends AbstractNotificationService{
 		context.setVariable("availableMedias", availableMedia);
 		context.setVariable("notYetAvailableMedias", notYetAvailableMedia);
 		
-		sendMail(userGroupEntity,
+		sendMail(notification,
 				messageSource.getMessage("mail.watchlist.subject", new Object[0], locale),
 				templateEngine.process("mail/watchlist.html", context));
 	}
 	
-	public void notifyRequirementAdded(@NotNull UserGroupEntity userGroupEntity, @NotNull MediaEntity media) throws MessagingException, UnsupportedEncodingException{
-		notifySimple(userGroupEntity, media, "mail.requirement.added.subject");
+	public void notifyRequirementAdded(@NotNull NotificationEntity notification, @NotNull UserGroupEntity userGroupEntity, @NotNull MediaEntity media) throws MessagingException, UnsupportedEncodingException{
+		notifySimple(notification, userGroupEntity, media, "mail.requirement.added.subject");
 	}
 	
-	public void notifyMediaAvailable(@NotNull UserGroupEntity userGroupEntity, @NotNull MediaEntity media) throws MessagingException, UnsupportedEncodingException{
-		notifySimple(userGroupEntity, media, "mail.media.available.subject");
+	public void notifyMediaAvailable(@NotNull NotificationEntity notification, @NotNull UserGroupEntity userGroupEntity, @NotNull MediaEntity media) throws MessagingException, UnsupportedEncodingException{
+		notifySimple(notification, userGroupEntity, media, "mail.media.available.subject");
 	}
 	
-	public void notifyMediaDeleted(@NotNull UserGroupEntity userGroupEntity, @NotNull MediaEntity media) throws MessagingException, UnsupportedEncodingException{
-		notifySimple(userGroupEntity, media, "mail.media.deleted.subject");
+	public void notifyMediaDeleted(@NotNull NotificationEntity notification, @NotNull UserGroupEntity userGroupEntity, @NotNull MediaEntity media) throws MessagingException, UnsupportedEncodingException{
+		notifySimple(notification, userGroupEntity, media, "mail.media.deleted.subject");
 	}
 	
-	public void notifyRequirementManuallyWatched(@NotNull UserGroupEntity userGroupEntity, @NotNull MediaEntity media) throws MessagingException, UnsupportedEncodingException{
-		notifySimple(userGroupEntity, media, "mail.requirement.manually-watched.subject");
+	public void notifyRequirementManuallyWatched(@NotNull NotificationEntity notification, @NotNull UserGroupEntity userGroupEntity, @NotNull MediaEntity media) throws MessagingException, UnsupportedEncodingException{
+		notifySimple(notification, userGroupEntity, media, "mail.requirement.manually-watched.subject");
 	}
 	
-	public void notifyRequirementManuallyAbandoned(@NotNull UserGroupEntity userGroupEntity, @NotNull MediaEntity media) throws MessagingException, UnsupportedEncodingException{
-		notifySimple(userGroupEntity, media, "mail.requirement.manually-abandoned.subject");
+	public void notifyRequirementManuallyAbandoned(@NotNull NotificationEntity notification, @NotNull UserGroupEntity userGroupEntity, @NotNull MediaEntity media) throws MessagingException, UnsupportedEncodingException{
+		notifySimple(notification, userGroupEntity, media, "mail.requirement.manually-abandoned.subject");
 	}
 	
-	public void notifyMediaAdded(@NotNull UserGroupEntity userGroupEntity, @NotNull GetMetadataResponse metadata, @NotNull GetMetadataResponse rootMetadata) throws MessagingException, UnsupportedEncodingException{
+	public void notifyMediaAdded(@NotNull NotificationEntity notification, @NotNull UserGroupEntity userGroupEntity, @NotNull GetMetadataResponse metadata, @NotNull GetMetadataResponse rootMetadata) throws MessagingException, UnsupportedEncodingException{
 		var locale = userGroupEntity.getLocaleAsObject();
 		
 		var context = new Context();
@@ -134,12 +135,12 @@ public class MailNotificationService extends AbstractNotificationService{
 		context.setVariable("mediaAudios", audioLanguages);
 		context.setVariable("mediaSubtitles", subtitleLanguages);
 		
-		sendMail(userGroupEntity,
+		sendMail(notification,
 				messageSource.getMessage("mail.media.added.subject", new Object[0], locale),
 				templateEngine.process("mail/media-added.html", context));
 	}
 	
-	private void notifySimple(@NotNull UserGroupEntity userGroupEntity, @NotNull MediaEntity media, @NotNull String subjectKey) throws MessagingException, UnsupportedEncodingException{
+	private void notifySimple(@NotNull NotificationEntity notification, @NotNull UserGroupEntity userGroupEntity, @NotNull MediaEntity media, @NotNull String subjectKey) throws MessagingException, UnsupportedEncodingException{
 		var locale = userGroupEntity.getLocaleAsObject();
 		var context = new Context();
 		context.setLocale(userGroupEntity.getLocaleAsObject());
@@ -149,13 +150,13 @@ public class MailNotificationService extends AbstractNotificationService{
 		context.setVariable("overseerrEndpoint", overseerrEndpoint);
 		context.setVariable("userGroup", userGroupEntity);
 		
-		sendMail(userGroupEntity,
+		sendMail(notification,
 				messageSource.getMessage(subjectKey, new Object[0], locale),
 				templateEngine.process("mail/single-media.html", context));
 	}
 	
-	private void sendMail(@NotNull UserGroupEntity userGroupEntity, @NotNull String subject, @NotNull String body) throws MessagingException, UnsupportedEncodingException{
-		var mailAddresses = userGroupEntity.getNotificationValue().split(",");
+	private void sendMail(@NotNull NotificationEntity notification, @NotNull String subject, @NotNull String body) throws MessagingException, UnsupportedEncodingException{
+		var mailAddresses = notification.getValue().split(",");
 		var mimeMessage = emailSender.createMimeMessage();
 		var mailHelper = new MimeMessageHelper(mimeMessage, true, "utf-8");
 		mailHelper.setFrom(mailConfiguration.getFromAddress(), mailConfiguration.getFromName());

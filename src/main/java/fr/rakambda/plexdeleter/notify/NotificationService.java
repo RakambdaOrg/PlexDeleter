@@ -36,9 +36,13 @@ public class NotificationService{
 				return;
 			}
 			log.info("Notifying watchlist to {}", userGroupEntity);
-			switch(userGroupEntity.getNotificationType()){
-				case MAIL -> mailNotificationService.notifyWatchlist(userGroupEntity, availableMedia, notYetAvailableMedia);
-				case DISCORD_THREAD -> discordThreadNotificationService.notifyWatchlist(userGroupEntity, availableMedia, notYetAvailableMedia);
+			var notification = userGroupEntity.getNotification();
+			if(Objects.isNull(notification)){
+				return;
+			}
+			switch(notification.getType()){
+				case MAIL -> mailNotificationService.notifyWatchlist(notification, userGroupEntity, availableMedia, notYetAvailableMedia);
+				case DISCORD_THREAD -> discordThreadNotificationService.notifyWatchlist(notification, userGroupEntity, availableMedia, notYetAvailableMedia);
 			}
 		}
 		catch(MessagingException | UnsupportedEncodingException | InterruptedException | RequestFailedException e){
@@ -49,9 +53,13 @@ public class NotificationService{
 	public void notifyRequirementAdded(@NotNull UserGroupEntity userGroupEntity, @NotNull MediaEntity media) throws NotifyException{
 		try{
 			log.info("Notifying a requirement on {} has been added to {}", media, userGroupEntity);
-			switch(userGroupEntity.getNotificationType()){
-				case MAIL -> mailNotificationService.notifyRequirementAdded(userGroupEntity, media);
-				case DISCORD_THREAD -> discordThreadNotificationService.notifyRequirementAdded(userGroupEntity, media);
+			var notification = userGroupEntity.getNotification();
+			if(Objects.isNull(notification)){
+				return;
+			}
+			switch(notification.getType()){
+				case MAIL -> mailNotificationService.notifyRequirementAdded(notification, userGroupEntity, media);
+				case DISCORD_THREAD -> discordThreadNotificationService.notifyRequirementAdded(notification, userGroupEntity, media);
 			}
 		}
 		catch(MessagingException | UnsupportedEncodingException | InterruptedException | RequestFailedException e){
@@ -70,9 +78,13 @@ public class NotificationService{
 	public void notifyMediaAvailable(@NotNull UserGroupEntity userGroupEntity, @NotNull MediaEntity media) throws NotifyException{
 		try{
 			log.info("Notifying {} is available to {}", media, userGroupEntity);
-			switch(userGroupEntity.getNotificationType()){
-				case MAIL -> mailNotificationService.notifyMediaAvailable(userGroupEntity, media);
-				case DISCORD_THREAD -> discordThreadNotificationService.notifyMediaAvailable(userGroupEntity, media);
+			var notification = userGroupEntity.getNotification();
+			if(Objects.isNull(notification)){
+				return;
+			}
+			switch(notification.getType()){
+				case MAIL -> mailNotificationService.notifyMediaAvailable(notification, userGroupEntity, media);
+				case DISCORD_THREAD -> discordThreadNotificationService.notifyMediaAvailable(notification, userGroupEntity, media);
 			}
 		}
 		catch(MessagingException | UnsupportedEncodingException | InterruptedException | RequestFailedException e){
@@ -83,9 +95,13 @@ public class NotificationService{
 	public void notifyMediaDeleted(@NotNull UserGroupEntity userGroupEntity, @NotNull MediaEntity media) throws NotifyException{
 		try{
 			log.info("Notifying {} has been deleted to {}", media, userGroupEntity);
-			switch(userGroupEntity.getNotificationType()){
-				case MAIL -> mailNotificationService.notifyMediaDeleted(userGroupEntity, media);
-				case DISCORD_THREAD -> discordThreadNotificationService.notifyMediaDeleted(userGroupEntity, media);
+			var notification = userGroupEntity.getNotification();
+			if(Objects.isNull(notification)){
+				return;
+			}
+			switch(notification.getType()){
+				case MAIL -> mailNotificationService.notifyMediaDeleted(notification, userGroupEntity, media);
+				case DISCORD_THREAD -> discordThreadNotificationService.notifyMediaDeleted(notification, userGroupEntity, media);
 			}
 		}
 		catch(MessagingException | UnsupportedEncodingException | InterruptedException | RequestFailedException e){
@@ -96,9 +112,13 @@ public class NotificationService{
 	public void notifyRequirementManuallyWatched(@NotNull UserGroupEntity userGroupEntity, @NotNull MediaEntity media) throws NotifyException{
 		try{
 			log.info("Notifying {} has been manually marked as watched to {}", media, userGroupEntity);
-			switch(userGroupEntity.getNotificationType()){
-				case MAIL -> mailNotificationService.notifyRequirementManuallyWatched(userGroupEntity, media);
-				case DISCORD_THREAD -> discordThreadNotificationService.notifyRequirementManuallyWatched(userGroupEntity, media);
+			var notification = userGroupEntity.getNotification();
+			if(Objects.isNull(notification)){
+				return;
+			}
+			switch(notification.getType()){
+				case MAIL -> mailNotificationService.notifyRequirementManuallyWatched(notification, userGroupEntity, media);
+				case DISCORD_THREAD -> discordThreadNotificationService.notifyRequirementManuallyWatched(notification, userGroupEntity, media);
 			}
 		}
 		catch(MessagingException | UnsupportedEncodingException | InterruptedException | RequestFailedException e){
@@ -109,9 +129,13 @@ public class NotificationService{
 	public void notifyRequirementManuallyAbandoned(@NotNull UserGroupEntity userGroupEntity, @NotNull MediaEntity media) throws NotifyException{
 		try{
 			log.info("Notifying {} has been manually marked as abandoned to {}", media, userGroupEntity);
-			switch(userGroupEntity.getNotificationType()){
-				case MAIL -> mailNotificationService.notifyRequirementManuallyAbandoned(userGroupEntity, media);
-				case DISCORD_THREAD -> discordThreadNotificationService.notifyRequirementManuallyAbandoned(userGroupEntity, media);
+			var notification = userGroupEntity.getNotification();
+			if(Objects.isNull(notification)){
+				return;
+			}
+			switch(notification.getType()){
+				case MAIL -> mailNotificationService.notifyRequirementManuallyAbandoned(notification, userGroupEntity, media);
+				case DISCORD_THREAD -> discordThreadNotificationService.notifyRequirementManuallyAbandoned(notification, userGroupEntity, media);
 			}
 		}
 		catch(MessagingException | UnsupportedEncodingException | InterruptedException | RequestFailedException e){
@@ -140,9 +164,13 @@ public class NotificationService{
 	private void notifyMediaAdded(@NotNull UserGroupEntity userGroupEntity, @NotNull GetMetadataResponse metadata, @NotNull GetMetadataResponse rootMetadata) throws NotifyException{
 		try{
 			log.info("Notifying {} has been added to {}", metadata, userGroupEntity);
-			switch(userGroupEntity.getNotificationType()){
-				case MAIL -> mailNotificationService.notifyMediaAdded(userGroupEntity, metadata, rootMetadata);
-				case DISCORD_THREAD -> discordThreadNotificationService.notifyMediaAdded(userGroupEntity, metadata, rootMetadata);
+			var notification = userGroupEntity.getNotificationMediaAdded();
+			if(Objects.isNull(notification)){
+				return;
+			}
+			switch(notification.getType()){
+				case MAIL -> mailNotificationService.notifyMediaAdded(notification, userGroupEntity, metadata, rootMetadata);
+				case DISCORD_THREAD -> discordThreadNotificationService.notifyMediaAdded(notification, userGroupEntity, metadata, rootMetadata);
 			}
 		}
 		catch(MessagingException | UnsupportedEncodingException | RequestFailedException | InterruptedException e){
