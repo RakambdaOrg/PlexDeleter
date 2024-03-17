@@ -88,7 +88,7 @@ public class MediaService{
 			else if(mediaEntity.getAvailablePartsCount() >= mediaEntity.getPartsCount()){
 				if(!mediaEntity.getAvailability().isAvailable()){
 					mediaEntity.setAvailability(MediaAvailability.DOWNLOADED);
-					log.info("Marked mediaOptional {} as finished", mediaEntity);
+					log.info("Marked media {} as finished", mediaEntity);
 					notificationService.notifyMediaAvailable(mediaEntity);
 					supervisionService.send("\uD83C\uDD97 Marked %d as downloaded: %s (%d/%d)", mediaEntity.getId(), mediaEntity, mediaEntity.getPartsCount(), mediaEntity.getAvailablePartsCount());
 				}
@@ -106,7 +106,7 @@ public class MediaService{
 	
 	private void updateFromOverseerr(@NotNull MediaEntity mediaEntity) throws UpdateException, RequestFailedException{
 		if(Objects.isNull(mediaEntity.getOverseerrId())){
-			log.warn("Cannot update mediaOptional {} as it does not seem to be in Overseerr", mediaEntity);
+			log.warn("Cannot update media {} as it does not seem to be in Overseerr", mediaEntity);
 			return;
 		}
 		var mediaDetails = overseerrService.getMediaDetails(mediaEntity.getOverseerrId(), mediaEntity.getType().getOverseerrType());
@@ -149,7 +149,7 @@ public class MediaService{
 	
 	private void updateFromTautulli(@NotNull MediaEntity mediaEntity) throws RequestFailedException{
 		if(Objects.isNull(mediaEntity.getPlexId())){
-			log.warn("Cannot update mediaOptional {} as it does not seem to be in Plex/Tautulli", mediaEntity);
+			log.warn("Cannot update media {} as it does not seem to be in Plex/Tautulli", mediaEntity);
 			return;
 		}
 		var availablePartsCount = tautulliService.getElementsRatingKeys(mediaEntity.getPlexId(), mediaEntity.getType()).size();
@@ -161,7 +161,7 @@ public class MediaService{
 	
 	private void updateFromServarr(@NotNull MediaEntity mediaEntity) throws RequestFailedException{
 		if(Objects.isNull(mediaEntity.getServarrId())){
-			log.warn("Cannot update mediaOptional {} as it does not seem to be in Sonarr/Radarr", mediaEntity);
+			log.warn("Cannot update media {} as it does not seem to be in Sonarr/Radarr", mediaEntity);
 			return;
 		}
 		
@@ -298,8 +298,8 @@ public class MediaService{
 				.actionStatus(MediaActionStatus.TO_DELETE)
 				.build();
 		
-		log.info("Creating new mediaOptional {} for Overseerr id {}", media, overseerrId);
-		supervisionService.send("\uD83C\uDD95 Added mediaOptional %s", media);
+		log.info("Creating new media {} for Overseerr id {}", media, overseerrId);
+		supervisionService.send("\uD83C\uDD95 Added media %s", media);
 		return media;
 	}
 }

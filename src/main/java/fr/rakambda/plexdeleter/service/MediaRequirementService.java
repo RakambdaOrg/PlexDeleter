@@ -142,20 +142,30 @@ public class MediaRequirementService{
 	}
 	
 	private void addServarrTag(@NotNull MediaEntity media, @NotNull UserGroupEntity userGroup) throws RequestFailedException{
-		if(Objects.nonNull(media.getServarrId()) && Objects.nonNull(userGroup.getServarrTag())){
-			switch(media.getType()){
-				case MOVIE -> radarrService.addTag(media.getServarrId(), userGroup.getServarrTag());
-				case SEASON -> sonarrService.addTag(media.getServarrId(), userGroup.getServarrTag());
+		try{
+			if(Objects.nonNull(media.getServarrId()) && Objects.nonNull(userGroup.getServarrTag())){
+				switch(media.getType()){
+					case MOVIE -> radarrService.addTag(media.getServarrId(), userGroup.getServarrTag());
+					case SEASON -> sonarrService.addTag(media.getServarrId(), userGroup.getServarrTag());
+				}
 			}
+		}
+		catch(Exception e){
+			log.error("Failed to update tags", e);
 		}
 	}
 	
 	private void removeServarrTag(@NotNull MediaEntity media, @NotNull UserGroupEntity userGroup) throws RequestFailedException{
-		if(Objects.nonNull(media.getServarrId()) && Objects.nonNull(userGroup.getServarrTag())){
-			switch(media.getType()){
-				case MOVIE -> radarrService.removeTag(media.getServarrId(), userGroup.getServarrTag());
-				case SEASON -> sonarrService.removeTag(media.getServarrId(), userGroup.getServarrTag());
+		try{
+			if(Objects.nonNull(media.getServarrId()) && Objects.nonNull(userGroup.getServarrTag())){
+				switch(media.getType()){
+					case MOVIE -> radarrService.removeTag(media.getServarrId(), userGroup.getServarrTag());
+					case SEASON -> sonarrService.removeTag(media.getServarrId(), userGroup.getServarrTag());
+				}
 			}
+		}
+		catch(Exception e){
+			log.error("Failed to update tags", e);
 		}
 	}
 }

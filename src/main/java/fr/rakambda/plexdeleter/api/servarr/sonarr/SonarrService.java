@@ -4,6 +4,7 @@ import fr.rakambda.plexdeleter.api.HttpUtils;
 import fr.rakambda.plexdeleter.api.RequestFailedException;
 import fr.rakambda.plexdeleter.api.servarr.data.PagedResponse;
 import fr.rakambda.plexdeleter.api.servarr.data.Tag;
+import fr.rakambda.plexdeleter.api.servarr.data.UpdateMedia;
 import fr.rakambda.plexdeleter.api.servarr.sonarr.data.Queue;
 import fr.rakambda.plexdeleter.api.servarr.sonarr.data.Series;
 import fr.rakambda.plexdeleter.config.ApplicationConfiguration;
@@ -125,7 +126,7 @@ public class SonarrService{
 				.uri(b -> b.pathSegment("api", "v3", "series", "{mediaId}")
 						.build(mediaId))
 				.contentType(MediaType.APPLICATION_JSON)
-				.body(BodyInserters.fromValue(movie))
+				.body(BodyInserters.fromValue(new UpdateMedia(movie.getPath(), movie.getQualityProfileId(), movie.getTags())))
 				.retrieve()
 				.toBodilessEntity()
 				.blockOptional()
@@ -152,7 +153,7 @@ public class SonarrService{
 				.uri(b -> b.pathSegment("api", "v3", "series", "{mediaId}")
 						.build(mediaId))
 				.contentType(MediaType.APPLICATION_JSON)
-				.body(BodyInserters.fromValue(movie))
+				.body(BodyInserters.fromValue(new UpdateMedia(movie.getPath(), movie.getQualityProfileId(), movie.getTags())))
 				.retrieve()
 				.toBodilessEntity()
 				.blockOptional()
