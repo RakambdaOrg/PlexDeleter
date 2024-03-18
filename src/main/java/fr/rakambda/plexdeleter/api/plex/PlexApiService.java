@@ -20,6 +20,7 @@ public class PlexApiService{
 		apiClient = WebClient.builder()
 				.baseUrl(applicationConfiguration.getPlex().getEndpoint())
 				.defaultHeader(HttpHeaders.ACCEPT, MimeTypeUtils.APPLICATION_JSON_VALUE)
+				.filter(HttpUtils.logErrorFilter())
 				.build();
 	}
 	

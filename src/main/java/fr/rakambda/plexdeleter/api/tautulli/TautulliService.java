@@ -32,14 +32,14 @@ public class TautulliService{
 	public TautulliService(ApplicationConfiguration applicationConfiguration){
 		apiClient = WebClient.builder()
 				.baseUrl(applicationConfiguration.getTautulli().getEndpoint())
-				.filter(ExchangeFilterFunction.ofRequestProcessor(req ->
-						Mono.just(ClientRequest.from(req)
-								.url(UriComponentsBuilder.fromUri(req.url())
-										.queryParam("apikey", applicationConfiguration.getTautulli().getApiKey())
-										.build(true)
-										.toUri())
-								.build())
+				.filter(ExchangeFilterFunction.ofRequestProcessor(req -> Mono.just(ClientRequest.from(req)
+						.url(UriComponentsBuilder.fromUri(req.url())
+								.queryParam("apikey", applicationConfiguration.getTautulli().getApiKey())
+								.build(true)
+								.toUri())
+						.build())
 				))
+				.filter(HttpUtils.logErrorFilter())
 				.build();
 	}
 	

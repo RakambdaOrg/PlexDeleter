@@ -22,6 +22,7 @@ public class OverseerrService{
 		apiClient = WebClient.builder()
 				.baseUrl(applicationConfiguration.getOverseerr().getEndpoint())
 				.defaultHeader("X-Api-Key", applicationConfiguration.getOverseerr().getApiKey())
+				.filter(HttpUtils.logErrorFilter())
 				.build();
 	}
 	

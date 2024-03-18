@@ -32,6 +32,7 @@ public class SonarrService{
 		apiClient = WebClient.builder()
 				.baseUrl(applicationConfiguration.getSonarr().getEndpoint())
 				.defaultHeader("X-Api-Key", applicationConfiguration.getSonarr().getApiKey())
+				.filter(HttpUtils.logErrorFilter())
 				.build();
 	}
 	
@@ -149,11 +150,6 @@ public class SonarrService{
 				.contentType(MediaType.APPLICATION_JSON)
 				.body(BodyInserters.fromValue(media))
 				.retrieve()
-				.onStatus(HttpStatusCode::is4xxClientError, response -> response.bodyToMono(String.class)
-						.handle((body, sink) -> {
-							log.error("Got error with status {} and body {}", response.statusCode(), body);
-							sink.error(new IllegalStateException());
-						}))
 				.toBodilessEntity()
 				.blockOptional()
 				.orElseThrow(() -> new RequestFailedException("Failed to update media with id %d".formatted(mediaId))));
