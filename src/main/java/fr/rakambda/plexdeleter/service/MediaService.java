@@ -109,41 +109,46 @@ public class MediaService{
 			log.warn("Cannot update media {} as it does not seem to be in Overseerr", mediaEntity);
 			return;
 		}
-		var mediaDetails = overseerrService.getMediaDetails(mediaEntity.getOverseerrId(), mediaEntity.getType().getOverseerrType());
-		
-		Optional.ofNullable(mediaDetails.getMediaInfo())
-				.map(MediaInfo::getRatingKey)
-				.flatMap(key -> getActualRatingKey(mediaEntity, key))
-				.ifPresent(mediaEntity::setPlexId);
-		Optional.ofNullable(mediaDetails.getMediaInfo())
-				.map(MediaInfo::getExternalServiceId)
-				.ifPresent(mediaEntity::setServarrId);
-		Optional.ofNullable(mediaDetails.getMediaInfo())
-				.map(MediaInfo::getTvdbId)
-				.ifPresent(mediaEntity::setTvdbId);
-		Optional.ofNullable(mediaDetails.getMediaInfo())
-				.map(MediaInfo::getTmdbId)
-				.ifPresent(mediaEntity::setTmdbId);
-		Optional.ofNullable(mediaDetails.getMediaInfo())
-				.map(MediaInfo::getExternalServiceSlug)
-				.ifPresent(slug -> {
-					switch(mediaEntity.getType()){
-						case MOVIE -> mediaEntity.setRadarrSlug(slug);
-						case SEASON -> mediaEntity.setSonarrSlug(slug);
-					}
-				});
-		
-		var partsCount = switch(mediaDetails){
-			case MovieMedia ignored -> 1;
-			case SeriesMedia seriesMedia -> seriesMedia.getSeasons().stream()
-					.filter(s -> Objects.equals(s.getSeasonNumber(), mediaEntity.getIndex()))
-					.findFirst()
-					.map(fr.rakambda.plexdeleter.api.overseerr.data.Season::getEpisodeCount)
-					.orElse(0);
-			default -> throw new UpdateException("Unexpected value: " + mediaDetails);
-		};
-		if(mediaEntity.getPartsCount() < partsCount){
-			mediaEntity.setPartsCount(partsCount);
+		try{
+			var mediaDetails = overseerrService.getMediaDetails(mediaEntity.getOverseerrId(), mediaEntity.getType().getOverseerrType());
+			
+			Optional.ofNullable(mediaDetails.getMediaInfo())
+					.map(MediaInfo::getRatingKey)
+					.flatMap(key -> getActualRatingKey(mediaEntity, key))
+					.ifPresent(mediaEntity::setPlexId);
+			Optional.ofNullable(mediaDetails.getMediaInfo())
+					.map(MediaInfo::getExternalServiceId)
+					.ifPresent(mediaEntity::setServarrId);
+			Optional.ofNullable(mediaDetails.getMediaInfo())
+					.map(MediaInfo::getTvdbId)
+					.ifPresent(mediaEntity::setTvdbId);
+			Optional.ofNullable(mediaDetails.getMediaInfo())
+					.map(MediaInfo::getTmdbId)
+					.ifPresent(mediaEntity::setTmdbId);
+			Optional.ofNullable(mediaDetails.getMediaInfo())
+					.map(MediaInfo::getExternalServiceSlug)
+					.ifPresent(slug -> {
+						switch(mediaEntity.getType()){
+							case MOVIE -> mediaEntity.setRadarrSlug(slug);
+							case SEASON -> mediaEntity.setSonarrSlug(slug);
+						}
+					});
+			
+			var partsCount = switch(mediaDetails){
+				case MovieMedia ignored -> 1;
+				case SeriesMedia seriesMedia -> seriesMedia.getSeasons().stream()
+						.filter(s -> Objects.equals(s.getSeasonNumber(), mediaEntity.getIndex()))
+						.findFirst()
+						.map(fr.rakambda.plexdeleter.api.overseerr.data.Season::getEpisodeCount)
+						.orElse(0);
+				default -> throw new UpdateException("Unexpected value: " + mediaDetails);
+			};
+			if(mediaEntity.getPartsCount() < partsCount){
+				mediaEntity.setPartsCount(partsCount);
+			}
+		}
+		catch(Exception e){
+			log.error("Failed to update media from Overseerr", e);
 		}
 	}
 	
@@ -152,10 +157,15 @@ public class MediaService{
 			log.warn("Cannot update media {} as it does not seem to be in Plex/Tautulli", mediaEntity);
 			return;
 		}
-		var availablePartsCount = tautulliService.getElementsRatingKeys(mediaEntity.getPlexId(), mediaEntity.getType()).size();
-		
-		if(mediaEntity.getAvailablePartsCount() < availablePartsCount){
-			mediaEntity.setAvailablePartsCount(availablePartsCount);
+		try{
+			var availablePartsCount = tautulliService.getElementsRatingKeys(mediaEntity.getPlexId(), mediaEntity.getType()).size();
+			
+			if(mediaEntity.getAvailablePartsCount() < availablePartsCount){
+				mediaEntity.setAvailablePartsCount(availablePartsCount);
+			}
+		}
+		catch(Exception e){
+			log.error("Failed to update media from Tautulli", e);
 		}
 	}
 	
@@ -165,36 +175,41 @@ public class MediaService{
 			return;
 		}
 		
-		Optional<Integer> partsCount = Optional.empty();
-		Optional<Integer> availablePartsCount = Optional.empty();
-		
-		switch(mediaEntity.getType()){
-			case MOVIE -> {
-				partsCount = Optional.of(1);
-				var movie = radarrService.getMovie(mediaEntity.getServarrId());
-				availablePartsCount = Optional.of(movie.isHasFile() ? 1 : 0);
-				Optional.ofNullable(movie.getTmdbId()).ifPresent(mediaEntity::setTmdbId);
-				Optional.ofNullable(movie.getTitleSlug()).ifPresent(mediaEntity::setRadarrSlug);
+		try{
+			Optional<Integer> partsCount = Optional.empty();
+			Optional<Integer> availablePartsCount = Optional.empty();
+			
+			switch(mediaEntity.getType()){
+				case MOVIE -> {
+					partsCount = Optional.of(1);
+					var movie = radarrService.getMovie(mediaEntity.getServarrId());
+					availablePartsCount = Optional.of(movie.isHasFile() ? 1 : 0);
+					Optional.ofNullable(movie.getTmdbId()).ifPresent(mediaEntity::setTmdbId);
+					Optional.ofNullable(movie.getTitleSlug()).ifPresent(mediaEntity::setRadarrSlug);
+				}
+				case SEASON -> {
+					var series = sonarrService.getSeries(mediaEntity.getServarrId());
+					var stats = series.getSeasons().stream()
+							.filter(f -> Objects.equals(f.getSeasonNumber(), mediaEntity.getIndex()))
+							.findFirst()
+							.map(Season::getStatistics);
+					Optional.ofNullable(series.getTvdbId()).ifPresent(mediaEntity::setTvdbId);
+					Optional.ofNullable(series.getTitleSlug()).ifPresent(mediaEntity::setSonarrSlug);
+					partsCount = stats.map(Statistics::getTotalEpisodeCount);
+					availablePartsCount = stats.map(Statistics::getEpisodeFileCount);
+				}
 			}
-			case SEASON -> {
-				var series = sonarrService.getSeries(mediaEntity.getServarrId());
-				var stats = series.getSeasons().stream()
-						.filter(f -> Objects.equals(f.getSeasonNumber(), mediaEntity.getIndex()))
-						.findFirst()
-						.map(Season::getStatistics);
-				Optional.ofNullable(series.getTvdbId()).ifPresent(mediaEntity::setTvdbId);
-				Optional.ofNullable(series.getTitleSlug()).ifPresent(mediaEntity::setSonarrSlug);
-				partsCount = stats.map(Statistics::getTotalEpisodeCount);
-				availablePartsCount = stats.map(Statistics::getEpisodeFileCount);
-			}
+			
+			partsCount
+					.filter(v -> mediaEntity.getPartsCount() < v)
+					.ifPresent(mediaEntity::setPartsCount);
+			availablePartsCount
+					.filter(v -> mediaEntity.getAvailablePartsCount() < v)
+					.ifPresent(mediaEntity::setAvailablePartsCount);
 		}
-		
-		partsCount
-				.filter(v -> mediaEntity.getPartsCount() < v)
-				.ifPresent(mediaEntity::setPartsCount);
-		availablePartsCount
-				.filter(v -> mediaEntity.getAvailablePartsCount() < v)
-				.ifPresent(mediaEntity::setAvailablePartsCount);
+		catch(Exception e){
+			log.error("Failed to update media from Servarr", e);
+		}
 	}
 	
 	@NotNull
