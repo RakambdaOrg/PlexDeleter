@@ -21,13 +21,13 @@ import java.util.Objects;
 @Service
 public class NotificationService{
 	private final MailNotificationService mailNotificationService;
-	private final DiscordThreadNotificationService discordThreadNotificationService;
+	private final DiscordNotificationService discordNotificationService;
 	private final UserGroupRepository userGroupRepository;
 	
 	@Autowired
-	public NotificationService(MailNotificationService mailNotificationService, DiscordThreadNotificationService discordThreadNotificationService, UserGroupRepository userGroupRepository){
+	public NotificationService(MailNotificationService mailNotificationService, DiscordNotificationService discordNotificationService, UserGroupRepository userGroupRepository){
 		this.mailNotificationService = mailNotificationService;
-		this.discordThreadNotificationService = discordThreadNotificationService;
+		this.discordNotificationService = discordNotificationService;
 		this.userGroupRepository = userGroupRepository;
 	}
 	
@@ -43,7 +43,7 @@ public class NotificationService{
 			}
 			switch(notification.getType()){
 				case MAIL -> mailNotificationService.notifyWatchlist(notification, userGroupEntity, requirements);
-				case DISCORD_THREAD -> discordThreadNotificationService.notifyWatchlist(notification, userGroupEntity, requirements);
+				case DISCORD, DISCORD_THREAD -> discordNotificationService.notifyWatchlist(notification, userGroupEntity, requirements);
 			}
 		}
 		catch(MessagingException | UnsupportedEncodingException | InterruptedException | RequestFailedException e){
@@ -60,7 +60,7 @@ public class NotificationService{
 			}
 			switch(notification.getType()){
 				case MAIL -> mailNotificationService.notifyRequirementAdded(notification, userGroupEntity, media);
-				case DISCORD_THREAD -> discordThreadNotificationService.notifyRequirementAdded(notification, userGroupEntity, media);
+				case DISCORD, DISCORD_THREAD -> discordNotificationService.notifyRequirementAdded(notification, userGroupEntity, media);
 			}
 		}
 		catch(MessagingException | UnsupportedEncodingException | InterruptedException | RequestFailedException e){
@@ -85,7 +85,7 @@ public class NotificationService{
 			}
 			switch(notification.getType()){
 				case MAIL -> mailNotificationService.notifyMediaAvailable(notification, userGroupEntity, media);
-				case DISCORD_THREAD -> discordThreadNotificationService.notifyMediaAvailable(notification, userGroupEntity, media);
+				case DISCORD, DISCORD_THREAD -> discordNotificationService.notifyMediaAvailable(notification, userGroupEntity, media);
 			}
 		}
 		catch(MessagingException | UnsupportedEncodingException | InterruptedException | RequestFailedException e){
@@ -102,7 +102,7 @@ public class NotificationService{
 			}
 			switch(notification.getType()){
 				case MAIL -> mailNotificationService.notifyMediaDeleted(notification, userGroupEntity, media);
-				case DISCORD_THREAD -> discordThreadNotificationService.notifyMediaDeleted(notification, userGroupEntity, media);
+				case DISCORD, DISCORD_THREAD -> discordNotificationService.notifyMediaDeleted(notification, userGroupEntity, media);
 			}
 		}
 		catch(MessagingException | UnsupportedEncodingException | InterruptedException | RequestFailedException e){
@@ -119,7 +119,7 @@ public class NotificationService{
 			}
 			switch(notification.getType()){
 				case MAIL -> mailNotificationService.notifyRequirementManuallyWatched(notification, userGroupEntity, media);
-				case DISCORD_THREAD -> discordThreadNotificationService.notifyRequirementManuallyWatched(notification, userGroupEntity, media);
+				case DISCORD, DISCORD_THREAD -> discordNotificationService.notifyRequirementManuallyWatched(notification, userGroupEntity, media);
 			}
 		}
 		catch(MessagingException | UnsupportedEncodingException | InterruptedException | RequestFailedException e){
@@ -136,7 +136,7 @@ public class NotificationService{
 			}
 			switch(notification.getType()){
 				case MAIL -> mailNotificationService.notifyRequirementManuallyAbandoned(notification, userGroupEntity, media);
-				case DISCORD_THREAD -> discordThreadNotificationService.notifyRequirementManuallyAbandoned(notification, userGroupEntity, media);
+				case DISCORD, DISCORD_THREAD -> discordNotificationService.notifyRequirementManuallyAbandoned(notification, userGroupEntity, media);
 			}
 		}
 		catch(MessagingException | UnsupportedEncodingException | InterruptedException | RequestFailedException e){
@@ -171,7 +171,7 @@ public class NotificationService{
 			}
 			switch(notification.getType()){
 				case MAIL -> mailNotificationService.notifyMediaAdded(notification, userGroupEntity, metadata, rootMetadata);
-				case DISCORD_THREAD -> discordThreadNotificationService.notifyMediaAdded(notification, userGroupEntity, metadata, rootMetadata);
+				case DISCORD, DISCORD_THREAD -> discordNotificationService.notifyMediaAdded(notification, userGroupEntity, metadata, rootMetadata);
 			}
 		}
 		catch(MessagingException | UnsupportedEncodingException | RequestFailedException | InterruptedException e){

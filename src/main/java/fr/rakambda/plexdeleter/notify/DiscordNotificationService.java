@@ -15,10 +15,12 @@ import fr.rakambda.plexdeleter.storage.entity.MediaAvailability;
 import fr.rakambda.plexdeleter.storage.entity.MediaEntity;
 import fr.rakambda.plexdeleter.storage.entity.MediaRequirementEntity;
 import fr.rakambda.plexdeleter.storage.entity.NotificationEntity;
+import fr.rakambda.plexdeleter.storage.entity.NotificationType;
 import fr.rakambda.plexdeleter.storage.entity.UserGroupEntity;
 import jakarta.mail.MessagingException;
 import lombok.SneakyThrows;
 import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.MessageSource;
 import org.springframework.stereotype.Service;
@@ -36,7 +38,7 @@ import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 @Service
-public class DiscordThreadNotificationService extends AbstractNotificationService{
+public class DiscordNotificationService extends AbstractNotificationService{
 	private static final int FLAG_SUPPRESS_EMBEDS = 1 << 2;
 	
 	private final DiscordWebhookService discordWebhookService;
@@ -45,7 +47,7 @@ public class DiscordThreadNotificationService extends AbstractNotificationServic
 	private final String overseerrEndpoint;
 	
 	@Autowired
-	public DiscordThreadNotificationService(DiscordWebhookService discordWebhookService, ApplicationConfiguration applicationConfiguration, MessageSource messageSource, WatchService watchService){
+	public DiscordNotificationService(DiscordWebhookService discordWebhookService, ApplicationConfiguration applicationConfiguration, MessageSource messageSource, WatchService watchService){
 		super(watchService);
 		this.discordWebhookService = discordWebhookService;
 		this.messageSource = messageSource;
@@ -78,12 +80,20 @@ public class DiscordThreadNotificationService extends AbstractNotificationServic
 			return;
 		}
 		
-		var threadId = Optional.ofNullable(discordWebhookService.sendWebhookMessage(discordUrl, WebhookMessage.builder()
-								.threadName(messageSource.getMessage("discord.watchlist.subject", new Object[0], locale))
-								.content("<@%s>".formatted(discordUserId))
-								.build())
-						.getChannelId())
-				.orElseThrow(() -> new RequestFailedException("Couldn't get new thread channel id"));
+		var threadId = switch(notification.getType()){
+			case DISCORD_THREAD -> Optional.ofNullable(discordWebhookService.sendWebhookMessage(discordUrl, WebhookMessage.builder()
+									.threadName(messageSource.getMessage("discord.watchlist.subject", new Object[0], locale))
+									.content("<@%s>".formatted(discordUserId))
+									.build())
+							.getChannelId())
+					.orElseThrow(() -> new RequestFailedException("Couldn't get new thread channel id"));
+			default -> {
+				discordWebhookService.sendWebhookMessage(discordUrl, WebhookMessage.builder()
+						.content("<@%s>\n%s".formatted(discordUserId, messageSource.getMessage("discord.watchlist.subject", new Object[0], locale)))
+						.build());
+				yield null;
+			}
+		};
 		
 		if(!availableMedia.isEmpty()){
 			writeWatchlistSection(discordUrl, threadId, "discord.watchlist.body.header.available", locale, userGroupEntity, availableMedia);
@@ -159,8 +169,7 @@ public class DiscordThreadNotificationService extends AbstractNotificationServic
 				.flatMap(code -> getLanguageName(code, locale))
 				.toList();
 		
-		discordWebhookService.sendWebhookMessage(discordUrl, WebhookMessage.builder()
-				.threadName(messageSource.getMessage("discord.media.added.subject", new Object[0], locale))
+		var messageBuilder = WebhookMessage.builder()
 				.content("<@%s>".formatted(discordUserId))
 				.embeds(List.of(Embed.builder()
 						.title(metadata.getFullTitle())
@@ -196,8 +205,13 @@ public class DiscordThreadNotificationService extends AbstractNotificationServic
 								.name(messageSource.getMessage("discord.media.available.body.subtitles", new Object[0], locale))
 								.value(String.join(", ", subtitleLanguages))
 								.build())
-						.build()))
-				.build());
+						.build()));
+		
+		if(notification.getType() == NotificationType.DISCORD_THREAD){
+			messageBuilder = messageBuilder.threadName(messageSource.getMessage("discord.media.added.subject", new Object[0], locale));
+		}
+		
+		discordWebhookService.sendWebhookMessage(discordUrl, messageBuilder.build());
 	}
 	
 	private void notifySimple(@NotNull NotificationEntity notification, @NotNull UserGroupEntity userGroupEntity, @NotNull MediaEntity media, @NotNull String subjectKey) throws RequestFailedException, InterruptedException{
@@ -206,13 +220,17 @@ public class DiscordThreadNotificationService extends AbstractNotificationServic
 		var discordUserId = params[0];
 		var discordUrl = params[1];
 		
-		discordWebhookService.sendWebhookMessage(discordUrl, WebhookMessage.builder()
-				.threadName(messageSource.getMessage(subjectKey, new Object[0], locale))
-				.content("<@%s>\n%s".formatted(discordUserId, getWatchlistMediaText(userGroupEntity, media, locale)))
-				.build());
+		var messageBuilder = WebhookMessage.builder()
+				.content("<@%s>\n%s".formatted(discordUserId, getWatchlistMediaText(userGroupEntity, media, locale)));
+		
+		if(notification.getType() == NotificationType.DISCORD_THREAD){
+			messageBuilder = messageBuilder.threadName(messageSource.getMessage(subjectKey, new Object[0], locale));
+		}
+		
+		discordWebhookService.sendWebhookMessage(discordUrl, messageBuilder.build());
 	}
 	
-	private void writeWatchlistSection(@NotNull String discordUrl, long threadId, @NotNull String sectionHeaderCode, @NotNull Locale locale, @NotNull UserGroupEntity userGroupEntity, @NotNull Collection<MediaEntity> medias) throws RequestFailedException, InterruptedException{
+	private void writeWatchlistSection(@NotNull String discordUrl, @Nullable Long threadId, @NotNull String sectionHeaderCode, @NotNull Locale locale, @NotNull UserGroupEntity userGroupEntity, @NotNull Collection<MediaEntity> medias) throws RequestFailedException, InterruptedException{
 		discordWebhookService.sendWebhookMessage(discordUrl, threadId, WebhookMessage.builder().content("# %s\n".formatted(messageSource.getMessage(sectionHeaderCode, new Object[0], locale))).build());
 		var messages = medias.stream()
 				.sorted(MediaEntity.COMPARATOR_BY_TYPE_THEN_NAME)

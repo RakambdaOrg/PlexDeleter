@@ -64,10 +64,8 @@ public final class HttpUtils{
 	public static ExchangeFilterFunction logErrorFilter(){
 		return ExchangeFilterFunction.ofResponseProcessor(response -> {
 			if(response.statusCode().isError()){
-				response.bodyToMono(String.class).handle((body, sink) -> {
-					log.error("Got error with status {} and body {}", response.statusCode(), body);
-					sink.error(new IllegalStateException());
-				});
+				return response.bodyToMono(String.class)
+						.flatMap(body -> Mono.error(new RequestFailedException("Got an error status", body)));
 			}
 			return Mono.just(response);
 		});

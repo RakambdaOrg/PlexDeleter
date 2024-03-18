@@ -39,7 +39,7 @@ public class TautulliService{
 								.toUri())
 						.build())
 				))
-				.filter(HttpUtils.logErrorFilter())
+				// .filter(HttpUtils.logErrorFilter())
 				.build();
 	}
 	

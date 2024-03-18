@@ -12,4 +12,8 @@ public class RequestFailedException extends ApiException{
 	public RequestFailedException(String message, Throwable cause){
 		super(message, cause);
 	}
+	
+	public RequestFailedException(String message, String body){
+		super("%s\nBody: %s".formatted(message, body));
+	}
 }
