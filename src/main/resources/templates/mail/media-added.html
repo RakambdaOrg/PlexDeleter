@@ -6,46 +6,38 @@
 </head>
 <body>
 <div class="container text-center">
-    <div class="row">
-        <div class="col">
+    <div class="d-flex flex-column justify-content-center">
+        <div>
             <img th:src="${mediaPosterUrl}" class="img-fluid rounded" alt="Media poster">
         </div>
-    </div>
-    <div class="row">
-        <div class="col">
+        <div>
             <h2 th:text="${mediaTitle}"></h2>
             <h3 th:if="${mediaSeason}" th:text="${mediaSeason}"></h3>
         </div>
-    </div>
-    <div class="row" th:unless="${#strings.isEmpty(mediaSummary)}">
-        <div class="col">
+        <div>
             <p th:text="${mediaSummary}"></p>
         </div>
-    </div>
-    <div class="row mb-4">
-    </div>
-    <div class="row">
-        <div class="col border-1 border-primary border-start border-end" th:unless="${#strings.isEmpty(mediaReleaseDate)}">
+        <div class="mb-2" th:unless="${#strings.isEmpty(mediaReleaseDate)}">
             <h4 class="text-primary" th:text="#{mail.media.available.body.release-date}"/>
             <div th:text="${mediaReleaseDate}"/>
         </div>
-        <div class="col border-1 border-primary border-start border-end" th:unless="${#lists.isEmpty(mediaActors)}">
+        <div class="mb-2" th:unless="${#lists.isEmpty(mediaActors)}">
             <h4 class="text-primary" th:text="#{mail.media.available.body.actors}"></h4>
             <div th:each="mediaActor : ${mediaActors}" th:text="${mediaActor}"/>
         </div>
-        <div class="col border-1 border-primary border-start border-end" th:unless="${#lists.isEmpty(mediaGenres)}">
+        <div class="mb-2" th:unless="${#lists.isEmpty(mediaGenres)}">
             <h4 class="text-primary" th:text="#{mail.media.available.body.genres}"></h4>
             <div th:each="mediaGenre : ${mediaGenres}" th:text="${mediaGenre}"/>
         </div>
-        <div class="col border-1 border-primary border-start border-end" th:unless="${#strings.isEmpty(mediaDuration)}">
+        <div class="mb-2" th:unless="${#strings.isEmpty(mediaDuration)}">
             <h4 class="text-primary" th:text="#{mail.media.available.body.length}"/>
             <div th:text="${mediaDuration}"/>
         </div>
-        <div class="col border-1 border-primary border-start border-end" th:unless="${#lists.isEmpty(mediaAudios)}">
+        <div class="mb-2" th:unless="${#lists.isEmpty(mediaAudios)}">
             <h4 class="text-primary" th:text="#{mail.media.available.body.audios}"></h4>
             <div th:each="mediaAudio : ${mediaAudios}" th:text="${mediaAudio}"/>
         </div>
-        <div class="col border-1 border-primary border-start border-end" th:unless="${#lists.isEmpty(mediaSubtitles)}">
+        <div class="mb-2" th:unless="${#lists.isEmpty(mediaSubtitles)}">
             <h4 class="text-primary" th:text="#{mail.media.available.body.subtitles}"></h4>
             <div th:each="mediaSubtitle : ${mediaSubtitles}" th:text="${mediaSubtitle}"/>
         </div>

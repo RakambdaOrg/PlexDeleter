@@ -9,6 +9,7 @@ import fr.rakambda.plexdeleter.storage.entity.MediaEntity;
 import fr.rakambda.plexdeleter.storage.entity.UserGroupEntity;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
+import java.time.Duration;
 import java.time.format.DateTimeFormatter;
 import java.util.Collection;
 import java.util.HashMap;
@@ -84,5 +85,15 @@ public abstract class AbstractNotificationService{
 			case MOVIE -> "mail.watchlist.body.media.movie";
 			case SEASON -> "mail.watchlist.body.media.series";
 		};
+	}
+	
+	@NotNull
+	public String getMediaDuration(@NotNull Duration duration){
+		var hours = duration.toHoursPart();
+		var minutes = duration.toMinutesPart();
+		if(hours <= 0){
+			return "%dM".formatted(minutes);
+		}
+		return "%dH%dM".formatted(hours, minutes);
 	}
 }

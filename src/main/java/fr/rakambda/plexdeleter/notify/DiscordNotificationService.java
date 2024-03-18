@@ -195,7 +195,7 @@ public class DiscordNotificationService extends AbstractNotificationService{
 								.build())
 						.field(Field.builder()
 								.name(messageSource.getMessage("discord.media.available.body.length", new Object[0], locale))
-								.value(Duration.ofMillis(metadata.getDuration()).toString().replace("PT", ""))
+								.value(getMediaDuration(Duration.ofMillis(metadata.getDuration())))
 								.build())
 						.field(Field.builder()
 								.name(messageSource.getMessage("discord.media.available.body.audios", new Object[0], locale))

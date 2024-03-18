@@ -142,7 +142,7 @@ public class MailNotificationService extends AbstractNotificationService{
 		context.setVariable("mediaReleaseDate", releaseDate);
 		context.setVariable("mediaActors", metadata.getActors());
 		context.setVariable("mediaGenres", metadata.getGenres());
-		context.setVariable("mediaDuration", Duration.ofMillis(metadata.getDuration()).toString().replace("PT", ""));
+		context.setVariable("mediaDuration", getMediaDuration(Duration.ofMillis(metadata.getDuration())));
 		context.setVariable("mediaPosterUrl", mediaPoster);
 		context.setVariable("mediaAudios", audioLanguages);
 		context.setVariable("mediaSubtitles", subtitleLanguages);
