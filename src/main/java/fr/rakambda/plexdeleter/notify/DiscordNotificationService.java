@@ -169,43 +169,56 @@ public class DiscordNotificationService extends AbstractNotificationService{
 				.flatMap(code -> getLanguageName(code, locale))
 				.toList();
 		
+		var embed = Embed.builder()
+				.title(metadata.getFullTitle())
+				.description(mediaSeason)
+				.image(Image.builder()
+						.url(mediaPoster)
+						.build());
+		
+		Optional.ofNullable(metadata.getSummary())
+				.filter(s -> !s.isBlank())
+				.ifPresent(s -> embed.field(Field.builder()
+						.name(messageSource.getMessage("discord.media.available.body.summary", new Object[0], locale))
+						.value(metadata.getSummary())
+						.build()));
+		Optional.ofNullable(releaseDate)
+				.ifPresent(s -> embed.field(Field.builder()
+						.name(messageSource.getMessage("discord.media.available.body.release-date", new Object[0], locale))
+						.value(releaseDate)
+						.build()));
+		if(!metadata.getActors().isEmpty()){
+			embed.field(Field.builder()
+					.name(messageSource.getMessage("discord.media.available.body.actors", new Object[0], locale))
+					.value(metadata.getActors().stream().limit(5).collect(Collectors.joining(", ")))
+					.build());
+		}
+		if(!metadata.getActors().isEmpty()){
+			embed.field(Field.builder()
+					.name(messageSource.getMessage("discord.media.available.body.genres", new Object[0], locale))
+					.value(String.join(", ", metadata.getGenres()))
+					.build());
+		}
+		embed.field(Field.builder()
+				.name(messageSource.getMessage("discord.media.available.body.length", new Object[0], locale))
+				.value(getMediaDuration(Duration.ofMillis(metadata.getDuration())))
+				.build());
+		if(!audioLanguages.isEmpty()){
+			embed.field(Field.builder()
+					.name(messageSource.getMessage("discord.media.available.body.audios", new Object[0], locale))
+					.value(String.join(", ", audioLanguages))
+					.build());
+		}
+		if(!subtitleLanguages.isEmpty()){
+			embed.field(Field.builder()
+					.name(messageSource.getMessage("discord.media.available.body.subtitles", new Object[0], locale))
+					.value(String.join(", ", subtitleLanguages))
+					.build());
+		}
+		
 		var messageBuilder = WebhookMessage.builder()
 				.content("<@%s>".formatted(discordUserId))
-				.embeds(List.of(Embed.builder()
-						.title(metadata.getFullTitle())
-						.description(mediaSeason)
-						.image(Image.builder()
-								.url(mediaPoster)
-								.build())
-						.field(Field.builder()
-								.name(messageSource.getMessage("discord.media.available.body.summary", new Object[0], locale))
-								.value(metadata.getSummary())
-								.build())
-						.field(Field.builder()
-								.name(messageSource.getMessage("discord.media.available.body.release-date", new Object[0], locale))
-								.value(releaseDate)
-								.build())
-						.field(Field.builder()
-								.name(messageSource.getMessage("discord.media.available.body.actors", new Object[0], locale))
-								.value(metadata.getActors().stream().limit(5).collect(Collectors.joining(", ")))
-								.build())
-						.field(Field.builder()
-								.name(messageSource.getMessage("discord.media.available.body.genres", new Object[0], locale))
-								.value(String.join(", ", metadata.getGenres()))
-								.build())
-						.field(Field.builder()
-								.name(messageSource.getMessage("discord.media.available.body.length", new Object[0], locale))
-								.value(getMediaDuration(Duration.ofMillis(metadata.getDuration())))
-								.build())
-						.field(Field.builder()
-								.name(messageSource.getMessage("discord.media.available.body.audios", new Object[0], locale))
-								.value(String.join(", ", audioLanguages))
-								.build())
-						.field(Field.builder()
-								.name(messageSource.getMessage("discord.media.available.body.subtitles", new Object[0], locale))
-								.value(String.join(", ", subtitleLanguages))
-								.build())
-						.build()));
+				.embeds(List.of(embed.build()));
 		
 		if(notification.getType() == NotificationType.DISCORD_THREAD){
 			messageBuilder = messageBuilder.threadName(messageSource.getMessage("discord.media.added.subject", new Object[0], locale));
