@@ -4,7 +4,6 @@ import fr.rakambda.plexdeleter.api.HttpUtils;
 import fr.rakambda.plexdeleter.api.RequestFailedException;
 import fr.rakambda.plexdeleter.api.servarr.data.PagedResponse;
 import fr.rakambda.plexdeleter.api.servarr.data.Tag;
-import fr.rakambda.plexdeleter.api.servarr.data.UpdateMedia;
 import fr.rakambda.plexdeleter.api.servarr.sonarr.data.Queue;
 import fr.rakambda.plexdeleter.api.servarr.sonarr.data.Series;
 import fr.rakambda.plexdeleter.config.ApplicationConfiguration;
@@ -120,9 +119,9 @@ public class SonarrService{
 	}
 	
 	public void addTag(int mediaId, int tagId) throws RequestFailedException{
-		var movie = getSeries(mediaId);
-		movie.getTags().add(tagId);
-		updateSeries(mediaId, new UpdateMedia(movie.getPath(), movie.getQualityProfileId(), movie.getTags()));
+		var series = getSeries(mediaId);
+		series.getTags().add(tagId);
+		updateSeries(mediaId, series);
 	}
 	
 	public void removeTag(int mediaId, @NotNull String tagName) throws RequestFailedException{
@@ -138,12 +137,12 @@ public class SonarrService{
 	}
 	
 	public void removeTag(int mediaId, int tagId) throws RequestFailedException{
-		var movie = getSeries(mediaId);
-		movie.getTags().remove(tagId);
-		updateSeries(mediaId, new UpdateMedia(movie.getPath(), movie.getQualityProfileId(), movie.getTags()));
+		var series = getSeries(mediaId);
+		series.getTags().remove(tagId);
+		updateSeries(mediaId, series);
 	}
 	
-	private void updateSeries(int mediaId, @NotNull UpdateMedia media) throws RequestFailedException{
+	private void updateSeries(int mediaId, @NotNull Series media) throws RequestFailedException{
 		HttpUtils.requireStatusOk(apiClient.put()
 				.uri(b -> b.pathSegment("api", "v3", "series", "{mediaId}")
 						.build(mediaId))

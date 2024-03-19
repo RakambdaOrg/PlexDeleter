@@ -4,7 +4,6 @@ import fr.rakambda.plexdeleter.api.HttpUtils;
 import fr.rakambda.plexdeleter.api.RequestFailedException;
 import fr.rakambda.plexdeleter.api.servarr.data.PagedResponse;
 import fr.rakambda.plexdeleter.api.servarr.data.Tag;
-import fr.rakambda.plexdeleter.api.servarr.data.UpdateMedia;
 import fr.rakambda.plexdeleter.api.servarr.radarr.data.Movie;
 import fr.rakambda.plexdeleter.api.servarr.radarr.data.Queue;
 import fr.rakambda.plexdeleter.config.ApplicationConfiguration;
@@ -120,7 +119,7 @@ public class RadarrService{
 	public void addTag(int mediaId, int tagId) throws RequestFailedException{
 		var movie = getMovie(mediaId);
 		movie.getTags().add(tagId);
-		updateMovie(mediaId, new UpdateMedia(movie.getPath(), movie.getQualityProfileId(), movie.getTags()));
+		updateMovie(mediaId, movie);
 	}
 	
 	public void removeTag(int mediaId, @NotNull String tagName) throws RequestFailedException{
@@ -138,10 +137,10 @@ public class RadarrService{
 	public void removeTag(int mediaId, int tagId) throws RequestFailedException{
 		var movie = getMovie(mediaId);
 		movie.getTags().remove(tagId);
-		updateMovie(mediaId, new UpdateMedia(movie.getPath(), movie.getQualityProfileId(), movie.getTags()));
+		updateMovie(mediaId, movie);
 	}
 	
-	private void updateMovie(int mediaId, @NotNull UpdateMedia media) throws RequestFailedException{
+	private void updateMovie(int mediaId, Movie media) throws RequestFailedException{
 		HttpUtils.requireStatusOk(apiClient.put()
 				.uri(b -> b.pathSegment("api", "v3", "movie", "{mediaId}")
 						.build(mediaId))
