@@ -140,7 +140,7 @@ public class RadarrService{
 		updateMovie(mediaId, movie);
 	}
 	
-	private void updateMovie(int mediaId, Movie media) throws RequestFailedException{
+	private void updateMovie(int mediaId, @NotNull Movie media) throws RequestFailedException{
 		HttpUtils.requireStatusOk(apiClient.put()
 				.uri(b -> b.pathSegment("api", "v3", "movie", "{mediaId}")
 						.build(mediaId))
