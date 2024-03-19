@@ -126,7 +126,7 @@ public class DiscordNotificationService extends AbstractNotificationService{
 		notifySimple(notification, userGroupEntity, media, "discord.requirement.manually-abandoned.subject");
 	}
 	
-	public void notifyMediaAdded(@NotNull NotificationEntity notification, @NotNull UserGroupEntity userGroupEntity, @NotNull GetMetadataResponse metadata, @NotNull GetMetadataResponse rootMetadata) throws RequestFailedException, InterruptedException{
+	public void notifyMediaAdded(@NotNull NotificationEntity notification, @NotNull UserGroupEntity userGroupEntity, @NotNull GetMetadataResponse metadata, @NotNull GetMetadataResponse rootMetadata, boolean ping) throws RequestFailedException, InterruptedException{
 		var locale = userGroupEntity.getLocaleAsObject();
 		var params = notification.getValue().split(",");
 		var discordUserId = params[0];
@@ -217,8 +217,11 @@ public class DiscordNotificationService extends AbstractNotificationService{
 		}
 		
 		var messageBuilder = WebhookMessage.builder()
-				.content("<@%s>".formatted(discordUserId))
 				.embeds(List.of(embed.build()));
+		
+		if(ping){
+			messageBuilder = messageBuilder.content("<@%s>".formatted(discordUserId));
+		}
 		
 		if(notification.getType() == NotificationType.DISCORD_THREAD){
 			messageBuilder = messageBuilder.threadName(messageSource.getMessage("discord.media.added.subject", new Object[0], locale));

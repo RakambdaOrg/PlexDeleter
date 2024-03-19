@@ -156,13 +156,20 @@ public class NotificationService{
 			return;
 		}
 		
-		var userGroups = userGroupRepository.findAllByHasRequirementOnPlexOrWatchesLibrary(ratingKey, MediaRequirementStatus.WAITING, metadata.getLibraryName());
-		for(var userGroup : userGroups){
-			notifyMediaAdded(userGroup, metadata, rootMetadata);
+		var userGroupsRequirement = userGroupRepository.findAllByHasRequirementOnPlex(ratingKey, MediaRequirementStatus.WAITING);
+		for(var userGroup : userGroupsRequirement){
+			notifyMediaAdded(userGroup, metadata, rootMetadata, true);
+		}
+		var userGroupsLibrary = userGroupRepository.findAllByWatchesLibrary(metadata.getLibraryName());
+		for(var userGroup : userGroupsLibrary){
+			if(userGroupsRequirement.contains(userGroup)){
+				continue;
+			}
+			notifyMediaAdded(userGroup, metadata, rootMetadata, false);
 		}
 	}
 	
-	private void notifyMediaAdded(@NotNull UserGroupEntity userGroupEntity, @NotNull GetMetadataResponse metadata, @NotNull GetMetadataResponse rootMetadata) throws NotifyException{
+	private void notifyMediaAdded(@NotNull UserGroupEntity userGroupEntity, @NotNull GetMetadataResponse metadata, @NotNull GetMetadataResponse rootMetadata, boolean ping) throws NotifyException{
 		try{
 			log.info("Notifying {} has been added to {}", metadata, userGroupEntity);
 			var notification = userGroupEntity.getNotificationMediaAdded();
@@ -171,7 +178,7 @@ public class NotificationService{
 			}
 			switch(notification.getType()){
 				case MAIL -> mailNotificationService.notifyMediaAdded(notification, userGroupEntity, metadata, rootMetadata);
-				case DISCORD, DISCORD_THREAD -> discordNotificationService.notifyMediaAdded(notification, userGroupEntity, metadata, rootMetadata);
+				case DISCORD, DISCORD_THREAD -> discordNotificationService.notifyMediaAdded(notification, userGroupEntity, metadata, rootMetadata, ping);
 			}
 		}
 		catch(MessagingException | UnsupportedEncodingException | RequestFailedException | InterruptedException e){
