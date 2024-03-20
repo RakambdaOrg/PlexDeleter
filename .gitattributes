@@ -1,1 +1,2 @@
-*.sql eof=lf
+*.sql   eof=lf
+gradlew eof=lf
