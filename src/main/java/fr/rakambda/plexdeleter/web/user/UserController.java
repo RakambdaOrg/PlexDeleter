@@ -1,7 +1,10 @@
 package fr.rakambda.plexdeleter.web.user;
 
 import fr.rakambda.plexdeleter.security.PlexUser;
-import fr.rakambda.plexdeleter.service.UserService;
+import fr.rakambda.plexdeleter.service.ThymeleafService;
+import fr.rakambda.plexdeleter.storage.entity.MediaRequirementEntity;
+import fr.rakambda.plexdeleter.storage.entity.MediaRequirementStatus;
+import fr.rakambda.plexdeleter.storage.repository.MediaRequirementRepository;
 import fr.rakambda.plexdeleter.storage.repository.UserPersonRepository;
 import lombok.extern.slf4j.Slf4j;
 import org.jetbrains.annotations.NotNull;
@@ -17,13 +20,15 @@ import java.util.Optional;
 @RestController
 @RequestMapping("/user")
 public class UserController{
-	private final UserService userService;
 	private final UserPersonRepository userPersonRepository;
+	private final MediaRequirementRepository mediaRequirementRepository;
+	private final ThymeleafService thymeleafService;
 	
 	@Autowired
-	public UserController(UserService userService, UserPersonRepository userPersonRepository){
-		this.userService = userService;
+	public UserController(UserPersonRepository userPersonRepository, MediaRequirementRepository mediaRequirementRepository, ThymeleafService thymeleafService){
 		this.userPersonRepository = userPersonRepository;
+		this.mediaRequirementRepository = mediaRequirementRepository;
+		this.thymeleafService = thymeleafService;
 	}
 	
 	@GetMapping(value = "/home")
@@ -37,9 +42,13 @@ public class UserController{
 		var userPerson = userPersonRepository.findByPlexId(plexId)
 				.orElseThrow(() -> new IllegalStateException("Could not find user with Plex id %d".formatted(plexId)));
 		
+		var requirements = mediaRequirementRepository.findAllByIdGroupIdAndStatusIs(userPerson.getGroupId(), MediaRequirementStatus.WAITING).stream()
+				.sorted(MediaRequirementEntity.COMPARATOR_BY_MEDIA)
+				.toList();
+		
 		var mav = new ModelAndView("user/home");
-		mav.addObject("requirements", userService.getUserRequirements(userPerson));
-		mav.addObject("userService", userService);
+		mav.addObject("requirements", requirements);
+		mav.addObject("thymeleafService", thymeleafService);
 		return mav;
 	}
 }

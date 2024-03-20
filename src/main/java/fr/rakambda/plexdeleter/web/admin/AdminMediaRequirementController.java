@@ -1,7 +1,7 @@
 package fr.rakambda.plexdeleter.web.admin;
 
 import fr.rakambda.plexdeleter.service.AdminService;
-import fr.rakambda.plexdeleter.service.UserService;
+import fr.rakambda.plexdeleter.service.ThymeleafService;
 import fr.rakambda.plexdeleter.storage.entity.MediaActionStatus;
 import fr.rakambda.plexdeleter.storage.repository.MediaRepository;
 import fr.rakambda.plexdeleter.storage.repository.UserGroupRepository;
@@ -17,15 +17,15 @@ import java.util.Set;
 public class AdminMediaRequirementController{
 	private final AdminService adminService;
 	private final UserGroupRepository userGroupRepository;
-	private final UserService userService;
 	private final MediaRepository mediaRepository;
+	private final ThymeleafService thymeleafService;
 	
 	@Autowired
-	public AdminMediaRequirementController(AdminService adminService, UserGroupRepository userGroupRepository, UserService userService, MediaRepository mediaRepository){
+	public AdminMediaRequirementController(AdminService adminService, UserGroupRepository userGroupRepository, MediaRepository mediaRepository, ThymeleafService thymeleafService){
 		this.adminService = adminService;
 		this.userGroupRepository = userGroupRepository;
-		this.userService = userService;
 		this.mediaRepository = mediaRepository;
+		this.thymeleafService = thymeleafService;
 	}
 	
 	@GetMapping("/add")
@@ -40,7 +40,7 @@ public class AdminMediaRequirementController{
 	public ModelAndView list(){
 		var mav = new ModelAndView("admin/media-requirement/list");
 		mav.addObject("requirements", adminService.getMediaRequirementsThatCanBeCompleted());
-		mav.addObject("userService", userService);
+		mav.addObject("thymeleafService", thymeleafService);
 		return mav;
 	}
 }
