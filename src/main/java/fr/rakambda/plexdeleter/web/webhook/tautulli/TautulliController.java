@@ -55,7 +55,7 @@ public class TautulliController{
 		switch(data.getType()){
 			case "watched" -> updateRequirement(data);
 			case "added" -> {
-				// updateMedia(data);
+				updateMedia(data);
 				notifyMedia(data);
 			}
 		}
