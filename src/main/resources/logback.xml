@@ -6,7 +6,7 @@
 
     <appender name="STDOUT" class="ConsoleAppender">
         <encoder class="PatternLayoutEncoder">
-            <pattern>%d{HH:mm:ss.SSS,UTC} [%thread] %-5level [%X{guild_name}] %logger{1} - %msg%n</pattern>
+            <pattern>%highlight(%d{HH:mm:ss.SSS,UTC} [%thread] %-5level [%X{guild_name}] %logger{1} - %msg)%n</pattern>
         </encoder>
     </appender>
 
