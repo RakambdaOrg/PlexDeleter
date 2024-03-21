@@ -71,7 +71,7 @@ public class TautulliController{
 			return;
 		}
 		var ratingKey = switch(data.getMediaType()){
-			case "movie" -> data.getRatingKey();
+			case "movie", "show" -> data.getRatingKey();
 			case "episode" -> data.getParentRatingKey();
 			default -> null;
 		};
@@ -105,7 +105,7 @@ public class TautulliController{
 	
 	private void updateMedia(@NotNull TautulliWebhook data) throws RequestFailedException, UpdateException, NotifyException{
 		var ratingKey = switch(Objects.requireNonNull(data.getMediaType())){
-			case "movie", "season" -> data.getRatingKey();
+			case "movie", "season", "show" -> data.getRatingKey();
 			case "episode" -> data.getParentRatingKey();
 			default -> null;
 		};
@@ -135,7 +135,7 @@ public class TautulliController{
 		
 		var rootRatingKey = switch(Objects.requireNonNull(data.getMediaType())){
 			case "movie" -> data.getRatingKey();
-			case "season" -> data.getParentRatingKey();
+			case "season", "show" -> data.getParentRatingKey();
 			case "episode" -> data.getGrandparentRatingKey();
 			default -> null;
 		};
