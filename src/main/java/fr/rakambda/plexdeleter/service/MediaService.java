@@ -226,7 +226,8 @@ public class MediaService{
 		}
 	}
 	
-	public void deleteMedia(@NotNull MediaEntity media, boolean deleteFromServices) throws NotifyException, RequestFailedException{
+	@NotNull
+	public DeleteMediaResponse deleteMedia(@NotNull MediaEntity media, boolean deleteFromServices) throws NotifyException, RequestFailedException{
 		mediaOperationLock.lock();
 		try{
 			var groups = media.getRequirements().stream()
@@ -234,38 +235,59 @@ public class MediaService{
 					.toList();
 			
 			if(media.getRequirements().stream().map(MediaRequirementEntity::getStatus).anyMatch(r -> !r.isCompleted())){
-				return;
+				return new DeleteMediaResponse(false, false, false);
 			}
 			
-			deleteMediaFromExternalServices(media, deleteFromServices);
+			var deletedServarr = false;
+			var deletedOverseerr = false;
+			
+			if(deleteFromServices){
+				deletedServarr = deleteMediaFromServarr(media);
+				deletedOverseerr = deleteMediaRequestsFromOverseerr(media);
+			}
 			mediaRepository.delete(media);
 			
 			for(var group : groups){
 				notificationService.notifyMediaDeleted(group, media);
 			}
 			supervisionService.send("\uD83D\uDCDB Media deleted from database %s", media);
+			
+			return new DeleteMediaResponse(true, deletedServarr, deletedOverseerr);
 		}
 		finally{
 			mediaOperationLock.unlock();
 		}
 	}
 	
-	private void deleteMediaFromExternalServices(@NotNull MediaEntity media, boolean deleteFromServices) throws RequestFailedException{
-		log.info("Deleting media from external services {}", media);
-		if(deleteFromServices
-				&& media.getAvailablePartsCount() <= 0
-				&& media.getRequirements().stream().map(MediaRequirementEntity::getStatus).allMatch(MediaRequirementStatus::isCompleted)){
-			if(Objects.nonNull(media.getServarrId())){
-				switch(media.getType()){
-					case MOVIE -> radarrService.delete(media.getServarrId());
-					case SEASON -> sonarrService.delete(media.getServarrId());
-				}
-			}
-			
-			if(Objects.nonNull(media.getOverseerrId())){
-				overseerrService.deleteRequestForMedia(media.getOverseerrId());
-			}
+	private boolean deleteMediaFromServarr(@NotNull MediaEntity media) throws RequestFailedException{
+		if(Objects.isNull(media.getServarrId())){
+			return false;
 		}
+		if(media.getAvailablePartsCount() > 0
+				|| !media.getRequirements().stream().map(MediaRequirementEntity::getStatus).allMatch(MediaRequirementStatus::isCompleted)){
+			return false;
+		}
+		
+		log.info("Deleting media from Servarr {}", media);
+		switch(media.getType()){
+			case MOVIE -> radarrService.delete(media.getServarrId());
+			case SEASON -> sonarrService.delete(media.getServarrId());
+		}
+		return true;
+	}
+	
+	private boolean deleteMediaRequestsFromOverseerr(@NotNull MediaEntity media){
+		if(Objects.isNull(media.getOverseerrId())){
+			return false;
+		}
+		if(media.getAvailablePartsCount() > 0
+				|| !media.getRequirements().stream().map(MediaRequirementEntity::getStatus).allMatch(MediaRequirementStatus::isCompleted)){
+			return false;
+		}
+		
+		log.info("Deleting media from Overseerr {}", media);
+		overseerrService.deleteRequestForMedia(media.getOverseerrId());
+		return true;
 	}
 	
 	@NotNull

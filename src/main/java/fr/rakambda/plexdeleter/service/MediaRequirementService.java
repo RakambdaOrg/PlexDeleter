@@ -77,8 +77,10 @@ public class MediaRequirementService{
 			requirement.setStatus(MediaRequirementStatus.ABANDONED);
 			mediaRequirementRepository.save(requirement);
 			
-			mediaService.deleteMedia(media, true);
-			removeServarrTag(media, group);
+			var deletionResult = mediaService.deleteMedia(media, true);
+			if(!deletionResult.deletedServarr()){
+				removeServarrTag(media, group);
+			}
 			
 			notificationService.notifyRequirementManuallyAbandoned(group, media);
 			supervisionService.send("✍\uFE0F\uD83D\uDE48 Media manually abandoned %s for %s", media, group);

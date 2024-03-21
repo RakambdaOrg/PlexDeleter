@@ -49,7 +49,7 @@ public class SonarrService{
 	
 	@NotNull
 	public Collection<Tag> getTags() throws RequestFailedException{
-		log.info("Getting Radarr tags");
+		log.info("Getting Sonarr tags");
 		return HttpUtils.unwrapIfStatusOkAndNotNullBody(apiClient.get()
 				.uri(b -> b.pathSegment("api", "v3", "tag")
 						.build())
