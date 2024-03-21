@@ -36,7 +36,7 @@
             <td th:text="#{${media.getAvailability().getLocalizationKey()}}"></td>
             <td>
                 <div th:if="${media.getOverseerrId()}" class="d-flex flex-row justify-content-center align-items-center col-auto">
-                    <a th:href="${userService.getMediaOverseerrUrl(media)}" th:target="_blank">
+                    <a th:href="${thymeleafService.getMediaOverseerrUrl(media)}" th:target="_blank">
                         <svg class="m-1" height="20" width="20">
                             <image th:xlink:href="@{~/static/overseerr.svg}" height="20" width="20"/>
                         </svg>
