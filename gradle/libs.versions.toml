@@ -1,6 +1,6 @@
 [versions]
 jetbrains-annotations-version = "24.1.0"
-unirest-version = "4.2.7"
+unirest-version = "4.2.9"
 
 names-version = "0.51.0"
 sptringboot-version = "3.2.3"
