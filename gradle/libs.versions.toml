@@ -3,7 +3,7 @@ jetbrains-annotations-version = "24.1.0"
 unirest-version = "4.2.7"
 
 names-version = "0.51.0"
-sptringboot-version = "3.2.3"
+sptringboot-version = "3.2.4"
 sptringboot-dm-version = "1.1.4"
 graalvm-version = "0.9.28"
 
