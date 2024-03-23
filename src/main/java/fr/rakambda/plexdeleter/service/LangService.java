@@ -9,6 +9,7 @@ import java.util.Locale;
 import java.util.Map;
 import java.util.Objects;
 import java.util.Optional;
+import java.util.function.Consumer;
 import java.util.stream.Stream;
 
 @Service
@@ -17,9 +18,18 @@ public class LangService{
 	
 	public LangService(){
 		this.languages = new HashMap<>();
-		for(var locale : Locale.getAvailableLocales()){
-			this.languages.put(locale.getISO3Language(), locale);
-		}
+		
+		Consumer<Locale> addLanguage = locale -> this.languages.put(locale.getISO3Language(), locale);
+		
+		addLanguage.accept(new Locale.Builder().setLanguage("ara").build());
+		addLanguage.accept(Locale.GERMAN);
+		addLanguage.accept(Locale.ENGLISH);
+		addLanguage.accept(Locale.FRENCH);
+		addLanguage.accept(Locale.ITALIAN);
+		addLanguage.accept(Locale.JAPANESE);
+		addLanguage.accept(new Locale.Builder().setLanguage("por").build());
+		addLanguage.accept(new Locale.Builder().setLanguage("rus").build());
+		addLanguage.accept(new Locale.Builder().setLanguage("spa").build());
 	}
 	
 	@NotNull
