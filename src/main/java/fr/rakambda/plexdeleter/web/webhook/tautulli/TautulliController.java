@@ -132,19 +132,6 @@ public class TautulliController{
 		}
 		
 		var metadata = tautulliService.getMetadata(ratingKey).getResponse().getData();
-		
-		var rootRatingKey = switch(Objects.requireNonNull(data.getMediaType())){
-			case "movie" -> data.getRatingKey();
-			case "season", "show" -> data.getParentRatingKey();
-			case "episode" -> data.getGrandparentRatingKey();
-			default -> null;
-		};
-		if(Objects.isNull(rootRatingKey)){
-			log.warn("Not notifying any media, could not determine root rating key from {}", data);
-			return;
-		}
-		var rootMetadata = tautulliService.getMetadata(rootRatingKey).getResponse().getData();
-		
-		notificationService.notifyMediaAdded(metadata, rootMetadata);
+		notificationService.notifyMediaAdded(metadata);
 	}
 }

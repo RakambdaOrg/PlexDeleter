@@ -144,7 +144,7 @@ public class NotificationService{
 		}
 	}
 	
-	public void notifyMediaAdded(@NotNull GetMetadataResponse metadata, @NotNull GetMetadataResponse rootMetadata) throws NotifyException{
+	public void notifyMediaAdded(@NotNull GetMetadataResponse metadata) throws NotifyException{
 		var ratingKey = switch(metadata.getMediaType()){
 			case "movie", "season" -> metadata.getRatingKey();
 			case "episode" -> metadata.getParentRatingKey();
@@ -158,18 +158,18 @@ public class NotificationService{
 		
 		var userGroupsRequirement = userGroupRepository.findAllByHasRequirementOnPlex(ratingKey, MediaRequirementStatus.WAITING);
 		for(var userGroup : userGroupsRequirement){
-			notifyMediaAdded(userGroup, metadata, rootMetadata, true);
+			notifyMediaAdded(userGroup, metadata, true);
 		}
 		var userGroupsLibrary = userGroupRepository.findAllByWatchesLibrary(metadata.getLibraryName());
 		for(var userGroup : userGroupsLibrary){
 			if(userGroupsRequirement.contains(userGroup)){
 				continue;
 			}
-			notifyMediaAdded(userGroup, metadata, rootMetadata, false);
+			notifyMediaAdded(userGroup, metadata, false);
 		}
 	}
 	
-	private void notifyMediaAdded(@NotNull UserGroupEntity userGroupEntity, @NotNull GetMetadataResponse metadata, @NotNull GetMetadataResponse rootMetadata, boolean ping) throws NotifyException{
+	private void notifyMediaAdded(@NotNull UserGroupEntity userGroupEntity, @NotNull GetMetadataResponse metadata, boolean ping) throws NotifyException{
 		try{
 			log.info("Notifying {} has been added to {}", metadata, userGroupEntity);
 			var notification = userGroupEntity.getNotificationMediaAdded();
@@ -177,8 +177,8 @@ public class NotificationService{
 				return;
 			}
 			switch(notification.getType()){
-				case MAIL -> mailNotificationService.notifyMediaAdded(notification, userGroupEntity, metadata, rootMetadata);
-				case DISCORD, DISCORD_THREAD -> discordNotificationService.notifyMediaAdded(notification, userGroupEntity, metadata, rootMetadata, ping);
+				case MAIL -> mailNotificationService.notifyMediaAdded(notification, userGroupEntity, metadata);
+				case DISCORD, DISCORD_THREAD -> discordNotificationService.notifyMediaAdded(notification, userGroupEntity, metadata, ping);
 			}
 		}
 		catch(MessagingException | UnsupportedEncodingException | RequestFailedException | InterruptedException e){

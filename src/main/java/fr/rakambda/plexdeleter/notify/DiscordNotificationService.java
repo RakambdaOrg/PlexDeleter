@@ -2,10 +2,12 @@ package fr.rakambda.plexdeleter.notify;
 
 import fr.rakambda.plexdeleter.api.RequestFailedException;
 import fr.rakambda.plexdeleter.api.discord.DiscordWebhookService;
+import fr.rakambda.plexdeleter.api.discord.data.Attachment;
 import fr.rakambda.plexdeleter.api.discord.data.Embed;
 import fr.rakambda.plexdeleter.api.discord.data.Field;
 import fr.rakambda.plexdeleter.api.discord.data.Image;
 import fr.rakambda.plexdeleter.api.discord.data.WebhookMessage;
+import fr.rakambda.plexdeleter.api.tautulli.TautulliService;
 import fr.rakambda.plexdeleter.api.tautulli.data.AudioMediaPartStream;
 import fr.rakambda.plexdeleter.api.tautulli.data.GetMetadataResponse;
 import fr.rakambda.plexdeleter.api.tautulli.data.SubtitlesMediaPartStream;
@@ -23,11 +25,10 @@ import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.MessageSource;
+import org.springframework.http.MediaType;
 import org.springframework.stereotype.Service;
 import org.thymeleaf.context.Context;
 import java.io.UnsupportedEncodingException;
-import java.net.URLEncoder;
-import java.nio.charset.StandardCharsets;
 import java.time.Duration;
 import java.util.Collection;
 import java.util.List;
@@ -43,15 +44,13 @@ public class DiscordNotificationService extends AbstractNotificationService{
 	
 	private final DiscordWebhookService discordWebhookService;
 	private final MessageSource messageSource;
-	private final String tautulliEndpoint;
 	private final String overseerrEndpoint;
 	
 	@Autowired
-	public DiscordNotificationService(DiscordWebhookService discordWebhookService, ApplicationConfiguration applicationConfiguration, MessageSource messageSource, WatchService watchService){
-		super(watchService);
+	public DiscordNotificationService(DiscordWebhookService discordWebhookService, ApplicationConfiguration applicationConfiguration, MessageSource messageSource, WatchService watchService, TautulliService tautulliService){
+		super(watchService, tautulliService);
 		this.discordWebhookService = discordWebhookService;
 		this.messageSource = messageSource;
-		this.tautulliEndpoint = applicationConfiguration.getTautulli().getEndpoint();
 		this.overseerrEndpoint = applicationConfiguration.getOverseerr().getEndpoint();
 	}
 	
@@ -126,7 +125,7 @@ public class DiscordNotificationService extends AbstractNotificationService{
 		notifySimple(notification, userGroupEntity, media, "discord.requirement.manually-abandoned.subject");
 	}
 	
-	public void notifyMediaAdded(@NotNull NotificationEntity notification, @NotNull UserGroupEntity userGroupEntity, @NotNull GetMetadataResponse metadata, @NotNull GetMetadataResponse rootMetadata, boolean ping) throws RequestFailedException, InterruptedException{
+	public void notifyMediaAdded(@NotNull NotificationEntity notification, @NotNull UserGroupEntity userGroupEntity, @NotNull GetMetadataResponse metadata, boolean ping) throws RequestFailedException, InterruptedException{
 		var locale = userGroupEntity.getLocaleAsObject();
 		var params = notification.getValue().split(",");
 		var discordUserId = params[0];
@@ -154,12 +153,6 @@ public class DiscordNotificationService extends AbstractNotificationService{
 		var releaseDate = Optional.ofNullable(metadata.getOriginallyAvailableAt())
 				.map(DATE_FORMATTER::format)
 				.orElse(null);
-		var mediaPoster = "%s/pms_image_proxy?img=%s&rating_key=%d&width=%d&height=%d&fallback=poster".formatted(
-				tautulliEndpoint,
-				Optional.ofNullable(rootMetadata.getThumb()).map(s -> URLEncoder.encode(s, StandardCharsets.UTF_8)).orElse(""),
-				rootMetadata.getRatingKey(),
-				222,
-				333);
 		var audioLanguages = getMediaStreams(metadata, AudioMediaPartStream.class)
 				.map(AudioMediaPartStream::getAudioLanguageCode)
 				.flatMap(code -> getLanguageName(code, locale))
@@ -169,12 +162,24 @@ public class DiscordNotificationService extends AbstractNotificationService{
 				.flatMap(code -> getLanguageName(code, locale))
 				.toList();
 		
+		var messageBuilder = WebhookMessage.builder();
 		var embed = Embed.builder()
 				.title(metadata.getFullTitle())
-				.description(mediaSeason)
-				.image(Image.builder()
-						.url(mediaPoster)
-						.build());
+				.description(mediaSeason);
+		
+		super.getPosterData(metadata).ifPresent(poster -> {
+			embed.image(Image.builder()
+					.url("attachment://poster.jpg")
+					.build());
+			
+			messageBuilder.attachment(Attachment.builder()
+					.id(0)
+					.description("Poster image")
+					.filename("poster.jpg")
+					.data(poster)
+					.mediaType(MediaType.IMAGE_JPEG)
+					.build());
+		});
 		
 		Optional.ofNullable(metadata.getSummary())
 				.filter(s -> !s.isBlank())
@@ -216,15 +221,14 @@ public class DiscordNotificationService extends AbstractNotificationService{
 					.build());
 		}
 		
-		var messageBuilder = WebhookMessage.builder()
-				.embeds(List.of(embed.build()));
+		messageBuilder.embeds(List.of(embed.build()));
 		
 		if(ping){
-			messageBuilder = messageBuilder.content("<@%s>".formatted(discordUserId));
+			messageBuilder.content("<@%s>".formatted(discordUserId));
 		}
 		
 		if(notification.getType() == NotificationType.DISCORD_THREAD){
-			messageBuilder = messageBuilder.threadName(messageSource.getMessage("discord.media.added.subject", new Object[0], locale));
+			messageBuilder.threadName(messageSource.getMessage("discord.media.added.subject", new Object[0], locale));
 		}
 		
 		discordWebhookService.sendWebhookMessage(discordUrl, messageBuilder.build());

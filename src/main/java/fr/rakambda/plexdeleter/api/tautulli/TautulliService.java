@@ -12,6 +12,7 @@ import fr.rakambda.plexdeleter.storage.entity.MediaType;
 import lombok.extern.slf4j.Slf4j;
 import org.jetbrains.annotations.NotNull;
 import org.springframework.core.ParameterizedTypeReference;
+import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 import org.springframework.web.reactive.function.client.ClientRequest;
 import org.springframework.web.reactive.function.client.ExchangeFilterFunction;
@@ -121,5 +122,21 @@ public class TautulliService{
 				.toEntity(new ParameterizedTypeReference<TautulliResponseWrapper<GetHistoryResponse>>(){})
 				.blockOptional()
 				.orElseThrow(() -> new RequestFailedException("Failed to get metadata with rating key %d".formatted(ratingKey))));
+	}
+	
+	@NotNull
+	public Optional<byte[]> getPosterBytes(int ratingKey, int width, int height){
+		log.info("Getting poster bytes for Plex id {}", ratingKey);
+		return apiClient.get()
+				.uri(b -> b.pathSegment("pms_image_proxy")
+						.queryParam("width", width)
+						.queryParam("height", height)
+						.queryParam("rating_key", ratingKey)
+						.build())
+				.accept(org.springframework.http.MediaType.APPLICATION_OCTET_STREAM)
+				.retrieve()
+				.toEntity(byte[].class)
+				.blockOptional()
+				.map(ResponseEntity::getBody);
 	}
 }

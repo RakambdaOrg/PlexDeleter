@@ -1,12 +1,14 @@
 package fr.rakambda.plexdeleter.notify;
 
 import fr.rakambda.plexdeleter.api.RequestFailedException;
+import fr.rakambda.plexdeleter.api.tautulli.TautulliService;
 import fr.rakambda.plexdeleter.api.tautulli.data.GetMetadataResponse;
 import fr.rakambda.plexdeleter.api.tautulli.data.MediaInfo;
 import fr.rakambda.plexdeleter.api.tautulli.data.MediaPart;
 import fr.rakambda.plexdeleter.service.WatchService;
 import fr.rakambda.plexdeleter.storage.entity.MediaEntity;
 import fr.rakambda.plexdeleter.storage.entity.UserGroupEntity;
+import lombok.extern.slf4j.Slf4j;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import java.time.Duration;
@@ -18,17 +20,22 @@ import java.util.Locale;
 import java.util.Map;
 import java.util.Objects;
 import java.util.Optional;
+import java.util.function.Function;
 import java.util.stream.IntStream;
 import java.util.stream.Stream;
 
+@Slf4j
 public abstract class AbstractNotificationService{
 	protected static final DateTimeFormatter DATE_FORMATTER = DateTimeFormatter.ofPattern("yyyy-MM-dd");
 	
 	private final WatchService watchService;
+	private final TautulliService tautulliService;
+	
 	private final Map<String, Locale> languages;
 	
-	protected AbstractNotificationService(WatchService watchService){
+	protected AbstractNotificationService(WatchService watchService, TautulliService tautulliService){
 		this.watchService = watchService;
+		this.tautulliService = tautulliService;
 		
 		this.languages = new HashMap<>();
 		for(var locale : Locale.getAvailableLocales()){
@@ -95,5 +102,23 @@ public abstract class AbstractNotificationService{
 			return "%dM".formatted(minutes);
 		}
 		return "%dH%dM".formatted(hours, minutes);
+	}
+	
+	@NotNull
+	protected Optional<byte[]> getPosterData(@NotNull GetMetadataResponse metadata){
+		Function<Integer, Optional<byte[]>> posterFunction = ratingKey -> tautulliService.getPosterBytes(ratingKey, 222, 333)
+				.filter(d -> d.length > 0);
+		
+		try{
+			return switch(metadata.getMediaType()){
+				case "episode" -> posterFunction.apply(metadata.getParentRatingKey()).or(() -> posterFunction.apply(metadata.getGrandparentRatingKey()));
+				case "season", "show" -> posterFunction.apply(metadata.getRatingKey()).or(() -> posterFunction.apply(metadata.getParentRatingKey()));
+				default -> posterFunction.apply(metadata.getRatingKey());
+			};
+		}
+		catch(Exception e){
+			log.warn("Failed to get poster data for {}", metadata, e);
+			return Optional.empty();
+		}
 	}
 }

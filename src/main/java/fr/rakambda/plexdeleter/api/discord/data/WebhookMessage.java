@@ -9,6 +9,7 @@ import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
+import lombok.Singular;
 import org.springframework.aot.hint.annotation.RegisterReflectionForBinding;
 import java.net.URL;
 import java.util.Collection;
@@ -34,4 +35,7 @@ public class WebhookMessage{
 	private Collection<Embed> embeds;
 	@JsonProperty
 	private Integer flags;
+	@JsonProperty
+	@Singular
+	private Collection<Attachment> attachments;
 }

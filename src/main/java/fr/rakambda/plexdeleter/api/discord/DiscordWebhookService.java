@@ -7,8 +7,12 @@ import fr.rakambda.plexdeleter.api.discord.data.WebhookMessage;
 import lombok.extern.slf4j.Slf4j;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
+import org.springframework.core.io.ByteArrayResource;
 import org.springframework.http.MediaType;
+import org.springframework.http.client.MultipartBodyBuilder;
+import org.springframework.http.client.reactive.ClientHttpRequest;
 import org.springframework.stereotype.Service;
+import org.springframework.web.reactive.function.BodyInserter;
 import org.springframework.web.reactive.function.BodyInserters;
 import org.springframework.web.reactive.function.UnsupportedMediaTypeException;
 import org.springframework.web.reactive.function.client.WebClient;
@@ -45,24 +49,20 @@ public class DiscordWebhookService{
 		var lock = locks.computeIfAbsent(url, key -> new Semaphore(1));
 		lock.acquire();
 		try{
-			log.info("Sending webhook message to discord");
-			return HttpUtils.unwrapIfStatusOkAndNotNullBody(apiClient.post()
-					.uri(url, b -> {
-						b = b.queryParam("wait", true);
-						if(Objects.nonNull(threadId)){
-							b.queryParam("thread_id", threadId);
-						}
-						return b.build();
-					})
-					.contentType(MediaType.APPLICATION_JSON)
-					.body(BodyInserters.fromValue(message))
-					.retrieve()
-					.toEntity(DiscordResponse.class)
-					.retryWhen(Retry.indefinitely()
-							.filter(WebClientResponseException.TooManyRequests.class::isInstance)
-							.doBeforeRetryAsync(signal -> Mono.delay(calculateDelay(signal.failure())).then()))
-					.blockOptional()
-					.orElseThrow(() -> new RequestFailedException("Failed to send discord webhook message %s".formatted(message))));
+			if(!message.getAttachments().isEmpty()){
+				log.info("Sending webhook message to discord as multipart");
+				
+				var multipart = new MultipartBodyBuilder();
+				multipart.part("payload_json", message, MediaType.APPLICATION_JSON);
+				message.getAttachments().forEach(attachment -> multipart
+						.part("files[%d]".formatted(attachment.getId()), new ByteArrayResource(attachment.getData()), attachment.getMediaType())
+						.filename(attachment.getFilename()));
+				
+				return sendWebhookMessageAs(url, threadId, message, MediaType.MULTIPART_FORM_DATA, BodyInserters.fromMultipartData(multipart.build()));
+			}
+			
+			log.info("Sending webhook message to discord as JSON payload");
+			return sendWebhookMessageAs(url, threadId, message, MediaType.APPLICATION_JSON, BodyInserters.fromValue(message));
 		}
 		catch(UnsupportedMediaTypeException e){
 			log.info("Supported media types: {}", e.getSupportedMediaTypes());
@@ -71,6 +71,27 @@ public class DiscordWebhookService{
 		finally{
 			lock.release();
 		}
+	}
+	
+	@NotNull
+	private DiscordResponse sendWebhookMessageAs(@NotNull String url, @Nullable Long threadId, @NotNull WebhookMessage message, @NotNull MediaType mediaType, @NotNull BodyInserter<?, ? super ClientHttpRequest> bodyInserter) throws RequestFailedException{
+		return HttpUtils.unwrapIfStatusOkAndNotNullBody(apiClient.post()
+				.uri(url, b -> {
+					b = b.queryParam("wait", true);
+					if(Objects.nonNull(threadId)){
+						b.queryParam("thread_id", threadId);
+					}
+					return b.build();
+				})
+				.contentType(mediaType)
+				.body(bodyInserter)
+				.retrieve()
+				.toEntity(DiscordResponse.class)
+				.retryWhen(Retry.indefinitely()
+						.filter(WebClientResponseException.TooManyRequests.class::isInstance)
+						.doBeforeRetryAsync(signal -> Mono.delay(calculateDelay(signal.failure())).then()))
+				.blockOptional()
+				.orElseThrow(() -> new RequestFailedException("Failed to send discord webhook message %s".formatted(message))));
 	}
 	
 	@NotNull

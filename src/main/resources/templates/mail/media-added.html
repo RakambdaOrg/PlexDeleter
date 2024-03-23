@@ -7,12 +7,12 @@
 <body>
 <div class="container text-center">
     <div class="d-flex flex-column justify-content-center">
-        <div>
-            <img th:src="${mediaPosterUrl}" class="img-fluid rounded" alt="Media poster">
+        <div th:if="${mediaPosterResourceName}">
+            <img th:src="|cid:${mediaPosterResourceName}|" class="img-fluid rounded" alt="Media poster">
         </div>
         <div>
-            <h2 th:text="${mediaTitle}"></h2>
-            <h3 th:if="${mediaSeason}" th:text="${mediaSeason}"></h3>
+            <h2 class="text-primary" th:text="${mediaTitle}"></h2>
+            <h3 class="text-primary" th:if="${mediaSeason}" th:text="${mediaSeason}"></h3>
         </div>
         <div>
             <p th:text="${mediaSummary}"></p>

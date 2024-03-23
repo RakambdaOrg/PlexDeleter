@@ -1,5 +1,6 @@
 package fr.rakambda.plexdeleter.notify;
 
+import fr.rakambda.plexdeleter.api.tautulli.TautulliService;
 import fr.rakambda.plexdeleter.api.tautulli.data.AudioMediaPartStream;
 import fr.rakambda.plexdeleter.api.tautulli.data.GetMetadataResponse;
 import fr.rakambda.plexdeleter.api.tautulli.data.SubtitlesMediaPartStream;
@@ -15,14 +16,13 @@ import jakarta.mail.MessagingException;
 import org.jetbrains.annotations.NotNull;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.MessageSource;
+import org.springframework.core.io.ByteArrayResource;
 import org.springframework.mail.javamail.JavaMailSender;
 import org.springframework.mail.javamail.MimeMessageHelper;
 import org.springframework.stereotype.Service;
 import org.thymeleaf.context.Context;
 import org.thymeleaf.spring6.SpringTemplateEngine;
 import java.io.UnsupportedEncodingException;
-import java.net.URLEncoder;
-import java.nio.charset.StandardCharsets;
 import java.time.Duration;
 import java.util.Collection;
 import java.util.Objects;
@@ -36,17 +36,15 @@ public class MailNotificationService extends AbstractNotificationService{
 	private final MailConfiguration mailConfiguration;
 	private final MessageSource messageSource;
 	private final SpringTemplateEngine templateEngine;
-	private final String tautulliEndpoint;
 	private final String overseerrEndpoint;
 	
 	@Autowired
-	public MailNotificationService(JavaMailSender emailSender, ApplicationConfiguration applicationConfiguration, MessageSource messageSource, WatchService watchService, SpringTemplateEngine templateEngine){
-		super(watchService);
+	public MailNotificationService(JavaMailSender emailSender, ApplicationConfiguration applicationConfiguration, MessageSource messageSource, WatchService watchService, SpringTemplateEngine templateEngine, TautulliService tautulliService){
+		super(watchService, tautulliService);
 		this.emailSender = emailSender;
 		this.messageSource = messageSource;
 		this.mailConfiguration = applicationConfiguration.getMail();
 		this.templateEngine = templateEngine;
-		this.tautulliEndpoint = applicationConfiguration.getTautulli().getEndpoint();
 		this.overseerrEndpoint = applicationConfiguration.getOverseerr().getEndpoint();
 	}
 	
@@ -71,9 +69,10 @@ public class MailNotificationService extends AbstractNotificationService{
 				.filter(m -> Objects.equals(m.getAvailability(), MediaAvailability.WAITING))
 				.toList());
 		
-		sendMail(notification,
-				messageSource.getMessage("mail.watchlist.subject", new Object[0], locale),
-				templateEngine.process("mail/watchlist.html", context));
+		sendMail(notification, message -> {
+			message.setSubject(messageSource.getMessage("mail.watchlist.subject", new Object[0], locale));
+			message.setText(templateEngine.process("mail/watchlist.html", context), true);
+		});
 	}
 	
 	public void notifyRequirementAdded(@NotNull NotificationEntity notification, @NotNull UserGroupEntity userGroupEntity, @NotNull MediaEntity media) throws MessagingException, UnsupportedEncodingException{
@@ -96,7 +95,7 @@ public class MailNotificationService extends AbstractNotificationService{
 		notifySimple(notification, userGroupEntity, media, "mail.requirement.manually-abandoned.subject");
 	}
 	
-	public void notifyMediaAdded(@NotNull NotificationEntity notification, @NotNull UserGroupEntity userGroupEntity, @NotNull GetMetadataResponse metadata, @NotNull GetMetadataResponse rootMetadata) throws MessagingException, UnsupportedEncodingException{
+	public void notifyMediaAdded(@NotNull NotificationEntity notification, @NotNull UserGroupEntity userGroupEntity, @NotNull GetMetadataResponse metadata) throws MessagingException, UnsupportedEncodingException{
 		var locale = userGroupEntity.getLocaleAsObject();
 		
 		var context = new Context();
@@ -121,12 +120,6 @@ public class MailNotificationService extends AbstractNotificationService{
 		var releaseDate = Optional.ofNullable(metadata.getOriginallyAvailableAt())
 				.map(DATE_FORMATTER::format)
 				.orElse(null);
-		var mediaPoster = "%s/pms_image_proxy?img=%s&rating_key=%d&width=%d&height=%d&fallback=poster".formatted(
-				tautulliEndpoint,
-				Optional.ofNullable(rootMetadata.getThumb()).map(s -> URLEncoder.encode(s, StandardCharsets.UTF_8)).orElse(""),
-				rootMetadata.getRatingKey(),
-				222,
-				333);
 		var audioLanguages = getMediaStreams(metadata, AudioMediaPartStream.class)
 				.map(AudioMediaPartStream::getAudioLanguageCode)
 				.flatMap(code -> getLanguageName(code, locale))
@@ -136,6 +129,9 @@ public class MailNotificationService extends AbstractNotificationService{
 				.flatMap(code -> getLanguageName(code, locale))
 				.toList();
 		
+		var posterData = super.getPosterData(metadata);
+		var mediaPosterResourceName = "mediaPosterResourceName";
+		
 		context.setVariable("mediaTitle", metadata.getFullTitle());
 		context.setVariable("mediaSeason", mediaSeason);
 		context.setVariable("mediaSummary", metadata.getSummary());
@@ -143,13 +139,17 @@ public class MailNotificationService extends AbstractNotificationService{
 		context.setVariable("mediaActors", metadata.getActors());
 		context.setVariable("mediaGenres", metadata.getGenres());
 		context.setVariable("mediaDuration", getMediaDuration(Duration.ofMillis(metadata.getDuration())));
-		context.setVariable("mediaPosterUrl", mediaPoster);
+		context.setVariable("mediaPosterResourceName", posterData.isPresent() ? mediaPosterResourceName : null);
 		context.setVariable("mediaAudios", audioLanguages);
 		context.setVariable("mediaSubtitles", subtitleLanguages);
 		
-		sendMail(notification,
-				messageSource.getMessage("mail.media.added.subject", new Object[0], locale),
-				templateEngine.process("mail/media-added.html", context));
+		sendMail(notification, message -> {
+			message.setSubject(messageSource.getMessage("mail.media.added.subject", new Object[0], locale));
+			message.setText(templateEngine.process("mail/media-added.html", context), true);
+			if(posterData.isPresent()){
+				message.addInline(mediaPosterResourceName, new ByteArrayResource(posterData.get(), "Media poster"), "image/jpeg");
+			}
+		});
 	}
 	
 	private void notifySimple(@NotNull NotificationEntity notification, @NotNull UserGroupEntity userGroupEntity, @NotNull MediaEntity media, @NotNull String subjectKey) throws MessagingException, UnsupportedEncodingException{
@@ -162,22 +162,28 @@ public class MailNotificationService extends AbstractNotificationService{
 		context.setVariable("overseerrEndpoint", overseerrEndpoint);
 		context.setVariable("userGroup", userGroupEntity);
 		
-		sendMail(notification,
-				messageSource.getMessage(subjectKey, new Object[0], locale),
-				templateEngine.process("mail/single-media.html", context));
+		sendMail(notification, message -> {
+			message.setSubject(messageSource.getMessage(subjectKey, new Object[0], locale));
+			message.setText(templateEngine.process("mail/single-media.html", context), true);
+		});
 	}
 	
-	private void sendMail(@NotNull NotificationEntity notification, @NotNull String subject, @NotNull String body) throws MessagingException, UnsupportedEncodingException{
-		var mailAddresses = notification.getValue().split(",");
+	private void sendMail(@NotNull NotificationEntity notification, @NotNull MessageFiller messageFiller) throws MessagingException, UnsupportedEncodingException{
 		var mimeMessage = emailSender.createMimeMessage();
 		var mailHelper = new MimeMessageHelper(mimeMessage, true, "utf-8");
+		
 		mailHelper.setFrom(mailConfiguration.getFromAddress(), mailConfiguration.getFromName());
-		mailHelper.setTo(mailAddresses);
+		mailHelper.setTo(notification.getValue().split(","));
 		if(Objects.nonNull(mailConfiguration.getBccAddresses()) && !mailConfiguration.getBccAddresses().isEmpty()){
 			mailHelper.setBcc(mailConfiguration.getBccAddresses().toArray(new String[0]));
 		}
-		mailHelper.setSubject(subject);
-		mailHelper.setText(body, true);
+		
+		messageFiller.accept(mailHelper);
+		
 		emailSender.send(mimeMessage);
+	}
+	
+	private interface MessageFiller{
+		void accept(MimeMessageHelper mimeMessageHelper) throws MessagingException, UnsupportedEncodingException;
 	}
 }
