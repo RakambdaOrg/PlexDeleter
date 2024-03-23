@@ -12,6 +12,7 @@ import fr.rakambda.plexdeleter.api.tautulli.data.AudioMediaPartStream;
 import fr.rakambda.plexdeleter.api.tautulli.data.GetMetadataResponse;
 import fr.rakambda.plexdeleter.api.tautulli.data.SubtitlesMediaPartStream;
 import fr.rakambda.plexdeleter.config.ApplicationConfiguration;
+import fr.rakambda.plexdeleter.service.LangService;
 import fr.rakambda.plexdeleter.service.WatchService;
 import fr.rakambda.plexdeleter.storage.entity.MediaAvailability;
 import fr.rakambda.plexdeleter.storage.entity.MediaEntity;
@@ -43,15 +44,17 @@ public class DiscordNotificationService extends AbstractNotificationService{
 	private static final int FLAG_SUPPRESS_EMBEDS = 1 << 2;
 	
 	private final DiscordWebhookService discordWebhookService;
+	private final LangService langService;
 	private final MessageSource messageSource;
 	private final String overseerrEndpoint;
 	
 	@Autowired
-	public DiscordNotificationService(DiscordWebhookService discordWebhookService, ApplicationConfiguration applicationConfiguration, MessageSource messageSource, WatchService watchService, TautulliService tautulliService){
+	public DiscordNotificationService(DiscordWebhookService discordWebhookService, ApplicationConfiguration applicationConfiguration, MessageSource messageSource, WatchService watchService, TautulliService tautulliService, LangService langService){
 		super(watchService, tautulliService);
 		this.discordWebhookService = discordWebhookService;
 		this.messageSource = messageSource;
 		this.overseerrEndpoint = applicationConfiguration.getOverseerr().getEndpoint();
+		this.langService = langService;
 	}
 	
 	public void notifyWatchlist(@NotNull NotificationEntity notification, @NotNull UserGroupEntity userGroupEntity, @NotNull Collection<MediaRequirementEntity> requirements) throws MessagingException, UnsupportedEncodingException, InterruptedException, RequestFailedException{
@@ -155,11 +158,11 @@ public class DiscordNotificationService extends AbstractNotificationService{
 				.orElse(null);
 		var audioLanguages = getMediaStreams(metadata, AudioMediaPartStream.class)
 				.map(AudioMediaPartStream::getAudioLanguageCode)
-				.flatMap(code -> getLanguageName(code, locale))
+				.flatMap(code -> langService.getLanguageName(code, locale))
 				.toList();
 		var subtitleLanguages = getMediaStreams(metadata, SubtitlesMediaPartStream.class)
 				.map(SubtitlesMediaPartStream::getSubtitleLanguageCode)
-				.flatMap(code -> getLanguageName(code, locale))
+				.flatMap(code -> langService.getLanguageName(code, locale))
 				.toList();
 		
 		var messageBuilder = WebhookMessage.builder();

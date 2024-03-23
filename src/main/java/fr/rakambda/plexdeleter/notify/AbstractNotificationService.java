@@ -10,13 +10,10 @@ import fr.rakambda.plexdeleter.storage.entity.MediaEntity;
 import fr.rakambda.plexdeleter.storage.entity.UserGroupEntity;
 import lombok.extern.slf4j.Slf4j;
 import org.jetbrains.annotations.NotNull;
-import org.jetbrains.annotations.Nullable;
 import java.time.Duration;
 import java.time.format.DateTimeFormatter;
 import java.util.Collection;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Locale;
 import java.util.Map;
 import java.util.Objects;
 import java.util.Optional;
@@ -31,16 +28,9 @@ public abstract class AbstractNotificationService{
 	private final WatchService watchService;
 	private final TautulliService tautulliService;
 	
-	private final Map<String, Locale> languages;
-	
 	protected AbstractNotificationService(WatchService watchService, TautulliService tautulliService){
 		this.watchService = watchService;
 		this.tautulliService = tautulliService;
-		
-		this.languages = new HashMap<>();
-		for(var locale : Locale.getAvailableLocales()){
-			this.languages.put(locale.getISO3Language(), locale);
-		}
 	}
 	
 	@NotNull
@@ -52,16 +42,6 @@ public abstract class AbstractNotificationService{
 				.flatMap(Collection::stream)
 				.filter(klass::isInstance)
 				.map(klass::cast);
-	}
-	
-	@NotNull
-	protected Stream<String> getLanguageName(@Nullable String code, @NotNull Locale locale){
-		if(Objects.isNull(code)){
-			return Stream.empty();
-		}
-		return Stream.of(Optional.ofNullable(languages.get(code))
-				.map(l -> l.getDisplayLanguage(locale))
-				.orElse(code));
 	}
 	
 	@NotNull

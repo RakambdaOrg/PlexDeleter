@@ -6,6 +6,7 @@ import fr.rakambda.plexdeleter.api.tautulli.data.GetMetadataResponse;
 import fr.rakambda.plexdeleter.api.tautulli.data.SubtitlesMediaPartStream;
 import fr.rakambda.plexdeleter.config.ApplicationConfiguration;
 import fr.rakambda.plexdeleter.config.MailConfiguration;
+import fr.rakambda.plexdeleter.service.LangService;
 import fr.rakambda.plexdeleter.service.WatchService;
 import fr.rakambda.plexdeleter.storage.entity.MediaAvailability;
 import fr.rakambda.plexdeleter.storage.entity.MediaEntity;
@@ -36,16 +37,18 @@ public class MailNotificationService extends AbstractNotificationService{
 	private final MailConfiguration mailConfiguration;
 	private final MessageSource messageSource;
 	private final SpringTemplateEngine templateEngine;
+	private final LangService langService;
 	private final String overseerrEndpoint;
 	
 	@Autowired
-	public MailNotificationService(JavaMailSender emailSender, ApplicationConfiguration applicationConfiguration, MessageSource messageSource, WatchService watchService, SpringTemplateEngine templateEngine, TautulliService tautulliService){
+	public MailNotificationService(JavaMailSender emailSender, ApplicationConfiguration applicationConfiguration, MessageSource messageSource, WatchService watchService, SpringTemplateEngine templateEngine, TautulliService tautulliService, LangService langService){
 		super(watchService, tautulliService);
 		this.emailSender = emailSender;
 		this.messageSource = messageSource;
 		this.mailConfiguration = applicationConfiguration.getMail();
 		this.templateEngine = templateEngine;
 		this.overseerrEndpoint = applicationConfiguration.getOverseerr().getEndpoint();
+		this.langService = langService;
 	}
 	
 	public void notifyWatchlist(@NotNull NotificationEntity notification, @NotNull UserGroupEntity userGroupEntity, @NotNull Collection<MediaRequirementEntity> requirements) throws MessagingException, UnsupportedEncodingException{
@@ -122,11 +125,11 @@ public class MailNotificationService extends AbstractNotificationService{
 				.orElse(null);
 		var audioLanguages = getMediaStreams(metadata, AudioMediaPartStream.class)
 				.map(AudioMediaPartStream::getAudioLanguageCode)
-				.flatMap(code -> getLanguageName(code, locale))
+				.flatMap(code -> langService.getLanguageName(code, locale))
 				.toList();
 		var subtitleLanguages = getMediaStreams(metadata, SubtitlesMediaPartStream.class)
 				.map(SubtitlesMediaPartStream::getSubtitleLanguageCode)
-				.flatMap(code -> getLanguageName(code, locale))
+				.flatMap(code -> langService.getLanguageName(code, locale))
 				.toList();
 		
 		var posterData = super.getPosterData(metadata);
