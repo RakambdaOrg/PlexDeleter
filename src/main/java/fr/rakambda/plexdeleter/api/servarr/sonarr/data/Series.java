@@ -29,7 +29,8 @@ public final class Series{
 	private String network;
 	@Nullable
 	private String airTime;
-	private boolean ended;
+	@NotNull
+	private Boolean ended;
 	@NotNull
 	private Set<AlternativeTitle> alternateTitles = new HashSet<>();
 	@NotNull
@@ -44,22 +45,30 @@ public final class Series{
 	private Set<String> genres = new HashSet<>();
 	@NotNull
 	private Set<Integer> tags = new HashSet<>();
-	private int year;
+	@NotNull
+	private Integer year;
 	@NotNull
 	private String path;
 	@NotNull
 	private String rootFolderPath;
 	@Nullable
 	private String certification;
-	private int qualityProfileId;
-	private int languageProfileId;
-	private int id;
-	private boolean seasonFolder;
-	private boolean monitored;
-	private boolean useSceneNumbering;
+	@NotNull
+	private Integer qualityProfileId;
+	@NotNull
+	private Integer languageProfileId;
+	@NotNull
+	private Integer id;
+	@NotNull
+	private Boolean seasonFolder;
+	@NotNull
+	private Boolean monitored;
+	@NotNull
+	private Boolean useSceneNumbering;
 	@NotNull
 	private String monitorNewItems;
-	private int runtime;
+	@NotNull
+	private Integer runtime;
 	@Nullable
 	private Integer tvdbId;
 	@Nullable

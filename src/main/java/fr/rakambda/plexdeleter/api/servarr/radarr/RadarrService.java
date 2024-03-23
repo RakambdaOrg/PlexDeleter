@@ -27,6 +27,7 @@ public class RadarrService{
 	
 	public RadarrService(ApplicationConfiguration applicationConfiguration){
 		apiClient = WebClient.builder()
+				.clientConnector(HttpUtils.wiretapClientConnector(this.getClass()))
 				.baseUrl(applicationConfiguration.getRadarr().getEndpoint())
 				.defaultHeader("X-Api-Key", applicationConfiguration.getRadarr().getApiKey())
 				.filter(HttpUtils.logErrorFilter())
