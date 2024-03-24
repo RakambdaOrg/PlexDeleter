@@ -35,33 +35,35 @@
             <td th:text="${media.getPartsCount()}"></td>
             <td th:text="#{${media.getAvailability().getLocalizationKey()}}"></td>
             <td>
-                <div th:if="${media.getOverseerrId()}" class="d-flex flex-row justify-content-center align-items-center col-auto">
-                    <a th:href="${thymeleafService.getMediaOverseerrUrl(media)}" th:target="_blank">
-                        <svg class="m-1" height="20" width="20">
-                            <image th:xlink:href="@{~/static/overseerr.svg}" height="20" width="20"/>
-                        </svg>
-                    </a>
-                </div>
-                <div th:if="${media.getPlexId()}" class="m-1">
-                    <a title="Radarr" th:href="${thymeleafService.getMediaPlexUrl(media)}" th:target="_blank">
-                        <svg class="m-1" height="20" width="20">
-                            <image th:xlink:href="@{~/static/plex.svg}" height="20" width="20"/>
-                        </svg>
-                    </a>
-                </div>
-                <div th:if="${media.getSonarrSlug()}" class="m-1">
-                    <a title="Sonarr" th:href="${thymeleafService.getMediaSonarrUrl(media)}" th:target="_blank">
-                        <svg class="m-1" height="20" width="20">
-                            <image th:xlink:href="@{~/static/sonarr.svg}" height="20" width="20"/>
-                        </svg>
-                    </a>
-                </div>
-                <div th:if="${media.getRadarrSlug()}" class="m-1">
-                    <a title="Radarr" th:href="${thymeleafService.getMediaRadarrUrl(media)}" th:target="_blank">
-                        <svg class="m-1" height="20" width="20">
-                            <image th:xlink:href="@{~/static/radarr.svg}" height="20" width="20"/>
-                        </svg>
-                    </a>
+                <div class="d-flex flex-row justify-content-center align-items-center">
+                    <div th:if="${media.getOverseerrId()}" class="m-1">
+                        <a th:href="${thymeleafService.getMediaOverseerrUrl(media)}" th:target="_blank">
+                            <svg class="m-1" height="20" width="20">
+                                <image th:xlink:href="@{~/static/overseerr.svg}" height="20" width="20"/>
+                            </svg>
+                        </a>
+                    </div>
+                    <div th:if="${media.getPlexId()}" class="m-1">
+                        <a title="Radarr" th:href="${thymeleafService.getMediaPlexUrl(media)}" th:target="_blank">
+                            <svg class="m-1" height="20" width="20">
+                                <image th:xlink:href="@{~/static/plex.svg}" height="20" width="20"/>
+                            </svg>
+                        </a>
+                    </div>
+                    <div th:if="${media.getSonarrSlug()}" class="m-1">
+                        <a title="Sonarr" th:href="${thymeleafService.getMediaSonarrUrl(media)}" th:target="_blank">
+                            <svg class="m-1" height="20" width="20">
+                                <image th:xlink:href="@{~/static/sonarr.svg}" height="20" width="20"/>
+                            </svg>
+                        </a>
+                    </div>
+                    <div th:if="${media.getRadarrSlug()}" class="m-1">
+                        <a title="Radarr" th:href="${thymeleafService.getMediaRadarrUrl(media)}" th:target="_blank">
+                            <svg class="m-1" height="20" width="20">
+                                <image th:xlink:href="@{~/static/radarr.svg}" height="20" width="20"/>
+                            </svg>
+                        </a>
+                    </div>
                 </div>
             </td>
         </tr>
