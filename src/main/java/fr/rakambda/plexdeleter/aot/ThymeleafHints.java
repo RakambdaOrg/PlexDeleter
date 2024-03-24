@@ -14,6 +14,7 @@ import org.thymeleaf.engine.IterationStatusVar;
 import org.thymeleaf.expression.Lists;
 import org.thymeleaf.expression.Strings;
 import java.util.List;
+import java.util.Locale;
 
 @Slf4j
 public class ThymeleafHints implements RuntimeHintsRegistrar{
@@ -25,8 +26,12 @@ public class ThymeleafHints implements RuntimeHintsRegistrar{
 			hints.reflection().registerMethod(ThymeleafService.class.getMethod("getMediaSonarrUrl", MediaEntity.class), ExecutableMode.INVOKE);
 			hints.reflection().registerMethod(ThymeleafService.class.getMethod("getMediaPlexUrl", MediaEntity.class), ExecutableMode.INVOKE);
 			hints.reflection().registerMethod(ThymeleafService.class.getMethod("getTableColorClass", MediaEntity.class), ExecutableMode.INVOKE);
+			
 			hints.reflection().registerMethod(AbstractNotificationService.class.getMethod("getEpisodes", MediaEntity.class, UserGroupEntity.class), ExecutableMode.INVOKE);
 			hints.reflection().registerMethod(AbstractNotificationService.class.getMethod("getTypeKey", MediaEntity.class), ExecutableMode.INVOKE);
+			
+			hints.reflection().registerMethod(Locale.class.getMethod("getLanguage"), ExecutableMode.INVOKE);
+			
 			hints.reflection().registerMethod(Lists.class.getMethod("isEmpty", List.class), ExecutableMode.INVOKE);
 			hints.reflection().registerMethod(Strings.class.getMethod("isEmpty", Object.class), ExecutableMode.INVOKE);
 			hints.reflection().registerMethod(Strings.class.getMethod("listJoin", List.class, String.class), ExecutableMode.INVOKE);
