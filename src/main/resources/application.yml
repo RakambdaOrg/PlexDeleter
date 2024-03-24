@@ -53,6 +53,8 @@ app:
   exclude-tag: "no-deleter"
   plex:
     endpoint: "https://plex.tv"
+    app-endpoint: "https://app.plex.tv"
+    server-id: "server-id"
   tvdb:
     endpoint: "https://api4.thetvdb.com"
     api-key: "api-key"

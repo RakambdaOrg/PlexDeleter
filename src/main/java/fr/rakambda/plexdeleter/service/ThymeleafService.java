@@ -13,12 +13,16 @@ public class ThymeleafService{
 	private final String overseerrEndpoint;
 	private final String radarrEndpoint;
 	private final String sonarrEndpoint;
+	private final String plexEndpoint;
+	private final String plexServerId;
 	
 	@Autowired
 	public ThymeleafService(ApplicationConfiguration applicationConfiguration){
 		this.overseerrEndpoint = applicationConfiguration.getOverseerr().getEndpoint();
 		this.radarrEndpoint = applicationConfiguration.getRadarr().getEndpoint();
 		this.sonarrEndpoint = applicationConfiguration.getSonarr().getEndpoint();
+		this.plexEndpoint = applicationConfiguration.getPlex().getAppEndpoint();
+		this.plexServerId = applicationConfiguration.getPlex().getServerId();
 	}
 	
 	@Nullable
@@ -39,6 +43,13 @@ public class ThymeleafService{
 	public String getMediaRadarrUrl(@NotNull MediaEntity media){
 		return Optional.ofNullable(media.getRadarrSlug())
 				.map(id -> "%s/movie/%s".formatted(radarrEndpoint, id))
+				.orElse(null);
+	}
+	
+	@Nullable
+	public String getMediaPlexUrl(@NotNull MediaEntity media){
+		return Optional.ofNullable(media.getPlexId())
+				.map(id -> "%s/desktop/#!/server/%s/details?key=%%2Flibrary%%2Fmetadata%%2F%d".formatted(plexEndpoint, plexServerId, id))
 				.orElse(null);
 	}
 	

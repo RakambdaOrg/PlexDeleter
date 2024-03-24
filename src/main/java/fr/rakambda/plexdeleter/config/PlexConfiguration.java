@@ -13,4 +13,10 @@ public class PlexConfiguration{
 	@NotNull
 	@NonNull
 	private String endpoint;
+	@NotNull
+	@NonNull
+	private String appEndpoint;
+	@NotNull
+	@NonNull
+	private String serverId;
 }
