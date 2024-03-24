@@ -42,6 +42,27 @@
                         </svg>
                     </a>
                 </div>
+                <div th:if="${media.getPlexId()}" class="m-1">
+                    <a title="Radarr" th:href="${thymeleafService.getMediaPlexUrl(media)}" th:target="_blank">
+                        <svg class="m-1" height="20" width="20">
+                            <image th:xlink:href="@{~/static/plex.svg}" height="20" width="20"/>
+                        </svg>
+                    </a>
+                </div>
+                <div th:if="${media.getSonarrSlug()}" class="m-1">
+                    <a title="Sonarr" th:href="${thymeleafService.getMediaSonarrUrl(media)}" th:target="_blank">
+                        <svg class="m-1" height="20" width="20">
+                            <image th:xlink:href="@{~/static/sonarr.svg}" height="20" width="20"/>
+                        </svg>
+                    </a>
+                </div>
+                <div th:if="${media.getRadarrSlug()}" class="m-1">
+                    <a title="Radarr" th:href="${thymeleafService.getMediaRadarrUrl(media)}" th:target="_blank">
+                        <svg class="m-1" height="20" width="20">
+                            <image th:xlink:href="@{~/static/radarr.svg}" height="20" width="20"/>
+                        </svg>
+                    </a>
+                </div>
             </td>
         </tr>
         </tbody>
