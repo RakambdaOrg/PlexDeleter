@@ -1,5 +1,7 @@
 package fr.rakambda.plexdeleter.api.servarr.sonarr.data;
 
+import com.fasterxml.jackson.databind.annotation.JsonSerialize;
+import fr.rakambda.plexdeleter.json.InstantAsStringWithoutNanosSerializer;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
@@ -23,5 +25,6 @@ public final class Statistics{
 	@NotNull
 	private Set<String> releaseGroups = new HashSet<>();
 	@Nullable
+	@JsonSerialize(using = InstantAsStringWithoutNanosSerializer.class)
 	private Instant previousAiring;
 }

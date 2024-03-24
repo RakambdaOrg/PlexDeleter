@@ -1,7 +1,9 @@
 package fr.rakambda.plexdeleter.api.servarr.sonarr.data;
 
+import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 import fr.rakambda.plexdeleter.api.servarr.data.Image;
 import fr.rakambda.plexdeleter.api.servarr.data.OriginalLanguage;
+import fr.rakambda.plexdeleter.json.InstantAsStringWithoutNanosSerializer;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
@@ -36,6 +38,7 @@ public final class Series{
 	@NotNull
 	private Set<Image> images = new HashSet<>();
 	@Nullable
+	@JsonSerialize(using = InstantAsStringWithoutNanosSerializer.class)
 	private Instant previousAiring;
 	@NotNull
 	private OriginalLanguage originalLanguage;
@@ -78,10 +81,13 @@ public final class Series{
 	@Nullable
 	private String imdbId;
 	@Nullable
+	@JsonSerialize(using = InstantAsStringWithoutNanosSerializer.class)
 	private Instant firstAired;
 	@Nullable
+	@JsonSerialize(using = InstantAsStringWithoutNanosSerializer.class)
 	private Instant lastAired;
 	@Nullable
+	@JsonSerialize(using = InstantAsStringWithoutNanosSerializer.class)
 	private Instant added;
 	@NotNull
 	private String seriesType;

@@ -1,8 +1,10 @@
 package fr.rakambda.plexdeleter.api.servarr.radarr.data;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
+import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 import fr.rakambda.plexdeleter.api.servarr.data.Image;
 import fr.rakambda.plexdeleter.api.servarr.data.OriginalLanguage;
+import fr.rakambda.plexdeleter.json.InstantAsStringWithoutNanosSerializer;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
@@ -35,10 +37,13 @@ public final class Movie{
 	@NotNull
 	private String overview;
 	@Nullable
+	@JsonSerialize(using = InstantAsStringWithoutNanosSerializer.class)
 	private Instant inCinemas;
 	@Nullable
+	@JsonSerialize(using = InstantAsStringWithoutNanosSerializer.class)
 	private Instant physicalRelease;
 	@Nullable
+	@JsonSerialize(using = InstantAsStringWithoutNanosSerializer.class)
 	private Instant digitalRelease;
 	@NotNull
 	private Set<Image> images = new HashSet<>();
@@ -78,6 +83,7 @@ public final class Movie{
 	@NotNull
 	private Set<Integer> tags = new HashSet<>();
 	@Nullable
+	@JsonSerialize(using = InstantAsStringWithoutNanosSerializer.class)
 	private Instant added;
 	@Nullable
 	private MovieFile movieFile;

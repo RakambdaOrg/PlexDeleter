@@ -3,11 +3,9 @@ package fr.rakambda.plexdeleter.api.discord.data;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonProperty;
-import com.fasterxml.jackson.core.JsonGenerator;
-import com.fasterxml.jackson.databind.SerializerProvider;
 import com.fasterxml.jackson.databind.annotation.JsonSerialize;
-import com.fasterxml.jackson.databind.ser.std.StdSerializer;
 import fr.rakambda.plexdeleter.json.ColorSerializer;
+import fr.rakambda.plexdeleter.json.InstantAsStringSerializer;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
@@ -15,9 +13,7 @@ import lombok.NoArgsConstructor;
 import lombok.Singular;
 import org.springframework.aot.hint.annotation.RegisterReflectionForBinding;
 import java.awt.*;
-import java.io.IOException;
 import java.time.Instant;
-import java.time.format.DateTimeFormatter;
 import java.util.Collection;
 
 @JsonIgnoreProperties(ignoreUnknown = true)
@@ -49,23 +45,6 @@ public class Embed{
 	@JsonProperty("footer")
 	private Footer footer;
 	@JsonProperty("timestamp")
-	@JsonSerialize(using = InstantSerializer.class)
+	@JsonSerialize(using = InstantAsStringSerializer.class)
 	private Instant timestamp;
-	
-	static class InstantSerializer extends StdSerializer<Instant>{
-		private static final DateTimeFormatter DF = DateTimeFormatter.ISO_INSTANT;
-		
-		public InstantSerializer(){
-			this(null);
-		}
-		
-		public InstantSerializer(Class<Instant> t){
-			super(t);
-		}
-		
-		@Override
-		public void serialize(Instant value, JsonGenerator gen, SerializerProvider provider) throws IOException{
-			gen.writeString(DF.format(value));
-		}
-	}
 }

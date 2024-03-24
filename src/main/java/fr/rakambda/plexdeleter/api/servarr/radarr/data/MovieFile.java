@@ -1,5 +1,7 @@
 package fr.rakambda.plexdeleter.api.servarr.radarr.data;
 
+import com.fasterxml.jackson.databind.annotation.JsonSerialize;
+import fr.rakambda.plexdeleter.json.InstantAsStringWithoutNanosSerializer;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
@@ -22,6 +24,7 @@ public final class MovieFile{
 	private String path;
 	private long size;
 	@NotNull
+	@JsonSerialize(using = InstantAsStringWithoutNanosSerializer.class)
 	private Instant dateAdded;
 	private int indexerFlags;
 	private int customFormatScore;
