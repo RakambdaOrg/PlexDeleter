@@ -8,8 +8,14 @@
     </th:block>
     <th:block th:if="${media.getOverseerrId()}">
         <span> | </span>
-        <a th:href="${overseerrEndpoint + '/' + media.getType().getOverseerrType().getValue() + '/' + media.getOverseerrId()}">
+        <a th:href="${thymeleafService.getMediaOverseerrUrl(requirement.getMedia())}">
             <img alt="Overseerr logo" style="max-height: 15px; max-width: 15px;" src="https://raw.githubusercontent.com/sct/overseerr/develop/public/os_logo_filled.png">
+        </a>
+    </th:block>
+    <th:block th:if="${media.getOverseerrId()}">
+        <span> | </span>
+        <a th:href="${thymeleafService.getMediaPlexUrl(requirement.getMedia())}">
+            <img alt="Plex logo" style="max-height: 15px; max-width: 15px;" src="https://plexdeleter.ds920.rakambda.fr/static/plex.svg">
         </a>
     </th:block>
 </th:block>

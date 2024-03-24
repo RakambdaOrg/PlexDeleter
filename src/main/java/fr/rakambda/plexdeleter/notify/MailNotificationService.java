@@ -6,6 +6,7 @@ import fr.rakambda.plexdeleter.config.ApplicationConfiguration;
 import fr.rakambda.plexdeleter.config.MailConfiguration;
 import fr.rakambda.plexdeleter.notify.context.MediaMetadataContext;
 import fr.rakambda.plexdeleter.service.LangService;
+import fr.rakambda.plexdeleter.service.ThymeleafService;
 import fr.rakambda.plexdeleter.service.WatchService;
 import fr.rakambda.plexdeleter.storage.entity.MediaAvailability;
 import fr.rakambda.plexdeleter.storage.entity.MediaEntity;
@@ -35,17 +36,17 @@ public class MailNotificationService extends AbstractNotificationService{
 	private final MessageSource messageSource;
 	private final SpringTemplateEngine templateEngine;
 	private final LangService langService;
-	private final String overseerrEndpoint;
+	private final ThymeleafService thymeleafService;
 	
 	@Autowired
-	public MailNotificationService(JavaMailSender emailSender, ApplicationConfiguration applicationConfiguration, MessageSource messageSource, WatchService watchService, SpringTemplateEngine templateEngine, LangService langService){
+	public MailNotificationService(JavaMailSender emailSender, ApplicationConfiguration applicationConfiguration, MessageSource messageSource, WatchService watchService, SpringTemplateEngine templateEngine, LangService langService, ThymeleafService thymeleafService){
 		super(watchService, messageSource);
 		this.emailSender = emailSender;
 		this.messageSource = messageSource;
 		this.mailConfiguration = applicationConfiguration.getMail();
 		this.templateEngine = templateEngine;
-		this.overseerrEndpoint = applicationConfiguration.getOverseerr().getEndpoint();
 		this.langService = langService;
+		this.thymeleafService = thymeleafService;
 	}
 	
 	public void notifyWatchlist(@NotNull NotificationEntity notification, @NotNull UserGroupEntity userGroupEntity, @NotNull Collection<MediaRequirementEntity> requirements) throws MessagingException, UnsupportedEncodingException{
@@ -54,7 +55,7 @@ public class MailNotificationService extends AbstractNotificationService{
 		context.setLocale(userGroupEntity.getLocaleAsObject());
 		
 		context.setVariable("service", this);
-		context.setVariable("overseerrEndpoint", overseerrEndpoint);
+		context.setVariable("thymeleafService", thymeleafService);
 		context.setVariable("userGroup", userGroupEntity);
 		context.setVariable("availableMedias", requirements.stream()
 				.map(MediaRequirementEntity::getMedia)
@@ -147,7 +148,7 @@ public class MailNotificationService extends AbstractNotificationService{
 		
 		context.setVariable("service", this);
 		context.setVariable("media", media);
-		context.setVariable("overseerrEndpoint", overseerrEndpoint);
+		context.setVariable("thymeleafService", thymeleafService);
 		context.setVariable("userGroup", userGroupEntity);
 		
 		sendMail(notification, message -> {

@@ -12,6 +12,7 @@ import fr.rakambda.plexdeleter.api.tautulli.data.SubtitlesMediaPartStream;
 import fr.rakambda.plexdeleter.config.ApplicationConfiguration;
 import fr.rakambda.plexdeleter.notify.context.MediaMetadataContext;
 import fr.rakambda.plexdeleter.service.LangService;
+import fr.rakambda.plexdeleter.service.ThymeleafService;
 import fr.rakambda.plexdeleter.service.WatchService;
 import fr.rakambda.plexdeleter.storage.entity.MediaAvailability;
 import fr.rakambda.plexdeleter.storage.entity.MediaEntity;
@@ -45,14 +46,16 @@ public class DiscordNotificationService extends AbstractNotificationService{
 	private final LangService langService;
 	private final MessageSource messageSource;
 	private final String overseerrEndpoint;
+	private final ThymeleafService thymeleafService;
 	
 	@Autowired
-	public DiscordNotificationService(DiscordWebhookService discordWebhookService, ApplicationConfiguration applicationConfiguration, MessageSource messageSource, WatchService watchService, LangService langService){
+	public DiscordNotificationService(DiscordWebhookService discordWebhookService, ApplicationConfiguration applicationConfiguration, MessageSource messageSource, WatchService watchService, LangService langService, ThymeleafService thymeleafService){
 		super(watchService, messageSource);
 		this.discordWebhookService = discordWebhookService;
 		this.messageSource = messageSource;
 		this.overseerrEndpoint = applicationConfiguration.getOverseerr().getEndpoint();
 		this.langService = langService;
+		this.thymeleafService = thymeleafService;
 	}
 	
 	public void notifyWatchlist(@NotNull NotificationEntity notification, @NotNull UserGroupEntity userGroupEntity, @NotNull Collection<MediaRequirementEntity> requirements) throws MessagingException, UnsupportedEncodingException, InterruptedException, RequestFailedException{
@@ -268,14 +271,19 @@ public class DiscordNotificationService extends AbstractNotificationService{
 			sb.append(messageSource.getMessage("discord.watchlist.body.media.series.episodes", new Object[]{String.join(", ", episodes)}, locale));
 		}
 		
-		if(Objects.nonNull(media.getOverseerrId())){
+		var overseerrUrl = thymeleafService.getMediaOverseerrUrl(media);
+		if(Objects.nonNull(overseerrUrl)){
 			sb.append(" | ");
 			sb.append("[Overseerr](");
-			sb.append(overseerrEndpoint);
-			sb.append("/");
-			sb.append(media.getType().getOverseerrType().getValue());
-			sb.append("/");
-			sb.append(media.getOverseerrId());
+			sb.append(overseerrUrl);
+			sb.append(")");
+		}
+		
+		var plexUrl = thymeleafService.getMediaPlexUrl(media);
+		if(Objects.nonNull(plexUrl)){
+			sb.append(" | ");
+			sb.append("[Plex](");
+			sb.append(plexUrl);
 			sb.append(")");
 		}
 		
