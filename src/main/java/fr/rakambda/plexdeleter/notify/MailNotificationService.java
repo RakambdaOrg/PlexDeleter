@@ -125,10 +125,12 @@ public class MailNotificationService extends AbstractNotificationService{
 				.orElse(null);
 		var audioLanguages = getMediaStreams(metadata, AudioMediaPartStream.class)
 				.map(AudioMediaPartStream::getAudioLanguageCode)
+				.distinct()
 				.flatMap(code -> langService.getLanguageName(code, locale))
 				.toList();
 		var subtitleLanguages = getMediaStreams(metadata, SubtitlesMediaPartStream.class)
 				.map(SubtitlesMediaPartStream::getSubtitleLanguageCode)
+				.distinct()
 				.flatMap(code -> langService.getLanguageName(code, locale))
 				.toList();
 		
