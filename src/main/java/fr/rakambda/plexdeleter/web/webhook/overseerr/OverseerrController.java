@@ -114,6 +114,7 @@ public class OverseerrController{
 					.map(Extra::getValue)
 					.map(value -> value.split(","))
 					.flatMap(Arrays::stream)
+					.map(String::trim)
 					.map(Integer::parseInt)
 					.toList();
 		};
