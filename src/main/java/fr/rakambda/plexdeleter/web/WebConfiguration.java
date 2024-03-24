@@ -1,5 +1,6 @@
 package fr.rakambda.plexdeleter.web;
 
+import org.springframework.boot.web.servlet.FilterRegistrationBean;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.web.filter.CommonsRequestLoggingFilter;
@@ -42,5 +43,12 @@ public class WebConfiguration implements WebMvcConfigurer{
 		filter.setIncludeHeaders(false);
 		filter.setAfterMessagePrefix("REQUEST DATA: ");
 		return filter;
+	}
+	
+	@Bean
+	public FilterRegistrationBean<CommonsRequestLoggingFilter> loggingFilterRegistration(CommonsRequestLoggingFilter loggingFilter){
+		var registration = new FilterRegistrationBean<>(loggingFilter);
+		registration.addUrlPatterns("/webhook/*");
+		return registration;
 	}
 }
