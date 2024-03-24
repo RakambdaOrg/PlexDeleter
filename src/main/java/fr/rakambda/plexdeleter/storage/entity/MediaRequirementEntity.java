@@ -13,9 +13,11 @@ import jakarta.persistence.Table;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
+import lombok.EqualsAndHashCode;
 import lombok.NoArgsConstructor;
 import lombok.ToString;
 import org.jetbrains.annotations.NotNull;
+import java.io.Serial;
 import java.io.Serializable;
 import java.util.Comparator;
 
@@ -56,7 +58,11 @@ public class MediaRequirementEntity{
 	@Data
 	@NoArgsConstructor
 	@AllArgsConstructor
+	@EqualsAndHashCode
 	public static class TableId implements Serializable{
+		@Serial
+		private static final long serialVersionUID = 6710822541443664746L;
+		
 		@Column(nullable = false)
 		@NotNull
 		private Integer mediaId;
