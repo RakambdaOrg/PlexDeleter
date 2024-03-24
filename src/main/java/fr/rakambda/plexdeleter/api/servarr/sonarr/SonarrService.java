@@ -121,8 +121,9 @@ public class SonarrService{
 	
 	public void addTag(int mediaId, int tagId) throws RequestFailedException{
 		var series = getSeries(mediaId);
-		series.getTags().add(tagId);
-		updateSeries(mediaId, series);
+		if(series.getTags().add(tagId)){
+			updateSeries(mediaId, series);
+		}
 	}
 	
 	public void removeTag(int mediaId, @NotNull String tagName) throws RequestFailedException{
@@ -139,8 +140,9 @@ public class SonarrService{
 	
 	public void removeTag(int mediaId, int tagId) throws RequestFailedException{
 		var series = getSeries(mediaId);
-		series.getTags().remove(tagId);
-		updateSeries(mediaId, series);
+		if(series.getTags().remove(tagId)){
+			updateSeries(mediaId, series);
+		}
 	}
 	
 	private void updateSeries(int mediaId, @NotNull Series media) throws RequestFailedException{

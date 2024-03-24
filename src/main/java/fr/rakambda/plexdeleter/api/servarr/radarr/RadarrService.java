@@ -119,8 +119,9 @@ public class RadarrService{
 	
 	public void addTag(int mediaId, int tagId) throws RequestFailedException{
 		var movie = getMovie(mediaId);
-		movie.getTags().add(tagId);
-		updateMovie(mediaId, movie);
+		if(movie.getTags().add(tagId)){
+			updateMovie(mediaId, movie);
+		}
 	}
 	
 	public void removeTag(int mediaId, @NotNull String tagName) throws RequestFailedException{
@@ -137,8 +138,9 @@ public class RadarrService{
 	
 	public void removeTag(int mediaId, int tagId) throws RequestFailedException{
 		var movie = getMovie(mediaId);
-		movie.getTags().remove(tagId);
-		updateMovie(mediaId, movie);
+		if(movie.getTags().remove(tagId)){
+			updateMovie(mediaId, movie);
+		}
 	}
 	
 	private void updateMovie(int mediaId, @NotNull Movie media) throws RequestFailedException{
