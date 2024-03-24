@@ -6,6 +6,8 @@ import lombok.NoArgsConstructor;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import org.springframework.lang.NonNull;
+import java.util.ArrayList;
+import java.util.List;
 
 @Data
 @NoArgsConstructor
@@ -16,4 +18,6 @@ public class SonarrWebhook{
 	private String eventType;
 	@Nullable
 	private Series series;
+	@NotNull
+	private List<Episode> episodes = new ArrayList<>();
 }

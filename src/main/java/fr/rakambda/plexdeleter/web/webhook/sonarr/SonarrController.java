@@ -44,7 +44,7 @@ public class SonarrController{
 			return;
 		}
 		
-		var maxEpisodePerSeason = series.getEpisodes().stream()
+		var maxEpisodePerSeason = data.getEpisodes().stream()
 				.collect(Collectors.toMap(Episode::getSeasonNumber, Episode::getEpisodeNumber, Math::max));
 		
 		for(var entry : maxEpisodePerSeason.entrySet()){
