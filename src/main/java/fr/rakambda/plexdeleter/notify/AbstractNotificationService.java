@@ -1,7 +1,6 @@
 package fr.rakambda.plexdeleter.notify;
 
 import fr.rakambda.plexdeleter.api.RequestFailedException;
-import fr.rakambda.plexdeleter.api.tautulli.TautulliService;
 import fr.rakambda.plexdeleter.api.tautulli.data.GetMetadataResponse;
 import fr.rakambda.plexdeleter.api.tautulli.data.MediaInfo;
 import fr.rakambda.plexdeleter.api.tautulli.data.MediaPart;
@@ -10,14 +9,17 @@ import fr.rakambda.plexdeleter.storage.entity.MediaEntity;
 import fr.rakambda.plexdeleter.storage.entity.UserGroupEntity;
 import lombok.extern.slf4j.Slf4j;
 import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
+import org.springframework.context.MessageSource;
 import java.time.Duration;
 import java.time.format.DateTimeFormatter;
 import java.util.Collection;
 import java.util.List;
+import java.util.Locale;
 import java.util.Map;
 import java.util.Objects;
 import java.util.Optional;
-import java.util.function.Function;
+import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 import java.util.stream.Stream;
 
@@ -26,11 +28,11 @@ public abstract class AbstractNotificationService{
 	protected static final DateTimeFormatter DATE_FORMATTER = DateTimeFormatter.ofPattern("yyyy-MM-dd");
 	
 	private final WatchService watchService;
-	private final TautulliService tautulliService;
+	private final MessageSource messageSource;
 	
-	protected AbstractNotificationService(WatchService watchService, TautulliService tautulliService){
+	protected AbstractNotificationService(WatchService watchService, MessageSource messageSource){
 		this.watchService = watchService;
-		this.tautulliService = tautulliService;
+		this.messageSource = messageSource;
 	}
 	
 	@NotNull
@@ -84,21 +86,23 @@ public abstract class AbstractNotificationService{
 		return "%dH%dM".formatted(hours, minutes);
 	}
 	
-	@NotNull
-	protected Optional<byte[]> getPosterData(@NotNull GetMetadataResponse metadata){
-		Function<Integer, Optional<byte[]>> posterFunction = ratingKey -> tautulliService.getPosterBytes(ratingKey, 222, 333)
-				.filter(d -> d.length > 0);
-		
-		try{
-			return switch(metadata.getMediaType()){
-				case "episode" -> posterFunction.apply(metadata.getParentRatingKey()).or(() -> posterFunction.apply(metadata.getGrandparentRatingKey()));
-				case "season", "show" -> posterFunction.apply(metadata.getRatingKey()).or(() -> posterFunction.apply(metadata.getParentRatingKey()));
-				default -> posterFunction.apply(metadata.getRatingKey());
-			};
-		}
-		catch(Exception e){
-			log.warn("Failed to get poster data for {}", metadata, e);
-			return Optional.empty();
-		}
+	@Nullable
+	protected String getMediaSeason(@NotNull GetMetadataResponse metadata, @NotNull Locale locale){
+		return switch(metadata.getMediaType()){
+			case "episode" -> Stream.of(
+							Optional.ofNullable(metadata.getParentMediaIndex())
+									.map(i -> messageSource.getMessage("mail.media.added.body.season", new Object[]{i}, locale))
+									.orElse(null),
+							Optional.ofNullable(metadata.getMediaIndex())
+									.map(i -> messageSource.getMessage("mail.media.added.body.episode", new Object[]{i}, locale))
+									.orElse(null)
+					)
+					.filter(Objects::nonNull)
+					.collect(Collectors.joining(" - "));
+			case "season" -> Optional.ofNullable(metadata.getMediaIndex())
+					.map(i -> messageSource.getMessage("mail.media.added.body.season", new Object[]{i}, locale))
+					.orElse(null);
+			default -> null;
+		};
 	}
 }

@@ -29,7 +29,9 @@ public class JacksonHints implements RuntimeHintsRegistrar{
 				"fr.rakambda.plexdeleter.api.servarr.data",
 				"fr.rakambda.plexdeleter.api.servarr.radarr.data",
 				"fr.rakambda.plexdeleter.api.servarr.sonarr.data",
-				"fr.rakambda.plexdeleter.api.tautulli.data"
+				"fr.rakambda.plexdeleter.api.tautulli.data",
+				"fr.rakambda.plexdeleter.api.tmdb.data",
+				"fr.rakambda.plexdeleter.api.tvdb.data"
 		);
 		
 		register(hints, HashSet.class);
@@ -63,7 +65,7 @@ public class JacksonHints implements RuntimeHintsRegistrar{
 	@NotNull
 	public Set<Class<?>> findAllClassesUsingClassLoader(@NotNull ClassLoader classLoader, @NotNull String packageName){
 		try(var is = classLoader.getResourceAsStream(packageName.replaceAll("[.]", "/"));
-				var isr = new InputStreamReader(is);
+				var isr = new InputStreamReader(Objects.requireNonNull(is));
 				var reader = new BufferedReader(isr)){
 			
 			return reader.lines()

@@ -24,6 +24,10 @@ public class ApplicationConfiguration{
 	@NestedConfigurationProperty
 	private PlexConfiguration plex;
 	@NestedConfigurationProperty
+	private TvdbConfiguration tvdb;
+	@NestedConfigurationProperty
+	private TmdbConfiguration tmdb;
+	@NestedConfigurationProperty
 	private OverseerrConfiguration overseerr;
 	@NestedConfigurationProperty
 	private TautulliConfiguration tautulli;

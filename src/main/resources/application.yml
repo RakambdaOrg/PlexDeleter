@@ -53,6 +53,12 @@ app:
   exclude-tag: "no-deleter"
   plex:
     endpoint: "https://plex.tv"
+  tvdb:
+    endpoint: "https://api4.thetvdb.com"
+    api-key: "api-key"
+  tmdb:
+    endpoint: "https://api.themoviedb.org"
+    token: "token"
   overseerr:
     endpoint: "https://overseerr"
     api-key: "api-key"

@@ -1,0 +1,22 @@
+package fr.rakambda.plexdeleter.api.tmdb.data;
+
+import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
+import fr.rakambda.plexdeleter.json.EmptyStringAsNullDeserializer;
+import lombok.AllArgsConstructor;
+import lombok.Data;
+import lombok.NoArgsConstructor;
+import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
+import org.springframework.aot.hint.annotation.RegisterReflectionForBinding;
+
+@Data
+@NoArgsConstructor
+@AllArgsConstructor
+@RegisterReflectionForBinding(MediaData.class)
+public sealed abstract class MediaData permits RootMediaData, SeasonData, EpisodeData{
+	@NotNull
+	private Integer id;
+	@Nullable
+	@JsonDeserialize(using = EmptyStringAsNullDeserializer.class)
+	private String overview;
+}

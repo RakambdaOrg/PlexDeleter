@@ -132,6 +132,10 @@ public class TautulliController{
 		}
 		
 		var metadata = tautulliService.getMetadata(ratingKey).getResponse().getData();
+		if(Objects.isNull(metadata.getMediaType())){
+			log.warn("Not notifying any media, could not get metadata from {}", data);
+			return;
+		}
 		notificationService.notifyMediaAdded(metadata);
 	}
 }

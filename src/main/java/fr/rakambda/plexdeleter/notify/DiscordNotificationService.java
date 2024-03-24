@@ -7,11 +7,10 @@ import fr.rakambda.plexdeleter.api.discord.data.Embed;
 import fr.rakambda.plexdeleter.api.discord.data.Field;
 import fr.rakambda.plexdeleter.api.discord.data.Image;
 import fr.rakambda.plexdeleter.api.discord.data.WebhookMessage;
-import fr.rakambda.plexdeleter.api.tautulli.TautulliService;
 import fr.rakambda.plexdeleter.api.tautulli.data.AudioMediaPartStream;
-import fr.rakambda.plexdeleter.api.tautulli.data.GetMetadataResponse;
 import fr.rakambda.plexdeleter.api.tautulli.data.SubtitlesMediaPartStream;
 import fr.rakambda.plexdeleter.config.ApplicationConfiguration;
+import fr.rakambda.plexdeleter.notify.context.MediaMetadataContext;
 import fr.rakambda.plexdeleter.service.LangService;
 import fr.rakambda.plexdeleter.service.WatchService;
 import fr.rakambda.plexdeleter.storage.entity.MediaAvailability;
@@ -37,7 +36,6 @@ import java.util.Locale;
 import java.util.Objects;
 import java.util.Optional;
 import java.util.stream.Collectors;
-import java.util.stream.Stream;
 
 @Service
 public class DiscordNotificationService extends AbstractNotificationService{
@@ -49,8 +47,8 @@ public class DiscordNotificationService extends AbstractNotificationService{
 	private final String overseerrEndpoint;
 	
 	@Autowired
-	public DiscordNotificationService(DiscordWebhookService discordWebhookService, ApplicationConfiguration applicationConfiguration, MessageSource messageSource, WatchService watchService, TautulliService tautulliService, LangService langService){
-		super(watchService, tautulliService);
+	public DiscordNotificationService(DiscordWebhookService discordWebhookService, ApplicationConfiguration applicationConfiguration, MessageSource messageSource, WatchService watchService, LangService langService){
+		super(watchService, messageSource);
 		this.discordWebhookService = discordWebhookService;
 		this.messageSource = messageSource;
 		this.overseerrEndpoint = applicationConfiguration.getOverseerr().getEndpoint();
@@ -128,8 +126,9 @@ public class DiscordNotificationService extends AbstractNotificationService{
 		notifySimple(notification, userGroupEntity, media, "discord.requirement.manually-abandoned.subject");
 	}
 	
-	public void notifyMediaAdded(@NotNull NotificationEntity notification, @NotNull UserGroupEntity userGroupEntity, @NotNull GetMetadataResponse metadata, boolean ping) throws RequestFailedException, InterruptedException{
+	public void notifyMediaAdded(@NotNull NotificationEntity notification, @NotNull UserGroupEntity userGroupEntity, @NotNull MediaMetadataContext mediaMetadataContext, boolean ping) throws RequestFailedException, InterruptedException{
 		var locale = userGroupEntity.getLocaleAsObject();
+		var metadata = mediaMetadataContext.getMetadata();
 		var params = notification.getValue().split(",");
 		var discordUserId = params[0];
 		var discordUrl = params[1];
@@ -137,22 +136,7 @@ public class DiscordNotificationService extends AbstractNotificationService{
 		var context = new Context();
 		context.setLocale(userGroupEntity.getLocaleAsObject());
 		
-		var mediaSeason = switch(metadata.getMediaType()){
-			case "episode" -> Stream.of(
-							Optional.ofNullable(metadata.getParentMediaIndex())
-									.map(i -> messageSource.getMessage("discord.media.added.body.season", new Object[]{i}, locale))
-									.orElse(null),
-							Optional.ofNullable(metadata.getMediaIndex())
-									.map(i -> messageSource.getMessage("discord.media.added.body.episode", new Object[]{i}, locale))
-									.orElse(null)
-					)
-					.filter(Objects::nonNull)
-					.collect(Collectors.joining(" - "));
-			case "season" -> Optional.ofNullable(metadata.getMediaIndex())
-					.map(i -> messageSource.getMessage("discord.media.added.body.season", new Object[]{i}, locale))
-					.orElse(null);
-			default -> null;
-		};
+		var mediaSeason = getMediaSeason(metadata, locale);
 		var releaseDate = Optional.ofNullable(metadata.getOriginallyAvailableAt())
 				.map(DATE_FORMATTER::format)
 				.orElse(null);
@@ -169,10 +153,10 @@ public class DiscordNotificationService extends AbstractNotificationService{
 		
 		var messageBuilder = WebhookMessage.builder();
 		var embed = Embed.builder()
-				.title(metadata.getFullTitle())
+				.title(mediaMetadataContext.getTitle(locale).orElseGet(metadata::getFullTitle))
 				.description(mediaSeason);
 		
-		super.getPosterData(metadata).ifPresent(poster -> {
+		mediaMetadataContext.getPosterData().ifPresent(poster -> {
 			embed.image(Image.builder()
 					.url("attachment://poster.jpg")
 					.build());
@@ -186,11 +170,11 @@ public class DiscordNotificationService extends AbstractNotificationService{
 					.build());
 		});
 		
-		Optional.ofNullable(metadata.getSummary())
+		Optional.ofNullable(mediaMetadataContext.getSummary(locale).orElseGet(metadata::getSummary))
 				.filter(s -> !s.isBlank())
 				.ifPresent(s -> embed.field(Field.builder()
 						.name(messageSource.getMessage("discord.media.available.body.summary", new Object[0], locale))
-						.value(metadata.getSummary())
+						.value(s)
 						.build()));
 		Optional.ofNullable(releaseDate)
 				.ifPresent(s -> embed.field(Field.builder()
@@ -203,10 +187,11 @@ public class DiscordNotificationService extends AbstractNotificationService{
 					.value(metadata.getActors().stream().limit(5).collect(Collectors.joining(", ")))
 					.build());
 		}
-		if(!metadata.getActors().isEmpty()){
+		var genres = mediaMetadataContext.getGenres(messageSource, locale).orElseGet(metadata::getGenres);
+		if(!genres.isEmpty()){
 			embed.field(Field.builder()
 					.name(messageSource.getMessage("discord.media.available.body.genres", new Object[0], locale))
-					.value(String.join(", ", metadata.getGenres()))
+					.value(String.join(", ", genres))
 					.build());
 		}
 		embed.field(Field.builder()

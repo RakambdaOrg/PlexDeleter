@@ -21,7 +21,6 @@ import java.util.Set;
 @RegisterReflectionForBinding(GetMetadataResponse.class)
 public class GetMetadataResponse{
 	@JsonProperty("media_type")
-	@NotNull
 	private String mediaType;
 	@JsonProperty("parent_media_index")
 	@Nullable
@@ -80,4 +79,13 @@ public class GetMetadataResponse{
 	private List<String> genres = new LinkedList<>();
 	@JsonProperty("duration")
 	private long duration;
+	@JsonProperty("guids")
+	@NotNull
+	private List<String> guids = new LinkedList<>();
+	@JsonProperty("parent_guids")
+	@NotNull
+	private List<String> parentGuids = new LinkedList<>();
+	@JsonProperty("grandparent_guids")
+	@NotNull
+	private List<String> grandparentGuids = new LinkedList<>();
 }

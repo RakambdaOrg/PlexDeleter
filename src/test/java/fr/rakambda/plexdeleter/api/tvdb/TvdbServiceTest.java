@@ -1,0 +1,182 @@
+package fr.rakambda.plexdeleter.api.tvdb;
+
+import fr.rakambda.plexdeleter.SecretsUtils;
+import fr.rakambda.plexdeleter.api.RequestFailedException;
+import fr.rakambda.plexdeleter.config.ApplicationConfiguration;
+import fr.rakambda.plexdeleter.config.TvdbConfiguration;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.condition.DisabledIfEnvironmentVariable;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.Arguments;
+import org.junit.jupiter.params.provider.MethodSource;
+import java.util.Locale;
+import java.util.stream.Stream;
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.when;
+
+@DisabledIfEnvironmentVariable(named = "CI", matches = "true", disabledReason = "Required service not available on CI")
+class TvdbServiceTest{
+	private TvdbService tested;
+	
+	@BeforeEach
+	void setUp(){
+		var conf = mock(ApplicationConfiguration.class);
+		when(conf.getTvdb()).thenReturn(new TvdbConfiguration(SecretsUtils.getSecret("tvdb.endpoint"), SecretsUtils.getSecret("tvdb.api-key")));
+		
+		tested = new TvdbService(conf);
+	}
+	
+	@ParameterizedTest
+	@MethodSource("generateMovieTranslationsCases")
+	void itShouldGetMovieTranslations(Locale locale, String expectedTitle, String expectedOverview) throws RequestFailedException{
+		var result = tested.getMovieTranslations(339249, locale);
+		
+		assertThat(result.getData()).isNotNull().satisfies(data -> {
+			assertThat(data.getName()).isEqualTo(expectedTitle);
+			assertThat(data.getOverview()).isEqualTo(expectedOverview);
+			assertThat(data.getTagline()).isNull();
+		});
+	}
+	
+	@ParameterizedTest
+	@MethodSource("generateSeriesTranslationsCases")
+	void itShouldGetSeriesTranslations(Locale locale, String expectedTitle, String expectedOverview) throws RequestFailedException{
+		var result = tested.getSeriesTranslations(370853, locale);
+		
+		assertThat(result.getData()).isNotNull().satisfies(data -> {
+			assertThat(data.getName()).isEqualTo(expectedTitle);
+			assertThat(data.getOverview()).isEqualTo(expectedOverview);
+			assertThat(data.getTagline()).isNull();
+		});
+	}
+	
+	@ParameterizedTest
+	@MethodSource("generateSeasonTranslationsCases")
+	void itShouldGetSeasonTranslations(Locale locale, String expectedTitle, String expectedOverview) throws RequestFailedException{
+		var result = tested.getSeasonTranslations(15688, locale);
+		
+		assertThat(result.getData()).isNotNull().satisfies(data -> {
+			assertThat(data.getName()).isEqualTo(expectedTitle);
+			assertThat(data.getOverview()).isEqualTo(expectedOverview);
+			assertThat(data.getTagline()).isNull();
+		});
+	}
+	
+	@ParameterizedTest
+	@MethodSource("generateEpisodeTranslationsCases")
+	void itShouldGetEpisodeTranslations(Locale locale, String expectedTitle, String expectedOverview) throws RequestFailedException{
+		var result = tested.getEpisodeTranslations(9115869, locale);
+		
+		assertThat(result.getData()).isNotNull().satisfies(data -> {
+			assertThat(data.getName()).isEqualTo(expectedTitle);
+			assertThat(data.getOverview()).isEqualTo(expectedOverview);
+			assertThat(data.getTagline()).isNull();
+		});
+	}
+	
+	@Test
+	void itShouldListEpisodes() throws RequestFailedException{
+		var seriesId = 370853;
+		var result = tested.getEpisodes(seriesId);
+		
+		assertThat(result.getData()).isNotNull().satisfies(data -> {
+			assertThat(data.getEpisodes()).hasSize(11)
+					.satisfiesOnlyOnce(episode -> {
+						assertThat(episode.getId()).isEqualTo(9115869);
+						assertThat(episode.getSeriesId()).isEqualTo(seriesId);
+						assertThat(episode.getSeasonNumber()).isEqualTo(1);
+						assertThat(episode.getNumber()).isEqualTo(1);
+					})
+					.satisfiesOnlyOnce(episode -> {
+						assertThat(episode.getId()).isEqualTo(9549476);
+						assertThat(episode.getSeriesId()).isEqualTo(seriesId);
+						assertThat(episode.getSeasonNumber()).isEqualTo(1);
+						assertThat(episode.getNumber()).isEqualTo(2);
+					})
+					.satisfiesOnlyOnce(episode -> {
+						assertThat(episode.getId()).isEqualTo(9549477);
+						assertThat(episode.getSeriesId()).isEqualTo(seriesId);
+						assertThat(episode.getSeasonNumber()).isEqualTo(1);
+						assertThat(episode.getNumber()).isEqualTo(3);
+					})
+					.satisfiesOnlyOnce(episode -> {
+						assertThat(episode.getId()).isEqualTo(9549478);
+						assertThat(episode.getSeriesId()).isEqualTo(seriesId);
+						assertThat(episode.getSeasonNumber()).isEqualTo(1);
+						assertThat(episode.getNumber()).isEqualTo(4);
+					})
+					.satisfiesOnlyOnce(episode -> {
+						assertThat(episode.getId()).isEqualTo(9549479);
+						assertThat(episode.getSeriesId()).isEqualTo(seriesId);
+						assertThat(episode.getSeasonNumber()).isEqualTo(1);
+						assertThat(episode.getNumber()).isEqualTo(5);
+					})
+					.satisfiesOnlyOnce(episode -> {
+						assertThat(episode.getId()).isEqualTo(9549480);
+						assertThat(episode.getSeriesId()).isEqualTo(seriesId);
+						assertThat(episode.getSeasonNumber()).isEqualTo(1);
+						assertThat(episode.getNumber()).isEqualTo(6);
+					})
+					.satisfiesOnlyOnce(episode -> {
+						assertThat(episode.getId()).isEqualTo(9549481);
+						assertThat(episode.getSeriesId()).isEqualTo(seriesId);
+						assertThat(episode.getSeasonNumber()).isEqualTo(1);
+						assertThat(episode.getNumber()).isEqualTo(7);
+					})
+					.satisfiesOnlyOnce(episode -> {
+						assertThat(episode.getId()).isEqualTo(9549482);
+						assertThat(episode.getSeriesId()).isEqualTo(seriesId);
+						assertThat(episode.getSeasonNumber()).isEqualTo(1);
+						assertThat(episode.getNumber()).isEqualTo(8);
+					})
+					.satisfiesOnlyOnce(episode -> {
+						assertThat(episode.getId()).isEqualTo(9549483);
+						assertThat(episode.getSeriesId()).isEqualTo(seriesId);
+						assertThat(episode.getSeasonNumber()).isEqualTo(1);
+						assertThat(episode.getNumber()).isEqualTo(9);
+					})
+					.satisfiesOnlyOnce(episode -> {
+						assertThat(episode.getId()).isEqualTo(10258624);
+						assertThat(episode.getSeriesId()).isEqualTo(seriesId);
+						assertThat(episode.getSeasonNumber()).isEqualTo(0);
+						assertThat(episode.getNumber()).isEqualTo(1);
+					})
+					.satisfiesOnlyOnce(episode -> {
+						assertThat(episode.getId()).isEqualTo(10354778);
+						assertThat(episode.getSeriesId()).isEqualTo(seriesId);
+						assertThat(episode.getSeasonNumber()).isEqualTo(0);
+						assertThat(episode.getNumber()).isEqualTo(2);
+					});
+		});
+	}
+	
+	private static Stream<Arguments> generateMovieTranslationsCases(){
+		return Stream.of(
+				Arguments.of(Locale.ENGLISH, "Kung Fu Panda 4", "Po is set to become the new spiritual leader of the Valley of Peace, but before he can do that, he must find a successor to become the new Dragon Warrior. He appears to find one in Zhen, a fox with plenty of promising abilities but who doesn’t quite like the idea of Po training her."),
+				Arguments.of(Locale.FRENCH, "Kung Fu Panda 4", "Après trois aventures dans lesquelles le guerrier dragon Po a combattu les maîtres du mal les plus redoutables grâce à un courage et des compétences en arts martiaux inégalés, le destin va de nouveau frapper à sa porte pour … l’inviter à enfin se reposer. Plus précisément, pour être nommé chef spirituel de la vallée de la Paix. Cela pose quelques problèmes évidents. Premièrement, Po maîtrise aussi bien le leadership spirituel que les régimes, et deuxièmement, il doit rapidement trouver et entraîner un nouveau guerrier dragon avant de pouvoir profiter des avantages de sa prestigieuse promotion. Pire encore, il est question de l’apparition récente d’une sorcière aussi mal intentionnée que puissante, Caméléone, une lézarde minuscule qui peut se métamorphoser en n'importe quelle créature, et ce sans distinction de taille. Or Caméléone lorgne de ses petits yeux avides et perçants sur le bâton de sagesse de Po, à l’aide duquel elle espère bien pouvoir réinvoquer du royaume des esprits tous les maîtres maléfiques que notre guerrier dragon a vaincu. Po va devoir trouver de l’aide. Il va en trouver (ou pas ?) auprès de Zhen, une renarde corsac, voleuse aussi rusée que vive d'esprit, qui a le don d’irriter Po mais dont les compétences vont s’avérer précieuses. Afin de réussir à protéger la Vallée de la Paix des griffes reptiliennes de Caméléone, ce drôle de duo va devoir trouver un terrain d’entente. Ce sera l’occasion pour Po de découvrir que les héros ne sont pas toujours là où on les attend.")
+		);
+	}
+	
+	private static Stream<Arguments> generateSeriesTranslationsCases(){
+		return Stream.of(
+				Arguments.of(Locale.ENGLISH, "Masters of the Air", "During World War II, airmen risk their lives with the 100th Bomb Group, a brotherhood forged by courage, loss, and triumph."),
+				Arguments.of(Locale.FRENCH, "Masters of the Air", "De Steven Spielberg, Tom Hanks et Gary Goetzman, les producteurs de Frères d'armes et Band of Brothers : l'Enfer du Pacifique. Pendant la Seconde Guerre mondiale, des pilotes de chasse risquent leur vie au sein du 100e groupe de bombardement, une confrérie unie par le courage, les défaites et les victoires.")
+		);
+	}
+	
+	private static Stream<Arguments> generateSeasonTranslationsCases(){
+		return Stream.of(
+				Arguments.of(Locale.ENGLISH, null, "Christopher Eccleston's Doctor is wise and funny, cheeky and brave. An alien and a loner (it's difficult keeping up with friends when your day job involves flitting through time and space), his detached logic gives him a vital edge when the world is in danger. But when it comes to human relationships, he can be found wanting. That's why he needs new assistant Rose."),
+				Arguments.of(Locale.ITALIAN, null, "Il Dottore di Christopher Eccleston è saggio e divertente, sfacciato e coraggioso. Un alieno e un solitario (è difficile tenere il passo con gli amici quando il tuo lavoro quotidiano implica volare nel tempo e nello spazio), la sua logica distaccata gli dà un vantaggio vitale quando il mondo è in pericolo. Ma quando si tratta di rapporti umani, può risultare carente. Ecco perché ha bisogno della nuova assistente Rose.")
+		);
+	}
+	
+	private static Stream<Arguments> generateEpisodeTranslationsCases(){
+		return Stream.of(
+				Arguments.of(Locale.ENGLISH, "Part One", "Led by Majors Cleven and Egan, the 100th Bomb Group arrives in England and joins the 8th Air Force’s campaign against Nazi Germany."),
+				Arguments.of(Locale.FRENCH, "Première partie", "Dirigé par les majors Cleven et Egan, le 100e Groupe de bombardement rejoint la 8e Air Force en Angleterre, pour lutter contre l’Allemagne nazie.")
+		);
+	}
+}

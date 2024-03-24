@@ -1,11 +1,10 @@
 package fr.rakambda.plexdeleter.notify;
 
-import fr.rakambda.plexdeleter.api.tautulli.TautulliService;
 import fr.rakambda.plexdeleter.api.tautulli.data.AudioMediaPartStream;
-import fr.rakambda.plexdeleter.api.tautulli.data.GetMetadataResponse;
 import fr.rakambda.plexdeleter.api.tautulli.data.SubtitlesMediaPartStream;
 import fr.rakambda.plexdeleter.config.ApplicationConfiguration;
 import fr.rakambda.plexdeleter.config.MailConfiguration;
+import fr.rakambda.plexdeleter.notify.context.MediaMetadataContext;
 import fr.rakambda.plexdeleter.service.LangService;
 import fr.rakambda.plexdeleter.service.WatchService;
 import fr.rakambda.plexdeleter.storage.entity.MediaAvailability;
@@ -28,8 +27,6 @@ import java.time.Duration;
 import java.util.Collection;
 import java.util.Objects;
 import java.util.Optional;
-import java.util.stream.Collectors;
-import java.util.stream.Stream;
 
 @Service
 public class MailNotificationService extends AbstractNotificationService{
@@ -41,8 +38,8 @@ public class MailNotificationService extends AbstractNotificationService{
 	private final String overseerrEndpoint;
 	
 	@Autowired
-	public MailNotificationService(JavaMailSender emailSender, ApplicationConfiguration applicationConfiguration, MessageSource messageSource, WatchService watchService, SpringTemplateEngine templateEngine, TautulliService tautulliService, LangService langService){
-		super(watchService, tautulliService);
+	public MailNotificationService(JavaMailSender emailSender, ApplicationConfiguration applicationConfiguration, MessageSource messageSource, WatchService watchService, SpringTemplateEngine templateEngine, LangService langService){
+		super(watchService, messageSource);
 		this.emailSender = emailSender;
 		this.messageSource = messageSource;
 		this.mailConfiguration = applicationConfiguration.getMail();
@@ -98,28 +95,14 @@ public class MailNotificationService extends AbstractNotificationService{
 		notifySimple(notification, userGroupEntity, media, "mail.requirement.manually-abandoned.subject");
 	}
 	
-	public void notifyMediaAdded(@NotNull NotificationEntity notification, @NotNull UserGroupEntity userGroupEntity, @NotNull GetMetadataResponse metadata) throws MessagingException, UnsupportedEncodingException{
+	public void notifyMediaAdded(@NotNull NotificationEntity notification, @NotNull UserGroupEntity userGroupEntity, @NotNull MediaMetadataContext mediaMetadataContext) throws MessagingException, UnsupportedEncodingException{
 		var locale = userGroupEntity.getLocaleAsObject();
+		var metadata = mediaMetadataContext.getMetadata();
 		
 		var context = new Context();
 		context.setLocale(userGroupEntity.getLocaleAsObject());
 		
-		var mediaSeason = switch(metadata.getMediaType()){
-			case "episode" -> Stream.of(
-							Optional.ofNullable(metadata.getParentMediaIndex())
-									.map(i -> messageSource.getMessage("mail.media.added.body.season", new Object[]{i}, locale))
-									.orElse(null),
-							Optional.ofNullable(metadata.getMediaIndex())
-									.map(i -> messageSource.getMessage("mail.media.added.body.episode", new Object[]{i}, locale))
-									.orElse(null)
-					)
-					.filter(Objects::nonNull)
-					.collect(Collectors.joining(" - "));
-			case "season" -> Optional.ofNullable(metadata.getMediaIndex())
-					.map(i -> messageSource.getMessage("mail.media.added.body.season", new Object[]{i}, locale))
-					.orElse(null);
-			default -> null;
-		};
+		var mediaSeason = getMediaSeason(metadata, locale);
 		var releaseDate = Optional.ofNullable(metadata.getOriginallyAvailableAt())
 				.map(DATE_FORMATTER::format)
 				.orElse(null);
@@ -134,15 +117,15 @@ public class MailNotificationService extends AbstractNotificationService{
 				.flatMap(code -> langService.getLanguageName(code, locale))
 				.toList();
 		
-		var posterData = super.getPosterData(metadata);
+		var posterData = mediaMetadataContext.getPosterData();
 		var mediaPosterResourceName = "mediaPosterResourceName";
 		
-		context.setVariable("mediaTitle", metadata.getFullTitle());
+		context.setVariable("mediaTitle", mediaMetadataContext.getTitle(locale).orElseGet(metadata::getFullTitle));
 		context.setVariable("mediaSeason", mediaSeason);
-		context.setVariable("mediaSummary", metadata.getSummary());
+		context.setVariable("mediaSummary", mediaMetadataContext.getSummary(locale).orElseGet(metadata::getSummary));
 		context.setVariable("mediaReleaseDate", releaseDate);
 		context.setVariable("mediaActors", metadata.getActors());
-		context.setVariable("mediaGenres", metadata.getGenres());
+		context.setVariable("mediaGenres", mediaMetadataContext.getGenres(messageSource, locale).orElseGet(metadata::getGenres));
 		context.setVariable("mediaDuration", getMediaDuration(Duration.ofMillis(metadata.getDuration())));
 		context.setVariable("mediaPosterResourceName", posterData.isPresent() ? mediaPosterResourceName : null);
 		context.setVariable("mediaAudios", audioLanguages);

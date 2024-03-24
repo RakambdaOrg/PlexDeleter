@@ -1,7 +1,14 @@
 package fr.rakambda.plexdeleter.notify;
 
 import fr.rakambda.plexdeleter.api.RequestFailedException;
+import fr.rakambda.plexdeleter.api.tautulli.TautulliService;
 import fr.rakambda.plexdeleter.api.tautulli.data.GetMetadataResponse;
+import fr.rakambda.plexdeleter.api.tmdb.TmdbService;
+import fr.rakambda.plexdeleter.api.tvdb.TvdbService;
+import fr.rakambda.plexdeleter.notify.context.CompositeMediaMetadataContext;
+import fr.rakambda.plexdeleter.notify.context.MediaMetadataContext;
+import fr.rakambda.plexdeleter.notify.context.TmdbMediaMetadataContext;
+import fr.rakambda.plexdeleter.notify.context.TvdbMediaMetadataContext;
 import fr.rakambda.plexdeleter.storage.entity.MediaEntity;
 import fr.rakambda.plexdeleter.storage.entity.MediaRequirementEntity;
 import fr.rakambda.plexdeleter.storage.entity.MediaRequirementStatus;
@@ -15,6 +22,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import java.io.UnsupportedEncodingException;
 import java.util.Collection;
+import java.util.List;
 import java.util.Objects;
 
 @Slf4j
@@ -23,12 +31,18 @@ public class NotificationService{
 	private final MailNotificationService mailNotificationService;
 	private final DiscordNotificationService discordNotificationService;
 	private final UserGroupRepository userGroupRepository;
+	private final TvdbService tvdbService;
+	private final TautulliService tautulliService;
+	private final TmdbService tmdbService;
 	
 	@Autowired
-	public NotificationService(MailNotificationService mailNotificationService, DiscordNotificationService discordNotificationService, UserGroupRepository userGroupRepository){
+	public NotificationService(MailNotificationService mailNotificationService, DiscordNotificationService discordNotificationService, UserGroupRepository userGroupRepository, TvdbService tvdbService, TautulliService tautulliService, TmdbService tmdbService){
 		this.mailNotificationService = mailNotificationService;
 		this.discordNotificationService = discordNotificationService;
 		this.userGroupRepository = userGroupRepository;
+		this.tvdbService = tvdbService;
+		this.tautulliService = tautulliService;
+		this.tmdbService = tmdbService;
 	}
 	
 	public void notifyWatchlist(@NotNull UserGroupEntity userGroupEntity, @NotNull Collection<MediaRequirementEntity> requirements) throws NotifyException{
@@ -156,22 +170,27 @@ public class NotificationService{
 			return;
 		}
 		
+		var mediaMetadataContext = new CompositeMediaMetadataContext(tautulliService, metadata, List.of(
+				new TmdbMediaMetadataContext(tautulliService, metadata, tmdbService),
+				new TvdbMediaMetadataContext(tautulliService, metadata, tvdbService)
+		));
+		
 		var userGroupsRequirement = userGroupRepository.findAllByHasRequirementOnPlex(ratingKey, MediaRequirementStatus.WAITING);
 		for(var userGroup : userGroupsRequirement){
-			notifyMediaAdded(userGroup, metadata, true);
+			notifyMediaAdded(userGroup, mediaMetadataContext, true);
 		}
 		var userGroupsLibrary = userGroupRepository.findAllByWatchesLibrary(metadata.getLibraryName());
 		for(var userGroup : userGroupsLibrary){
 			if(userGroupsRequirement.contains(userGroup)){
 				continue;
 			}
-			notifyMediaAdded(userGroup, metadata, false);
+			notifyMediaAdded(userGroup, mediaMetadataContext, false);
 		}
 	}
 	
-	private void notifyMediaAdded(@NotNull UserGroupEntity userGroupEntity, @NotNull GetMetadataResponse metadata, boolean ping) throws NotifyException{
+	private void notifyMediaAdded(@NotNull UserGroupEntity userGroupEntity, @NotNull MediaMetadataContext metadata, boolean ping) throws NotifyException{
 		try{
-			log.info("Notifying {} has been added to {}", metadata, userGroupEntity);
+			log.info("Notifying {} has been added to {}", metadata.getMetadata(), userGroupEntity);
 			var notification = userGroupEntity.getNotificationMediaAdded();
 			if(Objects.isNull(notification)){
 				return;
