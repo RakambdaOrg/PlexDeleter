@@ -29,7 +29,6 @@ public class SonarrService{
 	@Autowired
 	public SonarrService(ApplicationConfiguration applicationConfiguration){
 		apiClient = WebClient.builder()
-				.clientConnector(HttpUtils.wiretapClientConnector(this.getClass()))
 				.baseUrl(applicationConfiguration.getSonarr().getEndpoint())
 				.defaultHeader("X-Api-Key", applicationConfiguration.getSonarr().getApiKey())
 				.filter(HttpUtils.logErrorFilter())
