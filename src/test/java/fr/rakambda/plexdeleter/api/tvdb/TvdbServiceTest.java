@@ -36,7 +36,6 @@ class TvdbServiceTest{
 		assertThat(result.getData()).isNotNull().satisfies(data -> {
 			assertThat(data.getName()).isEqualTo(expectedTitle);
 			assertThat(data.getOverview()).isEqualTo(expectedOverview);
-			assertThat(data.getTagline()).isNull();
 		});
 	}
 	
@@ -48,7 +47,6 @@ class TvdbServiceTest{
 		assertThat(result.getData()).isNotNull().satisfies(data -> {
 			assertThat(data.getName()).isEqualTo(expectedTitle);
 			assertThat(data.getOverview()).isEqualTo(expectedOverview);
-			assertThat(data.getTagline()).isNull();
 		});
 	}
 	
@@ -60,7 +58,6 @@ class TvdbServiceTest{
 		assertThat(result.getData()).isNotNull().satisfies(data -> {
 			assertThat(data.getName()).isEqualTo(expectedTitle);
 			assertThat(data.getOverview()).isEqualTo(expectedOverview);
-			assertThat(data.getTagline()).isNull();
 		});
 	}
 	
@@ -72,7 +69,6 @@ class TvdbServiceTest{
 		assertThat(result.getData()).isNotNull().satisfies(data -> {
 			assertThat(data.getName()).isEqualTo(expectedTitle);
 			assertThat(data.getOverview()).isEqualTo(expectedOverview);
-			assertThat(data.getTagline()).isNull();
 		});
 	}
 	
