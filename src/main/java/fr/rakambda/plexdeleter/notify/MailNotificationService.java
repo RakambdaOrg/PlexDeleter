@@ -14,10 +14,12 @@ import fr.rakambda.plexdeleter.storage.entity.MediaRequirementEntity;
 import fr.rakambda.plexdeleter.storage.entity.NotificationEntity;
 import fr.rakambda.plexdeleter.storage.entity.UserGroupEntity;
 import jakarta.mail.MessagingException;
+import lombok.extern.slf4j.Slf4j;
 import org.jetbrains.annotations.NotNull;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.MessageSource;
 import org.springframework.core.io.ByteArrayResource;
+import org.springframework.core.io.ClassPathResource;
 import org.springframework.mail.javamail.JavaMailSender;
 import org.springframework.mail.javamail.MimeMessageHelper;
 import org.springframework.stereotype.Service;
@@ -29,6 +31,7 @@ import java.util.Collection;
 import java.util.Objects;
 import java.util.Optional;
 
+@Slf4j
 @Service
 public class MailNotificationService extends AbstractNotificationService{
 	private final JavaMailSender emailSender;
@@ -54,6 +57,12 @@ public class MailNotificationService extends AbstractNotificationService{
 		var context = new Context();
 		context.setLocale(userGroupEntity.getLocaleAsObject());
 		
+		var overseerrLogoData = getOverseerrLogoBytes();
+		var plexLogoData = getPlexLogoBytes();
+		
+		var overseerrLogoResourceName = "overseerrLogoResourceName";
+		var plexLogoResourceName = "plexLogoResourceName";
+		
 		context.setVariable("service", this);
 		context.setVariable("thymeleafService", thymeleafService);
 		context.setVariable("userGroup", userGroupEntity);
@@ -69,10 +78,18 @@ public class MailNotificationService extends AbstractNotificationService{
 				.map(MediaRequirementEntity::getMedia)
 				.filter(m -> Objects.equals(m.getAvailability(), MediaAvailability.WAITING))
 				.toList());
+		context.setVariable("overseerrLogoResourceName", overseerrLogoData.isPresent() ? overseerrLogoResourceName : null);
+		context.setVariable("plexLogoResourceName", plexLogoData.isPresent() ? plexLogoResourceName : null);
 		
 		sendMail(notification, message -> {
 			message.setSubject(messageSource.getMessage("mail.watchlist.subject", new Object[0], locale));
 			message.setText(templateEngine.process("mail/watchlist.html", context), true);
+			if(overseerrLogoData.isPresent()){
+				message.addInline(overseerrLogoResourceName, new ByteArrayResource(overseerrLogoData.get(), "Overseerr logo"), "image/svg+xml");
+			}
+			if(plexLogoData.isPresent()){
+				message.addInline(plexLogoResourceName, new ByteArrayResource(plexLogoData.get(), "Plex logo"), "image/svg+xml");
+			}
 		});
 	}
 	
@@ -146,14 +163,28 @@ public class MailNotificationService extends AbstractNotificationService{
 		var context = new Context();
 		context.setLocale(userGroupEntity.getLocaleAsObject());
 		
+		var overseerrLogoData = getOverseerrLogoBytes();
+		var plexLogoData = getPlexLogoBytes();
+		
+		var overseerrLogoResourceName = "overseerrLogoResourceName";
+		var plexLogoResourceName = "plexLogoResourceName";
+		
 		context.setVariable("service", this);
 		context.setVariable("media", media);
 		context.setVariable("thymeleafService", thymeleafService);
 		context.setVariable("userGroup", userGroupEntity);
+		context.setVariable("overseerrLogoResourceName", overseerrLogoData.isPresent() ? overseerrLogoResourceName : null);
+		context.setVariable("plexLogoResourceName", plexLogoData.isPresent() ? plexLogoResourceName : null);
 		
 		sendMail(notification, message -> {
 			message.setSubject(messageSource.getMessage(subjectKey, new Object[0], locale));
 			message.setText(templateEngine.process("mail/single-media.html", context), true);
+			if(overseerrLogoData.isPresent()){
+				message.addInline(overseerrLogoResourceName, new ByteArrayResource(overseerrLogoData.get(), "Overseerr logo"), "image/svg+xml");
+			}
+			if(plexLogoData.isPresent()){
+				message.addInline(plexLogoResourceName, new ByteArrayResource(plexLogoData.get(), "Plex logo"), "image/svg+xml");
+			}
 		});
 	}
 	
@@ -170,6 +201,32 @@ public class MailNotificationService extends AbstractNotificationService{
 		messageFiller.accept(mailHelper);
 		
 		emailSender.send(mimeMessage);
+	}
+	
+	@NotNull
+	private Optional<byte[]> getOverseerrLogoBytes(){
+		return getResourceBytes("static/overseerr.svg");
+	}
+	
+	@NotNull
+	private Optional<byte[]> getPlexLogoBytes(){
+		return getResourceBytes("static/plex.svg");
+	}
+	
+	@NotNull
+	private Optional<byte[]> getResourceBytes(@NotNull String path){
+		try{
+			var classPathResource = new ClassPathResource(path);
+			if(!classPathResource.exists()){
+				log.warn("Failed to get resource {}, does not exists", path);
+				return Optional.empty();
+			}
+			return Optional.of(classPathResource.getContentAsByteArray());
+		}
+		catch(Exception e){
+			log.error("Failed to get resource {}", path, e);
+			return Optional.empty();
+		}
 	}
 	
 	private interface MessageFiller{

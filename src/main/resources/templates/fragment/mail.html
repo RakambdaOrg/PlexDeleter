@@ -9,13 +9,13 @@
     <th:block th:if="${media.getOverseerrId()}">
         <span> | </span>
         <a th:href="${thymeleafService.getMediaOverseerrUrl(media)}">
-            <img alt="Overseerr logo" style="max-height: 15px; max-width: 15px;" src="https://raw.githubusercontent.com/sct/overseerr/develop/public/os_logo_filled.png">
+            <img alt="Overseerr logo" style="max-height: 15px; max-width: 15px;" th:src="|cid:${overseerrLogoResourceName}|">
         </a>
     </th:block>
     <th:block th:if="${media.getPlexId()}">
         <span> | </span>
         <a th:href="${thymeleafService.getMediaPlexUrl(media)}">
-            <img alt="Plex logo" style="max-height: 15px; max-width: 15px;" src="https://plexdeleter.ds920.rakambda.fr/static/plex.svg">
+            <img alt="Plex logo" style="max-height: 15px; max-width: 15px;" th:src="|cid:${plexLogoResourceName}|">
         </a>
     </th:block>
 </th:block>
