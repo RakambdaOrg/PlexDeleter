@@ -1,14 +1,48 @@
 <div th:fragment="navbar" class="topnav" xmlns:sec="http://www.w3.org/1999/xhtml">
-    <nav class="navbar navbar-expand bg-body-tertiary border-bottom border-body">
+    <nav class="navbar navbar-expand-lg bg-body-tertiary border-bottom border-body">
         <div class="container-fluid">
-            <div class="navbar-nav">
-                <a class="nav-link" th:href="@{~/}" th:text="#{web.navbar.media-list}"></a>
-                <th:block sec:authorize="hasRole('ROLE_ADMIN')">
-                    <a class="nav-link" th:href="@{~/admin/media/soon-deleted}" th:text="#{web.navbar.admin.media.list-soon-deleted}"></a>
-                    <a class="nav-link" th:href="@{~/admin/media-requirement/add}" th:text="#{web.navbar.admin.requirement.add}"></a>
-                    <a class="nav-link" th:href="@{~/admin/media-requirement/list}" th:text="#{web.navbar.admin.requirement.list}"></a>
-                </th:block>
-                <a class="nav-link" th:href="@{~/logout}" th:text="#{web.navbar.logout}"></a>
+            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarSupportedContent" aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+
+            <div class="collapse navbar-collapse" id="navbarSupportedContent">
+                <ul class="navbar-nav me-auto mb-2 mb-lg-0">
+                    <li class="nav-item"><a class="nav-link" th:href="@{~/}" th:text="#{web.navbar.media-list}"></a></li>
+                    <th:block sec:authorize="hasRole('ROLE_ADMIN')">
+                        <li class="nav-item"><a class="nav-link" th:href="@{~/admin/media/soon-deleted}" th:text="#{web.navbar.admin.media.list-soon-deleted}"></a></li>
+                        <li class="nav-item"><a class="nav-link" th:href="@{~/admin/media-requirement/add}" th:text="#{web.navbar.admin.requirement.add}"></a></li>
+                        <li class="nav-item"><a class="nav-link" th:href="@{~/admin/media-requirement/list}" th:text="#{web.navbar.admin.requirement.list}"></a></li>
+                    </th:block>
+                </ul>
+                <div class="navbar-nav">
+                    <div class="nav-item dropdown">
+                        <a class="nav-link d-flex flex-row align-items-center me-3" href="#" role="button" data-bs-toggle="dropdown" aria-expanded="false" id="bd-theme">
+                            <img alt="Light theme logo" class="theme-icon-active d-inline-block align-text-top" style="max-height: 16px; max-width: 16px;" th:src="@{~/static/theme-circle-half.svg}">
+                            <span th:text="#{web.theme.theme}" id="bd-theme-text" class="ms-2"></span>
+                        </a>
+                        <ul class="dropdown-menu">
+                            <li>
+                                <button type="button" class="dropdown-item d-flex align-items-center" data-bs-theme-value="light">
+                                    <img alt="Light theme logo" style="max-height: 16px; max-width: 16px;" th:src="@{~/static/theme-sun.svg}">
+                                    <span th:text="#{web.theme.light}" class="ms-2"></span>
+                                </button>
+                            </li>
+                            <li>
+                                <button type="button" class="dropdown-item d-flex align-items-center" data-bs-theme-value="dark">
+                                    <img alt="Dark theme logo" style="max-height: 16px; max-width: 16px;" th:src="@{~/static/theme-moon-star.svg}">
+                                    <span th:text="#{web.theme.dark}" class="ms-2"></span>
+                                </button>
+                            </li>
+                            <li>
+                                <button type="button" class="dropdown-item d-flex align-items-center active" data-bs-theme-value="auto">
+                                    <img alt="Auto theme logo" style="max-height: 16px; max-width: 16px;" th:src="@{~/static/theme-circle-half.svg}">
+                                    <span th:text="#{web.theme.auto}" class="ms-2"></span>
+                                </button>
+                            </li>
+                        </ul>
+                    </div>
+                    <div class="nav-item"><a class="nav-link" th:href="@{~/logout}" th:text="#{web.navbar.logout}"></a></div>
+                </div>
             </div>
         </div>
     </nav>
