@@ -1,21 +1,23 @@
 <th:block th:fragment="media">
-    <span th:text="#{${service.getTypeKey(media)}(${media.getName()}, ${media.getIndex()})}"></span>
-    <th:block th:with="episodes = ${service.getEpisodes(media, userGroup)}">
-        <th:block th:unless="${#lists.isEmpty(episodes)}">
-            <span> | </span>
-            <span th:with="episodesStr = ${#strings.listJoin(episodes, ', ')}" th:text="#{mail.watchlist.body.media.series.episodes(${episodesStr})}"></span>
+    <div class="me-3">
+        <span th:text="#{${service.getTypeKey(media)}(${media.getName()}, ${media.getIndex()})}"></span>
+        <th:block th:with="episodes = ${service.getEpisodes(media, userGroup)}">
+            <th:block th:unless="${#lists.isEmpty(episodes)}">
+                <span class="me-1 ms-1">|</span>
+                <span th:with="episodesStr = ${#strings.listJoin(episodes, ', ')}" th:text="#{mail.watchlist.body.media.series.episodes(${episodesStr})}"></span>
+            </th:block>
         </th:block>
-    </th:block>
-    <th:block th:if="${media.getOverseerrId()}">
-        <span> | </span>
-        <a th:href="${thymeleafService.getMediaOverseerrUrl(media)}">
-            <img alt="Overseerr logo" style="max-height: 15px; max-width: 15px;" th:src="|cid:${overseerrLogoResourceName}|">
-        </a>
-    </th:block>
-    <th:block th:if="${media.getPlexId()}">
-        <span> | </span>
-        <a th:href="${thymeleafService.getMediaPlexUrl(media)}">
-            <img alt="Plex logo" style="max-height: 15px; max-width: 15px;" th:src="|cid:${plexLogoResourceName}|">
-        </a>
-    </th:block>
+        <th:block th:if="${media.getOverseerrId()}">
+            <span class="me-1 ms-1">|</span>
+            <a class="text-decoration-none" style="text-decoration: none" th:href="${thymeleafService.getMediaOverseerrUrl(media)}">
+                <img alt="Overseerr logo" style="height: 16px; width: 16px;" th:src="|cid:${overseerrLogoResourceName}|">
+            </a>
+        </th:block>
+        <th:block th:if="${media.getPlexId()}">
+            <span class="me-1 ms-1">|</span>
+            <a class="text-decoration-none" style="text-decoration: none" th:href="${thymeleafService.getMediaPlexUrl(media)}">
+                <img alt="Plex logo" style="height: 16px; width: 16px;" th:src="|cid:${plexLogoResourceName}|">
+            </a>
+        </th:block>
+    </div>
 </th:block>

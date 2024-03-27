@@ -85,10 +85,10 @@ public class MailNotificationService extends AbstractNotificationService{
 			message.setSubject(messageSource.getMessage("mail.watchlist.subject", new Object[0], locale));
 			message.setText(templateEngine.process("mail/watchlist.html", context), true);
 			if(overseerrLogoData.isPresent()){
-				message.addInline(overseerrLogoResourceName, new ByteArrayResource(overseerrLogoData.get(), "Overseerr logo"), "image/svg+xml");
+				message.addInline(overseerrLogoResourceName, new ByteArrayResource(overseerrLogoData.get(), "Overseerr logo"), "image/png");
 			}
 			if(plexLogoData.isPresent()){
-				message.addInline(plexLogoResourceName, new ByteArrayResource(plexLogoData.get(), "Plex logo"), "image/svg+xml");
+				message.addInline(plexLogoResourceName, new ByteArrayResource(plexLogoData.get(), "Plex logo"), "image/png");
 			}
 		});
 	}
@@ -180,10 +180,10 @@ public class MailNotificationService extends AbstractNotificationService{
 			message.setSubject(messageSource.getMessage(subjectKey, new Object[0], locale));
 			message.setText(templateEngine.process("mail/single-media.html", context), true);
 			if(overseerrLogoData.isPresent()){
-				message.addInline(overseerrLogoResourceName, new ByteArrayResource(overseerrLogoData.get(), "Overseerr logo"), "image/svg+xml");
+				message.addInline(overseerrLogoResourceName, new ByteArrayResource(overseerrLogoData.get(), "Overseerr logo"), "image/png");
 			}
 			if(plexLogoData.isPresent()){
-				message.addInline(plexLogoResourceName, new ByteArrayResource(plexLogoData.get(), "Plex logo"), "image/svg+xml");
+				message.addInline(plexLogoResourceName, new ByteArrayResource(plexLogoData.get(), "Plex logo"), "image/png");
 			}
 		});
 	}
@@ -205,12 +205,12 @@ public class MailNotificationService extends AbstractNotificationService{
 	
 	@NotNull
 	private Optional<byte[]> getOverseerrLogoBytes(){
-		return getResourceBytes("static/overseerr.svg");
+		return getResourceBytes("static/overseerr.png");
 	}
 	
 	@NotNull
 	private Optional<byte[]> getPlexLogoBytes(){
-		return getResourceBytes("static/plex.svg");
+		return getResourceBytes("static/plex.png");
 	}
 	
 	@NotNull
