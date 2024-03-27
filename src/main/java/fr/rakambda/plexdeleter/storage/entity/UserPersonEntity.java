@@ -39,5 +39,9 @@ public class UserPersonEntity{
 	@Basic
 	@Column(nullable = false)
 	@NotNull
+	private Integer overseerrId;
+	@Basic
+	@Column(nullable = false)
+	@NotNull
 	private Integer groupId;
 }

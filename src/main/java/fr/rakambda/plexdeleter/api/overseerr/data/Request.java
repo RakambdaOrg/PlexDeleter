@@ -33,6 +33,8 @@ public final class Request{
 	@NotNull
 	private Set<Integer> tags = new HashSet<>();
 	private boolean isAutoRequest;
+	@NotNull
+	private Set<RequestSeason> seasons = new HashSet<>();
 	private int seasonCount;
 	@NotNull
 	private RequestMedia media;

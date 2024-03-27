@@ -3,18 +3,15 @@ package fr.rakambda.plexdeleter.api.overseerr.data;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
-import lombok.NonNull;
 import org.springframework.aot.hint.annotation.RegisterReflectionForBinding;
 
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
-@RegisterReflectionForBinding(RequestMedia.class)
-public class RequestMedia{
-	private int id;
-	private int tmdbId;
-	private int tvdbId;
-	private int ratingKey;
-	@NonNull
-	private MediaType mediaType;
+@RegisterReflectionForBinding(PageInfo.class)
+public class PageInfo{
+	private int pages;
+	private int pageSize;
+	private int results;
+	private int page;
 }

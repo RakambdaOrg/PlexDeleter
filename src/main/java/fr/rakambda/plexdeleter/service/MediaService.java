@@ -23,6 +23,7 @@ import fr.rakambda.plexdeleter.storage.entity.UserGroupEntity;
 import fr.rakambda.plexdeleter.storage.repository.MediaRepository;
 import lombok.extern.slf4j.Slf4j;
 import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import java.util.Objects;
@@ -227,23 +228,26 @@ public class MediaService{
 	}
 	
 	@NotNull
-	public DeleteMediaResponse deleteMedia(@NotNull MediaEntity media, boolean deleteFromServices) throws NotifyException, RequestFailedException{
+	public DeleteMediaResponse deleteMedia(@NotNull MediaEntity media, @Nullable UserGroupEntity userGroup, boolean deleteFromServarr) throws NotifyException, RequestFailedException{
 		mediaOperationLock.lock();
 		try{
 			var groups = media.getRequirements().stream()
 					.map(MediaRequirementEntity::getGroup)
 					.toList();
 			
-			if(media.getRequirements().stream().map(MediaRequirementEntity::getStatus).anyMatch(r -> !r.isCompleted())){
-				return new DeleteMediaResponse(false, false, false);
-			}
-			
 			var deletedServarr = false;
 			var deletedOverseerr = false;
 			
-			if(deleteFromServices){
+			if(Objects.nonNull(userGroup)){
+				deletedOverseerr = deleteMediaRequestsFromOverseerr(media, userGroup);
+			}
+			
+			if(media.getRequirements().stream().map(MediaRequirementEntity::getStatus).anyMatch(r -> !r.isCompleted())){
+				return new DeleteMediaResponse(false, deletedServarr, deletedOverseerr);
+			}
+			
+			if(deleteFromServarr){
 				deletedServarr = deleteMediaFromServarr(media);
-				deletedOverseerr = deleteMediaRequestsFromOverseerr(media);
 			}
 			mediaRepository.delete(media);
 			
@@ -276,7 +280,7 @@ public class MediaService{
 		return true;
 	}
 	
-	private boolean deleteMediaRequestsFromOverseerr(@NotNull MediaEntity media){
+	private boolean deleteMediaRequestsFromOverseerr(@NotNull MediaEntity media, @NotNull UserGroupEntity userGroup) throws RequestFailedException{
 		if(Objects.isNull(media.getOverseerrId())){
 			return false;
 		}
@@ -285,8 +289,12 @@ public class MediaService{
 			return false;
 		}
 		
-		log.info("Deleting media from Overseerr {}", media);
-		overseerrService.deleteRequestForMedia(media.getOverseerrId());
+		var userIds = userGroup.getPersons().stream()
+				.map(userPerson -> 0)
+				.toList();
+		
+		log.info("Deleting media request from Overseerr {} for group {}", media, userGroup);
+		overseerrService.deleteRequestForUserAndMedia(userIds, media);
 		return true;
 	}
 	
