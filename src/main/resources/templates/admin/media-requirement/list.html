@@ -3,6 +3,7 @@
 <head>
     <title th:text="#{web.navbar.admin.requirement.list}"></title>
     <th:block th:replace="~{fragment/common-head::common-head}"></th:block>
+    <script th:src="@{~/static/scripts/media-actions.js}"></script>
 </head>
 <body>
 <div th:replace="~{fragment/navbar.html::navbar}"></div>
@@ -77,14 +78,14 @@
                         <form th:action="@{~/api/admin/media-requirement/complete}" method="post">
                             <input type="hidden" name="mediaId" class="form-control" th:value="${requirement.getMedia().getId()}"/>
                             <input type="hidden" name="groupId" class="form-control" th:value="${requirement.getGroup().getId()}"/>
-                            <input type="submit" th:value="#{web.media-list.table.action.complete}" class="btn btn-success btn-sm"/>
+                            <input type="submit" th:value="#{web.media-list.table.action.complete}" class="btn btn-success btn-sm media-action-button"/>
                         </form>
                     </div>
                     <div class="m-1">
                         <form th:action="@{~/api/admin/media-requirement/abandon}" method="post">
                             <input type="hidden" name="mediaId" class="form-control" th:value="${requirement.getMedia().getId()}"/>
                             <input type="hidden" name="groupId" class="form-control" th:value="${requirement.getGroup().getId()}"/>
-                            <input type="submit" th:value="#{web.media-list.table.action.abandon}" class="btn btn-danger btn-sm"/>
+                            <input type="submit" th:value="#{web.media-list.table.action.abandon}" class="btn btn-danger btn-sm media-action-button"/>
                         </form>
                     </div>
                 </div>
