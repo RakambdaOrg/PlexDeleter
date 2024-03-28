@@ -8,5 +8,6 @@
 <div>
     <th:block th:replace="~{fragment/mail::media(media=${media}, service=${service}, userGroup=${userGroup}, thymeleafService=${thymeleafService}, overseerrLogoResourceName=${overseerrLogoResourceName}, plexLogoResourceName=${plexLogoResourceName})}"></th:block>
 </div>
+<th:block th:replace="~{fragment/mail::footer(thymeleafService=${thymeleafService})}"></th:block>
 </body>
 </html>

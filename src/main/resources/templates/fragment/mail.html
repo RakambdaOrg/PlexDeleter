@@ -21,3 +21,9 @@
         </th:block>
     </div>
 </th:block>
+
+<th:block th:fragment="footer">
+    <footer class="bg-light text-center">
+        <a class="text-dark" th:href="${thymeleafService.getOwnUrl()}" th:text="#{mail.footer.app-link}"></a>
+    </footer>
+</th:block>

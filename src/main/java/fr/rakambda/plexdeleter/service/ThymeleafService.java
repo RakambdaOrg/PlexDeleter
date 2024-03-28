@@ -15,6 +15,7 @@ public class ThymeleafService{
 	private final String sonarrEndpoint;
 	private final String plexEndpoint;
 	private final String plexServerId;
+	private final String applicationEndpoint;
 	
 	@Autowired
 	public ThymeleafService(ApplicationConfiguration applicationConfiguration){
@@ -23,6 +24,7 @@ public class ThymeleafService{
 		this.sonarrEndpoint = applicationConfiguration.getSonarr().getEndpoint();
 		this.plexEndpoint = applicationConfiguration.getPlex().getAppEndpoint();
 		this.plexServerId = applicationConfiguration.getPlex().getServerId();
+		this.applicationEndpoint = applicationConfiguration.getApplicationUrl();
 	}
 	
 	@Nullable
@@ -51,6 +53,11 @@ public class ThymeleafService{
 		return Optional.ofNullable(media.getPlexId())
 				.map(id -> "%s/desktop/#!/server/%s/details?key=%%2Flibrary%%2Fmetadata%%2F%d".formatted(plexEndpoint, plexServerId, id))
 				.orElse(null);
+	}
+	
+	@Nullable
+	public String getOwnUrl(){
+		return applicationEndpoint;
 	}
 	
 	@Nullable
