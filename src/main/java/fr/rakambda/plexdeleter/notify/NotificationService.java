@@ -13,10 +13,12 @@ import fr.rakambda.plexdeleter.storage.entity.MediaEntity;
 import fr.rakambda.plexdeleter.storage.entity.MediaRequirementEntity;
 import fr.rakambda.plexdeleter.storage.entity.MediaRequirementStatus;
 import fr.rakambda.plexdeleter.storage.entity.UserGroupEntity;
+import fr.rakambda.plexdeleter.storage.repository.MediaRepository;
 import fr.rakambda.plexdeleter.storage.repository.UserGroupRepository;
 import jakarta.mail.MessagingException;
 import lombok.extern.slf4j.Slf4j;
 import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -34,15 +36,17 @@ public class NotificationService{
 	private final TvdbService tvdbService;
 	private final TautulliService tautulliService;
 	private final TmdbService tmdbService;
+	private final MediaRepository mediaRepository;
 	
 	@Autowired
-	public NotificationService(MailNotificationService mailNotificationService, DiscordNotificationService discordNotificationService, UserGroupRepository userGroupRepository, TvdbService tvdbService, TautulliService tautulliService, TmdbService tmdbService){
+	public NotificationService(MailNotificationService mailNotificationService, DiscordNotificationService discordNotificationService, UserGroupRepository userGroupRepository, TvdbService tvdbService, TautulliService tautulliService, TmdbService tmdbService, MediaRepository mediaRepository){
 		this.mailNotificationService = mailNotificationService;
 		this.discordNotificationService = discordNotificationService;
 		this.userGroupRepository = userGroupRepository;
 		this.tvdbService = tvdbService;
 		this.tautulliService = tautulliService;
 		this.tmdbService = tmdbService;
+		this.mediaRepository = mediaRepository;
 	}
 	
 	public void notifyWatchlist(@NotNull UserGroupEntity userGroupEntity, @NotNull Collection<MediaRequirementEntity> requirements) throws NotifyException{
@@ -175,20 +179,21 @@ public class NotificationService{
 				new TvdbMediaMetadataContext(tautulliService, metadata, tvdbService)
 		));
 		
+		var media = mediaRepository.findByPlexId(ratingKey).orElse(null);
 		var userGroupsRequirement = userGroupRepository.findAllByHasRequirementOnPlex(ratingKey, MediaRequirementStatus.WAITING);
 		for(var userGroup : userGroupsRequirement){
-			notifyMediaAdded(userGroup, mediaMetadataContext, true);
+			notifyMediaAdded(userGroup, mediaMetadataContext, media, true);
 		}
 		var userGroupsLibrary = userGroupRepository.findAllByWatchesLibrary(metadata.getLibraryName());
 		for(var userGroup : userGroupsLibrary){
 			if(userGroupsRequirement.contains(userGroup)){
 				continue;
 			}
-			notifyMediaAdded(userGroup, mediaMetadataContext, false);
+			notifyMediaAdded(userGroup, mediaMetadataContext, media, false);
 		}
 	}
 	
-	private void notifyMediaAdded(@NotNull UserGroupEntity userGroupEntity, @NotNull MediaMetadataContext metadata, boolean ping) throws NotifyException{
+	private void notifyMediaAdded(@NotNull UserGroupEntity userGroupEntity, @NotNull MediaMetadataContext metadata, @Nullable MediaEntity media, boolean ping) throws NotifyException{
 		try{
 			log.info("Notifying {} has been added to {}", metadata.getMetadata(), userGroupEntity);
 			var notification = userGroupEntity.getNotificationMediaAdded();
@@ -196,8 +201,8 @@ public class NotificationService{
 				return;
 			}
 			switch(notification.getType()){
-				case MAIL -> mailNotificationService.notifyMediaAdded(notification, userGroupEntity, metadata);
-				case DISCORD, DISCORD_THREAD -> discordNotificationService.notifyMediaAdded(notification, userGroupEntity, metadata, ping);
+				case MAIL -> mailNotificationService.notifyMediaAdded(notification, userGroupEntity, media, metadata);
+				case DISCORD, DISCORD_THREAD -> discordNotificationService.notifyMediaAdded(notification, userGroupEntity, metadata, media, ping);
 			}
 		}
 		catch(MessagingException | UnsupportedEncodingException | RequestFailedException | InterruptedException e){

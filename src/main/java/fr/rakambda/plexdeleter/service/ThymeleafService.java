@@ -60,6 +60,11 @@ public class ThymeleafService{
 		return applicationEndpoint;
 	}
 	
+	@NotNull
+	public String getAddWatchMediaUrl(int mediaId){
+		return "%s/api/user/media-requirement/add?media=%d".formatted(getOwnUrl(), mediaId);
+	}
+	
 	@Nullable
 	public String getTableColorClass(@NotNull MediaEntity media){
 		return media.getAvailability().getTableClass();

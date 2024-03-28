@@ -6,6 +6,9 @@ import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
+import jakarta.persistence.JoinColumn;
+import jakarta.persistence.ManyToOne;
+import jakarta.persistence.MapsId;
 import jakarta.persistence.Table;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -44,4 +47,9 @@ public class UserPersonEntity{
 	@Column(nullable = false)
 	@NotNull
 	private Integer groupId;
+	
+	@ManyToOne(optional = false)
+	@JoinColumn(name = "groupId", referencedColumnName = "id", updatable = false, nullable = false)
+	@MapsId("groupId")
+	private UserGroupEntity group;
 }

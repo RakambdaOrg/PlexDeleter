@@ -16,6 +16,7 @@ import fr.rakambda.plexdeleter.storage.entity.UserGroupEntity;
 import jakarta.mail.MessagingException;
 import lombok.extern.slf4j.Slf4j;
 import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.MessageSource;
 import org.springframework.core.io.ByteArrayResource;
@@ -113,7 +114,7 @@ public class MailNotificationService extends AbstractNotificationService{
 		notifySimple(notification, userGroupEntity, media, "mail.requirement.manually-abandoned.subject");
 	}
 	
-	public void notifyMediaAdded(@NotNull NotificationEntity notification, @NotNull UserGroupEntity userGroupEntity, @NotNull MediaMetadataContext mediaMetadataContext) throws MessagingException, UnsupportedEncodingException{
+	public void notifyMediaAdded(@NotNull NotificationEntity notification, @NotNull UserGroupEntity userGroupEntity, @Nullable MediaEntity media, @NotNull MediaMetadataContext mediaMetadataContext) throws MessagingException, UnsupportedEncodingException{
 		var locale = userGroupEntity.getLocaleAsObject();
 		var metadata = mediaMetadataContext.getMetadata();
 		
@@ -138,6 +139,15 @@ public class MailNotificationService extends AbstractNotificationService{
 		var posterData = mediaMetadataContext.getPosterData();
 		var mediaPosterResourceName = "mediaPosterResourceName";
 		
+		var suggestAddRequirementId = Optional.ofNullable(media)
+				.filter(m -> m.getRequirements().stream()
+						.map(MediaRequirementEntity::getGroup)
+						.map(UserGroupEntity::getId)
+						.noneMatch(group -> Objects.equals(group, userGroupEntity.getId())))
+				.map(MediaEntity::getId)
+				.orElse(null);
+		
+		context.setVariable("thymeleafService", thymeleafService);
 		context.setVariable("mediaTitle", mediaMetadataContext.getTitle(locale).orElseGet(metadata::getFullTitle));
 		context.setVariable("mediaSeason", mediaSeason);
 		context.setVariable("mediaSummary", mediaMetadataContext.getSummary(locale).orElseGet(metadata::getSummary));
@@ -148,6 +158,7 @@ public class MailNotificationService extends AbstractNotificationService{
 		context.setVariable("mediaPosterResourceName", posterData.isPresent() ? mediaPosterResourceName : null);
 		context.setVariable("mediaAudios", audioLanguages);
 		context.setVariable("mediaSubtitles", subtitleLanguages);
+		context.setVariable("suggestAddRequirementId", suggestAddRequirementId);
 		
 		sendMail(notification, message -> {
 			message.setSubject(messageSource.getMessage("mail.media.added.subject", new Object[0], locale));
