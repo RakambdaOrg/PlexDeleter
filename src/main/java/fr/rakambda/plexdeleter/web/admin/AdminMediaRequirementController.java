@@ -41,6 +41,7 @@ public class AdminMediaRequirementController{
 		var mav = new ModelAndView("admin/media-requirement/list");
 		mav.addObject("requirements", adminService.getMediaRequirementsThatCanBeCompleted());
 		mav.addObject("thymeleafService", thymeleafService);
+		mav.addObject("displayUsers", true);
 		return mav;
 	}
 }

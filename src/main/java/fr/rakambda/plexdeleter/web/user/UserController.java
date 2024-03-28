@@ -49,6 +49,7 @@ public class UserController{
 		var mav = new ModelAndView("user/home");
 		mav.addObject("requirements", requirements);
 		mav.addObject("thymeleafService", thymeleafService);
+		mav.addObject("displayUsers", false);
 		return mav;
 	}
 }

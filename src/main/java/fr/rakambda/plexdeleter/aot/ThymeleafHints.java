@@ -13,6 +13,7 @@ import org.springframework.aot.hint.RuntimeHintsRegistrar;
 import org.thymeleaf.engine.IterationStatusVar;
 import org.thymeleaf.expression.Lists;
 import org.thymeleaf.expression.Strings;
+import org.thymeleaf.extras.springsecurity6.auth.Authorization;
 import java.util.List;
 import java.util.Locale;
 
@@ -37,6 +38,7 @@ public class ThymeleafHints implements RuntimeHintsRegistrar{
 			hints.reflection().registerMethod(Lists.class.getMethod("isEmpty", List.class), ExecutableMode.INVOKE);
 			hints.reflection().registerMethod(Strings.class.getMethod("isEmpty", Object.class), ExecutableMode.INVOKE);
 			hints.reflection().registerMethod(Strings.class.getMethod("listJoin", List.class, String.class), ExecutableMode.INVOKE);
+			hints.reflection().registerMethod(Authorization.class.getMethod("expression", String.class), ExecutableMode.INVOKE);
 			hints.reflection().registerMethod(IterationStatusVar.class.getMethod("getIndex"), ExecutableMode.INVOKE);
 			hints.reflection().registerField(IterationStatusVar.class.getDeclaredField("index"));
 		}
