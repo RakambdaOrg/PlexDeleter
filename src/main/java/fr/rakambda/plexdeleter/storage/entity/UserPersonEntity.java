@@ -16,6 +16,7 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 import lombok.ToString;
 import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 
 @Data
 @AllArgsConstructor
@@ -40,8 +41,8 @@ public class UserPersonEntity{
 	@NotNull
 	private Integer plexId;
 	@Basic
-	@Column(nullable = false)
-	@NotNull
+	@Column
+	@Nullable
 	private Integer overseerrId;
 	@Basic
 	@Column(nullable = false)

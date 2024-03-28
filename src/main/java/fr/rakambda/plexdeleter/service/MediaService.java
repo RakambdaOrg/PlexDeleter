@@ -20,6 +20,7 @@ import fr.rakambda.plexdeleter.storage.entity.MediaRequirementEntity;
 import fr.rakambda.plexdeleter.storage.entity.MediaRequirementStatus;
 import fr.rakambda.plexdeleter.storage.entity.MediaType;
 import fr.rakambda.plexdeleter.storage.entity.UserGroupEntity;
+import fr.rakambda.plexdeleter.storage.entity.UserPersonEntity;
 import fr.rakambda.plexdeleter.storage.repository.MediaRepository;
 import lombok.extern.slf4j.Slf4j;
 import org.jetbrains.annotations.NotNull;
@@ -290,7 +291,8 @@ public class MediaService{
 		}
 		
 		var userIds = userGroup.getPersons().stream()
-				.map(userPerson -> 0)
+				.map(UserPersonEntity::getOverseerrId)
+				.filter(Objects::nonNull)
 				.toList();
 		
 		log.info("Deleting media request from Overseerr {} for group {}", media, userGroup);
