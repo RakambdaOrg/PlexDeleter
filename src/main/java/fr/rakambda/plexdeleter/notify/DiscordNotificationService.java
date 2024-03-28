@@ -9,7 +9,6 @@ import fr.rakambda.plexdeleter.api.discord.data.Image;
 import fr.rakambda.plexdeleter.api.discord.data.WebhookMessage;
 import fr.rakambda.plexdeleter.api.tautulli.data.AudioMediaPartStream;
 import fr.rakambda.plexdeleter.api.tautulli.data.SubtitlesMediaPartStream;
-import fr.rakambda.plexdeleter.config.ApplicationConfiguration;
 import fr.rakambda.plexdeleter.notify.context.MediaMetadataContext;
 import fr.rakambda.plexdeleter.service.LangService;
 import fr.rakambda.plexdeleter.service.ThymeleafService;
@@ -45,15 +44,13 @@ public class DiscordNotificationService extends AbstractNotificationService{
 	private final DiscordWebhookService discordWebhookService;
 	private final LangService langService;
 	private final MessageSource messageSource;
-	private final String overseerrEndpoint;
 	private final ThymeleafService thymeleafService;
 	
 	@Autowired
-	public DiscordNotificationService(DiscordWebhookService discordWebhookService, ApplicationConfiguration applicationConfiguration, MessageSource messageSource, WatchService watchService, LangService langService, ThymeleafService thymeleafService){
+	public DiscordNotificationService(DiscordWebhookService discordWebhookService, MessageSource messageSource, WatchService watchService, LangService langService, ThymeleafService thymeleafService){
 		super(watchService, messageSource);
 		this.discordWebhookService = discordWebhookService;
 		this.messageSource = messageSource;
-		this.overseerrEndpoint = applicationConfiguration.getOverseerr().getEndpoint();
 		this.langService = langService;
 		this.thymeleafService = thymeleafService;
 	}
@@ -107,6 +104,9 @@ public class DiscordNotificationService extends AbstractNotificationService{
 		if(!notYetAvailableMedia.isEmpty()){
 			writeWatchlistSection(discordUrl, threadId, "discord.watchlist.body.header.not-yet-available", locale, userGroupEntity, notYetAvailableMedia);
 		}
+		discordWebhookService.sendWebhookMessage(discordUrl, threadId, WebhookMessage.builder()
+				.content(getFooterContent(locale))
+				.build());
 	}
 	
 	public void notifyRequirementAdded(@NotNull NotificationEntity notification, @NotNull UserGroupEntity userGroupEntity, @NotNull MediaEntity media) throws MessagingException, UnsupportedEncodingException, RequestFailedException, InterruptedException{
@@ -234,13 +234,21 @@ public class DiscordNotificationService extends AbstractNotificationService{
 		var discordUrl = params[1];
 		
 		var messageBuilder = WebhookMessage.builder()
-				.content("<@%s>\n%s".formatted(discordUserId, getWatchlistMediaText(userGroupEntity, media, locale)));
+				.content("<@%s>\n%s\n\n%s".formatted(
+						discordUserId,
+						getWatchlistMediaText(userGroupEntity, media, locale),
+						getFooterContent(locale)
+				));
 		
 		if(notification.getType() == NotificationType.DISCORD_THREAD){
 			messageBuilder = messageBuilder.threadName(messageSource.getMessage(subjectKey, new Object[0], locale));
 		}
 		
 		discordWebhookService.sendWebhookMessage(discordUrl, messageBuilder.build());
+	}
+	
+	private String getFooterContent(Locale locale){
+		return "[%s](%s)".formatted(messageSource.getMessage("mail.footer.app-link", new Object[0], locale), thymeleafService.getOwnUrl());
 	}
 	
 	private void writeWatchlistSection(@NotNull String discordUrl, @Nullable Long threadId, @NotNull String sectionHeaderCode, @NotNull Locale locale, @NotNull UserGroupEntity userGroupEntity, @NotNull Collection<MediaEntity> medias) throws RequestFailedException, InterruptedException{
