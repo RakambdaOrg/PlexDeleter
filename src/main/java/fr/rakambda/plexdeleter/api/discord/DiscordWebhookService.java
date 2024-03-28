@@ -8,6 +8,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import org.springframework.core.io.ByteArrayResource;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.client.MultipartBodyBuilder;
 import org.springframework.http.client.reactive.ClientHttpRequest;
@@ -23,6 +24,7 @@ import java.time.Duration;
 import java.util.Map;
 import java.util.Objects;
 import java.util.Optional;
+import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.Semaphore;
 
@@ -34,7 +36,7 @@ public class DiscordWebhookService{
 	
 	public DiscordWebhookService(){
 		apiClient = WebClient.builder()
-				.filter(HttpUtils.logErrorFilter())
+				.filter(HttpUtils.logErrorFilter(Set.of(HttpStatus.TOO_MANY_REQUESTS)))
 				.build();
 		locks = new ConcurrentHashMap<>();
 	}

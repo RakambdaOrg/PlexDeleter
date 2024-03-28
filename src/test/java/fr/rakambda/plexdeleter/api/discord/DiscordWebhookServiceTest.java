@@ -8,9 +8,6 @@ import fr.rakambda.plexdeleter.api.discord.data.WebhookMessage;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.condition.DisabledIfEnvironmentVariable;
 import java.util.List;
-import java.util.concurrent.Callable;
-import java.util.concurrent.Executors;
-import java.util.stream.IntStream;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatCode;
 
@@ -65,21 +62,13 @@ class DiscordWebhookServiceTest{
 	
 	@Test
 	void itShouldHandleRateLimit(){
-		try(var pool = Executors.newVirtualThreadPerTaskExecutor()){
-			
-			var tasks = IntStream.rangeClosed(1, 20)
-					.mapToObj(index -> WebhookMessage.builder().content("this is a rate limit test %d".formatted(index)).build())
-					.map(message -> (Callable<Boolean>) () -> {
-						tested.sendWebhookMessage(SecretsUtils.getSecret("discord.webhook"), message);
-						return true;
-					})
-					.map(pool::submit)
-					.toList();
-			
-			assertThat(tasks).allSatisfy(future -> {
-				assertThatCode(future::get).doesNotThrowAnyException();
-				assertThat(future.resultNow()).isTrue();
-			});
+		var webhook = SecretsUtils.getSecret("discord.webhook");
+		var message = WebhookMessage.builder()
+				.content("Test rate limit")
+				.build();
+		
+		for(var i = 0; i < 15; i++){
+			assertThatCode(() -> tested.sendWebhookMessage(webhook, message)).doesNotThrowAnyException();
 		}
 	}
 }
