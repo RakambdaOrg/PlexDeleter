@@ -100,7 +100,7 @@ public class OverseerrController{
 		};
 		var mappedTags = tags.stream().collect(Collectors.toMap(Tag::getId, Tag::getLabel));
 		
-		if(requestDetails.getTags().stream()
+		if(Optional.ofNullable(requestDetails.getTags()).orElse(Set.of()).stream()
 				.map(mappedTags::get)
 				.anyMatch(name -> Objects.equals(name, excludeTag))){
 			log.warn("Not adding any media, it is excluded by tag {}", data);

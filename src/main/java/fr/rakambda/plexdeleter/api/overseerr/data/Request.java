@@ -30,7 +30,7 @@ public final class Request{
 	private String rootFolder;
 	@Nullable
 	private Integer languageProfileId;
-	@NotNull
+	@Nullable
 	private Set<Integer> tags = new HashSet<>();
 	private boolean isAutoRequest;
 	@NotNull
