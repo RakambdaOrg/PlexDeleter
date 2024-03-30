@@ -129,7 +129,7 @@ public class OverseerrService{
 	
 	public void deleteRequest(int requestId) throws RequestFailedException{
 		log.info("Deleting request with id {}", requestId);
-		HttpUtils.unwrapIfStatusOkAndNotNullBody(apiClient.delete()
+		HttpUtils.requireStatusOk(apiClient.delete()
 				.uri(b -> b.pathSegment("api", "v1", "request", "{requestId}")
 						.build(requestId))
 				.retrieve()
