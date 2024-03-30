@@ -26,7 +26,7 @@ public final class Request{
 	private boolean is4k;
 	private int serverId;
 	private int profileId;
-	@NotNull
+	@Nullable
 	private String rootFolder;
 	@Nullable
 	private Integer languageProfileId;
