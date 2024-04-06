@@ -58,7 +58,10 @@ tasks {
     bootBuildImage {
         environment = mapOf(
             "BP_NATIVE_IMAGE_BUILD_ARGUMENTS" to "-march=compatibility",
-            "BP_DISABLE_SBOM" to "true"
+            "BP_DISABLE_SBOM" to "true",
+            "BPE_LANG" to "C.UTF-8",
+            "BPE_APPEND_JAVA_TOOL_OPTIONS" to "-Duser.language=en -Duser.country=US",
+            "BPE_DELIM_JAVA_TOOL_OPTIONS" to " "
         )
     }
 
