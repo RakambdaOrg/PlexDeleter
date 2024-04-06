@@ -71,7 +71,7 @@ public class DeleteMediaScheduler implements IScheduler{
 			try{
 				size += delete(media);
 			}
-			catch(DeletionException | RequestFailedException | IOException e){
+			catch(Exception e){
 				log.error("Failed to delete media {}", media, e);
 			}
 		}
