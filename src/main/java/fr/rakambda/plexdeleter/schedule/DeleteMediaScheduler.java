@@ -90,7 +90,10 @@ public class DeleteMediaScheduler implements IScheduler{
 		var ratingKeys = tautulliService.getElementsRatingKeys(mediaEntity.getPlexId(), mediaEntity.getType());
 		var metadata = new LinkedHashSet<GetMetadataResponse>();
 		for(var ratingKey : ratingKeys){
-			metadata.add(tautulliService.getMetadata(ratingKey).getResponse().getData());
+			var metadataResponse = tautulliService.getMetadata(ratingKey).getResponse().getData();
+			if(Objects.nonNull(metadataResponse) && Objects.nonNull(metadataResponse.getMediaType())){
+				metadata.add(metadataResponse);
+			}
 		}
 		
 		if(metadata.isEmpty()){
