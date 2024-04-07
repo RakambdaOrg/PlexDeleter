@@ -95,12 +95,12 @@ public class TmdbMediaMetadataContext extends MediaMetadataContext{
 		if(tvdbCache.isPresent()){
 			return tvdbCache;
 		}
-		
+
 		try{
 			var response = switch(getMetadata().getMediaType()){
 				case MOVIE -> tmdbService.getMovieData(tmdbId, locale);
 				case SHOW, SEASON, EPISODE -> tmdbService.getSeriesData(tmdbId, locale);
-				case TRACK -> null;
+				case TRACK, ARTIST -> null;
 			};
 			
 			mediaTranslations.computeIfAbsent(tmdbId, k -> new HashMap<>()).put(locale, response);
@@ -127,7 +127,7 @@ public class TmdbMediaMetadataContext extends MediaMetadataContext{
 					})
 					.or(() -> getSeasonTranslation(locale, getMetadata().getParentMediaIndex()))
 					.or(() -> getMediaTranslation(locale));
-			case TRACK -> Optional.empty();
+			case TRACK, ARTIST -> Optional.empty();
 		};
 	}
 	

@@ -16,7 +16,7 @@ public class TautulliWebhook{
 	@NonNull
 	@NotNull
 	private String type;
-	@Nullable
+	@NotNull
 	@JsonProperty("media_type")
 	private MediaType mediaType;
 	@Nullable

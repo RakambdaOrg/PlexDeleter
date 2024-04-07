@@ -166,7 +166,7 @@ public class NotificationService{
 		var ratingKey = switch(metadata.getMediaType()){
 			case MOVIE, SEASON, SHOW -> metadata.getRatingKey();
 			case EPISODE -> metadata.getParentRatingKey();
-			case TRACK -> null;
+			case TRACK, ARTIST -> null;
 		};
 		
 		if(Objects.isNull(ratingKey)){

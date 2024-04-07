@@ -9,12 +9,14 @@ import org.springframework.aot.hint.annotation.RegisterReflectionForBinding;
 @RequiredArgsConstructor
 @RegisterReflectionForBinding(MediaType.class)
 public enum MediaType{
-	EPISODE("episode"),
-	MOVIE("movie"),
-	SHOW("show"),
-	SEASON("season"),
-	TRACK("track");
+	ARTIST("artist", false),
+	EPISODE("episode", true),
+	MOVIE("movie", true),
+	SEASON("season", true),
+	SHOW("show", true),
+	TRACK("track", false);
 	
 	@JsonValue
 	private final String value;
+	private final boolean notifyAdded;
 }

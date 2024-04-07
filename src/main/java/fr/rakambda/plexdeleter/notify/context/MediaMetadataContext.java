@@ -48,8 +48,8 @@ public abstract class MediaMetadataContext{
 		try{
 			var data = switch(metadata.getMediaType()){
 				case EPISODE -> posterFunction.apply(metadata.getParentRatingKey()).or(() -> posterFunction.apply(metadata.getGrandparentRatingKey()));
-				case SEASON, SHOW -> posterFunction.apply(metadata.getRatingKey()).or(() -> posterFunction.apply(metadata.getParentRatingKey()));
-				case TRACK, MOVIE -> posterFunction.apply(metadata.getRatingKey());
+				case SEASON, TRACK -> posterFunction.apply(metadata.getRatingKey()).or(() -> posterFunction.apply(metadata.getParentRatingKey()));
+				case MOVIE, ARTIST, SHOW -> posterFunction.apply(metadata.getRatingKey());
 			};
 			
 			data.ifPresent(bytes -> posterData = bytes);

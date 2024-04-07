@@ -2,7 +2,6 @@ package fr.rakambda.plexdeleter.web.webhook.tautulli;
 
 import fr.rakambda.plexdeleter.api.RequestFailedException;
 import fr.rakambda.plexdeleter.api.tautulli.TautulliService;
-import fr.rakambda.plexdeleter.api.tautulli.data.MediaType;
 import fr.rakambda.plexdeleter.notify.NotificationService;
 import fr.rakambda.plexdeleter.notify.NotifyException;
 import fr.rakambda.plexdeleter.service.MediaService;
@@ -54,7 +53,7 @@ public class TautulliController{
 	public void onCall(@NonNull @RequestBody TautulliWebhook data) throws RequestFailedException, IOException, UpdateException, NotifyException{
 		log.info("Received new Tautulli webhook {}", data);
 		
-		if(Objects.equals(data.getMediaType(), MediaType.TRACK)){
+		if(!data.getMediaType().isNotifyAdded()){
 			return;
 		}
 		
@@ -72,12 +71,8 @@ public class TautulliController{
 			log.warn("Not updating any requirement, could not determine user id from {}", data);
 			return;
 		}
-		if(Objects.isNull(data.getMediaType())){
-			log.warn("Not updating any requirement, media type is unknown in {}", data);
-			return;
-		}
 		var ratingKey = switch(data.getMediaType()){
-			case MOVIE, SHOW, SEASON -> data.getRatingKey();
+			case MOVIE, SHOW, SEASON, ARTIST -> data.getRatingKey();
 			case EPISODE, TRACK -> data.getParentRatingKey();
 		};
 		
@@ -110,7 +105,7 @@ public class TautulliController{
 	
 	private void updateMedia(@NotNull TautulliWebhook data) throws RequestFailedException, UpdateException, NotifyException{
 		var ratingKey = switch(Objects.requireNonNull(data.getMediaType())){
-			case MOVIE, SEASON, SHOW -> data.getRatingKey();
+			case MOVIE, SEASON, SHOW, ARTIST -> data.getRatingKey();
 			case EPISODE, TRACK -> data.getParentRatingKey();
 		};
 		
