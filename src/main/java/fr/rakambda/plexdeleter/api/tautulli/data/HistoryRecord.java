@@ -33,7 +33,7 @@ public class HistoryRecord{
 	private String title;
 	@JsonProperty("media_type")
 	@NotNull
-	private String mediaType;
+	private MediaType mediaType;
 	@JsonProperty("rating_key")
 	@NotNull
 	private Integer ratingKey;

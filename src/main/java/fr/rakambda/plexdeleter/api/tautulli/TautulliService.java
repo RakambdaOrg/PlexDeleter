@@ -47,9 +47,16 @@ public class TautulliService{
 	@NotNull
 	public Collection<Integer> getElementsRatingKeys(int ratingKey, @NotNull MediaType mediaType) throws RequestFailedException{
 		return switch(mediaType){
-			case MOVIE -> Set.of(getNewRatingKeys(ratingKey, "movie").getResponse().getData().getData().getRatingKey());
-			case SEASON -> getNewRatingKeys(ratingKey, "season").getResponse().getData().getData()
-					.getChildren().values().stream()
+			case MOVIE -> getNewRatingKeys(ratingKey, "movie").getResponse().getDataOptional()
+					.map(GetNewRatingKeysResponse::getData)
+					.map(GetNewRatingKeysData::getRatingKey)
+					.map(Set::of)
+					.orElseGet(Set::of);
+			case SEASON -> getNewRatingKeys(ratingKey, "season").getResponse().getDataOptional()
+					.map(GetNewRatingKeysResponse::getData)
+					.map(GetNewRatingKeysData::getChildren)
+					.orElseGet(Map::of)
+					.values().stream()
 					.filter(data -> Objects.equals(data.getRatingKey(), ratingKey))
 					.map(GetNewRatingKeysData::getChildren)
 					.map(Map::values)

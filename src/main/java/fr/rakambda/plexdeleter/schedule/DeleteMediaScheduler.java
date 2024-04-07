@@ -91,7 +91,7 @@ public class DeleteMediaScheduler implements IScheduler{
 		var metadata = new LinkedHashSet<GetMetadataResponse>();
 		for(var ratingKey : ratingKeys){
 			var metadataResponse = tautulliService.getMetadata(ratingKey).getResponse().getData();
-			if(Objects.nonNull(metadataResponse) && Objects.nonNull(metadataResponse.getMediaType())){
+			if(Objects.nonNull(metadataResponse)){
 				metadata.add(metadataResponse);
 			}
 		}

@@ -2,6 +2,7 @@ package fr.rakambda.plexdeleter.web.webhook.tautulli;
 
 import fr.rakambda.plexdeleter.api.RequestFailedException;
 import fr.rakambda.plexdeleter.api.tautulli.TautulliService;
+import fr.rakambda.plexdeleter.api.tautulli.data.MediaType;
 import fr.rakambda.plexdeleter.notify.NotificationService;
 import fr.rakambda.plexdeleter.notify.NotifyException;
 import fr.rakambda.plexdeleter.service.MediaService;
@@ -53,7 +54,7 @@ public class TautulliController{
 	public void onCall(@NonNull @RequestBody TautulliWebhook data) throws RequestFailedException, IOException, UpdateException, NotifyException{
 		log.info("Received new Tautulli webhook {}", data);
 		
-		if(Objects.equals(data.getMediaType(), "track")){
+		if(Objects.equals(data.getMediaType(), MediaType.TRACK)){
 			return;
 		}
 		
@@ -76,9 +77,8 @@ public class TautulliController{
 			return;
 		}
 		var ratingKey = switch(data.getMediaType()){
-			case "movie", "show" -> data.getRatingKey();
-			case "episode" -> data.getParentRatingKey();
-			default -> null;
+			case MOVIE, SHOW, SEASON -> data.getRatingKey();
+			case EPISODE, TRACK -> data.getParentRatingKey();
 		};
 		
 		if(Objects.isNull(ratingKey)){
@@ -110,9 +110,8 @@ public class TautulliController{
 	
 	private void updateMedia(@NotNull TautulliWebhook data) throws RequestFailedException, UpdateException, NotifyException{
 		var ratingKey = switch(Objects.requireNonNull(data.getMediaType())){
-			case "movie", "season", "show" -> data.getRatingKey();
-			case "episode" -> data.getParentRatingKey();
-			default -> null;
+			case MOVIE, SEASON, SHOW -> data.getRatingKey();
+			case EPISODE, TRACK -> data.getParentRatingKey();
 		};
 		
 		if(Objects.isNull(ratingKey)){
@@ -137,7 +136,7 @@ public class TautulliController{
 		}
 		
 		var metadata = tautulliService.getMetadata(ratingKey).getResponse().getData();
-		if(Objects.isNull(metadata.getMediaType())){
+		if(Objects.isNull(metadata)){
 			log.warn("Not notifying any media, could not get metadata from {}", data);
 			return;
 		}

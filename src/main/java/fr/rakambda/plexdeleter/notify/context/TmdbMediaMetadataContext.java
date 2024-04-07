@@ -98,9 +98,9 @@ public class TmdbMediaMetadataContext extends MediaMetadataContext{
 		
 		try{
 			var response = switch(getMetadata().getMediaType()){
-				case "movie" -> tmdbService.getMovieData(tmdbId, locale);
-				case "season", "show", "episode" -> tmdbService.getSeriesData(tmdbId, locale);
-				default -> null;
+				case MOVIE -> tmdbService.getMovieData(tmdbId, locale);
+				case SHOW, SEASON, EPISODE -> tmdbService.getSeriesData(tmdbId, locale);
+				case TRACK -> null;
 			};
 			
 			mediaTranslations.computeIfAbsent(tmdbId, k -> new HashMap<>()).put(locale, response);
@@ -115,10 +115,10 @@ public class TmdbMediaMetadataContext extends MediaMetadataContext{
 	@NotNull
 	private Optional<? extends MediaData> getElementTranslation(@NotNull Locale locale){
 		return switch(getMetadata().getMediaType()){
-			case "movie", "show" -> getMediaTranslation(locale);
-			case "season" -> getSeasonTranslation(locale, getMetadata().getMediaIndex())
+			case MOVIE, SHOW -> getMediaTranslation(locale);
+			case SEASON -> getSeasonTranslation(locale, getMetadata().getMediaIndex())
 					.or(() -> getMediaTranslation(locale));
-			case "episode" -> getSeasonTranslation(locale, getMetadata().getParentMediaIndex())
+			case EPISODE -> getSeasonTranslation(locale, getMetadata().getParentMediaIndex())
 					.<MediaData> flatMap(data -> switch(data){
 						case SeasonData series -> series.getEpisodes().stream()
 								.filter(e -> Objects.equals(e.getEpisodeNumber(), getMetadata().getMediaIndex()))
@@ -127,7 +127,7 @@ public class TmdbMediaMetadataContext extends MediaMetadataContext{
 					})
 					.or(() -> getSeasonTranslation(locale, getMetadata().getParentMediaIndex()))
 					.or(() -> getMediaTranslation(locale));
-			default -> Optional.empty();
+			case TRACK -> Optional.empty();
 		};
 	}
 	

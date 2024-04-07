@@ -96,9 +96,9 @@ public class TvdbMediaMetadataContext extends MediaMetadataContext{
 		
 		try{
 			var response = switch(getMetadata().getMediaType()){
-				case "movie" -> tvdbService.getExtendedMovieData(tvdbId);
-				case "season", "show", "episode" -> tvdbService.getExtendedSeriesData(tvdbId);
-				default -> null;
+				case MOVIE -> tvdbService.getExtendedMovieData(tvdbId);
+				case SEASON, SHOW, EPISODE -> tvdbService.getExtendedSeriesData(tvdbId);
+				case TRACK -> null;
 			};
 			
 			var data = Optional.ofNullable(response).map(TvdbResponseWrapper::getData);
@@ -129,9 +129,9 @@ public class TvdbMediaMetadataContext extends MediaMetadataContext{
 		
 		try{
 			var response = switch(getMetadata().getMediaType()){
-				case "movie" -> tvdbService.getMovieTranslations(tvdbId, locale);
-				case "season", "show", "episode" -> tvdbService.getSeriesTranslations(tvdbId, locale);
-				default -> null;
+				case MOVIE -> tvdbService.getMovieTranslations(tvdbId, locale);
+				case SEASON, SHOW, EPISODE -> tvdbService.getSeriesTranslations(tvdbId, locale);
+				case TRACK -> null;
 			};
 			
 			var translation = Optional.ofNullable(response).map(TvdbResponseWrapper::getData);
@@ -147,22 +147,22 @@ public class TvdbMediaMetadataContext extends MediaMetadataContext{
 	@NotNull
 	private Optional<Translation> getElementTranslation(@NotNull Locale locale){
 		return switch(getMetadata().getMediaType()){
-			case "movie", "show" -> getMediaTranslation(locale);
-			case "season" -> getSeasonTranslation(locale)
+			case MOVIE, SHOW -> getMediaTranslation(locale);
+			case SEASON -> getSeasonTranslation(locale)
 					.or(() -> getMediaTranslation(locale));
-			case "episode" -> getEpisodeTranslation(locale)
+			case EPISODE -> getEpisodeTranslation(locale)
 					.or(() -> getSeasonTranslation(locale))
 					.or(() -> getMediaTranslation(locale));
-			default -> Optional.empty();
+			case TRACK -> Optional.empty();
 		};
 	}
 	
 	@NotNull
 	private Optional<Translation> getSeasonTranslation(@NotNull Locale locale){
 		var tvdbId = switch(getMetadata().getMediaType()){
-			case "season", "show" -> getTvdbId(getMetadata().getGuids()).orElse(null);
-			case "episode" -> getTvdbId(getMetadata().getParentGuids()).orElse(null);
-			default -> null;
+			case SEASON, SHOW -> getTvdbId(getMetadata().getGuids()).orElse(null);
+			case EPISODE -> getTvdbId(getMetadata().getParentGuids()).orElse(null);
+			case MOVIE, TRACK -> null;
 		};
 		
 		if(Objects.isNull(tvdbId)){
@@ -189,8 +189,8 @@ public class TvdbMediaMetadataContext extends MediaMetadataContext{
 	@NotNull
 	private Optional<Translation> getEpisodeTranslation(@NotNull Locale locale){
 		var tvdbId = switch(getMetadata().getMediaType()){
-			case "episode" -> getTvdbId(getMetadata().getGuids()).orElse(null);
-			default -> null;
+			case EPISODE -> getTvdbId(getMetadata().getGuids()).orElse(null);
+			case TRACK, MOVIE, SEASON, SHOW -> null;
 		};
 		
 		if(Objects.isNull(tvdbId)){

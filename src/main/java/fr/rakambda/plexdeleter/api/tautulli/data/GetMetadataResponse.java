@@ -21,7 +21,7 @@ import java.util.Set;
 @RegisterReflectionForBinding(GetMetadataResponse.class)
 public class GetMetadataResponse{
 	@JsonProperty("media_type")
-	private String mediaType;
+	private MediaType mediaType;
 	@JsonProperty("parent_media_index")
 	@Nullable
 	private Integer parentMediaIndex;

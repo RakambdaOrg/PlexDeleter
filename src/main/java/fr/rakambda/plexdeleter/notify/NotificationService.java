@@ -164,9 +164,9 @@ public class NotificationService{
 	
 	public void notifyMediaAdded(@NotNull GetMetadataResponse metadata) throws NotifyException{
 		var ratingKey = switch(metadata.getMediaType()){
-			case "movie", "season" -> metadata.getRatingKey();
-			case "episode" -> metadata.getParentRatingKey();
-			default -> null;
+			case MOVIE, SEASON, SHOW -> metadata.getRatingKey();
+			case EPISODE -> metadata.getParentRatingKey();
+			case TRACK -> null;
 		};
 		
 		if(Objects.isNull(ratingKey)){

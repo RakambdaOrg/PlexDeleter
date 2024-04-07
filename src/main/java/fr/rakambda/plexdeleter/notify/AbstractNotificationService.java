@@ -89,7 +89,7 @@ public abstract class AbstractNotificationService{
 	@Nullable
 	protected String getMediaSeason(@NotNull GetMetadataResponse metadata, @NotNull Locale locale){
 		return switch(metadata.getMediaType()){
-			case "episode" -> Stream.of(
+			case EPISODE -> Stream.of(
 							Optional.ofNullable(metadata.getParentMediaIndex())
 									.map(i -> messageSource.getMessage("mail.media.added.body.season", new Object[]{i}, locale))
 									.orElse(null),
@@ -99,7 +99,7 @@ public abstract class AbstractNotificationService{
 					)
 					.filter(Objects::nonNull)
 					.collect(Collectors.joining(" - "));
-			case "season" -> Optional.ofNullable(metadata.getMediaIndex())
+			case SHOW -> Optional.ofNullable(metadata.getMediaIndex())
 					.map(i -> messageSource.getMessage("mail.media.added.body.season", new Object[]{i}, locale))
 					.orElse(null);
 			default -> null;

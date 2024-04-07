@@ -64,6 +64,7 @@ class TautulliServiceTest{
 		var result = tested.getMetadata(272271);
 		
 		assertThat(result.getResponse().getData()).satisfies(data -> {
+			assertThat(data.getMediaType()).isEqualTo(fr.rakambda.plexdeleter.api.tautulli.data.MediaType.MOVIE);
 			assertThat(data.getAddedAt()).isEqualTo("2022-09-23T17:35:49Z");
 			assertThat(data.getMediaInfo())
 					.hasSize(1)
@@ -75,6 +76,13 @@ class TautulliServiceTest{
 							})
 					);
 		});
+	}
+	
+	@Test
+	void itShouldGetMetadataOfUnknown() throws RequestFailedException{
+		var result = tested.getMetadata(123456789);
+		
+		assertThat(result.getResponse().getData()).isNull();
 	}
 	
 	@Test

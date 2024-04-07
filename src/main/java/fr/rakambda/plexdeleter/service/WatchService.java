@@ -43,7 +43,10 @@ public class WatchService{
 		}
 		var history = new LinkedList<GetHistoryResponse>();
 		for(var person : userGroupEntity.getPersons()){
-			history.add(tautulliService.getHistory(mediaEntity.getPlexId(), mediaEntity.getType(), person.getPlexId()).getResponse().getData());
+			var data = tautulliService.getHistory(mediaEntity.getPlexId(), mediaEntity.getType(), person.getPlexId()).getResponse().getData();
+			if(Objects.nonNull(data)){
+				history.add(data);
+			}
 		}
 		
 		return history.stream()

@@ -1,6 +1,7 @@
 package fr.rakambda.plexdeleter.web.webhook.tautulli.data;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
+import fr.rakambda.plexdeleter.api.tautulli.data.MediaType;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
@@ -17,7 +18,7 @@ public class TautulliWebhook{
 	private String type;
 	@Nullable
 	@JsonProperty("media_type")
-	private String mediaType;
+	private MediaType mediaType;
 	@Nullable
 	@JsonProperty("user_id")
 	private Integer userId;
