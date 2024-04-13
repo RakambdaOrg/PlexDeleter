@@ -129,7 +129,7 @@ public class DiscordNotificationService extends AbstractNotificationService{
 		notifySimple(notification, userGroupEntity, media, "discord.requirement.manually-abandoned.subject");
 	}
 	
-	public void notifyMediaAdded(@NotNull NotificationEntity notification, @NotNull UserGroupEntity userGroupEntity, @NotNull MediaMetadataContext mediaMetadataContext, @Nullable MediaEntity media, boolean ping) throws RequestFailedException, InterruptedException{
+	public void notifyMediaAdded(@NotNull NotificationEntity notification, @NotNull UserGroupEntity userGroupEntity, @NotNull MediaMetadataContext mediaMetadataContext, @Nullable MediaEntity media) throws RequestFailedException, InterruptedException{
 		var locale = userGroupEntity.getLocaleAsObject();
 		var metadata = mediaMetadataContext.getMetadata();
 		var params = notification.getValue().split(",");
@@ -153,13 +153,14 @@ public class DiscordNotificationService extends AbstractNotificationService{
 				.distinct()
 				.flatMap(code -> langService.getLanguageName(code, locale))
 				.toList();
-		var suggestAddRequirementId = Optional.ofNullable(media)
-				.filter(m -> m.getRequirements().stream()
-						.map(MediaRequirementEntity::getGroup)
-						.map(UserGroupEntity::getId)
-						.noneMatch(group -> Objects.equals(group, userGroupEntity.getId())))
-				.map(MediaEntity::getId)
-				.orElse(null);
+		var requirements = Optional.ofNullable(media)
+				.map(m -> m.getRequirements().stream()
+						.filter(r -> Objects.equals(r.getGroup().getId(), userGroupEntity.getId()))
+						.toList())
+				.orElseGet(List::of);
+		var ping = requirements.stream()
+				.map(MediaRequirementEntity::getStatus)
+				.anyMatch(r -> !r.isCompleted());
 		
 		var messageBuilder = WebhookMessage.builder();
 		var embed = Embed.builder()
@@ -180,14 +181,17 @@ public class DiscordNotificationService extends AbstractNotificationService{
 					.build());
 		});
 		
-		Optional.ofNullable(suggestAddRequirementId)
-				.ifPresent(id -> embed.field(Field.builder()
-						.name(messageSource.getMessage("discord.media.available.body.actions", new Object[0], locale))
-						.value("[%s](%s)".formatted(
-								messageSource.getMessage("discord.media.available.body.actions.requirement.add", new Object[0], locale),
-								thymeleafService.getAddWatchMediaUrl(id)
-						))
-						.build()));
+		if(requirements.isEmpty()){
+			Optional.ofNullable(media)
+					.map(MediaEntity::getId)
+					.ifPresent(id -> embed.field(Field.builder()
+							.name(messageSource.getMessage("discord.media.available.body.actions", new Object[0], locale))
+							.value("[%s](%s)".formatted(
+									messageSource.getMessage("discord.media.available.body.actions.requirement.add", new Object[0], locale),
+									thymeleafService.getAddWatchMediaUrl(id)
+							))
+							.build()));
+		}
 		
 		Optional.ofNullable(mediaMetadataContext.getSummary(locale).orElseGet(metadata::getSummary))
 				.filter(s -> !s.isBlank())

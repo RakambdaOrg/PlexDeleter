@@ -45,15 +45,11 @@ public interface UserGroupRepository extends JpaRepository<UserGroupEntity, Inte
 			SELECT DISTINCT G
 			FROM UserGroupEntity G
 			LEFT JOIN MediaRequirementEntity MR ON MR.group.id = G.id
-			WHERE MR.media.plexId = ?1 AND MR.status = ?2"""
-	)
-	List<UserGroupEntity> findAllByHasRequirementOnPlex(int ratingKey, @NotNull MediaRequirementStatus status);
-	
-	@Query(value = """
-			SELECT DISTINCT G
-			FROM UserGroupEntity G
 			LEFT JOIN UserGroupLibraryEntity UGL ON UGL.userGroup = G
-			WHERE UGL.name = ?1"""
+			WHERE
+			(MR.media.plexId = ?1 AND MR.status = ?2)
+			OR
+			(UGL.name = ?3)"""
 	)
-	List<UserGroupEntity> findAllByWatchesLibrary(@NotNull String libraryName);
+	List<UserGroupEntity> findAllByHasRequirementOnPlex(int ratingKey, @NotNull MediaRequirementStatus status, @NotNull String libraryName);
 }
