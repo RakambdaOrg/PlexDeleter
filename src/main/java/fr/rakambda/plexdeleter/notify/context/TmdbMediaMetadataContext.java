@@ -72,6 +72,13 @@ public class TmdbMediaMetadataContext extends MediaMetadataContext{
 	}
 	
 	@NotNull
+	public Optional<Integer> getTmdbId(){
+		return getTmdbId(getMetadata().getGrandparentGuids())
+				.or(() -> getTmdbId(getMetadata().getParentGuids()))
+				.or(() -> getTmdbId(getMetadata().getGuids()));
+	}
+	
+	@NotNull
 	private Optional<Integer> getTmdbId(@NotNull Collection<String> guids){
 		return guids.stream()
 				.filter(guid -> guid.matches("tmdb://\\d+"))
@@ -82,10 +89,7 @@ public class TmdbMediaMetadataContext extends MediaMetadataContext{
 	
 	@NotNull
 	private Optional<RootMediaData> getMediaTranslation(@NotNull Locale locale){
-		var tmdbId = getTmdbId(getMetadata().getGrandparentGuids())
-				.or(() -> getTmdbId(getMetadata().getParentGuids()))
-				.or(() -> getTmdbId(getMetadata().getGuids()))
-				.orElse(null);
+		var tmdbId = getTmdbId().orElse(null);
 		
 		if(Objects.isNull(tmdbId)){
 			return Optional.empty();
@@ -95,7 +99,7 @@ public class TmdbMediaMetadataContext extends MediaMetadataContext{
 		if(tvdbCache.isPresent()){
 			return tvdbCache;
 		}
-
+		
 		try{
 			var response = switch(getMetadata().getMediaType()){
 				case MOVIE -> tmdbService.getMovieData(tmdbId, locale);
@@ -133,10 +137,7 @@ public class TmdbMediaMetadataContext extends MediaMetadataContext{
 	
 	@NotNull
 	private Optional<MediaData> getSeasonTranslation(@NotNull Locale locale, @Nullable Integer seasonNumber){
-		var tmdbId = getTmdbId(getMetadata().getGrandparentGuids())
-				.or(() -> getTmdbId(getMetadata().getParentGuids()))
-				.or(() -> getTmdbId(getMetadata().getGuids()))
-				.orElse(null);
+		var tmdbId = getTmdbId().orElse(null);
 		
 		if(Objects.isNull(tmdbId) || Objects.isNull(seasonNumber)){
 			return Optional.empty();

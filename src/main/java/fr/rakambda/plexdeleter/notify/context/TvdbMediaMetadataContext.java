@@ -70,6 +70,13 @@ public class TvdbMediaMetadataContext extends MediaMetadataContext{
 	}
 	
 	@NotNull
+	public Optional<Integer> getTvdbId(){
+		return getTvdbId(getMetadata().getGrandparentGuids())
+				.or(() -> getTvdbId(getMetadata().getParentGuids()))
+				.or(() -> getTvdbId(getMetadata().getGuids()));
+	}
+	
+	@NotNull
 	private Optional<Integer> getTvdbId(@NotNull Collection<String> guids){
 		return guids.stream()
 				.filter(guid -> guid.matches("tvdb://\\d+"))
@@ -80,10 +87,7 @@ public class TvdbMediaMetadataContext extends MediaMetadataContext{
 	
 	@NotNull
 	private Optional<? extends MediaData> getMediaData(){
-		var tvdbId = getTvdbId(getMetadata().getGrandparentGuids())
-				.or(() -> getTvdbId(getMetadata().getParentGuids()))
-				.or(() -> getTvdbId(getMetadata().getGuids()))
-				.orElse(null);
+		var tvdbId = getTvdbId().orElse(null);
 		
 		if(Objects.isNull(tvdbId)){
 			return Optional.empty();
@@ -113,10 +117,7 @@ public class TvdbMediaMetadataContext extends MediaMetadataContext{
 	
 	@NotNull
 	private Optional<Translation> getMediaTranslation(@NotNull Locale locale){
-		var tvdbId = getTvdbId(getMetadata().getGrandparentGuids())
-				.or(() -> getTvdbId(getMetadata().getParentGuids()))
-				.or(() -> getTvdbId(getMetadata().getGuids()))
-				.orElse(null);
+		var tvdbId = getTvdbId().orElse(null);
 		
 		if(Objects.isNull(tvdbId)){
 			return Optional.empty();

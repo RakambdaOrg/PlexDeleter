@@ -3,6 +3,7 @@ package fr.rakambda.plexdeleter.storage.repository;
 import fr.rakambda.plexdeleter.storage.entity.MediaRequirementStatus;
 import fr.rakambda.plexdeleter.storage.entity.UserGroupEntity;
 import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.stereotype.Repository;
@@ -47,9 +48,16 @@ public interface UserGroupRepository extends JpaRepository<UserGroupEntity, Inte
 			LEFT JOIN MediaRequirementEntity MR ON MR.group.id = G.id
 			LEFT JOIN UserGroupLibraryEntity UGL ON UGL.userGroup = G
 			WHERE
-			(MR.media.plexId = ?1 AND MR.status = ?2)
+			(
+				MR.status = ?2
+				AND (
+					(MR.media.plexId IS NOT NULL AND MR.media.plexId = ?1)
+					OR (MR.media.tmdbId IS NOT NULL AND MR.media.tmdbId = ?4 AND MR.media.index = ?6)
+					OR (MR.media.tvdbId IS NOT NULL AND MR.media.tvdbId = ?5 AND MR.media.index = ?6)
+				)
+			)
 			OR
 			(UGL.name = ?3)"""
 	)
-	List<UserGroupEntity> findAllByHasRequirementOnPlex(int ratingKey, @NotNull MediaRequirementStatus status, @NotNull String libraryName);
+	List<UserGroupEntity> findAllByHasRequirementOnPlex(int ratingKey, @NotNull MediaRequirementStatus status, @NotNull String libraryName, @Nullable Integer tmdbId, @Nullable Integer tvdbId, int mediaIndex);
 }

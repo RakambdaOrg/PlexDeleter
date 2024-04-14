@@ -164,9 +164,14 @@ public class NotificationService{
 	
 	public void notifyMediaAdded(@NotNull GetMetadataResponse metadata) throws NotifyException{
 		var ratingKey = switch(metadata.getMediaType()){
-			case MOVIE, SEASON, SHOW -> metadata.getRatingKey();
+			case MOVIE, SEASON -> metadata.getRatingKey();
 			case EPISODE -> metadata.getParentRatingKey();
-			case TRACK, ARTIST -> null;
+			case TRACK, ARTIST, SHOW -> null;
+		};
+		var mediaIndex = switch(metadata.getMediaType()){
+			case MOVIE, SEASON -> metadata.getMediaIndex();
+			case EPISODE -> metadata.getParentMediaIndex();
+			case TRACK, ARTIST, SHOW -> 1;
 		};
 		
 		if(Objects.isNull(ratingKey)){
@@ -174,13 +179,40 @@ public class NotificationService{
 			return;
 		}
 		
+		var tmdbMediaMetadataContext = new TmdbMediaMetadataContext(tautulliService, metadata, tmdbService);
+		var tvdbMediaMetadataContext = new TvdbMediaMetadataContext(tautulliService, metadata, tvdbService);
 		var mediaMetadataContext = new CompositeMediaMetadataContext(tautulliService, metadata, List.of(
-				new TmdbMediaMetadataContext(tautulliService, metadata, tmdbService),
-				new TvdbMediaMetadataContext(tautulliService, metadata, tvdbService)
+				tmdbMediaMetadataContext,
+				tvdbMediaMetadataContext
 		));
 		
 		var media = mediaRepository.findByPlexId(ratingKey).orElse(null);
-		var userGroupsRequirement = userGroupRepository.findAllByHasRequirementOnPlex(ratingKey, MediaRequirementStatus.WAITING, metadata.getLibraryName());
+		
+		if(Objects.isNull(media)){
+			var mediaOther = tmdbMediaMetadataContext.getTmdbId().flatMap(id -> mediaRepository.findByTmdbIdAndIndex(id, mediaIndex))
+					.or(() -> tvdbMediaMetadataContext.getTvdbId().flatMap(id -> mediaRepository.findByTvdbIdAndIndex(id, mediaIndex)));
+			
+			var ratingKeyToSet = switch(metadata.getMediaType()){
+				case MOVIE, SEASON -> metadata.getRatingKey();
+				case EPISODE -> metadata.getParentRatingKey();
+				case TRACK, ARTIST, SHOW -> null;
+			};
+			
+			if(mediaOther.isPresent() && Objects.nonNull(ratingKeyToSet)){
+				mediaOther.get().setPlexId(ratingKeyToSet);
+				media = mediaRepository.save(mediaOther.get());
+			}
+		}
+		
+		var userGroupsRequirement = userGroupRepository.findAllByHasRequirementOnPlex(
+				ratingKey,
+				MediaRequirementStatus.WAITING,
+				metadata.getLibraryName(),
+				tmdbMediaMetadataContext.getTmdbId().orElse(null),
+				tvdbMediaMetadataContext.getTvdbId().orElse(null),
+				mediaIndex
+		);
+		
 		for(var userGroup : userGroupsRequirement){
 			notifyMediaAdded(userGroup, mediaMetadataContext, media);
 		}
