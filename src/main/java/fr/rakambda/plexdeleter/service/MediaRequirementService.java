@@ -14,6 +14,7 @@ import fr.rakambda.plexdeleter.storage.repository.MediaRequirementRepository;
 import fr.rakambda.plexdeleter.storage.repository.UserGroupRepository;
 import lombok.extern.slf4j.Slf4j;
 import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import java.util.Objects;
@@ -90,13 +91,15 @@ public class MediaRequirementService{
 		}
 	}
 	
-	public void addRequirementForNewMedia(@NotNull MediaEntity media, @NotNull UserGroupEntity userGroupEntity) throws NotifyException, RequestFailedException{
+	public void addRequirementForNewMedia(@NotNull MediaEntity media, @Nullable UserGroupEntity userGroupEntity) throws NotifyException, RequestFailedException{
 		log.info("Adding requirements to media {}", media);
-		addRequirement(media, userGroupEntity, true);
+		if(Objects.nonNull(userGroupEntity)){
+			addRequirement(media, userGroupEntity, true);
+		}
 		
 		var otherGroups = userGroupRepository.findAllByHasRequirementOn(Objects.requireNonNull(media.getOverseerrId()), media.getIndex() - 1);
 		for(var otherGroup : otherGroups){
-			if(Objects.equals(otherGroup.getId(), userGroupEntity.getId())){
+			if(Objects.nonNull(userGroupEntity) && Objects.equals(otherGroup.getId(), userGroupEntity.getId())){
 				continue;
 			}
 			addRequirement(media, otherGroup, false);

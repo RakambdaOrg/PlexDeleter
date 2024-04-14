@@ -48,6 +48,10 @@ public class MediaEntity{
 	@Basic
 	@Column
 	@Nullable
+	private Integer rootPlexId;
+	@Basic
+	@Column
+	@Nullable
 	private Integer overseerrId;
 	@Basic
 	@Column

@@ -119,6 +119,9 @@ public class MediaService{
 					.flatMap(key -> getActualRatingKey(mediaEntity, key))
 					.ifPresent(mediaEntity::setPlexId);
 			Optional.ofNullable(mediaDetails.getMediaInfo())
+					.map(MediaInfo::getRatingKey)
+					.ifPresent(mediaEntity::setRootPlexId);
+			Optional.ofNullable(mediaDetails.getMediaInfo())
 					.map(MediaInfo::getExternalServiceId)
 					.ifPresent(mediaEntity::setServarrId);
 			Optional.ofNullable(mediaDetails.getMediaInfo())
@@ -301,11 +304,29 @@ public class MediaService{
 	}
 	
 	@NotNull
-	public MediaEntity addMedia(@NotNull UserGroupEntity userGroupEntity, int overseerrId, @NotNull MediaType mediaType, int season) throws RequestFailedException, UpdateException, NotifyException{
+	public MediaEntity addMedia(int overseerrId, @NotNull MediaType mediaType, int season) throws RequestFailedException, UpdateException, NotifyException{
 		mediaOperationLock.lock();
 		try{
-			log.info("Adding media with Overseerr id {} and season {} to {}", overseerrId, season, userGroupEntity);
+			log.info("Adding media with Overseerr id {} and season {}", overseerrId, season);
 			var media = getOrCreateMedia(overseerrId, mediaType, season);
+			media.setAvailability(MediaAvailability.WAITING);
+			media.setActionStatus(MediaActionStatus.TO_DELETE);
+			media.setAvailablePartsCount(0);
+			mediaRepository.save(media);
+			
+			return update(media);
+		}
+		finally{
+			mediaOperationLock.unlock();
+		}
+	}
+	
+	@NotNull
+	public MediaEntity addMediaFromPrevious(@NotNull MediaEntity previousMedia, int season) throws RequestFailedException, UpdateException, NotifyException{
+		mediaOperationLock.lock();
+		try{
+			log.info("Adding media from previous {} season {}", previousMedia, season);
+			var media = createMediaFromPrevious(previousMedia, season);
 			media.setAvailability(MediaAvailability.WAITING);
 			media.setActionStatus(MediaActionStatus.TO_DELETE);
 			media.setAvailablePartsCount(0);
@@ -346,6 +367,30 @@ public class MediaService{
 				.build();
 		
 		log.info("Creating new media {} for Overseerr id {}", media, overseerrId);
+		supervisionService.send("\uD83C\uDD95 Added media %s", media);
+		return media;
+	}
+	
+	@NotNull
+	private MediaEntity createMediaFromPrevious(@NotNull MediaEntity previous, int season){
+		var media = MediaEntity.builder()
+				.type(previous.getType())
+				.rootPlexId(previous.getRootPlexId())
+				.overseerrId(previous.getOverseerrId())
+				.servarrId(previous.getServarrId())
+				.tvdbId(previous.getTvdbId())
+				.tmdbId(previous.getTmdbId())
+				.sonarrSlug(previous.getSonarrSlug())
+				.radarrSlug(previous.getRadarrSlug())
+				.name(previous.getName())
+				.index(season)
+				.partsCount(0)
+				.availablePartsCount(0)
+				.availability(MediaAvailability.WAITING)
+				.actionStatus(MediaActionStatus.TO_DELETE)
+				.build();
+		
+		log.info("Creating new media {} from previous {}", media, previous);
 		supervisionService.send("\uD83C\uDD95 Added media %s", media);
 		return media;
 	}

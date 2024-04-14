@@ -48,7 +48,7 @@ public class ApiAdminMediaRequirementController{
 		var userGroupEntity = userGroupRepository.findById(groupId)
 				.orElseThrow(() -> new IllegalArgumentException("Could not find user group with id %d".formatted(groupId)));
 		
-		var media = mediaService.addMedia(userGroupEntity, overseerrId, type, season);
+		var media = mediaService.addMedia(overseerrId, type, season);
 		mediaRequirementService.addRequirementForNewMedia(media, userGroupEntity);
 		return new ModelAndView("api/success");
 	}

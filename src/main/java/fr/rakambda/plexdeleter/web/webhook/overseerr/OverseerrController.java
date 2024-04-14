@@ -131,7 +131,7 @@ public class OverseerrController{
 		};
 		
 		for(var season : seasons){
-			var mediaId = mediaService.addMedia(userGroupEntity.get(), overseerrId, mediaType, season);
+			var mediaId = mediaService.addMedia(overseerrId, mediaType, season);
 			mediaRequirementService.addRequirementForNewMedia(mediaId, userGroupEntity.get());
 		}
 	}
