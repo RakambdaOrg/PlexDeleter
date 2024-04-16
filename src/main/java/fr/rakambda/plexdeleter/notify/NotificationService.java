@@ -170,7 +170,8 @@ public class NotificationService{
 			case TRACK, ARTIST, SHOW -> null;
 		};
 		var mediaIndex = switch(metadata.getMediaType()){
-			case MOVIE, SEASON -> metadata.getMediaIndex();
+			case MOVIE -> 1;
+			case SEASON -> metadata.getMediaIndex();
 			case EPISODE -> metadata.getParentMediaIndex();
 			case TRACK, ARTIST, SHOW -> 1;
 		};
