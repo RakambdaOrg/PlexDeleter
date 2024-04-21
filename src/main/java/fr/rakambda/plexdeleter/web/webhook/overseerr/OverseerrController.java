@@ -76,7 +76,7 @@ public class OverseerrController{
 		
 		var medias = overseerrId
 				.map(mediaRepository::findAllByOverseerrId)
-				.orElseGet(() -> mediaRepository.findAllByAvailabilityIn(Set.of(MediaAvailability.WAITING, MediaAvailability.DOWNLOADING)));
+				.orElseGet(() -> mediaRepository.findAllByAvailabilityIn(Set.of(MediaAvailability.WAITING, MediaAvailability.DOWNLOADING, MediaAvailability.DOWNLOADED_NEED_METADATA)));
 		
 		for(var media : medias){
 			mediaService.update(media);

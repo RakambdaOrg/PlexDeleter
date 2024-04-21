@@ -60,7 +60,7 @@ public class MediaService{
 	public void updateAll(){
 		log.info("Updating medias");
 		
-		var medias = mediaRepository.findAllByAvailabilityIn(Set.of(MediaAvailability.WAITING, MediaAvailability.DOWNLOADING));
+		var medias = mediaRepository.findAllByAvailabilityIn(Set.of(MediaAvailability.WAITING, MediaAvailability.DOWNLOADING, MediaAvailability.DOWNLOADED_NEED_METADATA));
 		for(var media : medias){
 			try{
 				update(media);
@@ -89,11 +89,11 @@ public class MediaService{
 			}
 			else if(mediaEntity.getAvailablePartsCount() >= mediaEntity.getPartsCount()){
 				if(!mediaEntity.getAvailability().isAvailable()){
-					mediaEntity.setAvailability(MediaAvailability.DOWNLOADED);
-					log.info("Marked media {} as finished", mediaEntity);
 					notificationService.notifyMediaAvailable(mediaEntity);
-					supervisionService.send("\uD83C\uDD97 Marked %d as downloaded: %s (%d/%d)", mediaEntity.getId(), mediaEntity, mediaEntity.getPartsCount(), mediaEntity.getAvailablePartsCount());
 				}
+				mediaEntity.setAvailability(Objects.nonNull(mediaEntity.getPlexId()) ? MediaAvailability.DOWNLOADED : MediaAvailability.DOWNLOADED_NEED_METADATA);
+				log.info("Marked media {} as {}", mediaEntity, mediaEntity.getAvailability());
+				supervisionService.send("\uD83C\uDD97 Marked %d as %s: %s (%d/%d)", mediaEntity.getId(), mediaEntity, mediaEntity.getAvailability(), mediaEntity.getPartsCount(), mediaEntity.getAvailablePartsCount());
 			}
 			else if(mediaEntity.getAvailablePartsCount() > 0){
 				mediaEntity.setAvailability(MediaAvailability.DOWNLOADING);

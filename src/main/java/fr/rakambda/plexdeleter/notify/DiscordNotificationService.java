@@ -13,7 +13,6 @@ import fr.rakambda.plexdeleter.notify.context.MediaMetadataContext;
 import fr.rakambda.plexdeleter.service.LangService;
 import fr.rakambda.plexdeleter.service.ThymeleafService;
 import fr.rakambda.plexdeleter.service.WatchService;
-import fr.rakambda.plexdeleter.storage.entity.MediaAvailability;
 import fr.rakambda.plexdeleter.storage.entity.MediaEntity;
 import fr.rakambda.plexdeleter.storage.entity.MediaRequirementEntity;
 import fr.rakambda.plexdeleter.storage.entity.NotificationEntity;
@@ -63,15 +62,15 @@ public class DiscordNotificationService extends AbstractNotificationService{
 		
 		var availableMedia = requirements.stream()
 				.map(MediaRequirementEntity::getMedia)
-				.filter(m -> Objects.equals(m.getAvailability(), MediaAvailability.DOWNLOADED))
+				.filter(m -> m.getAvailability().isAvailable())
 				.toList();
 		var downloadingMedia = requirements.stream()
 				.map(MediaRequirementEntity::getMedia)
-				.filter(m -> Objects.equals(m.getAvailability(), MediaAvailability.DOWNLOADING))
+				.filter(m -> m.getAvailability().isInProgress())
 				.toList();
 		var notYetAvailableMedia = requirements.stream()
 				.map(MediaRequirementEntity::getMedia)
-				.filter(m -> Objects.equals(m.getAvailability(), MediaAvailability.WAITING))
+				.filter(m -> m.getAvailability().isWaiting())
 				.toList();
 		
 		if(availableMedia.isEmpty()

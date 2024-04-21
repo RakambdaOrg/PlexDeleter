@@ -8,7 +8,6 @@ import fr.rakambda.plexdeleter.notify.context.MediaMetadataContext;
 import fr.rakambda.plexdeleter.service.LangService;
 import fr.rakambda.plexdeleter.service.ThymeleafService;
 import fr.rakambda.plexdeleter.service.WatchService;
-import fr.rakambda.plexdeleter.storage.entity.MediaAvailability;
 import fr.rakambda.plexdeleter.storage.entity.MediaEntity;
 import fr.rakambda.plexdeleter.storage.entity.MediaRequirementEntity;
 import fr.rakambda.plexdeleter.storage.entity.NotificationEntity;
@@ -69,15 +68,15 @@ public class MailNotificationService extends AbstractNotificationService{
 		context.setVariable("userGroup", userGroupEntity);
 		context.setVariable("availableMedias", requirements.stream()
 				.map(MediaRequirementEntity::getMedia)
-				.filter(m -> Objects.equals(m.getAvailability(), MediaAvailability.DOWNLOADED))
+				.filter(m -> m.getAvailability().isAvailable())
 				.toList());
 		context.setVariable("downloadingMedias", requirements.stream()
 				.map(MediaRequirementEntity::getMedia)
-				.filter(m -> Objects.equals(m.getAvailability(), MediaAvailability.DOWNLOADING))
+				.filter(m -> m.getAvailability().isInProgress())
 				.toList());
 		context.setVariable("notYetAvailableMedias", requirements.stream()
 				.map(MediaRequirementEntity::getMedia)
-				.filter(m -> Objects.equals(m.getAvailability(), MediaAvailability.WAITING))
+				.filter(m -> m.getAvailability().isWaiting())
 				.toList());
 		context.setVariable("overseerrLogoResourceName", overseerrLogoData.isPresent() ? overseerrLogoResourceName : null);
 		context.setVariable("plexLogoResourceName", plexLogoData.isPresent() ? plexLogoResourceName : null);
