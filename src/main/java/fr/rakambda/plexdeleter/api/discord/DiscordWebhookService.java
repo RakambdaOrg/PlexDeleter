@@ -17,13 +17,8 @@ import org.springframework.web.reactive.function.BodyInserter;
 import org.springframework.web.reactive.function.BodyInserters;
 import org.springframework.web.reactive.function.UnsupportedMediaTypeException;
 import org.springframework.web.reactive.function.client.WebClient;
-import org.springframework.web.reactive.function.client.WebClientResponseException;
-import reactor.core.publisher.Mono;
-import reactor.util.retry.Retry;
-import java.time.Duration;
 import java.util.Map;
 import java.util.Objects;
-import java.util.Optional;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.Semaphore;
@@ -36,6 +31,7 @@ public class DiscordWebhookService{
 	
 	public DiscordWebhookService(){
 		apiClient = WebClient.builder()
+				.filter(HttpUtils.retryOnStatus(Set.of(HttpStatus.TOO_MANY_REQUESTS)))
 				.filter(HttpUtils.logErrorFilter(Set.of(HttpStatus.TOO_MANY_REQUESTS)))
 				.build();
 		locks = new ConcurrentHashMap<>();
@@ -89,26 +85,7 @@ public class DiscordWebhookService{
 				.body(bodyInserter)
 				.retrieve()
 				.toEntity(DiscordResponse.class)
-				.retryWhen(Retry.indefinitely()
-						.filter(WebClientResponseException.TooManyRequests.class::isInstance)
-						.doBeforeRetryAsync(signal -> Mono.delay(calculateDelay(signal.failure())).then()))
 				.blockOptional()
 				.orElseThrow(() -> new RequestFailedException("Failed to send discord webhook message %s".formatted(message))));
-	}
-	
-	@NotNull
-	private static Duration calculateDelay(@NotNull Throwable failure){
-		if(!(failure instanceof WebClientResponseException webClientResponseException)){
-			return Duration.ofMinutes(1);
-		}
-		
-		var retryAfterHeader = webClientResponseException.getHeaders().getFirst("Retry-After");
-		var retryAfter = Duration.ofMillis(Optional.ofNullable(retryAfterHeader)
-				.filter(s -> !s.isBlank())
-				.map(Integer::parseInt)
-				.orElse(60000));
-		
-		log.warn("Discord webhook retry later : {}", retryAfter);
-		return retryAfter;
 	}
 }

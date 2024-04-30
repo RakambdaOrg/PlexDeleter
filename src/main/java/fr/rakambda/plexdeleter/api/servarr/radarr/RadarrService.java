@@ -10,6 +10,7 @@ import fr.rakambda.plexdeleter.config.ApplicationConfiguration;
 import lombok.extern.slf4j.Slf4j;
 import org.jetbrains.annotations.NotNull;
 import org.springframework.core.ParameterizedTypeReference;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.HttpStatusCode;
 import org.springframework.http.MediaType;
 import org.springframework.stereotype.Service;
@@ -29,6 +30,7 @@ public class RadarrService{
 		apiClient = WebClient.builder()
 				.baseUrl(applicationConfiguration.getRadarr().getEndpoint())
 				.defaultHeader("X-Api-Key", applicationConfiguration.getRadarr().getApiKey())
+				.filter(HttpUtils.retryOnStatus(Set.of(HttpStatus.BAD_GATEWAY)))
 				.filter(HttpUtils.logErrorFilter())
 				.build();
 	}

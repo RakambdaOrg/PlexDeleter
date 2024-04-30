@@ -12,6 +12,7 @@ import fr.rakambda.plexdeleter.storage.entity.MediaType;
 import lombok.extern.slf4j.Slf4j;
 import org.jetbrains.annotations.NotNull;
 import org.springframework.core.ParameterizedTypeReference;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 import org.springframework.web.reactive.function.client.ClientRequest;
@@ -40,6 +41,7 @@ public class TautulliService{
 								.toUri())
 						.build())
 				))
+				.filter(HttpUtils.retryOnStatus(Set.of(HttpStatus.BAD_GATEWAY)))
 				// .filter(HttpUtils.logErrorFilter())
 				.build();
 	}

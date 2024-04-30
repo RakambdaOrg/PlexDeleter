@@ -14,11 +14,13 @@ import fr.rakambda.plexdeleter.storage.entity.MediaEntity;
 import lombok.extern.slf4j.Slf4j;
 import org.jetbrains.annotations.NotNull;
 import org.springframework.core.ParameterizedTypeReference;
+import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.web.reactive.function.client.WebClient;
 import java.util.Collection;
 import java.util.HashSet;
 import java.util.Objects;
+import java.util.Set;
 
 @Slf4j
 @Service
@@ -29,6 +31,7 @@ public class OverseerrService{
 		apiClient = WebClient.builder()
 				.baseUrl(applicationConfiguration.getOverseerr().getEndpoint())
 				.defaultHeader("X-Api-Key", applicationConfiguration.getOverseerr().getApiKey())
+				.filter(HttpUtils.retryOnStatus(Set.of(HttpStatus.BAD_GATEWAY)))
 				.filter(HttpUtils.logErrorFilter())
 				.build();
 	}

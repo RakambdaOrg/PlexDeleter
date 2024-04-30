@@ -11,6 +11,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.jetbrains.annotations.NotNull;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.ParameterizedTypeReference;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.HttpStatusCode;
 import org.springframework.http.MediaType;
 import org.springframework.stereotype.Service;
@@ -31,6 +32,7 @@ public class SonarrService{
 		apiClient = WebClient.builder()
 				.baseUrl(applicationConfiguration.getSonarr().getEndpoint())
 				.defaultHeader("X-Api-Key", applicationConfiguration.getSonarr().getApiKey())
+				.filter(HttpUtils.retryOnStatus(Set.of(HttpStatus.BAD_GATEWAY)))
 				.filter(HttpUtils.logErrorFilter())
 				.build();
 	}
