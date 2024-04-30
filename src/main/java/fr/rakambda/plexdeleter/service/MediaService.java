@@ -91,9 +91,12 @@ public class MediaService{
 				if(!mediaEntity.getAvailability().isAvailable()){
 					notificationService.notifyMediaAvailable(mediaEntity);
 				}
-				mediaEntity.setAvailability(Objects.nonNull(mediaEntity.getPlexId()) ? MediaAvailability.DOWNLOADED : MediaAvailability.DOWNLOADED_NEED_METADATA);
-				log.info("Marked media {} as {}", mediaEntity, mediaEntity.getAvailability());
-				supervisionService.send("\uD83C\uDD97 Marked %d as %s: %s (%d/%d)", mediaEntity.getId(), mediaEntity.getAvailability(), mediaEntity, mediaEntity.getPartsCount(), mediaEntity.getAvailablePartsCount());
+				var newAvailability = Objects.nonNull(mediaEntity.getPlexId()) ? MediaAvailability.DOWNLOADED : MediaAvailability.DOWNLOADED_NEED_METADATA;
+				if(!Objects.equals(newAvailability, mediaEntity.getAvailability())){
+					mediaEntity.setAvailability(newAvailability);
+					log.info("Marked media {} as {}", mediaEntity, mediaEntity.getAvailability());
+					supervisionService.send("\uD83C\uDD97 Marked %d as %s: %s (%d/%d)", mediaEntity.getId(), mediaEntity.getAvailability(), mediaEntity, mediaEntity.getPartsCount(), mediaEntity.getAvailablePartsCount());
+				}
 			}
 			else if(mediaEntity.getAvailablePartsCount() > 0){
 				mediaEntity.setAvailability(MediaAvailability.DOWNLOADING);
