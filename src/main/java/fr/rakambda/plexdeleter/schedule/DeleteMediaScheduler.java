@@ -199,38 +199,47 @@ public class DeleteMediaScheduler implements IScheduler{
 	}
 	
 	private void deleteCompanion(@NotNull Path path, @NotNull AtomicLong sizeDeleted) throws IOException{
-		var filename = path.getFileName().toString();
-		if(Files.isRegularFile(path)){
-			if(filename.matches(".*\\.(srt|smi|xml|nfo|metathumb|png|jpg|jpeg)")){
-				deleteFile(path, sizeDeleted);
+		try{
+			var filename = path.getFileName().toString();
+			if(Files.isRegularFile(path)){
+				if(filename.matches(".*\\.(srt|smi|xml|nfo|metathumb|png|jpg|jpeg)")){
+					deleteFile(path, sizeDeleted);
+				}
+			}
+			else if(Files.isDirectory(path)){
+				if(Objects.equals(filename, "@eaDir") || Objects.equals(filename, "Plex Versions")){
+					Files.walkFileTree(path, new FileVisitor<>(){
+						@Override
+						public FileVisitResult preVisitDirectory(Path dir, BasicFileAttributes attrs){
+							return FileVisitResult.CONTINUE;
+						}
+						
+						@Override
+						public FileVisitResult visitFile(Path file, BasicFileAttributes attrs) throws IOException{
+							deleteFile(path, sizeDeleted);
+							return FileVisitResult.CONTINUE;
+						}
+						
+						@Override
+						public FileVisitResult visitFileFailed(Path file, IOException exc){
+							log.error("Failed to delete file in companion directory {}", file.toAbsolutePath(), exc);
+							return FileVisitResult.TERMINATE;
+						}
+						
+						@Override
+						public FileVisitResult postVisitDirectory(Path dir, IOException exc) throws IOException{
+							if(Objects.nonNull(exc)){
+								return FileVisitResult.TERMINATE;
+							}
+							deleteDirectory(path, sizeDeleted);
+							return FileVisitResult.CONTINUE;
+						}
+					});
+				}
 			}
 		}
-		else if(Files.isDirectory(path)){
-			if(Objects.equals(filename, "@eaDir") || Objects.equals(filename, "Plex Versions")){
-				Files.walkFileTree(path, new FileVisitor<>(){
-					@Override
-					public FileVisitResult preVisitDirectory(Path dir, BasicFileAttributes attrs){
-						return FileVisitResult.CONTINUE;
-					}
-					
-					@Override
-					public FileVisitResult visitFile(Path file, BasicFileAttributes attrs) throws IOException{
-						deleteFile(path, sizeDeleted);
-						return FileVisitResult.CONTINUE;
-					}
-					
-					@Override
-					public FileVisitResult visitFileFailed(Path file, IOException exc){
-						return FileVisitResult.TERMINATE;
-					}
-					
-					@Override
-					public FileVisitResult postVisitDirectory(Path dir, IOException exc) throws IOException{
-						deleteDirectory(path, sizeDeleted);
-						return FileVisitResult.CONTINUE;
-					}
-				});
-			}
+		catch(IOException e){
+			throw new IOException("Failed to delete companion file " + path.toAbsolutePath(), e);
 		}
 	}
 	
