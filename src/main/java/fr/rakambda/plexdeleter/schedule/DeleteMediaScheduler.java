@@ -20,6 +20,7 @@ import java.io.IOException;
 import java.nio.file.FileVisitResult;
 import java.nio.file.FileVisitor;
 import java.nio.file.Files;
+import java.nio.file.InvalidPathException;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.nio.file.attribute.BasicFileAttributes;
@@ -145,12 +146,18 @@ public class DeleteMediaScheduler implements IScheduler{
 	private Map.Entry<Path, Path> extractPath(@NotNull String file){
 		for(var mapping : remotePathMappings.entrySet()){
 			if(file.startsWith(mapping.getKey())){
-				var rootMapping = Paths.get(mapping.getValue());
-				var relativePath = Paths.get(file.substring(mapping.getKey().length()));
-				if(Objects.nonNull(relativePath.getRoot())){
-					relativePath = relativePath.getRoot().relativize(relativePath);
+				try{
+					var rootMapping = Paths.get(mapping.getValue());
+					var relativePath = Paths.get(file.substring(mapping.getKey().length()));
+					if(Objects.nonNull(relativePath.getRoot())){
+						relativePath = relativePath.getRoot().relativize(relativePath);
+					}
+					return Map.entry(rootMapping, rootMapping.resolve(relativePath));
 				}
-				return Map.entry(rootMapping, rootMapping.resolve(relativePath));
+				catch(InvalidPathException e){
+					supervisionService.send("♻\uFE0F❌ Failed to map file %s because of %s", mapping, e.getMessage());
+					throw e;
+				}
 			}
 		}
 		throw new IllegalStateException("Could not find path mapping for " + file);
