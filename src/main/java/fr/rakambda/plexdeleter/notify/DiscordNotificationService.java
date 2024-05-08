@@ -152,6 +152,7 @@ public class DiscordNotificationService extends AbstractNotificationService{
 				.distinct()
 				.flatMap(code -> langService.getLanguageName(code, locale))
 				.toList();
+		var metadataProvidersInfo = mediaMetadataContext.getMetadataProviderInfo();
 		var requirements = Optional.ofNullable(media)
 				.map(m -> m.getRequirements().stream()
 						.filter(r -> Objects.equals(r.getGroup().getId(), userGroupEntity.getId()))
@@ -230,6 +231,14 @@ public class DiscordNotificationService extends AbstractNotificationService{
 			embed.field(Field.builder()
 					.name(messageSource.getMessage("discord.media.available.body.subtitles", new Object[0], locale))
 					.value(String.join(", ", subtitleLanguages))
+					.build());
+		}
+		if(!metadataProvidersInfo.isEmpty()){
+			embed.field(Field.builder()
+					.name(messageSource.getMessage("discord.media.available.body.external.links", new Object[0], locale))
+					.value(metadataProvidersInfo.stream()
+							.map(c -> "[%s](%s)".formatted(c.name(), c.url()))
+							.collect(Collectors.joining(" ")))
 					.build());
 		}
 		

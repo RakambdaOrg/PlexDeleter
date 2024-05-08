@@ -15,6 +15,7 @@ import org.springframework.context.MessageSource;
 import org.springframework.context.NoSuchMessageException;
 import java.util.Collection;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Locale;
 import java.util.Map;
 import java.util.Objects;
@@ -157,5 +158,20 @@ public class TmdbMediaMetadataContext extends MediaMetadataContext{
 			log.warn("Failed to get season {} translations with Tmdb id {} and locale {}", seasonNumber, tmdbId, locale);
 			return Optional.empty();
 		}
+	}
+	
+	@Override
+	public Collection<MetadataProviderInfo> getMetadataProviderInfo(){
+		var type = switch(getMetadata().getMediaType()){
+			case MOVIE -> "movie";
+			case SHOW, SEASON, EPISODE -> "tv";
+			case TRACK, ARTIST -> null;
+		};
+		
+		return getTmdbId()
+				.map(id -> "https://www.themoviedb.org/%s/%d".formatted(type, id))
+				.map(url -> new MetadataProviderInfo("Tmdb", url))
+				.map(List::of)
+				.orElseGet(List::of);
 	}
 }

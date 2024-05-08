@@ -158,6 +158,7 @@ public class MailNotificationService extends AbstractNotificationService{
 		context.setVariable("mediaAudios", audioLanguages);
 		context.setVariable("mediaSubtitles", subtitleLanguages);
 		context.setVariable("suggestAddRequirementId", suggestAddRequirementId);
+		context.setVariable("metadataProvidersInfo", mediaMetadataContext.getMetadataProviderInfo());
 		
 		sendMail(notification, message -> {
 			message.setSubject(messageSource.getMessage("mail.media.added.subject", new Object[0], locale));

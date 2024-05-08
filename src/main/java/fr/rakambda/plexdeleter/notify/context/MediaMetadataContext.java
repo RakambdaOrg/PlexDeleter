@@ -60,4 +60,6 @@ public abstract class MediaMetadataContext{
 			return Optional.empty();
 		}
 	}
+	
+	public abstract Collection<MetadataProviderInfo> getMetadataProviderInfo();
 }

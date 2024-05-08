@@ -40,4 +40,12 @@ public class CompositeMediaMetadataContext extends MediaMetadataContext{
 				.flatMap(Optional::stream)
 				.findFirst();
 	}
+	
+	@Override
+	public Collection<MetadataProviderInfo> getMetadataProviderInfo(){
+		return contexts.stream()
+				.map(MediaMetadataContext::getMetadataProviderInfo)
+				.flatMap(Collection::stream)
+				.toList();
+	}
 }
