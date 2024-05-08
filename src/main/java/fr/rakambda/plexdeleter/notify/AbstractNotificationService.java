@@ -99,7 +99,7 @@ public abstract class AbstractNotificationService{
 					)
 					.filter(Objects::nonNull)
 					.collect(Collectors.joining(" - "));
-			case SHOW -> Optional.ofNullable(metadata.getMediaIndex())
+			case SEASON -> Optional.ofNullable(metadata.getMediaIndex())
 					.map(i -> messageSource.getMessage("mail.media.added.body.season", new Object[]{i}, locale))
 					.orElse(null);
 			default -> null;
