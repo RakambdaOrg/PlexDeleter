@@ -122,7 +122,14 @@ public class DeleteMediaScheduler implements IScheduler{
 		var paths = new PriorityQueue<>(Map.Entry.<Path, Path> comparingByKey().reversed());
 		paths.addAll(files.entrySet());
 		
-		var size = deleteRecursive(paths);
+		var size = 0L;
+		try{
+			size = deleteRecursive(paths);
+		}
+		catch(IOException e){
+			supervisionService.send("♻\uFE0F❌ Failed to delete media %s in %s because of %s", mediaEntity, paths, e.getMessage());
+			throw e;
+		}
 		
 		if(!dryDelete){
 			mediaEntity.setActionStatus(MediaActionStatus.DELETED);
