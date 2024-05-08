@@ -23,13 +23,16 @@ public class LangService{
 		
 		addLanguage.accept(new Locale.Builder().setLanguage("ara").build());
 		addLanguage.accept(Locale.GERMAN);
+		addLanguage.accept(new Locale.Builder().setLanguage("ell").build());
 		addLanguage.accept(Locale.ENGLISH);
 		addLanguage.accept(Locale.FRENCH);
 		addLanguage.accept(Locale.ITALIAN);
 		addLanguage.accept(Locale.JAPANESE);
+		addLanguage.accept(new Locale.Builder().setLanguage("kor").build());
 		addLanguage.accept(new Locale.Builder().setLanguage("por").build());
 		addLanguage.accept(new Locale.Builder().setLanguage("rus").build());
 		addLanguage.accept(new Locale.Builder().setLanguage("spa").build());
+		addLanguage.accept(new Locale.Builder().setLanguage("zho").build());
 	}
 	
 	@NotNull
