@@ -106,7 +106,7 @@ public final class HttpUtils{
 	}
 	
 	@NotNull
-	private static Duration calculateDelay(@NotNull Throwable failure){
+	public static Duration calculateDelay(@NotNull Throwable failure){
 		if(!(failure instanceof WebClientResponseException webClientResponseException)){
 			return Duration.ofMinutes(1);
 		}
