@@ -213,14 +213,21 @@ public class DeleteMediaScheduler implements IScheduler{
 	}
 	
 	private void deleteCompanion(@NotNull Path path, @NotNull AtomicLong sizeDeleted) throws IOException{
+		var filename = path.getFileName().toString();
 		try{
-			var filename = path.getFileName().toString();
 			if(Files.isRegularFile(path)){
 				if(filename.matches(".*\\.(srt|smi|xml|nfo|metathumb|png|jpg|jpeg)")){
 					deleteFile(path, sizeDeleted);
 				}
+				return;
 			}
-			else if(Files.isDirectory(path)){
+		}
+		catch(IOException e){
+			throw new IOException("Failed to delete companion file " + path.toAbsolutePath(), e);
+		}
+		
+		try{
+			if(Files.isDirectory(path)){
 				if(Objects.equals(filename, "@eaDir") || Objects.equals(filename, "Plex Versions")){
 					Files.walkFileTree(path, new FileVisitor<>(){
 						@Override
@@ -253,7 +260,7 @@ public class DeleteMediaScheduler implements IScheduler{
 			}
 		}
 		catch(IOException e){
-			throw new IOException("Failed to delete companion file " + path.toAbsolutePath(), e);
+			log.warn("Failed to delete companion folder {}", path.toAbsolutePath(), e);
 		}
 	}
 	
