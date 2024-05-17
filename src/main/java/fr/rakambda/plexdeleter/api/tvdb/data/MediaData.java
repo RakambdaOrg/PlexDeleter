@@ -16,5 +16,7 @@ public abstract class MediaData{
 	@NotNull
 	private Integer id;
 	@NotNull
+	private String slug;
+	@NotNull
 	private List<Genre> genres = new ArrayList<>();
 }
