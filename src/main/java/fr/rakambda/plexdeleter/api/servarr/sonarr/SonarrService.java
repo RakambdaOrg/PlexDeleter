@@ -157,4 +157,13 @@ public class SonarrService{
 				.blockOptional()
 				.orElseThrow(() -> new RequestFailedException("Failed to update media with id %d".formatted(mediaId))));
 	}
+	
+	public void unmonitor(int id, int index) throws RequestFailedException{
+		var series = getSeries(id);
+		var season = series.getSeasons().stream().filter(s -> Objects.equals(s.getSeasonNumber(), index)).findFirst();
+		if(season.isPresent()){
+			season.get().setMonitored(false);
+			updateSeries(id, series);
+		}
+	}
 }

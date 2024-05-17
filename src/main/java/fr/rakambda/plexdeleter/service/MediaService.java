@@ -279,6 +279,12 @@ public class MediaService{
 			return false;
 		}
 		
+		if(media.getType() == MediaType.SEASON && mediaRepository.countByServarrIdAndType(media.getServarrId(), media.getType()) > 1){
+			log.info("Unmonitor media from Servarr {}", media);
+			sonarrService.unmonitor(media.getServarrId(), media.getIndex());
+			return true;
+		}
+		
 		log.info("Deleting media from Servarr {}", media);
 		switch(media.getType()){
 			case MOVIE -> radarrService.delete(media.getServarrId());

@@ -3,6 +3,7 @@ package fr.rakambda.plexdeleter.storage.repository;
 import fr.rakambda.plexdeleter.storage.entity.MediaActionStatus;
 import fr.rakambda.plexdeleter.storage.entity.MediaAvailability;
 import fr.rakambda.plexdeleter.storage.entity.MediaEntity;
+import fr.rakambda.plexdeleter.storage.entity.MediaType;
 import org.jetbrains.annotations.NotNull;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
@@ -51,4 +52,6 @@ public interface MediaRepository extends JpaRepository<MediaEntity, Integer>{
 	
 	@NotNull
 	Optional<MediaEntity> findByRootPlexIdAndIndex(int ratingKey, int index);
+	
+	long countByServarrIdAndType(int servarrId, @NotNull MediaType type);
 }
