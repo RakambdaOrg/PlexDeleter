@@ -226,7 +226,7 @@ public class TvdbMediaMetadataContext extends MediaMetadataContext{
 		
 		return getMediaData()
 				.map(MediaData::getSlug)
-				.map(slug -> "https://www.thetvdb.com/%s/%d".formatted(type, slug))
+				.map(slug -> "https://www.thetvdb.com/%s/%s".formatted(type, slug))
 				.map(url -> new MetadataProviderInfo("Tvdb", url))
 				.map(List::of)
 				.orElseGet(List::of);
