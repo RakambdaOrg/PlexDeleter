@@ -83,23 +83,25 @@ public class MediaService{
 			updateFromTautulli(mediaEntity);
 			updateFromServarr(mediaEntity);
 			
-			if(mediaEntity.getPartsCount() <= 0){
-				log.warn("Failed to update {}, not enough info", mediaEntity);
-				supervisionService.send("\uD83D\uDEAB Could not update %s", mediaEntity);
-			}
-			else if(mediaEntity.getAvailablePartsCount() >= mediaEntity.getPartsCount()){
-				if(!mediaEntity.getAvailability().isAvailable()){
-					notificationService.notifyMediaAvailable(mediaEntity);
+			if(mediaEntity.getAvailability() != MediaAvailability.MANUAL){
+				if(mediaEntity.getPartsCount() <= 0){
+					log.warn("Failed to update {}, not enough info", mediaEntity);
+					supervisionService.send("\uD83D\uDEAB Could not update %s", mediaEntity);
 				}
-				var newAvailability = Objects.nonNull(mediaEntity.getPlexId()) ? MediaAvailability.DOWNLOADED : MediaAvailability.DOWNLOADED_NEED_METADATA;
-				if(!Objects.equals(newAvailability, mediaEntity.getAvailability())){
-					mediaEntity.setAvailability(newAvailability);
-					log.info("Marked media {} as {}", mediaEntity, mediaEntity.getAvailability());
-					supervisionService.send("\uD83C\uDD97 Marked %d as %s: %s (%d/%d)", mediaEntity.getId(), mediaEntity.getAvailability(), mediaEntity, mediaEntity.getPartsCount(), mediaEntity.getAvailablePartsCount());
+				else if(mediaEntity.getAvailablePartsCount() >= mediaEntity.getPartsCount()){
+					if(!mediaEntity.getAvailability().isAvailable()){
+						notificationService.notifyMediaAvailable(mediaEntity);
+					}
+					var newAvailability = Objects.nonNull(mediaEntity.getPlexId()) ? MediaAvailability.DOWNLOADED : MediaAvailability.DOWNLOADED_NEED_METADATA;
+					if(!Objects.equals(newAvailability, mediaEntity.getAvailability())){
+						mediaEntity.setAvailability(newAvailability);
+						log.info("Marked media {} as {}", mediaEntity, mediaEntity.getAvailability());
+						supervisionService.send("\uD83C\uDD97 Marked %d as %s: %s (%d/%d)", mediaEntity.getId(), mediaEntity.getAvailability(), mediaEntity, mediaEntity.getPartsCount(), mediaEntity.getAvailablePartsCount());
+					}
 				}
-			}
-			else if(mediaEntity.getAvailablePartsCount() > 0){
-				mediaEntity.setAvailability(MediaAvailability.DOWNLOADING);
+				else if(mediaEntity.getAvailablePartsCount() > 0){
+					mediaEntity.setAvailability(MediaAvailability.DOWNLOADING);
+				}
 			}
 			
 			return mediaRepository.save(mediaEntity);
