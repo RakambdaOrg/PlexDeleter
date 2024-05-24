@@ -19,6 +19,18 @@
                 <img alt="Plex logo" style="height: 16px; width: 16px;" th:src="|cid:${plexLogoResourceName}|">
             </a>
         </th:block>
+        <th:block th:if="${media.getTmdbId()}">
+            <span class="me-1 ms-1">|</span>
+            <a class="text-decoration-none" style="text-decoration: none" th:href="${thymeleafService.getMediaTmdbUrl(media)}">
+                <img alt="Tmdb logo" style="height: 16px; width: 16px;" th:src="|cid:${tmdbLogoResourceName}|">
+            </a>
+        </th:block>
+        <th:block th:if="${media.getTvdbId()}">
+            <span class="me-1 ms-1">|</span>
+            <a class="text-decoration-none" style="text-decoration: none" th:href="${thymeleafService.getMediaTvdbUrl(media)}">
+                <img alt="Tvdb logo" style="height: 16px; width: 16px;" th:src="|cid:${tvdbLogoResourceName}|">
+            </a>
+        </th:block>
     </div>
 </th:block>
 

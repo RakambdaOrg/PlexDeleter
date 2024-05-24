@@ -59,9 +59,13 @@ public class MailNotificationService extends AbstractNotificationService{
 		
 		var overseerrLogoData = getOverseerrLogoBytes();
 		var plexLogoData = getPlexLogoBytes();
+		var tmdbLogoData = getTmdbLogoBytes();
+		var tvdbLogoData = getTvdbLogoBytes();
 		
 		var overseerrLogoResourceName = "overseerrLogoResourceName";
 		var plexLogoResourceName = "plexLogoResourceName";
+		var tmdbLogoResourceName = "tmdbLogoResourceName";
+		var tvdbLogoResourceName = "tvdbLogoResourceName";
 		
 		context.setVariable("service", this);
 		context.setVariable("thymeleafService", thymeleafService);
@@ -80,6 +84,8 @@ public class MailNotificationService extends AbstractNotificationService{
 				.toList());
 		context.setVariable("overseerrLogoResourceName", overseerrLogoData.isPresent() ? overseerrLogoResourceName : null);
 		context.setVariable("plexLogoResourceName", plexLogoData.isPresent() ? plexLogoResourceName : null);
+		context.setVariable("tmdbLogoResourceName", tmdbLogoData.isPresent() ? tmdbLogoResourceName : null);
+		context.setVariable("tvdbLogoResourceName", tvdbLogoData.isPresent() ? tvdbLogoResourceName : null);
 		
 		sendMail(notification, message -> {
 			message.setSubject(messageSource.getMessage("mail.watchlist.subject", new Object[0], locale));
@@ -89,6 +95,12 @@ public class MailNotificationService extends AbstractNotificationService{
 			}
 			if(plexLogoData.isPresent()){
 				message.addInline(plexLogoResourceName, new ByteArrayResource(plexLogoData.get(), "Plex logo"), "image/png");
+			}
+			if(tmdbLogoData.isPresent()){
+				message.addInline(tmdbLogoResourceName, new ByteArrayResource(tmdbLogoData.get(), "Tmdb logo"), "image/png");
+			}
+			if(tvdbLogoData.isPresent()){
+				message.addInline(tvdbLogoResourceName, new ByteArrayResource(tvdbLogoData.get(), "Tvdb logo"), "image/png");
 			}
 		});
 	}
@@ -176,9 +188,13 @@ public class MailNotificationService extends AbstractNotificationService{
 		
 		var overseerrLogoData = getOverseerrLogoBytes();
 		var plexLogoData = getPlexLogoBytes();
+		var tmdbLogoData = getTmdbLogoBytes();
+		var tvdbLogoData = getTvdbLogoBytes();
 		
 		var overseerrLogoResourceName = "overseerrLogoResourceName";
 		var plexLogoResourceName = "plexLogoResourceName";
+		var tmdbLogoResourceName = "tmdbLogoResourceName";
+		var tvdbLogoResourceName = "tvdbLogoResourceName";
 		
 		context.setVariable("service", this);
 		context.setVariable("media", media);
@@ -186,6 +202,8 @@ public class MailNotificationService extends AbstractNotificationService{
 		context.setVariable("userGroup", userGroupEntity);
 		context.setVariable("overseerrLogoResourceName", overseerrLogoData.isPresent() ? overseerrLogoResourceName : null);
 		context.setVariable("plexLogoResourceName", plexLogoData.isPresent() ? plexLogoResourceName : null);
+		context.setVariable("tmdbLogoResourceName", tmdbLogoData.isPresent() ? tmdbLogoResourceName : null);
+		context.setVariable("tvdbLogoResourceName", tvdbLogoData.isPresent() ? tvdbLogoResourceName : null);
 		
 		sendMail(notification, message -> {
 			message.setSubject(messageSource.getMessage(subjectKey, new Object[0], locale));
@@ -195,6 +213,12 @@ public class MailNotificationService extends AbstractNotificationService{
 			}
 			if(plexLogoData.isPresent()){
 				message.addInline(plexLogoResourceName, new ByteArrayResource(plexLogoData.get(), "Plex logo"), "image/png");
+			}
+			if(tmdbLogoData.isPresent()){
+				message.addInline(tmdbLogoResourceName, new ByteArrayResource(tmdbLogoData.get(), "Tmdb logo"), "image/png");
+			}
+			if(tvdbLogoData.isPresent()){
+				message.addInline(tvdbLogoResourceName, new ByteArrayResource(tvdbLogoData.get(), "Tvdb logo"), "image/png");
 			}
 		});
 	}
@@ -222,6 +246,16 @@ public class MailNotificationService extends AbstractNotificationService{
 	@NotNull
 	private Optional<byte[]> getPlexLogoBytes(){
 		return getResourceBytes("static/plex.png");
+	}
+	
+	@NotNull
+	private Optional<byte[]> getTmdbLogoBytes(){
+		return getResourceBytes("static/tmdb.png");
+	}
+	
+	@NotNull
+	private Optional<byte[]> getTvdbLogoBytes(){
+		return getResourceBytes("static/tvdb.png");
 	}
 	
 	@NotNull
