@@ -56,6 +56,30 @@ public class ThymeleafService{
 	}
 	
 	@Nullable
+	public String getMediaTmdbUrl(@NotNull MediaEntity media){
+		var type = switch(media.getType()){
+			case MOVIE -> "movie";
+			case SEASON -> "tv";
+		};
+		
+		return Optional.ofNullable(media.getTmdbId())
+				.map(id -> "https://www.themoviedb.org/%s/%d".formatted(type, id))
+				.orElse(null);
+	}
+	
+	@Nullable
+	public String getMediaTvdbUrl(@NotNull MediaEntity media){
+		var type = switch(media.getType()){
+			case MOVIE -> "movie";
+			case SEASON -> "series";
+		};
+		
+		return Optional.ofNullable(media.getTvdbId())
+				.map(slug -> "https://www.thetvdb.com/dereferrer/%s/%s".formatted(type, slug))
+				.orElse(null);
+	}
+	
+	@Nullable
 	public String getOwnUrl(){
 		return applicationEndpoint;
 	}

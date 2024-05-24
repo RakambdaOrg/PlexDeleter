@@ -220,13 +220,12 @@ public class TvdbMediaMetadataContext extends MediaMetadataContext{
 	public Collection<MetadataProviderInfo> getMetadataProviderInfo(){
 		var type = switch(getMetadata().getMediaType()){
 			case MOVIE -> "movie";
-			case SHOW, SEASON, EPISODE -> "tv";
+			case SHOW, SEASON, EPISODE -> "series";
 			case TRACK, ARTIST -> null;
 		};
 		
-		return getMediaData()
-				.map(MediaData::getSlug)
-				.map(slug -> "https://www.thetvdb.com/%s/%s".formatted(type, slug))
+		return getTvdbId()
+				.map(id -> "https://www.thetvdb.com/dereferrer/%s/%s".formatted(type, id))
 				.map(url -> new MetadataProviderInfo("Tvdb", url))
 				.map(List::of)
 				.orElseGet(List::of);
