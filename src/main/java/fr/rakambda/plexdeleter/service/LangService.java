@@ -27,11 +27,15 @@ public class LangService{
 		addLanguage.accept(Locale.ENGLISH);
 		addLanguage.accept(Locale.FRENCH);
 		addLanguage.accept(Locale.ITALIAN);
+		addLanguage.accept(new Locale.Builder().setLanguage("ind").build());
 		addLanguage.accept(Locale.JAPANESE);
 		addLanguage.accept(new Locale.Builder().setLanguage("kor").build());
+		addLanguage.accept(new Locale.Builder().setLanguage("msa").build());
 		addLanguage.accept(new Locale.Builder().setLanguage("por").build());
 		addLanguage.accept(new Locale.Builder().setLanguage("rus").build());
 		addLanguage.accept(new Locale.Builder().setLanguage("spa").build());
+		addLanguage.accept(new Locale.Builder().setLanguage("tha").build());
+		addLanguage.accept(new Locale.Builder().setLanguage("vie").build());
 		addLanguage.accept(new Locale.Builder().setLanguage("zho").build());
 	}
 	
