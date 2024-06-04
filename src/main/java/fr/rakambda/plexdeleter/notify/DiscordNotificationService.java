@@ -323,6 +323,22 @@ public class DiscordNotificationService extends AbstractNotificationService{
 			sb.append(")");
 		}
 		
+		var tmdbUrl = thymeleafService.getMediaTmdbUrl(media);
+		if(Objects.nonNull(tmdbUrl)){
+			sb.append(" | ");
+			sb.append("[Tmdb](");
+			sb.append(tmdbUrl);
+			sb.append(")");
+		}
+		
+		var tvdbUrl = thymeleafService.getMediaTvdbUrl(media);
+		if(Objects.nonNull(tvdbUrl)){
+			sb.append(" | ");
+			sb.append("[Tvdb](");
+			sb.append(tvdbUrl);
+			sb.append(")");
+		}
+		
 		return sb.toString();
 	}
 }
