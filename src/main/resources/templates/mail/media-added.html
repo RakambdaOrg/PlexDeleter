@@ -9,7 +9,7 @@
     <div class="d-flex flex-column justify-content-center">
         <div th:if="${suggestAddRequirementId}" class="d-flex flex-row justify-content-center align-items-center mb-2">
             <div class="m-1">
-                <form th:action="${thymeleafService.getAddWatchMediaUrl(suggestAddRequirementId)}" method="post">
+                <form th:action="${thymeleafService.getAddWatchMediaUrl(suggestAddRequirementId)}" method="get">
                     <input type="hidden" name="media" class="form-control" th:value="${suggestAddRequirementId}"/>
                     <input type="submit" th:value="#{mail.media.available.body.actions.requirement.add}" class="btn btn-success btn-sm media-action-button"/>
                 </form>
