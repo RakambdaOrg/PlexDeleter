@@ -70,7 +70,7 @@ tasks.withType<BootBuildImage> {
     environment = mapOf(
         "BP_NATIVE_IMAGE_BUILD_ARGUMENTS" to "-H:+AddAllCharsets -march=compatibility",
         "BPE_LANG" to "C.UTF-8",
-        "BPE_APPEND_JAVA_TOOL_OPTIONS" to "-Duser.language=en -Duser.country=US -Dfile.encoding=UTF-8",
+        "BPE_APPEND_JAVA_TOOL_OPTIONS" to "-Duser.language=en -Duser.country=US -Dfile.encoding=UTF-8 -Dsun.jnu.encoding=UTF-8",
         "BPE_DELIM_JAVA_TOOL_OPTIONS" to " "
     )
 }
