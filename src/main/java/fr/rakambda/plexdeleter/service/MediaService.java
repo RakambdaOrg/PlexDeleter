@@ -122,6 +122,7 @@ public class MediaService{
 				.map(MediaRequirementEntity::getStatus)
 				.allMatch(MediaRequirementStatus::isCompleted)){
 			mediaEntity.setStatus(MediaStatus.PENDING_DELETION);
+			log.info("Marked media {} as {}", mediaEntity, mediaEntity.getStatus());
 		}
 	}
 	
@@ -176,7 +177,7 @@ public class MediaService{
 		}
 	}
 	
-	private void updateFromTautulli(@NotNull MediaEntity mediaEntity) throws RequestFailedException{
+	private void updateFromTautulli(@NotNull MediaEntity mediaEntity){
 		if(Objects.isNull(mediaEntity.getPlexId())){
 			log.warn("Cannot update media {} as it does not seem to be in Plex/Tautulli", mediaEntity);
 			return;
@@ -193,7 +194,7 @@ public class MediaService{
 		}
 	}
 	
-	private void updateFromServarr(@NotNull MediaEntity mediaEntity) throws RequestFailedException{
+	private void updateFromServarr(@NotNull MediaEntity mediaEntity){
 		if(Objects.isNull(mediaEntity.getServarrId())){
 			log.warn("Cannot update media {} as it does not seem to be in Sonarr/Radarr", mediaEntity);
 			return;
