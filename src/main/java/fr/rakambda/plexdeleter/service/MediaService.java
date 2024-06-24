@@ -336,6 +336,7 @@ public class MediaService{
 			var media = getOrCreateMedia(overseerrId, mediaType, season);
 			if(!media.getStatus().isNeverChange()){
 				media.setStatus(MediaStatus.WAITING);
+				media.setAvailablePartsCount(0);
 			}
 			media.setAvailablePartsCount(0);
 			mediaRepository.save(media);
