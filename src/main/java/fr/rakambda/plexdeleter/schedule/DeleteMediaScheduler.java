@@ -7,8 +7,8 @@ import fr.rakambda.plexdeleter.api.tautulli.data.MediaInfo;
 import fr.rakambda.plexdeleter.api.tautulli.data.MediaPart;
 import fr.rakambda.plexdeleter.config.ApplicationConfiguration;
 import fr.rakambda.plexdeleter.messaging.SupervisionService;
-import fr.rakambda.plexdeleter.storage.entity.MediaActionStatus;
 import fr.rakambda.plexdeleter.storage.entity.MediaEntity;
+import fr.rakambda.plexdeleter.storage.entity.MediaStatus;
 import fr.rakambda.plexdeleter.storage.repository.MediaRepository;
 import lombok.extern.slf4j.Slf4j;
 import org.jetbrains.annotations.NotNull;
@@ -33,6 +33,7 @@ import java.util.Map;
 import java.util.Objects;
 import java.util.PriorityQueue;
 import java.util.Queue;
+import java.util.Set;
 import java.util.concurrent.atomic.AtomicLong;
 import java.util.stream.Collectors;
 
@@ -66,7 +67,7 @@ public class DeleteMediaScheduler implements IScheduler{
 	@Scheduled(cron = "0 0 1 * * *")
 	public void run(){
 		log.info("Staring to delete old media");
-		var medias = mediaRepository.findAllReadyToDelete();
+		var medias = mediaRepository.findAllByStatusIn(Set.of(MediaStatus.PENDING_DELETION));
 		var size = 0L;
 		for(var media : medias){
 			try{
@@ -133,7 +134,7 @@ public class DeleteMediaScheduler implements IScheduler{
 		}
 		
 		if(!dryDelete){
-			mediaEntity.setActionStatus(MediaActionStatus.DELETED);
+			mediaEntity.setStatus(MediaStatus.DELETED);
 			mediaRepository.save(mediaEntity);
 		}
 		

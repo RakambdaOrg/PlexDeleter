@@ -10,8 +10,8 @@ import fr.rakambda.plexdeleter.api.tautulli.data.TautulliResponseWrapper;
 import fr.rakambda.plexdeleter.config.ApplicationConfiguration;
 import fr.rakambda.plexdeleter.config.DeletionConfiguration;
 import fr.rakambda.plexdeleter.messaging.SupervisionService;
-import fr.rakambda.plexdeleter.storage.entity.MediaActionStatus;
 import fr.rakambda.plexdeleter.storage.entity.MediaEntity;
+import fr.rakambda.plexdeleter.storage.entity.MediaStatus;
 import fr.rakambda.plexdeleter.storage.entity.MediaType;
 import fr.rakambda.plexdeleter.storage.repository.MediaRepository;
 import org.mockito.Mock;
@@ -80,7 +80,6 @@ class DeleteMediaSchedulerTest{
 		lenient().when(applicationConfiguration.getDeletion()).thenReturn(deletionConfiguration);
 		lenient().when(deletionConfiguration.getDaysDelay()).thenReturn(DELAY);
 		lenient().when(deletionConfiguration.getRemotePathMappings()).thenReturn(Map.of(REMOTE_PREFIX, tempDir.toString()));
-		lenient().when(mediaRepository.findAllReadyToDelete()).thenReturn(List.of(mediaEntity));
 		lenient().when(mediaEntity.getPlexId()).thenReturn(PLEX_ID);
 		lenient().when(mediaEntity.getType()).thenReturn(MEDIA_TYPE);
 		lenient().when(tautulliService.getElementsRatingKeys(PLEX_ID, MEDIA_TYPE)).thenReturn(List.of(RATING_KEY));
@@ -116,7 +115,7 @@ class DeleteMediaSchedulerTest{
 		when(getMetadataResponse.getAddedAt()).thenReturn(Instant.now());
 		
 		assertThat(tested.delete(mediaEntity)).isZero();
-		verify(mediaEntity, never()).setActionStatus(MediaActionStatus.DELETED);
+		verify(mediaEntity, never()).setStatus(MediaStatus.DELETED);
 	}
 	
 	@Test
@@ -128,7 +127,7 @@ class DeleteMediaSchedulerTest{
 		
 		tested.delete(mediaEntity);
 		
-		verify(mediaEntity).setActionStatus(MediaActionStatus.DELETED);
+		verify(mediaEntity).setStatus(MediaStatus.DELETED);
 		
 		assertThat(paths).allSatisfy(path -> assertThat(path).doesNotExist());
 		assertThat(tempDir).isEmptyDirectory();
@@ -145,7 +144,7 @@ class DeleteMediaSchedulerTest{
 		
 		tested.delete(mediaEntity);
 		
-		verify(mediaEntity).setActionStatus(MediaActionStatus.DELETED);
+		verify(mediaEntity).setStatus(MediaStatus.DELETED);
 		
 		assertThat(paths).allSatisfy(path -> assertThat(path).doesNotExist());
 		assertThat(tempDir).isEmptyDirectory();

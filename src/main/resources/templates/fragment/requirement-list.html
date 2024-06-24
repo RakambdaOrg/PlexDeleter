@@ -37,7 +37,7 @@
             <td th:text="${requirement.getMedia().getName()}"></td>
             <td th:text="${requirement.getMedia().getIndex()}"></td>
             <td th:text="${requirement.getMedia().getAvailablePartsCount() + ' / ' + requirement.getMedia().getPartsCount()}"></td>
-            <td th:text="#{${requirement.getMedia().getAvailability().getLocalizationKey()}}"></td>
+            <td th:text="#{${requirement.getMedia().getStatus().getLocalizationKey()}}"></td>
             <td th:text="${requirement.getWatchedCount() + ' / ' + requirement.getMedia().getPartsCount()}"></td>
             <td>
                 <div class="d-flex flex-row justify-content-center align-items-center">

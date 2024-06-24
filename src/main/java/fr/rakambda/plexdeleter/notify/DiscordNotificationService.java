@@ -62,15 +62,15 @@ public class DiscordNotificationService extends AbstractNotificationService{
 		
 		var availableMedia = requirements.stream()
 				.map(MediaRequirementEntity::getMedia)
-				.filter(m -> m.getAvailability().isAvailable())
+				.filter(m -> m.getStatus().isFullyDownloaded())
 				.toList();
 		var downloadingMedia = requirements.stream()
 				.map(MediaRequirementEntity::getMedia)
-				.filter(m -> m.getAvailability().isInProgress())
+				.filter(m -> m.getStatus().isDownloadStarted())
 				.toList();
 		var notYetAvailableMedia = requirements.stream()
 				.map(MediaRequirementEntity::getMedia)
-				.filter(m -> m.getAvailability().isWaiting())
+				.filter(m -> !m.getStatus().isDownloadStarted())
 				.toList();
 		
 		if(availableMedia.isEmpty()

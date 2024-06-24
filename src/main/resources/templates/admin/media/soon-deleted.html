@@ -33,7 +33,7 @@
             <td th:text="${media.getName()}"></td>
             <td th:text="${media.getIndex()}"></td>
             <td th:text="${media.getPartsCount()}"></td>
-            <td th:text="#{${media.getAvailability().getLocalizationKey()}}"></td>
+            <td th:text="#{${media.getStatus().getLocalizationKey()}}"></td>
             <td>
                 <div class="d-flex flex-row justify-content-center align-items-center">
                     <div th:if="${media.getOverseerrId()}" class="m-1">

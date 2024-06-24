@@ -91,6 +91,6 @@ public class ThymeleafService{
 	
 	@Nullable
 	public String getTableColorClass(@NotNull MediaEntity media){
-		return media.getAvailability().getTableClass();
+		return media.getStatus().getTableClass();
 	}
 }

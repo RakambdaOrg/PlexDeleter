@@ -13,11 +13,10 @@ import fr.rakambda.plexdeleter.api.tautulli.TautulliService;
 import fr.rakambda.plexdeleter.messaging.SupervisionService;
 import fr.rakambda.plexdeleter.notify.NotificationService;
 import fr.rakambda.plexdeleter.notify.NotifyException;
-import fr.rakambda.plexdeleter.storage.entity.MediaActionStatus;
-import fr.rakambda.plexdeleter.storage.entity.MediaAvailability;
 import fr.rakambda.plexdeleter.storage.entity.MediaEntity;
 import fr.rakambda.plexdeleter.storage.entity.MediaRequirementEntity;
 import fr.rakambda.plexdeleter.storage.entity.MediaRequirementStatus;
+import fr.rakambda.plexdeleter.storage.entity.MediaStatus;
 import fr.rakambda.plexdeleter.storage.entity.MediaType;
 import fr.rakambda.plexdeleter.storage.entity.UserGroupEntity;
 import fr.rakambda.plexdeleter.storage.entity.UserPersonEntity;
@@ -29,7 +28,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import java.util.Objects;
 import java.util.Optional;
-import java.util.Set;
 import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReentrantLock;
 
@@ -60,7 +58,7 @@ public class MediaService{
 	public void updateAll(){
 		log.info("Updating medias");
 		
-		var medias = mediaRepository.findAllByAvailabilityIn(Set.of(MediaAvailability.WAITING, MediaAvailability.DOWNLOADING, MediaAvailability.DOWNLOADED_NEED_METADATA));
+		var medias = mediaRepository.findAllByStatusIn(MediaStatus.allNeedRefresh());
 		for(var media : medias){
 			try{
 				update(media);
@@ -83,25 +81,29 @@ public class MediaService{
 			updateFromTautulli(mediaEntity);
 			updateFromServarr(mediaEntity);
 			
-			if(mediaEntity.getAvailability() != MediaAvailability.MANUAL){
+			if(mediaEntity.getStatus().isNeedsMetadataRefresh()){
 				if(mediaEntity.getPartsCount() <= 0){
 					log.warn("Failed to update {}, not enough info", mediaEntity);
 					supervisionService.send("\uD83D\uDEAB Could not update %s", mediaEntity);
 				}
 				else if(mediaEntity.getAvailablePartsCount() >= mediaEntity.getPartsCount()){
-					if(!mediaEntity.getAvailability().isAvailable()){
+					if(!mediaEntity.getStatus().isFullyDownloaded()){
 						notificationService.notifyMediaAvailable(mediaEntity);
 					}
-					var newAvailability = Objects.nonNull(mediaEntity.getPlexId()) ? MediaAvailability.DOWNLOADED : MediaAvailability.DOWNLOADED_NEED_METADATA;
-					if(!Objects.equals(newAvailability, mediaEntity.getAvailability())){
-						mediaEntity.setAvailability(newAvailability);
-						log.info("Marked media {} as {}", mediaEntity, mediaEntity.getAvailability());
-						supervisionService.send("\uD83C\uDD97 Marked %d as %s: %s (%d/%d)", mediaEntity.getId(), mediaEntity.getAvailability(), mediaEntity, mediaEntity.getPartsCount(), mediaEntity.getAvailablePartsCount());
+					var newAvailability = Objects.nonNull(mediaEntity.getPlexId()) ? MediaStatus.DOWNLOADED : MediaStatus.DOWNLOADED_NEED_METADATA;
+					if(!Objects.equals(newAvailability, mediaEntity.getStatus())){
+						mediaEntity.setStatus(newAvailability);
+						log.info("Marked media {} as {}", mediaEntity, mediaEntity.getStatus());
+						supervisionService.send("\uD83C\uDD97 Marked %d as %s: %s (%d/%d)", mediaEntity.getId(), mediaEntity.getStatus(), mediaEntity, mediaEntity.getPartsCount(), mediaEntity.getAvailablePartsCount());
 					}
 				}
 				else if(mediaEntity.getAvailablePartsCount() > 0){
-					mediaEntity.setAvailability(MediaAvailability.DOWNLOADING);
+					mediaEntity.setStatus(MediaStatus.DOWNLOADING);
 				}
+			}
+			
+			if(mediaEntity.getStatus().isNeedsRequirementsRefresh()){
+				handleRequirements(mediaEntity);
 			}
 			
 			return mediaRepository.save(mediaEntity);
@@ -111,7 +113,19 @@ public class MediaService{
 		}
 	}
 	
-	private void updateFromOverseerr(@NotNull MediaEntity mediaEntity) throws UpdateException, RequestFailedException{
+	private void handleRequirements(@NotNull MediaEntity mediaEntity){
+		if(!mediaEntity.getStatus().isFullyDownloaded() || mediaEntity.getStatus().isNeedsMetadataRefresh()){
+			return;
+		}
+		
+		if(mediaEntity.getRequirements().stream()
+				.map(MediaRequirementEntity::getStatus)
+				.allMatch(MediaRequirementStatus::isCompleted)){
+			mediaEntity.setStatus(MediaStatus.PENDING_DELETION);
+		}
+	}
+	
+	private void updateFromOverseerr(@NotNull MediaEntity mediaEntity){
 		if(Objects.isNull(mediaEntity.getOverseerrId())){
 			log.warn("Cannot update media {} as it does not seem to be in Overseerr", mediaEntity);
 			return;
@@ -251,7 +265,7 @@ public class MediaService{
 				deletedOverseerr = deleteMediaRequestsFromOverseerr(media, userGroup);
 			}
 			
-			if(media.getRequirements().stream().map(MediaRequirementEntity::getStatus).anyMatch(r -> !r.isCompleted())){
+			if(media.getRequirements().stream().map(MediaRequirementEntity::getStatus).anyMatch(MediaRequirementStatus::isWantToWatchMore)){
 				return new DeleteMediaResponse(false, deletedServarr, deletedOverseerr);
 			}
 			
@@ -320,8 +334,9 @@ public class MediaService{
 		try{
 			log.info("Adding media with Overseerr id {} and season {}", overseerrId, season);
 			var media = getOrCreateMedia(overseerrId, mediaType, season);
-			media.setAvailability(MediaAvailability.WAITING);
-			media.setActionStatus(MediaActionStatus.TO_DELETE);
+			if(!media.getStatus().isNeverChange()){
+				media.setStatus(MediaStatus.WAITING);
+			}
 			media.setAvailablePartsCount(0);
 			mediaRepository.save(media);
 			
@@ -338,8 +353,7 @@ public class MediaService{
 		try{
 			log.info("Adding media from previous {} season {}", previousMedia, season);
 			var media = createMediaFromPrevious(previousMedia, season);
-			media.setAvailability(MediaAvailability.WAITING);
-			media.setActionStatus(MediaActionStatus.TO_DELETE);
+			media.setStatus(MediaStatus.WAITING);
 			media.setAvailablePartsCount(0);
 			mediaRepository.save(media);
 			
@@ -373,8 +387,7 @@ public class MediaService{
 				.index(season)
 				.partsCount(0)
 				.availablePartsCount(0)
-				.availability(MediaAvailability.WAITING)
-				.actionStatus(MediaActionStatus.TO_DELETE)
+				.status(MediaStatus.WAITING)
 				.build();
 		
 		log.info("Creating new media {} for Overseerr id {}", media, overseerrId);
@@ -397,8 +410,7 @@ public class MediaService{
 				.index(season)
 				.partsCount(0)
 				.availablePartsCount(0)
-				.availability(MediaAvailability.WAITING)
-				.actionStatus(MediaActionStatus.TO_DELETE)
+				.status(MediaStatus.WAITING)
 				.build();
 		
 		log.info("Creating new media {} from previous {}", media, previous);

@@ -3,12 +3,14 @@ package fr.rakambda.plexdeleter.service;
 import fr.rakambda.plexdeleter.storage.entity.MediaEntity;
 import fr.rakambda.plexdeleter.storage.entity.MediaRequirementEntity;
 import fr.rakambda.plexdeleter.storage.entity.MediaRequirementStatus;
+import fr.rakambda.plexdeleter.storage.entity.MediaStatus;
 import fr.rakambda.plexdeleter.storage.repository.MediaRepository;
 import fr.rakambda.plexdeleter.storage.repository.MediaRequirementRepository;
 import org.jetbrains.annotations.NotNull;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import java.util.List;
+import java.util.Set;
 
 @Service
 public class AdminService{
@@ -36,7 +38,7 @@ public class AdminService{
 	
 	@NotNull
 	public List<MediaEntity> getSoonDeletedMedias(){
-		return mediaRepository.findAllReadyToDelete().stream()
+		return mediaRepository.findAllByStatusIn(Set.of(MediaStatus.PENDING_DELETION)).stream()
 				.sorted(MediaEntity.COMPARATOR_BY_TYPE_THEN_NAME)
 				.toList();
 	}

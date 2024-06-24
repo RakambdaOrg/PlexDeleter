@@ -94,11 +94,7 @@ public class MediaEntity{
 	@Enumerated(EnumType.STRING)
 	@Column(nullable = false)
 	@NotNull
-	private MediaAvailability availability;
-	@Enumerated(EnumType.STRING)
-	@Column(nullable = false)
-	@NotNull
-	private MediaActionStatus actionStatus;
+	private MediaStatus status;
 	
 	@OneToMany(cascade = CascadeType.REMOVE, targetEntity = MediaRequirementEntity.class, mappedBy = "media")
 	private List<MediaRequirementEntity> requirements;

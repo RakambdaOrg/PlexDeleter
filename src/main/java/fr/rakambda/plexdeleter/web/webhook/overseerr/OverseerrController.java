@@ -11,7 +11,7 @@ import fr.rakambda.plexdeleter.service.MediaRequirementService;
 import fr.rakambda.plexdeleter.service.MediaService;
 import fr.rakambda.plexdeleter.service.ServiceException;
 import fr.rakambda.plexdeleter.service.UpdateException;
-import fr.rakambda.plexdeleter.storage.entity.MediaAvailability;
+import fr.rakambda.plexdeleter.storage.entity.MediaStatus;
 import fr.rakambda.plexdeleter.storage.entity.MediaType;
 import fr.rakambda.plexdeleter.storage.repository.MediaRepository;
 import fr.rakambda.plexdeleter.storage.repository.UserGroupRepository;
@@ -76,7 +76,7 @@ public class OverseerrController{
 		
 		var medias = overseerrId
 				.map(mediaRepository::findAllByOverseerrId)
-				.orElseGet(() -> mediaRepository.findAllByAvailabilityIn(Set.of(MediaAvailability.WAITING, MediaAvailability.DOWNLOADING, MediaAvailability.DOWNLOADED_NEED_METADATA)));
+				.orElseGet(() -> mediaRepository.findAllByStatusIn(MediaStatus.allNeedRefresh()));
 		
 		for(var media : medias){
 			mediaService.update(media);
