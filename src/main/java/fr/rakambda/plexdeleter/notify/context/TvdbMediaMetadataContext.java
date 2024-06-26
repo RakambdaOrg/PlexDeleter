@@ -103,7 +103,7 @@ public class TvdbMediaMetadataContext extends MediaMetadataContext{
 			var response = switch(getMetadata().getMediaType()){
 				case MOVIE -> tvdbService.getExtendedMovieData(tvdbId);
 				case SEASON, SHOW, EPISODE -> tvdbService.getExtendedSeriesData(tvdbId);
-				case TRACK, ARTIST -> null;
+				case TRACK, ARTIST, PHOTO -> null;
 			};
 			
 			var data = Optional.ofNullable(response).map(TvdbResponseWrapper::getData);
@@ -133,7 +133,7 @@ public class TvdbMediaMetadataContext extends MediaMetadataContext{
 			var response = switch(getMetadata().getMediaType()){
 				case MOVIE -> tvdbService.getMovieTranslations(tvdbId, locale);
 				case SEASON, SHOW, EPISODE -> tvdbService.getSeriesTranslations(tvdbId, locale);
-				case TRACK, ARTIST -> null;
+				case TRACK, ARTIST, PHOTO -> null;
 			};
 			
 			var translation = Optional.ofNullable(response).map(TvdbResponseWrapper::getData);
@@ -155,7 +155,7 @@ public class TvdbMediaMetadataContext extends MediaMetadataContext{
 			case EPISODE -> getEpisodeTranslation(locale)
 					.or(() -> getSeasonTranslation(locale))
 					.or(() -> getMediaTranslation(locale));
-			case TRACK, ARTIST -> Optional.empty();
+			case TRACK, ARTIST, PHOTO -> Optional.empty();
 		};
 	}
 	
@@ -164,7 +164,7 @@ public class TvdbMediaMetadataContext extends MediaMetadataContext{
 		var tvdbId = switch(getMetadata().getMediaType()){
 			case SEASON, SHOW -> getTvdbId(getMetadata().getGuids()).orElse(null);
 			case EPISODE -> getTvdbId(getMetadata().getParentGuids()).orElse(null);
-			case MOVIE, TRACK, ARTIST -> null;
+			case MOVIE, TRACK, ARTIST, PHOTO -> null;
 		};
 		
 		if(Objects.isNull(tvdbId)){
@@ -192,7 +192,7 @@ public class TvdbMediaMetadataContext extends MediaMetadataContext{
 	private Optional<Translation> getEpisodeTranslation(@NotNull Locale locale){
 		var tvdbId = switch(getMetadata().getMediaType()){
 			case EPISODE -> getTvdbId(getMetadata().getGuids()).orElse(null);
-			case TRACK, MOVIE, SEASON, SHOW, ARTIST -> null;
+			case TRACK, MOVIE, SEASON, SHOW, ARTIST, PHOTO -> null;
 		};
 		
 		if(Objects.isNull(tvdbId)){
@@ -221,7 +221,7 @@ public class TvdbMediaMetadataContext extends MediaMetadataContext{
 		var type = switch(getMetadata().getMediaType()){
 			case MOVIE -> "movie";
 			case SHOW, SEASON, EPISODE -> "series";
-			case TRACK, ARTIST -> null;
+			case TRACK, ARTIST, PHOTO -> null;
 		};
 		
 		return getTvdbId()

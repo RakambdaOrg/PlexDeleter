@@ -167,13 +167,13 @@ public class NotificationService{
 		var ratingKey = switch(metadata.getMediaType()){
 			case MOVIE, SEASON -> metadata.getRatingKey();
 			case EPISODE -> metadata.getParentRatingKey();
-			case TRACK, ARTIST, SHOW -> null;
+			case TRACK, ARTIST, SHOW, PHOTO -> null;
 		};
 		var mediaIndex = switch(metadata.getMediaType()){
 			case MOVIE -> 1;
 			case SEASON -> metadata.getMediaIndex();
 			case EPISODE -> metadata.getParentMediaIndex();
-			case TRACK, ARTIST, SHOW -> 1;
+			case TRACK, ARTIST, SHOW, PHOTO -> 1;
 		};
 		
 		if(Objects.isNull(ratingKey)){
@@ -197,7 +197,7 @@ public class NotificationService{
 			var ratingKeyToSet = switch(metadata.getMediaType()){
 				case MOVIE, SEASON -> metadata.getRatingKey();
 				case EPISODE -> metadata.getParentRatingKey();
-				case TRACK, ARTIST, SHOW -> null;
+				case TRACK, ARTIST, SHOW, PHOTO -> null;
 			};
 			
 			var rootRatingKeyToSet = Optional.ofNullable(metadata.getGrandparentRatingKey())

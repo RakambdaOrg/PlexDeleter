@@ -1,4 +1,4 @@
-package fr.rakambda.plexdeleter.service;
+package fr.rakambda.plexdeleter.service.data;
 
 public record DeleteMediaResponse(
 		boolean deletedDatabase,

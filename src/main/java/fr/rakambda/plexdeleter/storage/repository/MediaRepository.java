@@ -37,4 +37,6 @@ public interface MediaRepository extends JpaRepository<MediaEntity, Integer>{
 	Optional<MediaEntity> findByRootPlexIdAndIndex(int ratingKey, int index);
 	
 	long countByServarrIdAndType(int servarrId, @NotNull MediaType type);
+	
+	boolean existsByRootPlexId(int ratingKey);
 }

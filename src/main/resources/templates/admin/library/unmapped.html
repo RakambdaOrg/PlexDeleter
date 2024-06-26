@@ -1,0 +1,47 @@
+<!DOCTYPE HTML>
+<html th:lang="${#locale.language}" xmlns:th="https://www.thymeleaf.org" data-bs-theme="auto">
+<head>
+    <title th:text="#{web.navbar.admin.library.unmapped}"></title>
+    <th:block th:replace="~{fragment/common-head::common-head}"></th:block>
+</head>
+<body>
+<div th:replace="~{fragment/navbar.html::navbar}"></div>
+<div>
+    <table class="table table-striped table-bordered table-hover align-middle text-center">
+        <thead class="thead-light">
+        <tr>
+            <th scope="col" th:text="#{web.media-list.table.id}"/>
+            <th scope="col" th:text="#{web.media-list.table.type}"/>
+            <th scope="col" th:text="#{web.media-list.table.name}"/>
+            <th scope="col" th:text="#{web.media-list.table.links}"/>
+        </tr>
+        </thead>
+        <tbody class="table-group-divider">
+        <tr th:each="element : ${elements}">
+            <td th:text="${element.ratingKey()}"></td>
+            <td>
+                <div class="d-flex flex-row justify-content-center align-items-center col-auto">
+                    <svg class="m-1" height="20" width="20">
+                        <image th:xlink:href="@{~/static/__${element.type().getIcon()}__}" height="20" width="20"/>
+                    </svg>
+                    <span class="m-1" th:text="#{${element.type().getLocalizationKey()}}"></span>
+                </div>
+            </td>
+            <td th:text="${element.name()}"></td>
+            <td>
+                <div class="d-flex flex-row justify-content-center align-items-center">
+                    <div class="m-1">
+                        <a title="Plex" th:href="${thymeleafService.getRatingKeyPlexUrl(element.ratingKey())}" th:target="_blank">
+                            <svg class="m-1" height="20" width="20">
+                                <image th:xlink:href="@{~/static/plex.svg}" height="20" width="20"/>
+                            </svg>
+                        </a>
+                    </div>
+                </div>
+            </td>
+        </tr>
+        </tbody>
+    </table>
+</div>
+</body>
+</html>

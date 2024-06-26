@@ -3,6 +3,7 @@ package fr.rakambda.plexdeleter.aot;
 import fr.rakambda.plexdeleter.notify.AbstractNotificationService;
 import fr.rakambda.plexdeleter.notify.context.MetadataProviderInfo;
 import fr.rakambda.plexdeleter.service.ThymeleafService;
+import fr.rakambda.plexdeleter.service.data.LibraryElement;
 import fr.rakambda.plexdeleter.storage.entity.MediaEntity;
 import fr.rakambda.plexdeleter.storage.entity.UserGroupEntity;
 import lombok.extern.slf4j.Slf4j;
@@ -10,6 +11,7 @@ import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import org.springframework.aot.hint.ExecutableMode;
 import org.springframework.aot.hint.MemberCategory;
+import org.springframework.aot.hint.ReflectionHints;
 import org.springframework.aot.hint.RuntimeHints;
 import org.springframework.aot.hint.RuntimeHintsRegistrar;
 import org.thymeleaf.engine.IterationStatusVar;
@@ -28,6 +30,7 @@ public class ThymeleafHints implements RuntimeHintsRegistrar{
 			hints.reflection().registerMethod(ThymeleafService.class.getMethod("getMediaRadarrUrl", MediaEntity.class), ExecutableMode.INVOKE);
 			hints.reflection().registerMethod(ThymeleafService.class.getMethod("getMediaSonarrUrl", MediaEntity.class), ExecutableMode.INVOKE);
 			hints.reflection().registerMethod(ThymeleafService.class.getMethod("getMediaPlexUrl", MediaEntity.class), ExecutableMode.INVOKE);
+			hints.reflection().registerMethod(ThymeleafService.class.getMethod("getRatingKeyPlexUrl", int.class), ExecutableMode.INVOKE);
 			hints.reflection().registerMethod(ThymeleafService.class.getMethod("getTableColorClass", MediaEntity.class), ExecutableMode.INVOKE);
 			hints.reflection().registerMethod(ThymeleafService.class.getMethod("getOwnUrl"), ExecutableMode.INVOKE);
 			hints.reflection().registerMethod(ThymeleafService.class.getMethod("getAddWatchMediaUrl", int.class), ExecutableMode.INVOKE);
@@ -39,14 +42,8 @@ public class ThymeleafHints implements RuntimeHintsRegistrar{
 			
 			hints.reflection().registerMethod(Locale.class.getMethod("getLanguage"), ExecutableMode.INVOKE);
 			
-			hints.reflection()
-					.registerType(MetadataProviderInfo.class,
-							MemberCategory.DECLARED_FIELDS,
-							MemberCategory.INVOKE_DECLARED_CONSTRUCTORS,
-							MemberCategory.INVOKE_DECLARED_METHODS,
-							MemberCategory.INVOKE_PUBLIC_CONSTRUCTORS,
-							MemberCategory.INVOKE_PUBLIC_METHODS
-					);
+			registerType(hints.reflection(), MetadataProviderInfo.class);
+			registerType(hints.reflection(), LibraryElement.class);
 			
 			hints.reflection().registerMethod(Lists.class.getMethod("isEmpty", List.class), ExecutableMode.INVOKE);
 			hints.reflection().registerMethod(Strings.class.getMethod("isEmpty", Object.class), ExecutableMode.INVOKE);
@@ -58,5 +55,15 @@ public class ThymeleafHints implements RuntimeHintsRegistrar{
 		catch(NoSuchMethodException | NoSuchFieldException e){
 			throw new RuntimeException(e);
 		}
+	}
+	
+	private void registerType(@NotNull ReflectionHints reflection, @NotNull Class<?> klass){
+		reflection.registerType(klass,
+				MemberCategory.DECLARED_FIELDS,
+				MemberCategory.INVOKE_DECLARED_CONSTRUCTORS,
+				MemberCategory.INVOKE_DECLARED_METHODS,
+				MemberCategory.INVOKE_PUBLIC_CONSTRUCTORS,
+				MemberCategory.INVOKE_PUBLIC_METHODS
+		);
 	}
 }

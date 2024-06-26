@@ -51,8 +51,13 @@ public class ThymeleafService{
 	@Nullable
 	public String getMediaPlexUrl(@NotNull MediaEntity media){
 		return Optional.ofNullable(media.getPlexId())
-				.map(id -> "%s/desktop/#!/server/%s/details?key=%%2Flibrary%%2Fmetadata%%2F%d".formatted(plexEndpoint, plexServerId, id))
+				.map(this::getRatingKeyPlexUrl)
 				.orElse(null);
+	}
+	
+	@Nullable
+	public String getRatingKeyPlexUrl(int ratingKey){
+		return "%s/desktop/#!/server/%s/details?key=%%2Flibrary%%2Fmetadata%%2F%d".formatted(plexEndpoint, plexServerId, ratingKey);
 	}
 	
 	@Nullable
