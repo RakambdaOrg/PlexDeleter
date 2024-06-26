@@ -5,6 +5,7 @@ import fr.rakambda.plexdeleter.notify.NotifyException;
 import fr.rakambda.plexdeleter.security.PlexUser;
 import fr.rakambda.plexdeleter.service.MediaRequirementService;
 import fr.rakambda.plexdeleter.service.ServiceException;
+import fr.rakambda.plexdeleter.service.UpdateException;
 import fr.rakambda.plexdeleter.storage.entity.MediaRequirementEntity;
 import fr.rakambda.plexdeleter.storage.entity.UserPersonEntity;
 import fr.rakambda.plexdeleter.storage.repository.MediaRepository;
@@ -45,7 +46,7 @@ public class ApiUserMediaRequirementController{
 			RequestMethod.GET,
 			RequestMethod.POST
 	})
-	public ModelAndView add(@org.jetbrains.annotations.NotNull Authentication authentication, @NotNull @RequestParam("media") int mediaId) throws NotifyException, RequestFailedException{
+	public ModelAndView add(@org.jetbrains.annotations.NotNull Authentication authentication, @NotNull @RequestParam("media") int mediaId) throws NotifyException, RequestFailedException, UpdateException{
 		var userPerson = getUserPersonEntityFromAuth(authentication);
 		var media = mediaRepository.findById(mediaId)
 				.orElseThrow(() -> new RuntimeException("Media not found"));

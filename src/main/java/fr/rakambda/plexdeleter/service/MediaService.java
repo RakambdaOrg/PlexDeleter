@@ -118,7 +118,8 @@ public class MediaService{
 			return;
 		}
 		
-		if(mediaEntity.getRequirements().stream()
+		if(Objects.isNull(mediaEntity.getRequirements())
+				|| mediaEntity.getRequirements().stream()
 				.map(MediaRequirementEntity::getStatus)
 				.allMatch(MediaRequirementStatus::isCompleted)){
 			mediaEntity.setStatus(MediaStatus.PENDING_DELETION);
@@ -418,5 +419,15 @@ public class MediaService{
 		log.info("Creating new media {} from previous {}", media, previous);
 		supervisionService.send("\uD83C\uDD95 Added media %s", media);
 		return media;
+	}
+	
+	@NotNull
+	public MediaEntity revertDeleteStatus(@NotNull MediaEntity media) throws RequestFailedException, UpdateException, NotifyException{
+		if(!media.getStatus().isCanBeDeleted()){
+			return media;
+		}
+		media.setStatus(MediaStatus.WAITING);
+		media = mediaRepository.save(media);
+		return update(media);
 	}
 }

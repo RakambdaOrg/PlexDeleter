@@ -91,10 +91,11 @@ public class MediaRequirementService{
 		}
 	}
 	
-	public void addRequirementForNewMedia(@NotNull MediaEntity media, @Nullable UserGroupEntity userGroupEntity) throws NotifyException, RequestFailedException{
+	public void addRequirementForNewMedia(@NotNull MediaEntity media, @Nullable UserGroupEntity userGroupEntity) throws NotifyException, RequestFailedException, UpdateException{
 		log.info("Adding requirements to media {}", media);
+		var added = false;
 		if(Objects.nonNull(userGroupEntity)){
-			addRequirement(media, userGroupEntity, true);
+			added |= addRequirement(media, userGroupEntity, true);
 		}
 		
 		var otherGroups = userGroupRepository.findAllByHasRequirementOn(Objects.requireNonNull(media.getOverseerrId()), media.getIndex() - 1);
@@ -102,11 +103,15 @@ public class MediaRequirementService{
 			if(Objects.nonNull(userGroupEntity) && Objects.equals(otherGroup.getId(), userGroupEntity.getId())){
 				continue;
 			}
-			addRequirement(media, otherGroup, false);
+			added |= addRequirement(media, otherGroup, false);
+		}
+		
+		if(added){
+			mediaService.revertDeleteStatus(media);
 		}
 	}
 	
-	private void addRequirement(@NotNull MediaEntity media, @NotNull UserGroupEntity userGroupEntity, boolean allowModify) throws NotifyException, RequestFailedException{
+	private boolean addRequirement(@NotNull MediaEntity media, @NotNull UserGroupEntity userGroupEntity, boolean allowModify) throws NotifyException, RequestFailedException{
 		requirementOperationLock.lock();
 		try{
 			log.info("Adding requirement on {} for {}", media, userGroupEntity);
@@ -122,12 +127,12 @@ public class MediaRequirementService{
 				addServarrTag(media, userGroupEntity);
 				supervisionService.send("\uD83D\uDED2 Added requirement %s to %s", media, userGroupEntity);
 				notificationService.notifyRequirementAdded(userGroupEntity, media);
-				return;
+				return true;
 			}
 			
 			if(!allowModify){
 				log.info("Requirement already exists but we're not modifying it");
-				return;
+				return false;
 			}
 			
 			log.info("Updating already existing requirement");
@@ -142,6 +147,7 @@ public class MediaRequirementService{
 			addServarrTag(media, userGroupEntity);
 			supervisionService.send("Updated requirement %s to %s", media, userGroupEntity);
 			notificationService.notifyRequirementAdded(userGroupEntity, media);
+			return true;
 		}
 		finally{
 			requirementOperationLock.unlock();
