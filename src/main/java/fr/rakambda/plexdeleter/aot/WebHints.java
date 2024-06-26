@@ -1,6 +1,7 @@
 package fr.rakambda.plexdeleter.aot;
 
 import fr.rakambda.plexdeleter.security.PlexAuthenticationToken;
+import fr.rakambda.plexdeleter.security.PlexUser;
 import lombok.extern.slf4j.Slf4j;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
@@ -14,6 +15,7 @@ public class WebHints implements RuntimeHintsRegistrar{
 	public void registerHints(@NotNull RuntimeHints hints, @Nullable ClassLoader classLoader){
 		hints.serialization()
 				.registerType(PlexAuthenticationToken.class)
-				.registerType(UsernamePasswordAuthenticationToken.class);
+				.registerType(UsernamePasswordAuthenticationToken.class)
+				.registerType(PlexUser.class);
 	}
 }
