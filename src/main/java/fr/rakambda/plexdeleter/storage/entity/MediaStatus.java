@@ -90,7 +90,7 @@ public enum MediaStatus{
 	public static Collection<MediaStatus> allAvailable(){
 		if(Objects.isNull(ALL_NEED_REFRESH)){
 			ALL_NEED_REFRESH = Arrays.stream(MediaStatus.values())
-					.filter(s -> s.isDownloadStarted() || s.isNeedsMetadataRefresh())
+					.filter(s -> s.isDownloadStarted() || s.isFullyDownloaded())
 					.toList();
 		}
 		return ALL_NEED_REFRESH;
