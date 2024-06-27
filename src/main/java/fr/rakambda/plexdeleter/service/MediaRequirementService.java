@@ -127,8 +127,6 @@ public class MediaRequirementService{
 				addServarrTag(media, userGroupEntity);
 				supervisionService.send("\uD83D\uDED2 Added requirement %s to %s", media, userGroupEntity);
 				notificationService.notifyRequirementAdded(userGroupEntity, media);
-				
-				mediaService.revertDeleteStatus(media);
 				return true;
 			}
 			
@@ -149,8 +147,6 @@ public class MediaRequirementService{
 			addServarrTag(media, userGroupEntity);
 			supervisionService.send("Updated requirement %s to %s", media, userGroupEntity);
 			notificationService.notifyRequirementAdded(userGroupEntity, media);
-			
-			mediaService.revertDeleteStatus(media);
 			return true;
 		}
 		finally{
