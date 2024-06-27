@@ -49,7 +49,7 @@
                         </a>
                     </div>
                     <div th:if="${requirement.getMedia().getPlexId()}" class="m-1">
-                        <a title="Radarr" th:href="${thymeleafService.getMediaPlexUrl(requirement.getMedia())}" th:target="_blank">
+                        <a title="Plex" th:href="${thymeleafService.getMediaPlexUrl(requirement.getMedia())}" th:target="_blank">
                             <svg class="m-1" height="20" width="20">
                                 <image th:xlink:href="@{~/static/plex.svg}" height="20" width="20"/>
                             </svg>

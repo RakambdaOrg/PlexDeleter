@@ -13,6 +13,7 @@ import fr.rakambda.plexdeleter.api.tautulli.TautulliService;
 import fr.rakambda.plexdeleter.messaging.SupervisionService;
 import fr.rakambda.plexdeleter.notify.NotificationService;
 import fr.rakambda.plexdeleter.notify.NotifyException;
+import fr.rakambda.plexdeleter.service.data.DeleteMediaResponse;
 import fr.rakambda.plexdeleter.storage.entity.MediaEntity;
 import fr.rakambda.plexdeleter.storage.entity.MediaRequirementEntity;
 import fr.rakambda.plexdeleter.storage.entity.MediaRequirementStatus;

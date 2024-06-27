@@ -3,6 +3,7 @@ package fr.rakambda.plexdeleter.api.tautulli;
 import fr.rakambda.plexdeleter.api.HttpUtils;
 import fr.rakambda.plexdeleter.api.RequestFailedException;
 import fr.rakambda.plexdeleter.api.tautulli.data.GetHistoryResponse;
+import fr.rakambda.plexdeleter.api.tautulli.data.GetLibraryMediaInfo;
 import fr.rakambda.plexdeleter.api.tautulli.data.GetMetadataResponse;
 import fr.rakambda.plexdeleter.api.tautulli.data.GetNewRatingKeysData;
 import fr.rakambda.plexdeleter.api.tautulli.data.GetNewRatingKeysResponse;
@@ -131,6 +132,22 @@ public class TautulliService{
 				.toEntity(new ParameterizedTypeReference<TautulliResponseWrapper<GetHistoryResponse>>(){})
 				.blockOptional()
 				.orElseThrow(() -> new RequestFailedException("Failed to get metadata with rating key %d".formatted(ratingKey))));
+	}
+	
+	@NotNull
+	public TautulliResponseWrapper<GetLibraryMediaInfo> getLibraryMediaInfo(int sectionId) throws RequestFailedException{
+		log.info("Getting library media info for Section id {}", sectionId);
+		return HttpUtils.unwrapIfStatusOkAndNotNullBody(apiClient.get()
+				.uri(b -> b.pathSegment("api", "v2")
+						.queryParam("cmd", "get_library_media_info")
+						.queryParam("section_id", sectionId)
+						.queryParam("refresh", true)
+						.queryParam("length", 10000)
+						.build())
+				.retrieve()
+				.toEntity(new ParameterizedTypeReference<TautulliResponseWrapper<GetLibraryMediaInfo>>(){})
+				.blockOptional()
+				.orElseThrow(() -> new RequestFailedException("Failed to get library media info with section id %d ".formatted(sectionId))));
 	}
 	
 	@NotNull

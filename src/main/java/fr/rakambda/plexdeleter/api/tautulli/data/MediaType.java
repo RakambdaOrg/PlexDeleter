@@ -12,6 +12,7 @@ public enum MediaType{
 	ARTIST("artist", false),
 	EPISODE("episode", true),
 	MOVIE("movie", true),
+	PHOTO("photo", false),
 	SEASON("season", true),
 	SHOW("show", true),
 	TRACK("track", false);

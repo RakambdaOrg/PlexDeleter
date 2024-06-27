@@ -81,7 +81,7 @@ public class TautulliController{
 		}
 		var ratingKey = switch(data.getMediaType()){
 			case MOVIE, SHOW, SEASON, ARTIST -> data.getRatingKey();
-			case EPISODE, TRACK -> data.getParentRatingKey();
+			case EPISODE, TRACK, PHOTO -> data.getParentRatingKey();
 		};
 		
 		if(Objects.isNull(ratingKey)){
@@ -114,7 +114,7 @@ public class TautulliController{
 	private void updateMedia(@NotNull TautulliWebhook data) throws RequestFailedException, UpdateException, NotifyException{
 		var ratingKey = switch(Objects.requireNonNull(data.getMediaType())){
 			case MOVIE, SEASON, SHOW, ARTIST -> data.getRatingKey();
-			case EPISODE, TRACK -> data.getParentRatingKey();
+			case EPISODE, TRACK, PHOTO -> data.getParentRatingKey();
 		};
 		
 		if(Objects.isNull(ratingKey)){
@@ -149,7 +149,7 @@ public class TautulliController{
 	private void addNewMediaIfPreviousExist(@NotNull TautulliWebhook data) throws RequestFailedException, NotifyException, UpdateException{
 		var ratingKey = switch(Objects.requireNonNull(data.getMediaType())){
 			case MOVIE, SEASON, SHOW, ARTIST -> data.getRatingKey();
-			case EPISODE, TRACK -> data.getParentRatingKey();
+			case EPISODE, TRACK, PHOTO -> data.getParentRatingKey();
 		};
 		
 		if(Objects.isNull(ratingKey)){
@@ -174,7 +174,7 @@ public class TautulliController{
 		var mediaIndex = switch(Objects.requireNonNull(data.getMediaType())){
 			case MOVIE, SHOW, ARTIST -> 1;
 			case SEASON -> metadata.getMediaIndex();
-			case EPISODE, TRACK -> metadata.getParentMediaIndex();
+			case EPISODE, TRACK, PHOTO -> metadata.getParentMediaIndex();
 		};
 		
 		var previous = mediaRepository.findByRootPlexIdAndIndex(rootRatingKey, mediaIndex - 1);
