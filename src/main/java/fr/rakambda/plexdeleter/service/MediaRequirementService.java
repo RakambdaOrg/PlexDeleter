@@ -107,7 +107,7 @@ public class MediaRequirementService{
 		}
 		
 		if(added){
-			mediaService.revertDeleteStatus(media);
+			mediaService.revertDeleteStatus(media.getId());
 		}
 	}
 	

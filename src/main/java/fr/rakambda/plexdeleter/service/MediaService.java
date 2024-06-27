@@ -427,13 +427,20 @@ public class MediaService{
 		return media;
 	}
 	
-	@NotNull
-	public MediaEntity revertDeleteStatus(@NotNull MediaEntity media) throws RequestFailedException, UpdateException, NotifyException{
+	public void revertDeleteStatus(int mediaId) throws RequestFailedException, UpdateException, NotifyException{
+		var mediaOptional = mediaRepository.findById(mediaId);
+		if(mediaOptional.isEmpty()){
+			return;
+		}
+		
+		var media = mediaOptional.get();
 		if(!media.getStatus().isCanBeDeleted()){
-			return media;
+			return;
 		}
 		media.setStatus(MediaStatus.WAITING);
 		media = mediaRepository.save(media);
-		return update(media);
+		log.info("Reverted media {} status to {}", media, MediaStatus.WAITING);
+		
+		update(media);
 	}
 }
