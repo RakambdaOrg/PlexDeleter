@@ -118,13 +118,18 @@ public class MediaService{
 		if(!mediaEntity.getStatus().isFullyDownloaded() || mediaEntity.getStatus().isNeedsMetadataRefresh()){
 			return;
 		}
+		if(Objects.isNull(mediaEntity.getRequirements()) || mediaEntity.getRequirements().isEmpty()){
+			log.warn("Downloaded media {} has no requirements", mediaEntity);
+			supervisionService.send("\uD83D\uDEAB Downloaded media %d has no requirements", mediaEntity.getId());
+			return;
+		}
 		
-		if(Objects.isNull(mediaEntity.getRequirements())
-				|| mediaEntity.getRequirements().stream()
+		if(mediaEntity.getRequirements().stream()
 				.map(MediaRequirementEntity::getStatus)
 				.allMatch(MediaRequirementStatus::isCompleted)){
 			mediaEntity.setStatus(MediaStatus.PENDING_DELETION);
 			log.info("Marked media {} as {}", mediaEntity, mediaEntity.getStatus());
+			supervisionService.send("\uD83C\uDD97 Marked %d as %s: %s (%d/%d)", mediaEntity.getId(), mediaEntity.getStatus(), mediaEntity, mediaEntity.getPartsCount(), mediaEntity.getAvailablePartsCount());
 		}
 	}
 	
@@ -359,7 +364,7 @@ public class MediaService{
 			var media = createMediaFromPrevious(previousMedia, season);
 			media.setStatus(MediaStatus.WAITING);
 			media.setAvailablePartsCount(0);
-			mediaRepository.save(media);
+			media = mediaRepository.save(media);
 			
 			return update(media);
 		}

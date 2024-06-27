@@ -111,7 +111,7 @@ public class MediaRequirementService{
 		}
 	}
 	
-	private boolean addRequirement(@NotNull MediaEntity media, @NotNull UserGroupEntity userGroupEntity, boolean allowModify) throws NotifyException, RequestFailedException{
+	private boolean addRequirement(@NotNull MediaEntity media, @NotNull UserGroupEntity userGroupEntity, boolean allowModify) throws NotifyException, RequestFailedException, UpdateException{
 		requirementOperationLock.lock();
 		try{
 			log.info("Adding requirement on {} for {}", media, userGroupEntity);
@@ -127,6 +127,8 @@ public class MediaRequirementService{
 				addServarrTag(media, userGroupEntity);
 				supervisionService.send("\uD83D\uDED2 Added requirement %s to %s", media, userGroupEntity);
 				notificationService.notifyRequirementAdded(userGroupEntity, media);
+				
+				mediaService.revertDeleteStatus(media);
 				return true;
 			}
 			
@@ -147,6 +149,8 @@ public class MediaRequirementService{
 			addServarrTag(media, userGroupEntity);
 			supervisionService.send("Updated requirement %s to %s", media, userGroupEntity);
 			notificationService.notifyRequirementAdded(userGroupEntity, media);
+			
+			mediaService.revertDeleteStatus(media);
 			return true;
 		}
 		finally{
