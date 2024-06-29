@@ -76,7 +76,7 @@ public class MailNotificationService extends AbstractNotificationService{
 				.toList());
 		context.setVariable("downloadingMedias", requirements.stream()
 				.map(MediaRequirementEntity::getMedia)
-				.filter(m -> m.getStatus().isDownloadStarted())
+				.filter(m -> m.getStatus().isDownloadStarted() && !m.getStatus().isFullyDownloaded())
 				.toList());
 		context.setVariable("notYetAvailableMedias", requirements.stream()
 				.map(MediaRequirementEntity::getMedia)
