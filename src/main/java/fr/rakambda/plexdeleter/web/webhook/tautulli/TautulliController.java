@@ -74,7 +74,7 @@ public class TautulliController{
 		}
 	}
 	
-	private void updateRequirement(@NotNull TautulliWebhook data) throws RequestFailedException, IOException{
+	private void updateRequirement(@NotNull TautulliWebhook data) throws RequestFailedException, IOException, UpdateException, NotifyException{
 		if(Objects.isNull(data.getUserId())){
 			log.warn("Not updating any requirement, could not determine user id from {}", data);
 			return;
