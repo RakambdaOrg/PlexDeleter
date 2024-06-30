@@ -45,7 +45,7 @@ public class MediaRequirementService{
 		this.sonarrService = sonarrService;
 	}
 	
-	public void complete(@NotNull MediaRequirementEntity requirement) throws NotifyException, ServiceException{
+	public void complete(@NotNull MediaRequirementEntity requirement) throws NotifyException, ServiceException, RequestFailedException, UpdateException{
 		requirementOperationLock.lock();
 		try{
 			if(!requirement.getMedia().isCompletable()){
@@ -61,13 +61,15 @@ public class MediaRequirementService{
 			notificationService.notifyRequirementManuallyWatched(group, media);
 			mediaRequirementRepository.save(requirement);
 			supervisionService.send("✍\uFE0F\uD83D\uDC41\uFE0F Media manually watched %s for %s", media, group);
+			
+			mediaService.update(media);
 		}
 		finally{
 			requirementOperationLock.unlock();
 		}
 	}
 	
-	public void abandon(@NotNull MediaRequirementEntity requirement) throws NotifyException, RequestFailedException{
+	public void abandon(@NotNull MediaRequirementEntity requirement) throws NotifyException, RequestFailedException, UpdateException{
 		requirementOperationLock.lock();
 		try{
 			log.info("Marking requirement {} as abandoned", requirement);
@@ -85,6 +87,10 @@ public class MediaRequirementService{
 			
 			notificationService.notifyRequirementManuallyAbandoned(group, media);
 			supervisionService.send("✍\uFE0F\uD83D\uDE48 Media manually abandoned %s for %s", media, group);
+			
+			if(!deletionResult.deletedDatabase()){
+				mediaService.update(media);
+			}
 		}
 		finally{
 			requirementOperationLock.unlock();
@@ -111,7 +117,7 @@ public class MediaRequirementService{
 		}
 	}
 	
-	private boolean addRequirement(@NotNull MediaEntity media, @NotNull UserGroupEntity userGroupEntity, boolean allowModify) throws NotifyException, RequestFailedException, UpdateException{
+	private boolean addRequirement(@NotNull MediaEntity media, @NotNull UserGroupEntity userGroupEntity, boolean allowModify) throws NotifyException, RequestFailedException{
 		requirementOperationLock.lock();
 		try{
 			log.info("Adding requirement on {} for {}", media, userGroupEntity);

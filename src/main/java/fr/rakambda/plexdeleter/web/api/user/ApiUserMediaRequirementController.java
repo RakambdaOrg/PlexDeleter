@@ -56,7 +56,7 @@ public class ApiUserMediaRequirementController{
 	
 	@Transactional
 	@PostMapping("/abandon")
-	public ModelAndView abandon(@org.jetbrains.annotations.NotNull Authentication authentication, @NotNull @RequestParam("media") int mediaId) throws NotifyException, RequestFailedException{
+	public ModelAndView abandon(@org.jetbrains.annotations.NotNull Authentication authentication, @NotNull @RequestParam("media") int mediaId) throws NotifyException, RequestFailedException, UpdateException{
 		var userPerson = getUserPersonEntityFromAuth(authentication);
 		var requirement = mediaRequirementRepository.findById(new MediaRequirementEntity.TableId(mediaId, userPerson.getGroupId()))
 				.orElseThrow(() -> new RuntimeException("Requirement not found"));
@@ -66,7 +66,7 @@ public class ApiUserMediaRequirementController{
 	
 	@Transactional
 	@PostMapping("/complete")
-	public ModelAndView complete(@org.jetbrains.annotations.NotNull Authentication authentication, @NotNull @RequestParam("media") int mediaId) throws NotifyException, ServiceException{
+	public ModelAndView complete(@org.jetbrains.annotations.NotNull Authentication authentication, @NotNull @RequestParam("media") int mediaId) throws NotifyException, ServiceException, RequestFailedException, UpdateException{
 		var userPerson = getUserPersonEntityFromAuth(authentication);
 		var requirement = mediaRequirementRepository.findById(new MediaRequirementEntity.TableId(mediaId, userPerson.getGroupId()))
 				.orElseThrow(() -> new RuntimeException("Requirement not found"));

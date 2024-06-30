@@ -5,6 +5,7 @@ import fr.rakambda.plexdeleter.api.tautulli.TautulliService;
 import fr.rakambda.plexdeleter.api.tautulli.data.GetHistoryResponse;
 import fr.rakambda.plexdeleter.api.tautulli.data.HistoryRecord;
 import fr.rakambda.plexdeleter.messaging.SupervisionService;
+import fr.rakambda.plexdeleter.notify.NotifyException;
 import fr.rakambda.plexdeleter.storage.entity.MediaEntity;
 import fr.rakambda.plexdeleter.storage.entity.MediaRequirementEntity;
 import fr.rakambda.plexdeleter.storage.entity.MediaRequirementStatus;
@@ -28,12 +29,14 @@ public class WatchService{
 	private final TautulliService tautulliService;
 	private final SupervisionService supervisionService;
 	private final MediaRequirementRepository mediaRequirementRepository;
+	private final MediaService mediaService;
 	
 	@Autowired
-	public WatchService(TautulliService tautulliService, SupervisionService supervisionService, MediaRequirementRepository mediaRequirementRepository){
+	public WatchService(TautulliService tautulliService, SupervisionService supervisionService, MediaRequirementRepository mediaRequirementRepository, MediaService mediaService){
 		this.tautulliService = tautulliService;
 		this.supervisionService = supervisionService;
 		this.mediaRequirementRepository = mediaRequirementRepository;
+		this.mediaService = mediaService;
 	}
 	
 	@NotNull
@@ -55,7 +58,7 @@ public class WatchService{
 				.collect(Collectors.groupingBy(HistoryRecord::getMediaIndex));
 	}
 	
-	public void update(@NotNull MediaRequirementEntity mediaRequirementEntity) throws RequestFailedException, IOException{
+	public void update(@NotNull MediaRequirementEntity mediaRequirementEntity) throws RequestFailedException, IOException, UpdateException, NotifyException{
 		log.info("Updating media requirement {}", mediaRequirementEntity);
 		
 		var media = mediaRequirementEntity.getMedia();
@@ -78,5 +81,6 @@ public class WatchService{
 		}
 		
 		mediaRequirementRepository.save(mediaRequirementEntity);
+		mediaService.update(media);
 	}
 }
