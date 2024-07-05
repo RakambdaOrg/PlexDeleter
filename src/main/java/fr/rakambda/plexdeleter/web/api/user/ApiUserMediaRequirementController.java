@@ -11,6 +11,7 @@ import fr.rakambda.plexdeleter.storage.entity.UserPersonEntity;
 import fr.rakambda.plexdeleter.storage.repository.MediaRepository;
 import fr.rakambda.plexdeleter.storage.repository.MediaRequirementRepository;
 import fr.rakambda.plexdeleter.storage.repository.UserPersonRepository;
+import fr.rakambda.plexdeleter.web.api.ThymeleafMessageException;
 import jakarta.validation.constraints.NotNull;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -46,7 +47,7 @@ public class ApiUserMediaRequirementController{
 			RequestMethod.GET,
 			RequestMethod.POST
 	})
-	public ModelAndView add(@org.jetbrains.annotations.NotNull Authentication authentication, @NotNull @RequestParam("media") int mediaId) throws NotifyException, RequestFailedException, UpdateException{
+	public ModelAndView add(@org.jetbrains.annotations.NotNull Authentication authentication, @NotNull @RequestParam("media") int mediaId) throws NotifyException, RequestFailedException, UpdateException, ThymeleafMessageException{
 		var userPerson = getUserPersonEntityFromAuth(authentication);
 		var media = mediaRepository.findById(mediaId)
 				.orElseThrow(() -> new RuntimeException("Media not found"));

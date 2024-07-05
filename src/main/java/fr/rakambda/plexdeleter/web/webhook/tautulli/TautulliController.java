@@ -12,6 +12,7 @@ import fr.rakambda.plexdeleter.storage.entity.MediaRequirementEntity;
 import fr.rakambda.plexdeleter.storage.repository.MediaRepository;
 import fr.rakambda.plexdeleter.storage.repository.MediaRequirementRepository;
 import fr.rakambda.plexdeleter.storage.repository.UserPersonRepository;
+import fr.rakambda.plexdeleter.web.api.ThymeleafMessageException;
 import fr.rakambda.plexdeleter.web.webhook.tautulli.data.TautulliWebhook;
 import lombok.extern.slf4j.Slf4j;
 import org.jetbrains.annotations.NotNull;
@@ -54,7 +55,7 @@ public class TautulliController{
 	@Transactional
 	@PostMapping
 	@ResponseStatus(HttpStatus.NO_CONTENT)
-	public void onCall(@NonNull @RequestBody TautulliWebhook data) throws RequestFailedException, IOException, UpdateException, NotifyException{
+	public void onCall(@NonNull @RequestBody TautulliWebhook data) throws RequestFailedException, IOException, UpdateException, NotifyException, ThymeleafMessageException{
 		log.info("Received new Tautulli webhook {}", data);
 		
 		if(!data.getMediaType().isNotifyAdded()){
@@ -146,7 +147,7 @@ public class TautulliController{
 		notificationService.notifyMediaAdded(metadata);
 	}
 	
-	private void addNewMediaIfPreviousExist(@NotNull TautulliWebhook data) throws RequestFailedException, NotifyException, UpdateException{
+	private void addNewMediaIfPreviousExist(@NotNull TautulliWebhook data) throws RequestFailedException, NotifyException, UpdateException, ThymeleafMessageException{
 		var ratingKey = switch(Objects.requireNonNull(data.getMediaType())){
 			case MOVIE, SEASON, SHOW, ARTIST -> data.getRatingKey();
 			case EPISODE, TRACK, PHOTO -> data.getParentRatingKey();

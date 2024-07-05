@@ -12,6 +12,7 @@ import fr.rakambda.plexdeleter.storage.entity.MediaRequirementStatus;
 import fr.rakambda.plexdeleter.storage.entity.UserGroupEntity;
 import fr.rakambda.plexdeleter.storage.repository.MediaRequirementRepository;
 import fr.rakambda.plexdeleter.storage.repository.UserGroupRepository;
+import fr.rakambda.plexdeleter.web.api.ThymeleafMessageException;
 import lombok.extern.slf4j.Slf4j;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
@@ -91,8 +92,14 @@ public class MediaRequirementService{
 		}
 	}
 	
-	public void addRequirementForNewMedia(@NotNull MediaEntity media, @Nullable UserGroupEntity userGroupEntity) throws NotifyException, RequestFailedException, UpdateException{
+	public void addRequirementForNewMedia(@NotNull MediaEntity media, @Nullable UserGroupEntity userGroupEntity) throws NotifyException, RequestFailedException, UpdateException, ThymeleafMessageException{
 		log.info("Adding requirements to media {}", media);
+		
+		var status = media.getStatus();
+		if(!status.isNeedsMetadataRefresh() && !status.isFullyDownloaded() && !status.isNeverChange()){
+			throw new ThymeleafMessageException("Failed to add requirement, media is not available anymore", "#{requirement.add.unavailable}");
+		}
+		
 		var added = false;
 		if(Objects.nonNull(userGroupEntity)){
 			added |= addRequirement(media, userGroupEntity, true);
@@ -111,7 +118,7 @@ public class MediaRequirementService{
 		}
 	}
 	
-	private boolean addRequirement(@NotNull MediaEntity media, @NotNull UserGroupEntity userGroupEntity, boolean allowModify) throws NotifyException, RequestFailedException, UpdateException{
+	private boolean addRequirement(@NotNull MediaEntity media, @NotNull UserGroupEntity userGroupEntity, boolean allowModify) throws NotifyException, RequestFailedException{
 		requirementOperationLock.lock();
 		try{
 			log.info("Adding requirement on {} for {}", media, userGroupEntity);

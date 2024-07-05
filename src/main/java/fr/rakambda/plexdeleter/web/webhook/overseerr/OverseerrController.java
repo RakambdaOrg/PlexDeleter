@@ -15,6 +15,7 @@ import fr.rakambda.plexdeleter.storage.entity.MediaStatus;
 import fr.rakambda.plexdeleter.storage.entity.MediaType;
 import fr.rakambda.plexdeleter.storage.repository.MediaRepository;
 import fr.rakambda.plexdeleter.storage.repository.UserGroupRepository;
+import fr.rakambda.plexdeleter.web.api.ThymeleafMessageException;
 import fr.rakambda.plexdeleter.web.webhook.overseerr.data.Extra;
 import fr.rakambda.plexdeleter.web.webhook.overseerr.data.Media;
 import fr.rakambda.plexdeleter.web.webhook.overseerr.data.OverseerrWebhook;
@@ -63,7 +64,7 @@ public class OverseerrController{
 	@Transactional
 	@PostMapping
 	@ResponseStatus(HttpStatus.NO_CONTENT)
-	public void onCall(@NonNull @RequestBody OverseerrWebhook data) throws RequestFailedException, UpdateException, NotifyException, ServiceException{
+	public void onCall(@NonNull @RequestBody OverseerrWebhook data) throws RequestFailedException, UpdateException, NotifyException, ServiceException, ThymeleafMessageException{
 		log.info("Received new Overseerr webhook {}", data);
 		switch(data.getNotificationType()){
 			case "MEDIA_AUTO_APPROVED", "MEDIA_APPROVED" -> onMediaApproved(data);
@@ -83,7 +84,7 @@ public class OverseerrController{
 		}
 	}
 	
-	private void onMediaApproved(@NotNull OverseerrWebhook data) throws RequestFailedException, UpdateException, NotifyException, ServiceException{
+	private void onMediaApproved(@NotNull OverseerrWebhook data) throws RequestFailedException, UpdateException, NotifyException, ServiceException, ThymeleafMessageException{
 		var requestId = Optional.ofNullable(data.getRequest()).map(Request::getRequestId);
 		if(requestId.isEmpty()){
 			log.warn("Not adding any media, could not determine request id from {}", data);
