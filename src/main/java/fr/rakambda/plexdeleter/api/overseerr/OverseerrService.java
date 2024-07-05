@@ -6,6 +6,8 @@ import fr.rakambda.plexdeleter.api.overseerr.data.Media;
 import fr.rakambda.plexdeleter.api.overseerr.data.MediaType;
 import fr.rakambda.plexdeleter.api.overseerr.data.MovieMedia;
 import fr.rakambda.plexdeleter.api.overseerr.data.PagedResponse;
+import fr.rakambda.plexdeleter.api.overseerr.data.PlexSyncRequest;
+import fr.rakambda.plexdeleter.api.overseerr.data.PlexSyncResponse;
 import fr.rakambda.plexdeleter.api.overseerr.data.Request;
 import fr.rakambda.plexdeleter.api.overseerr.data.RequestSeason;
 import fr.rakambda.plexdeleter.api.overseerr.data.SeriesMedia;
@@ -16,6 +18,7 @@ import org.jetbrains.annotations.NotNull;
 import org.springframework.core.ParameterizedTypeReference;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
+import org.springframework.web.reactive.function.BodyInserters;
 import org.springframework.web.reactive.function.client.WebClient;
 import java.util.Collection;
 import java.util.HashSet;
@@ -130,6 +133,20 @@ public class OverseerrService{
 				.orElseThrow(() -> new RequestFailedException("Failed to get request details with id %d".formatted(userId))));
 	}
 	
+	@NotNull
+	public PlexSyncResponse plexSync(boolean cancel, boolean start) throws RequestFailedException{
+		var data = new PlexSyncRequest(cancel, start);
+		log.info("Modifying plex sync with params {}", data);
+		return HttpUtils.unwrapIfStatusOkAndNotNullBody(apiClient.post()
+				.uri(b -> b.pathSegment("api", "v1", "settings", "plex", "sync").build())
+				.contentType(org.springframework.http.MediaType.APPLICATION_JSON)
+				.body(BodyInserters.fromValue(data))
+				.retrieve()
+				.toEntity(new ParameterizedTypeReference<PlexSyncResponse>(){})
+				.blockOptional()
+				.orElseThrow(() -> new RequestFailedException("Failed to start plex sync")));
+	}
+	
 	public void deleteRequest(int requestId) throws RequestFailedException{
 		log.info("Deleting request with id {}", requestId);
 		HttpUtils.requireStatusOk(apiClient.delete()
@@ -139,5 +156,16 @@ public class OverseerrService{
 				.toBodilessEntity()
 				.blockOptional()
 				.orElseThrow(() -> new RequestFailedException("Failed to delete request with id %d".formatted(requestId))));
+	}
+	
+	public void deleteMedia(int mediaId) throws RequestFailedException{
+		log.info("Deleting media with id {}", mediaId);
+		HttpUtils.requireStatusOk(apiClient.delete()
+				.uri(b -> b.pathSegment("api", "v1", "media", "{mediaId}")
+						.build(mediaId))
+				.retrieve()
+				.toBodilessEntity()
+				.blockOptional()
+				.orElseThrow(() -> new RequestFailedException("Failed to delete media with id %d".formatted(mediaId))));
 	}
 }
