@@ -282,7 +282,7 @@ public class DiscordNotificationService extends AbstractNotificationService{
 	private void writeWatchlistSection(@NotNull String discordUrl, @Nullable Long threadId, @NotNull String sectionHeaderCode, @NotNull Locale locale, @NotNull UserGroupEntity userGroupEntity, @NotNull Collection<MediaEntity> medias) throws RequestFailedException, InterruptedException{
 		discordWebhookService.sendWebhookMessage(discordUrl, threadId, WebhookMessage.builder().content("# %s\n".formatted(messageSource.getMessage(sectionHeaderCode, new Object[0], locale))).build());
 		var messages = medias.stream()
-				.sorted(MediaEntity.COMPARATOR_BY_TYPE_THEN_NAME)
+				.sorted(MediaEntity.COMPARATOR_BY_TYPE_THEN_NAME_THEN_INDEX)
 				.map(media -> getWatchlistMediaText(userGroupEntity, media, locale))
 				.toList();
 		for(var message : messages){

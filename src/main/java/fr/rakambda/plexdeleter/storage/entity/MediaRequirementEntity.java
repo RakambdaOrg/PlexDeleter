@@ -30,7 +30,7 @@ import java.util.Comparator;
 @ToString(onlyExplicitlyIncluded = true)
 public class MediaRequirementEntity{
 	public static final Comparator<? super MediaRequirementEntity> COMPARATOR_BY_MEDIA =
-			(r1, r2) -> MediaEntity.COMPARATOR_BY_TYPE_THEN_NAME.compare(r1.getMedia(), r2.getMedia());
+			(r1, r2) -> MediaEntity.COMPARATOR_BY_TYPE_THEN_NAME_THEN_INDEX.compare(r1.getMedia(), r2.getMedia());
 	
 	@EmbeddedId
 	@ToString.Include

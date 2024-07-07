@@ -27,7 +27,7 @@ public class AdminService{
 	public List<MediaRequirementEntity> getMediaRequirementsThatCanBeCompleted(){
 		return mediaRequirementRepository.findAllByStatusIs(MediaRequirementStatus.WAITING).stream()
 				.sorted((r1, r2) -> {
-					var compareMedia = MediaEntity.COMPARATOR_BY_TYPE_THEN_NAME.compare(r1.getMedia(), r2.getMedia());
+					var compareMedia = MediaEntity.COMPARATOR_BY_TYPE_THEN_NAME_THEN_INDEX.compare(r1.getMedia(), r2.getMedia());
 					if(compareMedia != 0){
 						return compareMedia;
 					}
@@ -39,7 +39,7 @@ public class AdminService{
 	@NotNull
 	public List<MediaEntity> getSoonDeletedMedias(){
 		return mediaRepository.findAllByStatusIn(Set.of(MediaStatus.PENDING_DELETION)).stream()
-				.sorted(MediaEntity.COMPARATOR_BY_TYPE_THEN_NAME)
+				.sorted(MediaEntity.COMPARATOR_BY_TYPE_THEN_NAME_THEN_INDEX)
 				.toList();
 	}
 }

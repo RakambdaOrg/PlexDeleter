@@ -29,7 +29,9 @@ import java.util.List;
 @Table(name = "media", schema = "PlexDeleter")
 @ToString(onlyExplicitlyIncluded = true)
 public class MediaEntity{
-	public static final Comparator<MediaEntity> COMPARATOR_BY_TYPE_THEN_NAME = Comparator.comparing(MediaEntity::getType).thenComparing(MediaEntity::getName);
+	public static final Comparator<MediaEntity> COMPARATOR_BY_TYPE_THEN_NAME_THEN_INDEX = Comparator.comparing(MediaEntity::getType)
+			.thenComparing(MediaEntity::getName)
+			.thenComparing(MediaEntity::getIndex);
 	
 	@GeneratedValue(strategy = GenerationType.IDENTITY)
 	@Id
