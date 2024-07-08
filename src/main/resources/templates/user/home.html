@@ -8,7 +8,7 @@
 <body>
 <div th:replace="~{fragment/navbar.html::navbar}"></div>
 <div>
-    <th:block th:replace="~{fragment/requirement-list::media-list(requirements=${requirements}, thymeleafService=${thymeleafService}, displayUsers=${displayUsers})}"></th:block>
+    <th:block th:replace="~{fragment/requirement-list::requirement-list(requirements=${requirements}, thymeleafService=${thymeleafService}, displayUsers=${displayUsers})}"></th:block>
 </div>
 </body>
 </html>

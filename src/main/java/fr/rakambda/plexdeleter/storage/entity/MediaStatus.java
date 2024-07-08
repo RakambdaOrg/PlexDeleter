@@ -84,16 +84,28 @@ public enum MediaStatus{
 	private final String localizationKey;
 	private final String tableClass;
 	
+	private static Collection<MediaStatus> ALL_AVAILABLE;
+	private static Collection<MediaStatus> ALL_PRESENT;
 	private static Collection<MediaStatus> ALL_NEED_REFRESH;
 	
 	@NotNull
 	public static Collection<MediaStatus> allAvailable(){
-		if(Objects.isNull(ALL_NEED_REFRESH)){
-			ALL_NEED_REFRESH = Arrays.stream(MediaStatus.values())
+		if(Objects.isNull(ALL_AVAILABLE)){
+			ALL_AVAILABLE = Arrays.stream(MediaStatus.values())
 					.filter(s -> s.isDownloadStarted() || s.isFullyDownloaded())
 					.toList();
 		}
-		return ALL_NEED_REFRESH;
+		return ALL_AVAILABLE;
+	}
+	
+	@NotNull
+	public static Collection<MediaStatus> allPresent(){
+		if(Objects.isNull(ALL_PRESENT)){
+			ALL_PRESENT = Arrays.stream(MediaStatus.values())
+					.filter(s -> s.isDownloadStarted() || s.isFullyDownloaded() || s.isNeedsMetadataRefresh() || s.isNeedsRequirementsRefresh())
+					.toList();
+		}
+		return ALL_PRESENT;
 	}
 	
 	@NotNull

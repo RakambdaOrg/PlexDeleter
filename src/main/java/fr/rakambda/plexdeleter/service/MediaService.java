@@ -443,4 +443,12 @@ public class MediaService{
 		
 		update(media);
 	}
+	
+	public void keep(@NotNull MediaEntity media){
+		media.setStatus(MediaStatus.KEEP);
+		mediaRepository.save(media);
+		
+		log.info("Keeping media {}", media);
+		supervisionService.send("\uD83C\uDD95 Kept media %s", media);
+	}
 }

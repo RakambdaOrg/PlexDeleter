@@ -37,6 +37,13 @@ public class AdminService{
 	}
 	
 	@NotNull
+	public List<MediaEntity> getAllMedias(){
+		return mediaRepository.findAllByStatusIn(MediaStatus.allPresent()).stream()
+				.sorted(MediaEntity.COMPARATOR_BY_TYPE_THEN_NAME_THEN_INDEX)
+				.toList();
+	}
+	
+	@NotNull
 	public List<MediaEntity> getSoonDeletedMedias(){
 		return mediaRepository.findAllByStatusIn(Set.of(MediaStatus.PENDING_DELETION)).stream()
 				.sorted(MediaEntity.COMPARATOR_BY_TYPE_THEN_NAME_THEN_INDEX)

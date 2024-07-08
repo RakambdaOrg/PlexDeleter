@@ -9,10 +9,11 @@
                 <ul class="navbar-nav me-auto mb-2 mb-lg-0">
                     <li class="nav-item"><a class="nav-link" th:href="@{~/}" th:text="#{web.navbar.media-list}"></a></li>
                     <th:block sec:authorize="hasRole('ROLE_ADMIN')">
-                        <li class="nav-item"><a class="nav-link" th:href="@{~/admin/media/soon-deleted}" th:text="#{web.navbar.admin.media.list-soon-deleted}"></a></li>
-                        <li class="nav-item"><a class="nav-link" th:href="@{~/admin/library/unmapped}" th:text="#{web.navbar.admin.library.unmapped}"></a></li>
-                        <li class="nav-item"><a class="nav-link" th:href="@{~/admin/media-requirement/add}" th:text="#{web.navbar.admin.requirement.add}"></a></li>
-                        <li class="nav-item"><a class="nav-link" th:href="@{~/admin/media-requirement/list}" th:text="#{web.navbar.admin.requirement.list}"></a></li>
+                        <li class="nav-item"><a class="nav-link text-danger" th:href="@{~/admin/media-requirement/add}" th:text="#{web.navbar.admin.requirement.add}"></a></li>
+                        <li class="nav-item"><a class="nav-link text-danger" th:href="@{~/admin/media-requirement/list}" th:text="#{web.navbar.admin.requirement.list}"></a></li>
+                        <li class="nav-item"><a class="nav-link text-danger" th:href="@{~/admin/media/soon-deleted}" th:text="#{web.navbar.admin.media.list-soon-deleted}"></a></li>
+                        <li class="nav-item"><a class="nav-link text-danger" th:href="@{~/admin/media/list}" th:text="#{web.navbar.admin.media.list}"></a></li>
+                        <li class="nav-item"><a class="nav-link text-danger" th:href="@{~/admin/library/unmapped}" th:text="#{web.navbar.admin.library.unmapped}"></a></li>
                     </th:block>
                 </ul>
                 <div class="navbar-nav">

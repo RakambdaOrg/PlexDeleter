@@ -20,6 +20,14 @@ public class AdminMediaController{
 		this.thymeleafService = thymeleafService;
 	}
 	
+	@GetMapping("/list")
+	public ModelAndView list(){
+		var mav = new ModelAndView("admin/media/list");
+		mav.addObject("medias", adminService.getAllMedias());
+		mav.addObject("thymeleafService", thymeleafService);
+		return mav;
+	}
+	
 	@GetMapping("/soon-deleted")
 	public ModelAndView listSoonDeleted(){
 		var mav = new ModelAndView("admin/media/soon-deleted");
