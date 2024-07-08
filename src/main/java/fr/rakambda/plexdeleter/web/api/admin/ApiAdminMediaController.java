@@ -27,10 +27,19 @@ public class ApiAdminMediaController{
 	
 	@Transactional
 	@PostMapping("/keep")
-	public ModelAndView complete(@NotNull @RequestParam("mediaId") int mediaId){
+	public ModelAndView keep(@NotNull @RequestParam("mediaId") int mediaId){
 		var media = mediaRepository.findById(mediaId)
 				.orElseThrow(() -> new RuntimeException("Media not found"));
 		mediaService.keep(media);
+		return new ModelAndView("api/success");
+	}
+	
+	@Transactional
+	@PostMapping("/unkeep")
+	public ModelAndView unkeep(@NotNull @RequestParam("mediaId") int mediaId){
+		var media = mediaRepository.findById(mediaId)
+				.orElseThrow(() -> new RuntimeException("Media not found"));
+		mediaService.unkeep(media);
 		return new ModelAndView("api/success");
 	}
 }

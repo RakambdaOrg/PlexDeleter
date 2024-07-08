@@ -39,7 +39,6 @@ public class AdminService{
 	@NotNull
 	public List<MediaEntity> getAllMedias(){
 		return mediaRepository.findAllByStatusIn(MediaStatus.allPresent()).stream()
-				.filter(m -> !m.getStatus().isNeverChange())
 				.sorted(MediaEntity.COMPARATOR_BY_TYPE_THEN_NAME_THEN_INDEX)
 				.toList();
 	}

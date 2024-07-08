@@ -451,4 +451,12 @@ public class MediaService{
 		log.info("Keeping media {}", media);
 		supervisionService.send("\uD83D\uDCE6 Kept media %s", media);
 	}
+	
+	public void unkeep(@NotNull MediaEntity media){
+		media.setStatus(MediaStatus.WAITING);
+		mediaRepository.save(media);
+		
+		log.info("Unkeeping media {}", media);
+		supervisionService.send("\u26D3\uFE0F\u200D\uD83D\uDCA5 Unkept media %s", media);
+	}
 }
