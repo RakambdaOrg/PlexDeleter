@@ -166,18 +166,18 @@ public class MediaService{
 						}
 					});
 			
-			var partsCount = switch(mediaDetails){
-				case MovieMedia ignored -> 1;
-				case SeriesMedia seriesMedia -> seriesMedia.getSeasons().stream()
-						.filter(s -> Objects.equals(s.getSeasonNumber(), mediaEntity.getIndex()))
-						.findFirst()
-						.map(fr.rakambda.plexdeleter.api.overseerr.data.Season::getEpisodeCount)
-						.orElse(0);
-				default -> throw new UpdateException("Unexpected value: " + mediaDetails);
-			};
-			if(mediaEntity.getPartsCount() < partsCount){
-				mediaEntity.setPartsCount(partsCount);
-			}
+			// var partsCount = switch(mediaDetails){
+			// 	case MovieMedia ignored -> 1;
+			// 	case SeriesMedia seriesMedia -> seriesMedia.getSeasons().stream()
+			// 			.filter(s -> Objects.equals(s.getSeasonNumber(), mediaEntity.getIndex()))
+			// 			.findFirst()
+			// 			.map(fr.rakambda.plexdeleter.api.overseerr.data.Season::getEpisodeCount)
+			// 			.orElse(0);
+			// 	default -> throw new UpdateException("Unexpected value: " + mediaDetails);
+			// };
+			// if(mediaEntity.getPartsCount() < partsCount){
+			// 	mediaEntity.setPartsCount(partsCount);
+			// }
 		}
 		catch(Exception e){
 			log.error("Failed to update media from Overseerr", e);
