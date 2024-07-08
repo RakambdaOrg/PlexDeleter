@@ -102,6 +102,6 @@ public class MediaEntity{
 	private List<MediaRequirementEntity> requirements;
 	
 	public boolean isCompletable(){
-		return availablePartsCount >= partsCount;
+		return status.isNeverChange() || availablePartsCount >= partsCount;
 	}
 }
