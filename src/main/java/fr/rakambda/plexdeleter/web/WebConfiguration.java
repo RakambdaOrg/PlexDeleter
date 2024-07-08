@@ -29,13 +29,19 @@ public class WebConfiguration implements WebMvcConfigurer{
 		return lci;
 	}
 	
+	@Bean
+	public RefererModelInterceptor refererModelInterceptor(){
+		return new RefererModelInterceptor();
+	}
+	
 	@Override
 	public void addInterceptors(InterceptorRegistry registry){
 		registry.addInterceptor(localeChangeInterceptor());
+		registry.addInterceptor(refererModelInterceptor());
 	}
 	
 	@Bean
-	public CommonsRequestLoggingFilter logFilter() {
+	public CommonsRequestLoggingFilter logFilter(){
 		var filter = new CommonsRequestLoggingFilter();
 		filter.setIncludeQueryString(true);
 		filter.setIncludePayload(true);

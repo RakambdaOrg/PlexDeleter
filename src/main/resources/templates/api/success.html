@@ -3,7 +3,7 @@
 <head>
     <title th:text="#{web.api.success}"></title>
     <th:block th:replace="~{fragment/common-head::common-head}"></th:block>
-    <meta http-equiv="refresh" content="3; url=/"/>
+    <meta http-equiv="refresh" th:content="${'3; url=' + referer ?: '/'}"/>
 </head>
 <body>
 <div class="d-flex justify-content-center align-items-center vh-100 text-center">
