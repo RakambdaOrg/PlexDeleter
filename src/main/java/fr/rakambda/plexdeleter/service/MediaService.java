@@ -449,6 +449,6 @@ public class MediaService{
 		mediaRepository.save(media);
 		
 		log.info("Keeping media {}", media);
-		supervisionService.send("\uD83C\uDD95 Kept media %s", media);
+		supervisionService.send("\uD83D\uDCE6 Kept media %s", media);
 	}
 }
