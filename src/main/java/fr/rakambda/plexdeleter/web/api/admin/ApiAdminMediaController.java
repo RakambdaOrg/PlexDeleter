@@ -42,4 +42,13 @@ public class ApiAdminMediaController{
 		mediaService.unkeep(media);
 		return new ModelAndView("api/success");
 	}
+	
+	@Transactional
+	@PostMapping("/manually-delete")
+	public ModelAndView deleted(@NotNull @RequestParam("mediaId") int mediaId){
+		var media = mediaRepository.findById(mediaId)
+				.orElseThrow(() -> new RuntimeException("Media not found"));
+		mediaService.manuallyDelete(media);
+		return new ModelAndView("api/success");
+	}
 }

@@ -7,7 +7,7 @@
 <body>
 <div th:replace="~{fragment/navbar.html::navbar}"></div>
 <div class="container-fluid text-center">
-    <form th:action="@{~/api/admin/media-requirement/add}" method="post" style="max-width: 350px; margin: 0 auto;">
+    <form th:action="@{~/api/admin/media-requirement/add}" method="post" onsubmit="return onMediaActionFormSubmit(this);" style="max-width: 350px; margin: 0 auto;">
         <div class="border border-secondary p-3 rounded">
             <p th:text="#{web.admin.requirement.add.header}"/>
             <p>

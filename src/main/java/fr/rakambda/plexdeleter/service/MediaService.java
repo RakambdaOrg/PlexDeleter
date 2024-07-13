@@ -459,4 +459,12 @@ public class MediaService{
 		log.info("Unkeeping media {}", media);
 		supervisionService.send("\u26D3\uFE0F\u200D\uD83D\uDCA5 Unkept media %s", media);
 	}
+	
+	public void manuallyDelete(@NotNull MediaEntity media){
+		media.setStatus(MediaStatus.MANUALLY_DELETED);
+		mediaRepository.save(media);
+		
+		log.info("Manually deleted media {}", media);
+		supervisionService.send("✍\uFE0F♻\uFE0F Manually deleted media %s", media);
+	}
 }
