@@ -81,6 +81,12 @@
             </td>
             <td>
                 <div class="d-flex flex-row justify-content-center align-items-center">
+                    <div class="m-1">
+                        <form th:action="${thymeleafService.getAddWatchMediaUrl(media.getId())}" method="get">
+                            <input type="hidden" name="media" class="form-control" th:value="${media.getId()}"/>
+                            <input type="submit" th:value="#{mail.media.available.body.actions.requirement.add}" class="btn btn-success btn-sm media-action-button"/>
+                        </form>
+                    </div>
                     <th:block sec:authorize="hasRole('ROLE_ADMIN')">
                         <div class="m-1" th:if="${media.getStatus().isNeverChange()}">
                             <form th:action="@{~/api/admin/media/unkeep}" onsubmit="return onMediaActionFormSubmit(this);" method="post">
