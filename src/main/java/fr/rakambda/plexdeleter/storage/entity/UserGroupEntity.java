@@ -51,6 +51,41 @@ public class UserGroupEntity{
 	@Column
 	@Nullable
 	private String servarrTag;
+	@Basic
+	@Column(nullable = false)
+	@NotNull
+	@ToString.Include
+	private Boolean notifyWatchlist;
+	@Basic
+	@Column(nullable = false)
+	@NotNull
+	@ToString.Include
+	private Boolean notifyRequirementAdded;
+	@Basic
+	@Column(nullable = false)
+	@NotNull
+	@ToString.Include
+	private Boolean notifyMediaAdded;
+	@Basic
+	@Column(nullable = false)
+	@NotNull
+	@ToString.Include
+	private Boolean notifyMediaAvailable;
+	@Basic
+	@Column(nullable = false)
+	@NotNull
+	@ToString.Include
+	private Boolean notifyMediaDeleted;
+	@Basic
+	@Column(nullable = false)
+	@NotNull
+	@ToString.Include
+	private Boolean notifyRequirementManuallyWatched;
+	@Basic
+	@Column(nullable = false)
+	@NotNull
+	@ToString.Include
+	private Boolean notifyRequirementManuallyAbandoned;
 	
 	@OneToMany(targetEntity = UserPersonEntity.class)
 	@JoinColumn(name = "groupId", referencedColumnName = "id")

@@ -56,6 +56,9 @@ public class NotificationService{
 				return;
 			}
 			log.info("Notifying watchlist to {}", userGroupEntity);
+			if(!userGroupEntity.getNotifyWatchlist()){
+				return;
+			}
 			var notification = userGroupEntity.getNotification();
 			if(Objects.isNull(notification)){
 				return;
@@ -73,6 +76,9 @@ public class NotificationService{
 	public void notifyRequirementAdded(@NotNull UserGroupEntity userGroupEntity, @NotNull MediaEntity media) throws NotifyException{
 		try{
 			log.info("Notifying a requirement on {} has been added to {}", media, userGroupEntity);
+			if(!userGroupEntity.getNotifyRequirementAdded()){
+				return;
+			}
 			var notification = userGroupEntity.getNotification();
 			if(Objects.isNull(notification)){
 				return;
@@ -98,6 +104,9 @@ public class NotificationService{
 	public void notifyMediaAvailable(@NotNull UserGroupEntity userGroupEntity, @NotNull MediaEntity media) throws NotifyException{
 		try{
 			log.info("Notifying {} is available to {}", media, userGroupEntity);
+			if(!userGroupEntity.getNotifyMediaAvailable()){
+				return;
+			}
 			var notification = userGroupEntity.getNotification();
 			if(Objects.isNull(notification)){
 				return;
@@ -115,6 +124,9 @@ public class NotificationService{
 	public void notifyMediaDeleted(@NotNull UserGroupEntity userGroupEntity, @NotNull MediaEntity media) throws NotifyException{
 		try{
 			log.info("Notifying {} has been deleted to {}", media, userGroupEntity);
+			if(!userGroupEntity.getNotifyMediaDeleted()){
+				return;
+			}
 			var notification = userGroupEntity.getNotification();
 			if(Objects.isNull(notification)){
 				return;
@@ -132,6 +144,9 @@ public class NotificationService{
 	public void notifyRequirementManuallyWatched(@NotNull UserGroupEntity userGroupEntity, @NotNull MediaEntity media) throws NotifyException{
 		try{
 			log.info("Notifying {} has been manually marked as watched to {}", media, userGroupEntity);
+			if(!userGroupEntity.getNotifyRequirementManuallyWatched()){
+				return;
+			}
 			var notification = userGroupEntity.getNotification();
 			if(Objects.isNull(notification)){
 				return;
@@ -149,6 +164,9 @@ public class NotificationService{
 	public void notifyRequirementManuallyAbandoned(@NotNull UserGroupEntity userGroupEntity, @NotNull MediaEntity media) throws NotifyException{
 		try{
 			log.info("Notifying {} has been manually marked as abandoned to {}", media, userGroupEntity);
+			if(!userGroupEntity.getNotifyRequirementManuallyAbandoned()){
+				return;
+			}
 			var notification = userGroupEntity.getNotification();
 			if(Objects.isNull(notification)){
 				return;
@@ -228,6 +246,9 @@ public class NotificationService{
 	private void notifyMediaAdded(@NotNull UserGroupEntity userGroupEntity, @NotNull MediaMetadataContext metadata, @Nullable MediaEntity media) throws NotifyException{
 		try{
 			log.info("Notifying {} has been added to {}", metadata.getMetadata(), userGroupEntity);
+			if(!userGroupEntity.getNotifyMediaAdded()){
+				return;
+			}
 			var notification = userGroupEntity.getNotificationMediaAdded();
 			if(Objects.isNull(notification)){
 				return;
