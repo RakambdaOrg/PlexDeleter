@@ -342,14 +342,12 @@ public class MediaService{
 		try{
 			log.info("Adding media with Overseerr id {} and season {}", overseerrId, season);
 			var media = getOrCreateMedia(overseerrId, mediaType, season);
-			if(!media.getStatus().isNeverChange()){
-				media.setStatus(MediaStatus.WAITING);
-				media.setAvailablePartsCount(0);
+			if(media.getStatus().isNeverChange() || media.getStatus().isOnDiskOrWillBe()){
+				return media;
 			}
+			media.setStatus(MediaStatus.WAITING);
 			media.setAvailablePartsCount(0);
-			mediaRepository.save(media);
-			
-			return update(media);
+			return update(mediaRepository.save(media));
 		}
 		finally{
 			mediaOperationLock.unlock();

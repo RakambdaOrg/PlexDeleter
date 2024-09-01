@@ -96,21 +96,29 @@ public enum MediaStatus{
 	private static Collection<MediaStatus> ALL_PRESENT;
 	private static Collection<MediaStatus> ALL_NEED_REFRESH;
 	
+	public boolean isOnDisk(){
+		return isDownloadStarted() || isFullyDownloaded();
+	}
+	
+	public boolean isOnDiskOrWillBe(){
+		return isOnDisk() || isNeedsMetadataRefresh() || isNeedsRequirementsRefresh();
+	}
+	
 	@NotNull
-	public static Collection<MediaStatus> allAvailable(){
+	public static Collection<MediaStatus> allOnDisk(){
 		if(Objects.isNull(ALL_AVAILABLE)){
 			ALL_AVAILABLE = Arrays.stream(MediaStatus.values())
-					.filter(s -> s.isDownloadStarted() || s.isFullyDownloaded())
+					.filter(MediaStatus::isOnDisk)
 					.toList();
 		}
 		return ALL_AVAILABLE;
 	}
 	
 	@NotNull
-	public static Collection<MediaStatus> allPresent(){
+	public static Collection<MediaStatus> allOnDiskOrWillBe(){
 		if(Objects.isNull(ALL_PRESENT)){
 			ALL_PRESENT = Arrays.stream(MediaStatus.values())
-					.filter(s -> s.isDownloadStarted() || s.isFullyDownloaded() || s.isNeedsMetadataRefresh() || s.isNeedsRequirementsRefresh())
+					.filter(MediaStatus::isOnDiskOrWillBe)
 					.toList();
 		}
 		return ALL_PRESENT;

@@ -96,7 +96,7 @@ public class MediaRequirementService{
 		log.info("Adding requirements to media {}", media);
 		
 		var status = media.getStatus();
-		if(!status.isNeedsMetadataRefresh() && !status.isFullyDownloaded() && !status.isNeverChange()){
+		if(!status.isOnDiskOrWillBe()){
 			throw new ThymeleafMessageException("Failed to add requirement, media is not available anymore", "#{requirement.add.unavailable}");
 		}
 		

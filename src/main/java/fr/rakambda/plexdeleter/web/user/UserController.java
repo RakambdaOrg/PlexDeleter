@@ -75,7 +75,7 @@ public class UserController{
 		var userPerson = userPersonRepository.findByPlexId(plexId)
 				.orElseThrow(() -> new IllegalStateException("Could not find user with Plex id %d".formatted(plexId)));
 		
-		var medias = mediaRepository.findAllByStatusIn(MediaStatus.allPresent()).stream()
+		var medias = mediaRepository.findAllByStatusIn(MediaStatus.allOnDiskOrWillBe()).stream()
 				.filter(media -> this.userHasNoRequirement(userPerson, media))
 				.sorted(MediaEntity.COMPARATOR_BY_TYPE_THEN_NAME_THEN_INDEX)
 				.toList();

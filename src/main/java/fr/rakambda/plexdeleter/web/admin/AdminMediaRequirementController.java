@@ -31,7 +31,7 @@ public class AdminMediaRequirementController{
 	public ModelAndView add(){
 		var mav = new ModelAndView("admin/media-requirement/add");
 		mav.addObject("groups", userGroupRepository.findAll());
-		mav.addObject("medias", mediaRepository.findAllByStatusIn(MediaStatus.allAvailable()));
+		mav.addObject("medias", mediaRepository.findAllByStatusIn(MediaStatus.allOnDisk()));
 		return mav;
 	}
 	
