@@ -67,24 +67,33 @@ public class MailNotificationService extends AbstractNotificationService{
 		var tmdbLogoResourceName = "tmdbLogoResourceName";
 		var tvdbLogoResourceName = "tvdbLogoResourceName";
 		
-		context.setVariable("service", this);
-		context.setVariable("thymeleafService", thymeleafService);
-		context.setVariable("userGroup", userGroupEntity);
-		context.setVariable("availableMedias", requirements.stream()
+		var availableMedia = requirements.stream()
 				.map(MediaRequirementEntity::getMedia)
 				.filter(m -> m.getStatus().isFullyDownloaded())
 				.sorted(MediaEntity.COMPARATOR_BY_TYPE_THEN_NAME_THEN_INDEX)
-				.toList());
-		context.setVariable("downloadingMedias", requirements.stream()
+				.toList();
+		var downloadingMedia = requirements.stream()
 				.map(MediaRequirementEntity::getMedia)
 				.filter(m -> m.getStatus().isDownloadStarted() && !m.getStatus().isFullyDownloaded())
 				.sorted(MediaEntity.COMPARATOR_BY_TYPE_THEN_NAME_THEN_INDEX)
-				.toList());
-		context.setVariable("notYetAvailableMedias", requirements.stream()
+				.toList();
+		var notYetAvailableMedia = requirements.stream()
 				.map(MediaRequirementEntity::getMedia)
 				.filter(m -> !m.getStatus().isDownloadStarted())
 				.sorted(MediaEntity.COMPARATOR_BY_TYPE_THEN_NAME_THEN_INDEX)
-				.toList());
+				.toList();
+		
+		if(availableMedia.isEmpty() && downloadingMedia.isEmpty()){
+			log.info("No medias eligible to notify");
+			return;
+		}
+		
+		context.setVariable("service", this);
+		context.setVariable("thymeleafService", thymeleafService);
+		context.setVariable("userGroup", userGroupEntity);
+		context.setVariable("availableMedias", availableMedia);
+		context.setVariable("downloadingMedias", downloadingMedia);
+		context.setVariable("notYetAvailableMedias", notYetAvailableMedia);
 		context.setVariable("overseerrLogoResourceName", overseerrLogoData.isPresent() ? overseerrLogoResourceName : null);
 		context.setVariable("plexLogoResourceName", plexLogoData.isPresent() ? plexLogoResourceName : null);
 		context.setVariable("tmdbLogoResourceName", tmdbLogoData.isPresent() ? tmdbLogoResourceName : null);

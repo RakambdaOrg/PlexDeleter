@@ -20,6 +20,7 @@ import fr.rakambda.plexdeleter.storage.entity.NotificationType;
 import fr.rakambda.plexdeleter.storage.entity.UserGroupEntity;
 import jakarta.mail.MessagingException;
 import lombok.SneakyThrows;
+import lombok.extern.slf4j.Slf4j;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -36,6 +37,7 @@ import java.util.Objects;
 import java.util.Optional;
 import java.util.stream.Collectors;
 
+@Slf4j
 @Service
 public class DiscordNotificationService extends AbstractNotificationService{
 	private static final int FLAG_SUPPRESS_EMBEDS = 1 << 2;
@@ -54,7 +56,7 @@ public class DiscordNotificationService extends AbstractNotificationService{
 		this.thymeleafService = thymeleafService;
 	}
 	
-	public void notifyWatchlist(@NotNull NotificationEntity notification, @NotNull UserGroupEntity userGroupEntity, @NotNull Collection<MediaRequirementEntity> requirements) throws MessagingException, UnsupportedEncodingException, InterruptedException, RequestFailedException{
+	public void notifyWatchlist(@NotNull NotificationEntity notification, @NotNull UserGroupEntity userGroupEntity, @NotNull Collection<MediaRequirementEntity> requirements) throws InterruptedException, RequestFailedException{
 		var locale = userGroupEntity.getLocaleAsObject();
 		var params = notification.getValue().split(",");
 		var discordUserId = params[0];
@@ -76,9 +78,8 @@ public class DiscordNotificationService extends AbstractNotificationService{
 				.sorted(MediaEntity.COMPARATOR_BY_TYPE_THEN_NAME_THEN_INDEX)
 				.toList();
 		
-		if(availableMedia.isEmpty()
-				&& downloadingMedia.isEmpty()
-				&& notYetAvailableMedia.isEmpty()){
+		if(availableMedia.isEmpty() && downloadingMedia.isEmpty()){
+			log.info("No medias eligible to notify");
 			return;
 		}
 		
