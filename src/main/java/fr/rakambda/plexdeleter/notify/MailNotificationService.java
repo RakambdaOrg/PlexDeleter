@@ -73,14 +73,17 @@ public class MailNotificationService extends AbstractNotificationService{
 		context.setVariable("availableMedias", requirements.stream()
 				.map(MediaRequirementEntity::getMedia)
 				.filter(m -> m.getStatus().isFullyDownloaded())
+				.sorted(MediaEntity.COMPARATOR_BY_TYPE_THEN_NAME_THEN_INDEX)
 				.toList());
 		context.setVariable("downloadingMedias", requirements.stream()
 				.map(MediaRequirementEntity::getMedia)
 				.filter(m -> m.getStatus().isDownloadStarted() && !m.getStatus().isFullyDownloaded())
+				.sorted(MediaEntity.COMPARATOR_BY_TYPE_THEN_NAME_THEN_INDEX)
 				.toList());
 		context.setVariable("notYetAvailableMedias", requirements.stream()
 				.map(MediaRequirementEntity::getMedia)
 				.filter(m -> !m.getStatus().isDownloadStarted())
+				.sorted(MediaEntity.COMPARATOR_BY_TYPE_THEN_NAME_THEN_INDEX)
 				.toList());
 		context.setVariable("overseerrLogoResourceName", overseerrLogoData.isPresent() ? overseerrLogoResourceName : null);
 		context.setVariable("plexLogoResourceName", plexLogoData.isPresent() ? plexLogoResourceName : null);

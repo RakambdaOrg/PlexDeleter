@@ -63,14 +63,17 @@ public class DiscordNotificationService extends AbstractNotificationService{
 		var availableMedia = requirements.stream()
 				.map(MediaRequirementEntity::getMedia)
 				.filter(m -> m.getStatus().isFullyDownloaded())
+				.sorted(MediaEntity.COMPARATOR_BY_TYPE_THEN_NAME_THEN_INDEX)
 				.toList();
 		var downloadingMedia = requirements.stream()
 				.map(MediaRequirementEntity::getMedia)
 				.filter(m -> m.getStatus().isDownloadStarted() && !m.getStatus().isFullyDownloaded())
+				.sorted(MediaEntity.COMPARATOR_BY_TYPE_THEN_NAME_THEN_INDEX)
 				.toList();
 		var notYetAvailableMedia = requirements.stream()
 				.map(MediaRequirementEntity::getMedia)
 				.filter(m -> !m.getStatus().isDownloadStarted())
+				.sorted(MediaEntity.COMPARATOR_BY_TYPE_THEN_NAME_THEN_INDEX)
 				.toList();
 		
 		if(availableMedia.isEmpty()
