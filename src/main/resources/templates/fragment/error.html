@@ -14,7 +14,7 @@
                     Show StackTrace
                 </a>
                 <div class="collapse" id="collapseTrace">
-                    <div class="card card-body" th:text="${errorTrace}"></div>
+                    <div class="card card-body overflow-scroll" style="max-height: 50vh;" th:text="${errorTrace}"></div>
                 </div>
             </th:block>
             <a th:href="@{~/}" role="button" class="btn btn-warning" th:text="#{web.api.back}"></a>

@@ -383,7 +383,7 @@ public class MediaService{
 	@NotNull
 	private MediaEntity createMedia(int overseerrId, @NotNull MediaType mediaType, int season) throws RequestFailedException{
 		var mediaDetails = overseerrService.getMediaDetails(overseerrId, mediaType.getOverseerrType());
-		var media = MediaEntity.builder()
+		var media = mediaRepository.save(MediaEntity.builder()
 				.type(mediaType)
 				.overseerrId(overseerrId)
 				.name(switch(mediaDetails){
@@ -395,7 +395,7 @@ public class MediaService{
 				.partsCount(0)
 				.availablePartsCount(0)
 				.status(MediaStatus.WAITING)
-				.build();
+				.build());
 		
 		log.info("Creating new media {} for Overseerr id {}", media, overseerrId);
 		supervisionService.send("\uD83C\uDD95 Added media %s", media);
