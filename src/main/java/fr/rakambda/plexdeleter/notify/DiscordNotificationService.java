@@ -190,7 +190,7 @@ public class DiscordNotificationService extends AbstractNotificationService{
 					.map(MediaEntity::getId)
 					.ifPresent(id -> embed.field(Field.builder()
 							.name(messageSource.getMessage("discord.media.available.body.actions", new Object[0], locale))
-							.value("[%s](%s)".formatted(
+							.value("[%s](<%s>)".formatted(
 									messageSource.getMessage("discord.media.available.body.actions.requirement.add", new Object[0], locale),
 									thymeleafService.getAddWatchMediaUrl(id)
 							))
@@ -241,7 +241,7 @@ public class DiscordNotificationService extends AbstractNotificationService{
 			embed.field(Field.builder()
 					.name(messageSource.getMessage("discord.media.available.body.external.links", new Object[0], locale))
 					.value(metadataProvidersInfo.stream()
-							.map(c -> "[%s](%s)".formatted(c.name(), c.url()))
+							.map(c -> "[%s](<%s>)".formatted(c.name(), c.url()))
 							.collect(Collectors.joining(" ")))
 					.build());
 		}
@@ -280,7 +280,7 @@ public class DiscordNotificationService extends AbstractNotificationService{
 	}
 	
 	private String getFooterContent(Locale locale){
-		return "[%s](%s)".formatted(messageSource.getMessage("mail.footer.app-link", new Object[0], locale), thymeleafService.getOwnUrl());
+		return "[%s](<%s>)".formatted(messageSource.getMessage("mail.footer.app-link", new Object[0], locale), thymeleafService.getOwnUrl());
 	}
 	
 	private void writeWatchlistSection(@NotNull String discordUrl, @Nullable Long threadId, @NotNull String sectionHeaderCode, @NotNull Locale locale, @NotNull UserGroupEntity userGroupEntity, @NotNull Collection<MediaEntity> medias) throws RequestFailedException, InterruptedException{
