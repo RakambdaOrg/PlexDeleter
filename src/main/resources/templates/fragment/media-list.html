@@ -91,7 +91,7 @@
                         <div class="m-1">
                             <form th:action="@{~/api/admin/media/refresh}" onsubmit="return onMediaActionFormSubmit(this);" method="post">
                                 <input type="hidden" name="mediaId" class="form-control" th:value="${media.getId()}"/>
-                                <button type="submit" class="btn btn-danger btn-sm media-action-button d-flex flex-row justify-content-center align-items-center">
+                                <button type="submit" class="btn btn-primary btn-sm media-action-button d-flex flex-row justify-content-center align-items-center">
                                     <span th:text="#{web.media-list.table.action.refresh}"></span>
                                     <span class="spinner-border spinner-border-sm d-none ms-1 media-action-spinner" role="status" aria-hidden="true"></span>
                                 </button>
