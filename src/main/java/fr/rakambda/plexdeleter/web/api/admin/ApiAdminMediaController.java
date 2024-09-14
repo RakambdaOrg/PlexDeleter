@@ -1,6 +1,9 @@
 package fr.rakambda.plexdeleter.web.api.admin;
 
+import fr.rakambda.plexdeleter.api.RequestFailedException;
+import fr.rakambda.plexdeleter.notify.NotifyException;
 import fr.rakambda.plexdeleter.service.MediaService;
+import fr.rakambda.plexdeleter.service.UpdateException;
 import fr.rakambda.plexdeleter.storage.repository.MediaRepository;
 import jakarta.validation.constraints.NotNull;
 import lombok.extern.slf4j.Slf4j;
@@ -45,10 +48,19 @@ public class ApiAdminMediaController{
 	
 	@Transactional
 	@PostMapping("/manually-delete")
-	public ModelAndView deleted(@NotNull @RequestParam("mediaId") int mediaId){
+	public ModelAndView delete(@NotNull @RequestParam("mediaId") int mediaId){
 		var media = mediaRepository.findById(mediaId)
 				.orElseThrow(() -> new RuntimeException("Media not found"));
 		mediaService.manuallyDelete(media);
+		return new ModelAndView("api/success");
+	}
+	
+	@Transactional
+	@PostMapping("/refresh")
+	public ModelAndView refresh(@NotNull @RequestParam("mediaId") int mediaId) throws RequestFailedException, UpdateException, NotifyException{
+		var media = mediaRepository.findById(mediaId)
+				.orElseThrow(() -> new RuntimeException("Media not found"));
+		mediaService.update(media);
 		return new ModelAndView("api/success");
 	}
 }
