@@ -4,12 +4,14 @@ import fr.rakambda.plexdeleter.web.api.ThymeleafMessageException;
 import org.springframework.web.bind.annotation.ControllerAdvice;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.servlet.ModelAndView;
+import java.io.PrintWriter;
+import java.io.StringWriter;
 
 @ControllerAdvice
 public class ExceptionControllerAdvice{
 	@ExceptionHandler(Exception.class)
 	public ModelAndView handle(Exception e){
-		return switch(e){
+		var modelAndView = switch(e){
 			case ThymeleafMessageException thymeleafMessageException -> {
 				var mav = new ModelAndView("api/errorLocalized");
 				mav.addObject("expression", thymeleafMessageException.getExpression());
@@ -21,5 +23,13 @@ public class ExceptionControllerAdvice{
 				yield mav;
 			}
 		};
+		
+		var traceWriter = new StringWriter();
+		try(var printWriter = new PrintWriter(traceWriter)){
+			e.printStackTrace(printWriter);
+		}
+		
+		modelAndView.addObject("errorTrace", traceWriter.toString());
+		return modelAndView;
 	}
 }
