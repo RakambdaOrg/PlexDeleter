@@ -48,6 +48,17 @@ server:
     session:
       timeout: 12h
 
+management:
+  endpoint:
+    health:
+      enabled: true
+    info:
+      enabled: true
+  endpoints:
+    enabled-by-default: false
+    web:
+      exposure:
+        include: "health,info"
 app:
   applicationUrl: "http://app.url"
   exclude-tag: "no-deleter"
