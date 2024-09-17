@@ -68,7 +68,7 @@ tasks {
 }
 
 tasks.withType<BootBuildImage> {
-    builder = "paketobuildpacks/builder:full"
+    builder = "paketobuildpacks/builder-jammy-full:latest"
     environment = mapOf(
         "BP_NATIVE_IMAGE_BUILD_ARGUMENTS" to "-H:+AddAllCharsets -march=compatibility",
         "BPE_LANG" to "C.UTF-8",
