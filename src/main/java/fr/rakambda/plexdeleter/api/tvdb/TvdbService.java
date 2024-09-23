@@ -44,6 +44,10 @@ public class TvdbService{
 							.header(HttpHeaders.AUTHORIZATION, "Bearer " + getBearer(tvdbConfiguration.getApiKey()))
 							.build());
 				}))
+				.codecs(codec -> codec
+						.defaultCodecs()
+						.maxInMemorySize(1024 * 1024)
+				)
 				.build();
 	}
 	

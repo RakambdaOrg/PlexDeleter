@@ -25,6 +25,10 @@ public class TmdbService{
 		apiClient = WebClient.builder()
 				.baseUrl(tmdbConfiguration.getEndpoint())
 				.defaultHeader(HttpHeaders.AUTHORIZATION, "Bearer " + tmdbConfiguration.getToken())
+				.codecs(codec -> codec
+						.defaultCodecs()
+						.maxInMemorySize(1024 * 1024)
+				)
 				.build();
 	}
 	

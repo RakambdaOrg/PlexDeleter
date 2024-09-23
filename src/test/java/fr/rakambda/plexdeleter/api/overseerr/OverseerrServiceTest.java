@@ -11,6 +11,7 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.condition.DisabledIfEnvironmentVariable;
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatCode;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
@@ -88,5 +89,11 @@ class OverseerrServiceTest{
 		
 		assertThat(result.getMedia()).isInstanceOfSatisfying(SeriesMedia.class,
 				movieMedia -> assertThat(movieMedia.getId()).isEqualTo(686));
+	}
+	
+	@Test
+	void isShouldNotProduceDataBufferLimitException(){
+		assertThatCode(() -> tested.getMediaDetails(4614, MediaType.TV))
+				.doesNotThrowAnyException();
 	}
 }

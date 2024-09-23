@@ -32,6 +32,10 @@ public class RadarrService{
 				.defaultHeader("X-Api-Key", applicationConfiguration.getRadarr().getApiKey())
 				.filter(HttpUtils.retryOnStatus(Set.of(HttpStatus.BAD_GATEWAY)))
 				.filter(HttpUtils.logErrorFilter())
+				.codecs(codec -> codec
+						.defaultCodecs()
+						.maxInMemorySize(1024 * 1024)
+				)
 				.build();
 	}
 	

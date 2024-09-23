@@ -34,6 +34,10 @@ public class SonarrService{
 				.defaultHeader("X-Api-Key", applicationConfiguration.getSonarr().getApiKey())
 				.filter(HttpUtils.retryOnStatus(Set.of(HttpStatus.BAD_GATEWAY)))
 				.filter(HttpUtils.logErrorFilter())
+				.codecs(codec -> codec
+						.defaultCodecs()
+						.maxInMemorySize(1024 * 1024)
+				)
 				.build();
 	}
 	
