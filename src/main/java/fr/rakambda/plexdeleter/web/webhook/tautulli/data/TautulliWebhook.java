@@ -33,4 +33,10 @@ public class TautulliWebhook{
 	@Nullable
 	@JsonProperty("grandparent_rating_key")
 	private Integer grandparentRatingKey;
+	@Nullable
+	@JsonProperty("tvdb_id")
+	private Integer tvdbId;
+	@Nullable
+	@JsonProperty("tmdb_id")
+	private Integer tmdbId;
 }
