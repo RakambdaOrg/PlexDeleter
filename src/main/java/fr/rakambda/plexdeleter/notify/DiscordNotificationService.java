@@ -83,16 +83,17 @@ public class DiscordNotificationService extends AbstractNotificationService{
 			return;
 		}
 		
+		var header = messageSource.getMessage("discord.watchlist.subject", new Object[0], locale);
 		var threadId = switch(notification.getType()){
 			case DISCORD_THREAD -> Optional.ofNullable(discordWebhookService.sendWebhookMessage(discordUrl, WebhookMessage.builder()
-									.threadName(messageSource.getMessage("discord.watchlist.subject", new Object[0], locale))
+									.threadName(header)
 									.content("<@%s>".formatted(discordUserId))
 									.build())
 							.getChannelId())
 					.orElseThrow(() -> new RequestFailedException("Couldn't get new thread channel id"));
 			default -> {
 				discordWebhookService.sendWebhookMessage(discordUrl, WebhookMessage.builder()
-						.content("<@%s>\n%s".formatted(discordUserId, messageSource.getMessage("discord.watchlist.subject", new Object[0], locale)))
+						.content("<@%s>\n# %s".formatted(discordUserId, header))
 						.build());
 				yield null;
 			}
@@ -252,8 +253,12 @@ public class DiscordNotificationService extends AbstractNotificationService{
 			messageBuilder.content("<@%s>".formatted(discordUserId));
 		}
 		
+		var header = messageSource.getMessage("discord.media.added.subject", new Object[0], locale);
 		if(notification.getType() == NotificationType.DISCORD_THREAD){
-			messageBuilder.threadName(messageSource.getMessage("discord.media.added.subject", new Object[0], locale));
+			messageBuilder.threadName(header);
+		}
+		else{
+			messageBuilder.content("# %s".formatted(header));
 		}
 		
 		discordWebhookService.sendWebhookMessage(discordUrl, messageBuilder.build());
@@ -265,15 +270,26 @@ public class DiscordNotificationService extends AbstractNotificationService{
 		var discordUserId = params[0];
 		var discordUrl = params[1];
 		
-		var messageBuilder = WebhookMessage.builder()
-				.content("<@%s>\n%s\n\n%s".formatted(
-						discordUserId,
-						getWatchlistMediaText(userGroupEntity, media, locale),
-						getFooterContent(locale)
-				));
+		var messageBuilder = WebhookMessage.builder();
 		
+		var header = messageSource.getMessage(subjectKey, new Object[0], locale);
 		if(notification.getType() == NotificationType.DISCORD_THREAD){
-			messageBuilder = messageBuilder.threadName(messageSource.getMessage(subjectKey, new Object[0], locale));
+			messageBuilder = messageBuilder
+					.threadName(header)
+					.content("<@%s>\n# %s\n\n%s".formatted(
+							discordUserId,
+							getWatchlistMediaText(userGroupEntity, media, locale),
+							getFooterContent(locale)
+					));
+		}
+		else{
+			messageBuilder = messageBuilder
+					.content("<@%s>\n%s\n%s\n\n%s".formatted(
+							discordUserId,
+							header,
+							getWatchlistMediaText(userGroupEntity, media, locale),
+							getFooterContent(locale)
+					));
 		}
 		
 		discordWebhookService.sendWebhookMessage(discordUrl, messageBuilder.build());
