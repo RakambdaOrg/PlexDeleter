@@ -31,6 +31,7 @@ import java.util.Objects;
 import java.util.Optional;
 import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReentrantLock;
+import java.util.function.Predicate;
 
 @Slf4j
 @Service
@@ -74,13 +75,18 @@ public class MediaService{
 	
 	@NotNull
 	public MediaEntity update(@NotNull MediaEntity mediaEntity) throws UpdateException, RequestFailedException, NotifyException{
+		return update(mediaEntity, false);
+	}
+	
+	@NotNull
+	public MediaEntity update(@NotNull MediaEntity mediaEntity, boolean forceMediaCount) throws UpdateException, RequestFailedException, NotifyException{
 		mediaOperationLock.lock();
 		try{
 			log.info("Updating media {}", mediaEntity);
 			
 			updateFromOverseerr(mediaEntity);
 			updateFromTautulli(mediaEntity);
-			updateFromServarr(mediaEntity);
+			updateFromServarr(mediaEntity, forceMediaCount);
 			
 			if(mediaEntity.getStatus().isNeedsMetadataRefresh()){
 				if(mediaEntity.getPartsCount() <= 0){
@@ -201,7 +207,7 @@ public class MediaService{
 		}
 	}
 	
-	private void updateFromServarr(@NotNull MediaEntity mediaEntity){
+	private void updateFromServarr(@NotNull MediaEntity mediaEntity, boolean forceMediaCount){
 		if(Objects.isNull(mediaEntity.getServarrId())){
 			log.warn("Cannot update media {} as it does not seem to be in Sonarr/Radarr", mediaEntity);
 			return;
@@ -232,8 +238,11 @@ public class MediaService{
 				}
 			}
 			
+			Predicate<Integer> partPredicate = forceMediaCount
+					? v -> true
+					: v -> mediaEntity.getPartsCount() < v;
 			partsCount
-					.filter(v -> mediaEntity.getPartsCount() < v)
+					.filter(partPredicate)
 					.ifPresent(mediaEntity::setPartsCount);
 			availablePartsCount
 					.filter(v -> mediaEntity.getAvailablePartsCount() < v)

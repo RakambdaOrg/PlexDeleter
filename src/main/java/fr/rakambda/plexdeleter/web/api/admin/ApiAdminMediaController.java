@@ -60,7 +60,7 @@ public class ApiAdminMediaController{
 	public ModelAndView refresh(@NotNull @RequestParam("mediaId") int mediaId) throws RequestFailedException, UpdateException, NotifyException{
 		var media = mediaRepository.findById(mediaId)
 				.orElseThrow(() -> new RuntimeException("Media not found"));
-		mediaService.update(media);
+		mediaService.update(media, true);
 		return new ModelAndView("api/success");
 	}
 }
