@@ -4,14 +4,16 @@
     <import class="ch.qos.logback.classic.encoder.PatternLayoutEncoder"/>
     <import class="ch.qos.logback.core.ConsoleAppender"/>
 
+    <include resource="co/elastic/logging/logback/boot/ecs-console-appender.xml"/>
+
     <appender name="STDOUT" class="ConsoleAppender">
-        <encoder class="PatternLayoutEncoder">
-            <!-- https://jira.qos.ch/browse/LOGBACK-830 -->
-            <pattern>%highlight(%d{HH:mm:ss.SSS,UTC} [%thread] %-5level [%X{guild_name}] %logger{1} - %msg){}%n</pattern>
-        </encoder>
+        <!--        <encoder class="PatternLayoutEncoder">-->
+        <!--            &lt;!&ndash; https://jira.qos.ch/browse/LOGBACK-830 &ndash;&gt;-->
+        <!--            <pattern>%highlight(%d{HH:mm:ss.SSS,UTC} [%thread] %-5level [%X{guild_name}] %logger{1} - %msg){}%n</pattern>-->
+        <!--        </encoder>-->
     </appender>
 
     <root level="info">
-        <appender-ref ref="STDOUT"/>
+        <appender-ref ref="ECS_JSON_CONSOLE"/>
     </root>
 </configuration>
