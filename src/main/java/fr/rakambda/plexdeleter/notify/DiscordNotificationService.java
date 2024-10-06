@@ -276,7 +276,7 @@ public class DiscordNotificationService extends AbstractNotificationService{
 		if(notification.getType() == NotificationType.DISCORD_THREAD){
 			messageBuilder = messageBuilder
 					.threadName(header)
-					.content("<@%s>\n# %s\n\n%s".formatted(
+					.content("<@%s>\n%s\n\n%s".formatted(
 							discordUserId,
 							getWatchlistMediaText(userGroupEntity, media, locale),
 							getFooterContent(locale)
@@ -284,7 +284,7 @@ public class DiscordNotificationService extends AbstractNotificationService{
 		}
 		else{
 			messageBuilder = messageBuilder
-					.content("<@%s>\n%s\n%s\n\n%s".formatted(
+					.content("<@%s>\n# %s\n%s\n\n%s".formatted(
 							discordUserId,
 							header,
 							getWatchlistMediaText(userGroupEntity, media, locale),
