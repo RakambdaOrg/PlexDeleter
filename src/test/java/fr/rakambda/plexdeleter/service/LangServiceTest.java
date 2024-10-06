@@ -18,7 +18,7 @@ class LangServiceTest{
 	
 	private static Stream<Arguments> generateCases(){
 		return Stream.of(
-				Arguments.of(Locale.FRENCH, "ara", "Arabe"),
+				Arguments.of(Locale.FRENCH, "ara", "Arabic"),
 				Arguments.of(Locale.ENGLISH, "ara", "Arabic"),
 				
 				Arguments.of(Locale.FRENCH, "deu", "Allemand"),
@@ -36,13 +36,13 @@ class LangServiceTest{
 				Arguments.of(Locale.FRENCH, "jpn", "Japonais"),
 				Arguments.of(Locale.ENGLISH, "jpn", "Japanese"),
 				
-				Arguments.of(Locale.FRENCH, "por", "Portugais"),
+				Arguments.of(Locale.FRENCH, "por", "Portuguese"),
 				Arguments.of(Locale.ENGLISH, "por", "Portuguese"),
 				
-				Arguments.of(Locale.FRENCH, "rus", "Russe"),
+				Arguments.of(Locale.FRENCH, "rus", "Russian"),
 				Arguments.of(Locale.ENGLISH, "rus", "Russian"),
 				
-				Arguments.of(Locale.FRENCH, "spa", "Espagnol"),
+				Arguments.of(Locale.FRENCH, "spa", "Spanish"),
 				Arguments.of(Locale.ENGLISH, "spa", "Spanish")
 		);
 	}
