@@ -39,11 +39,11 @@
         </div>
         <div class="mb-2" th:unless="${#lists.isEmpty(mediaAudios)}">
             <h4 class="text-primary" th:text="#{mail.media.available.body.audios}"></h4>
-            <div th:each="mediaAudio : ${mediaAudios}" th:text="${mediaAudio}"/>
+            <div th:each="mediaAudio : ${mediaAudios}" th:text="#{${mediaAudio}}"/>
         </div>
         <div class="mb-2" th:unless="${#lists.isEmpty(mediaSubtitles)}">
             <h4 class="text-primary" th:text="#{mail.media.available.body.subtitles}"></h4>
-            <div th:each="mediaSubtitle : ${mediaSubtitles}" th:text="${mediaSubtitle}"/>
+            <div th:each="mediaSubtitle : ${mediaSubtitles}" th:text="#{${mediaSubtitle}}"/>
         </div>
         <div class="mb-2" th:unless="${#lists.isEmpty(mediaActors)}">
             <h4 class="text-primary" th:text="#{mail.media.available.body.actors}"></h4>

@@ -5,7 +5,6 @@ import fr.rakambda.plexdeleter.api.tautulli.data.SubtitlesMediaPartStream;
 import fr.rakambda.plexdeleter.config.ApplicationConfiguration;
 import fr.rakambda.plexdeleter.config.MailConfiguration;
 import fr.rakambda.plexdeleter.notify.context.MediaMetadataContext;
-import fr.rakambda.plexdeleter.service.LangService;
 import fr.rakambda.plexdeleter.service.ThymeleafService;
 import fr.rakambda.plexdeleter.service.WatchService;
 import fr.rakambda.plexdeleter.storage.entity.MediaEntity;
@@ -38,17 +37,15 @@ public class MailNotificationService extends AbstractNotificationService{
 	private final MailConfiguration mailConfiguration;
 	private final MessageSource messageSource;
 	private final SpringTemplateEngine templateEngine;
-	private final LangService langService;
 	private final ThymeleafService thymeleafService;
 	
 	@Autowired
-	public MailNotificationService(JavaMailSender emailSender, ApplicationConfiguration applicationConfiguration, MessageSource messageSource, WatchService watchService, SpringTemplateEngine templateEngine, LangService langService, ThymeleafService thymeleafService){
+	public MailNotificationService(JavaMailSender emailSender, ApplicationConfiguration applicationConfiguration, MessageSource messageSource, WatchService watchService, SpringTemplateEngine templateEngine, ThymeleafService thymeleafService){
 		super(watchService, messageSource);
 		this.emailSender = emailSender;
 		this.messageSource = messageSource;
 		this.mailConfiguration = applicationConfiguration.getMail();
 		this.templateEngine = templateEngine;
-		this.langService = langService;
 		this.thymeleafService = thymeleafService;
 	}
 	
@@ -151,12 +148,12 @@ public class MailNotificationService extends AbstractNotificationService{
 		var audioLanguages = getMediaStreams(metadata, AudioMediaPartStream.class)
 				.map(AudioMediaPartStream::getAudioLanguageCode)
 				.distinct()
-				.flatMap(code -> langService.getLanguageName(code, locale))
+				.map("locale.%s"::formatted)
 				.toList();
 		var subtitleLanguages = getMediaStreams(metadata, SubtitlesMediaPartStream.class)
 				.map(SubtitlesMediaPartStream::getSubtitleLanguageCode)
 				.distinct()
-				.flatMap(code -> langService.getLanguageName(code, locale))
+				.map("locale.%s"::formatted)
 				.toList();
 		
 		var posterData = mediaMetadataContext.getPosterData();

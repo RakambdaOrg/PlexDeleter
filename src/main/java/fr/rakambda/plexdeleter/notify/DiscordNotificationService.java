@@ -10,7 +10,6 @@ import fr.rakambda.plexdeleter.api.discord.data.WebhookMessage;
 import fr.rakambda.plexdeleter.api.tautulli.data.AudioMediaPartStream;
 import fr.rakambda.plexdeleter.api.tautulli.data.SubtitlesMediaPartStream;
 import fr.rakambda.plexdeleter.notify.context.MediaMetadataContext;
-import fr.rakambda.plexdeleter.service.LangService;
 import fr.rakambda.plexdeleter.service.ThymeleafService;
 import fr.rakambda.plexdeleter.service.WatchService;
 import fr.rakambda.plexdeleter.storage.entity.MediaEntity;
@@ -43,16 +42,14 @@ public class DiscordNotificationService extends AbstractNotificationService{
 	private static final int FLAG_SUPPRESS_EMBEDS = 1 << 2;
 	
 	private final DiscordWebhookService discordWebhookService;
-	private final LangService langService;
 	private final MessageSource messageSource;
 	private final ThymeleafService thymeleafService;
 	
 	@Autowired
-	public DiscordNotificationService(DiscordWebhookService discordWebhookService, MessageSource messageSource, WatchService watchService, LangService langService, ThymeleafService thymeleafService){
+	public DiscordNotificationService(DiscordWebhookService discordWebhookService, MessageSource messageSource, WatchService watchService, ThymeleafService thymeleafService){
 		super(watchService, messageSource);
 		this.discordWebhookService = discordWebhookService;
 		this.messageSource = messageSource;
-		this.langService = langService;
 		this.thymeleafService = thymeleafService;
 	}
 	
@@ -150,12 +147,14 @@ public class DiscordNotificationService extends AbstractNotificationService{
 		var audioLanguages = getMediaStreams(metadata, AudioMediaPartStream.class)
 				.map(AudioMediaPartStream::getAudioLanguageCode)
 				.distinct()
-				.flatMap(code -> langService.getLanguageName(code, locale))
+				.map("locale.%s"::formatted)
+				.map(key -> messageSource.getMessage(key, new Object[0], locale))
 				.toList();
 		var subtitleLanguages = getMediaStreams(metadata, SubtitlesMediaPartStream.class)
 				.map(SubtitlesMediaPartStream::getSubtitleLanguageCode)
 				.distinct()
-				.flatMap(code -> langService.getLanguageName(code, locale))
+				.map("locale.%s"::formatted)
+				.map(key -> messageSource.getMessage(key, new Object[0], locale))
 				.toList();
 		var metadataProvidersInfo = mediaMetadataContext.getMetadataProviderInfo();
 		var requirements = Optional.ofNullable(media)
@@ -207,7 +206,7 @@ public class DiscordNotificationService extends AbstractNotificationService{
 		Optional.ofNullable(releaseDate)
 				.ifPresent(s -> embed.field(Field.builder()
 						.name(messageSource.getMessage("discord.media.available.body.release-date", new Object[0], locale))
-						.value(releaseDate)
+						.value(s)
 						.build()));
 		if(!metadata.getActors().isEmpty()){
 			embed.field(Field.builder()
