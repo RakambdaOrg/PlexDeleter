@@ -49,6 +49,9 @@ server:
       timeout: 12h
 
 management:
+  health:
+    mail:
+      enabled: false
   endpoint:
     health:
       enabled: true
