@@ -117,6 +117,7 @@ public class OverseerrController{
 					.flatMap(Arrays::stream)
 					.map(String::trim)
 					.map(Integer::parseInt)
+					.sorted()
 					.toList();
 		};
 		
