@@ -86,6 +86,11 @@ public class MediaEntity{
 	@ToString.Include
 	private Integer index;
 	@Basic
+	@Column(name = "sub_media_index")
+	@Nullable
+	@ToString.Include
+	private Integer subIndex;
+	@Basic
 	@Column(nullable = false)
 	@NotNull
 	private Integer partsCount;
