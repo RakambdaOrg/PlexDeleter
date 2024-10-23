@@ -11,6 +11,7 @@
             <th scope="col" th:text="#{web.media-list.table.type}"/>
             <th scope="col" th:text="#{web.media-list.table.name}"/>
             <th scope="col" th:text="#{web.media-list.table.season}"/>
+            <th scope="col" th:text="#{web.media-list.table.episode}"/>
             <th scope="col" th:text="#{web.media-list.table.downloaded}"/>
             <th scope="col" th:text="#{web.media-list.table.availability}"/>
             <th scope="col" th:text="#{web.media-list.table.watched}"/>
@@ -36,6 +37,7 @@
             </td>
             <td th:text="${requirement.getMedia().getName()}"></td>
             <td th:text="${requirement.getMedia().getIndex()}"></td>
+            <td th:text="${requirement.getMedia().getSubIndex()}"></td>
             <td th:text="${requirement.getMedia().getAvailablePartsCount() + ' / ' + requirement.getMedia().getPartsCount()}"></td>
             <td th:text="#{${requirement.getMedia().getStatus().getLocalizationKey()}}"></td>
             <td th:text="${requirement.getWatchedCount() + ' / ' + requirement.getMedia().getPartsCount()}"></td>

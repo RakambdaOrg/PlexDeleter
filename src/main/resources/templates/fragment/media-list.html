@@ -8,6 +8,7 @@
             <th scope="col" th:text="#{web.media-list.table.type}"/>
             <th scope="col" th:text="#{web.media-list.table.name}"/>
             <th scope="col" th:text="#{web.media-list.table.season}"/>
+            <th scope="col" th:text="#{web.media-list.table.episode}"/>
             <th scope="col" th:text="#{web.media-list.table.downloaded}"/>
             <th scope="col" th:text="#{web.media-list.table.availability}"/>
             <th scope="col" th:text="#{web.media-list.table.links}"/>
@@ -29,6 +30,7 @@
             </td>
             <td th:text="${media.getName()}"></td>
             <td th:text="${media.getIndex()}"></td>
+            <td th:text="${media.getSubIndex()()}"></td>
             <td th:text="${media.getAvailablePartsCount() + ' / ' + media.getPartsCount()}"></td>
             <td th:text="#{${media.getStatus().getLocalizationKey()}}"></td>
             <td>

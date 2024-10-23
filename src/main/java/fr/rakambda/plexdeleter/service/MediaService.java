@@ -147,6 +147,12 @@ public class MediaService{
 		try{
 			var mediaDetails = overseerrService.getMediaDetails(mediaEntity.getOverseerrId(), mediaEntity.getType().getOverseerrType());
 			
+			Optional.ofNullable(switch(mediaDetails){
+						case MovieMedia movieMedia -> movieMedia.getTitle();
+						case SeriesMedia seriesMedia -> seriesMedia.getName();
+						default -> null;
+					})
+					.ifPresent(mediaEntity::setName);
 			Optional.ofNullable(mediaDetails.getMediaInfo())
 					.map(MediaInfo::getRatingKey)
 					.flatMap(key -> getActualRatingKey(mediaEntity, key))
