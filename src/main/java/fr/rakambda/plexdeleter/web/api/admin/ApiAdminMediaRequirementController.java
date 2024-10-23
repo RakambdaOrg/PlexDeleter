@@ -11,6 +11,7 @@ import fr.rakambda.plexdeleter.storage.entity.MediaType;
 import fr.rakambda.plexdeleter.storage.repository.MediaRequirementRepository;
 import fr.rakambda.plexdeleter.storage.repository.UserGroupRepository;
 import fr.rakambda.plexdeleter.web.api.ThymeleafMessageException;
+import jakarta.annotation.Nullable;
 import jakarta.validation.constraints.NotNull;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -44,12 +45,13 @@ public class ApiAdminMediaRequirementController{
 			@NotNull @RequestParam("group") int groupId,
 			@NotNull @RequestParam("overseerr") int overseerrId,
 			@NotNull @RequestParam("season") int season,
+			@Nullable @RequestParam("episode") Integer episode,
 			@NotNull @RequestParam("type") MediaType type
 	) throws NotifyException, RequestFailedException, UpdateException, ServiceException, ThymeleafMessageException{
 		var userGroupEntity = userGroupRepository.findById(groupId)
 				.orElseThrow(() -> new IllegalArgumentException("Could not find user group with id %d".formatted(groupId)));
 		
-		var media = mediaService.addMedia(overseerrId, type, season);
+		var media = mediaService.addMedia(overseerrId, type, season, episode);
 		mediaRequirementService.addRequirementForNewMedia(media, userGroupEntity);
 		return new ModelAndView("api/success");
 	}

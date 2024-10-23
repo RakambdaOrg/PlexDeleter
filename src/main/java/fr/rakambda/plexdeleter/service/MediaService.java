@@ -363,11 +363,11 @@ public class MediaService{
 	}
 	
 	@NotNull
-	public MediaEntity addMedia(int overseerrId, @NotNull MediaType mediaType, int season) throws RequestFailedException, UpdateException, NotifyException{
+	public MediaEntity addMedia(int overseerrId, @NotNull MediaType mediaType, int season, @Nullable Integer episode) throws RequestFailedException, UpdateException, NotifyException{
 		mediaOperationLock.lock();
 		try{
-			log.info("Adding media with Overseerr id {} and season {}", overseerrId, season);
-			var media = getOrCreateMedia(overseerrId, mediaType, season);
+			log.info("Adding media with Overseerr id {}, season {}, episode {}", overseerrId, season, episode);
+			var media = getOrCreateMedia(overseerrId, mediaType, season, episode);
 			if(media.getStatus().isNeverChange() || media.getStatus().isOnDiskOrWillBe()){
 				return media;
 			}
@@ -398,16 +398,18 @@ public class MediaService{
 	}
 	
 	@NotNull
-	private MediaEntity getOrCreateMedia(int overseerrId, @NotNull MediaType mediaType, int season) throws RequestFailedException{
-		var media = mediaRepository.findByOverseerrIdAndIndex(overseerrId, season);
+	private MediaEntity getOrCreateMedia(int overseerrId, @NotNull MediaType mediaType, int season, @Nullable Integer episode) throws RequestFailedException{
+		var media = episode == null
+				? mediaRepository.findByOverseerrIdAndIndex(overseerrId, season)
+				: mediaRepository.findByOverseerrIdAndIndexAndSubIndex(overseerrId, season, episode);
 		if(media.isPresent()){
 			return media.get();
 		}
-		return createMedia(overseerrId, mediaType, season);
+		return createMedia(overseerrId, mediaType, season, episode);
 	}
 	
 	@NotNull
-	private MediaEntity createMedia(int overseerrId, @NotNull MediaType mediaType, int season) throws RequestFailedException{
+	private MediaEntity createMedia(int overseerrId, @NotNull MediaType mediaType, int season, @Nullable Integer episode) throws RequestFailedException{
 		var mediaDetails = overseerrService.getMediaDetails(overseerrId, mediaType.getOverseerrType());
 		var media = mediaRepository.save(MediaEntity.builder()
 				.type(mediaType)
@@ -418,6 +420,7 @@ public class MediaService{
 					default -> throw new IllegalStateException("Unexpected value: " + mediaDetails);
 				})
 				.index(season)
+				.subIndex(episode)
 				.partsCount(0)
 				.availablePartsCount(0)
 				.status(MediaStatus.WAITING)

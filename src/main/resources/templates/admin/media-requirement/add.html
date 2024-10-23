@@ -34,6 +34,10 @@
                 <input id="season" type="text" inputmode="numeric" pattern="[0-9]*" name="season" class="form-control" placeholder="1" required/>
             </p>
             <p>
+                <label for="episode" th:text="#{web.admin.requirement.add.episode}"/>
+                <input id="episode" type="text" inputmode="numeric" pattern="[0-9]*" name="season" class="form-control"/>
+            </p>
+            <p>
                 <label for="type" th:text="#{web.admin.requirement.add.type}"/>
                 <select class="form-control" id="type" name="type" required>
                     <option th:each="type : ${T(fr.rakambda.plexdeleter.storage.entity.MediaType).values()}"

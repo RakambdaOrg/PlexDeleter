@@ -25,6 +25,9 @@ public interface MediaRepository extends JpaRepository<MediaEntity, Integer>{
 	Optional<MediaEntity> findByOverseerrIdAndIndex(int overseerrId, int index);
 	
 	@NotNull
+	Optional<MediaEntity> findByOverseerrIdAndIndexAndSubIndex(int overseerrId, int index, int episode);
+	
+	@NotNull
 	Optional<MediaEntity> findByTmdbIdAndIndex(int tmdbId, int index);
 	
 	@NotNull
