@@ -306,14 +306,16 @@ public class MediaService{
 			if(deleteFromServarr){
 				deletedServarr = deleteMediaFromServarr(media);
 			}
+			
+			media.setStatus(MediaStatus.PENDING_DELETION);
 			mediaRepository.delete(media);
+			//
+			// for(var group : groups){
+			// 	notificationService.notifyMediaDeleted(group, media);
+			// }
+			supervisionService.send("\uD83D\uDCDB Media marked ready to delete %s", media);
 			
-			for(var group : groups){
-				notificationService.notifyMediaDeleted(group, media);
-			}
-			supervisionService.send("\uD83D\uDCDB Media deleted from database %s", media);
-			
-			return new DeleteMediaResponse(true, deletedServarr, deletedOverseerr);
+			return new DeleteMediaResponse(false, deletedServarr, deletedOverseerr);
 		}
 		finally{
 			mediaOperationLock.unlock();
