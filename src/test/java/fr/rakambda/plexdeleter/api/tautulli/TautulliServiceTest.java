@@ -9,6 +9,7 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.condition.DisabledIfEnvironmentVariable;
 import java.time.Instant;
+import java.util.concurrent.TimeUnit;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
@@ -101,6 +102,16 @@ class TautulliServiceTest{
 	}
 	
 	@Test
+	void itShouldGetMovieHistoryAfterToday() throws RequestFailedException{
+		var result = tested.getHistory(272271, MediaType.MOVIE, 17746770, Instant.now().plusSeconds(TimeUnit.DAYS.toSeconds(1)));
+		
+		assertThat(result.getResponse().getData()).satisfies(data -> {
+			assertThat(data.getRecordsFiltered()).isEqualTo(0);
+			assertThat(data.getData()).isEmpty();
+		});
+	}
+	
+	@Test
 	void itShouldGetSeriesHistory() throws RequestFailedException{
 		var result = tested.getHistory(791642, MediaType.SEASON, 17746770, Instant.EPOCH);
 		
@@ -111,6 +122,16 @@ class TautulliServiceTest{
 						assertThat(watch.getPercentComplete()).isGreaterThan(80);
 						assertThat(watch.getWatchedStatus()).isEqualTo(1);
 					});
+		});
+	}
+	
+	@Test
+	void itShouldGetSeriesHistoryAfterToday() throws RequestFailedException{
+		var result = tested.getHistory(791642, MediaType.SEASON, 17746770, Instant.now().plusSeconds(TimeUnit.DAYS.toSeconds(1)));
+		
+		assertThat(result.getResponse().getData()).satisfies(data -> {
+			assertThat(data.getRecordsFiltered()).isGreaterThanOrEqualTo(0);
+			assertThat(data.getData()).isEmpty();
 		});
 	}
 	
