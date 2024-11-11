@@ -8,6 +8,7 @@ import fr.rakambda.plexdeleter.storage.entity.MediaType;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.condition.DisabledIfEnvironmentVariable;
+import java.time.Instant;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
@@ -87,7 +88,7 @@ class TautulliServiceTest{
 	
 	@Test
 	void itShouldGetMovieHistory() throws RequestFailedException{
-		var result = tested.getHistory(272271, MediaType.MOVIE, 17746770);
+		var result = tested.getHistory(272271, MediaType.MOVIE, 17746770, Instant.EPOCH);
 		
 		assertThat(result.getResponse().getData()).satisfies(data -> {
 			assertThat(data.getRecordsFiltered()).isEqualTo(1);
@@ -101,7 +102,7 @@ class TautulliServiceTest{
 	
 	@Test
 	void itShouldGetSeriesHistory() throws RequestFailedException{
-		var result = tested.getHistory(791642, MediaType.SEASON, 17746770);
+		var result = tested.getHistory(791642, MediaType.SEASON, 17746770, Instant.EPOCH);
 		
 		assertThat(result.getResponse().getData()).satisfies(data -> {
 			assertThat(data.getRecordsFiltered()).isGreaterThanOrEqualTo(10);
@@ -115,7 +116,7 @@ class TautulliServiceTest{
 	
 	@Test
 	void itShouldGetUnknownHistory() throws RequestFailedException{
-		var result = tested.getHistory(99999999, MediaType.SEASON, 99999999);
+		var result = tested.getHistory(99999999, MediaType.SEASON, 99999999, Instant.EPOCH);
 		
 		assertThat(result.getResponse().getData()).satisfies(data -> {
 			assertThat(data.getRecordsFiltered()).isEqualTo(0);

@@ -153,7 +153,7 @@ public class TautulliService{
 							.queryParam("length", 10000)
 							.queryParam("grouping ", 1);
 					if(Objects.nonNull(after)){
-						b = b.queryParam("after", DATE_FORMAT.format(ZonedDateTime.from(after).withZoneSameInstant(ZoneId.systemDefault())));
+						b = b.queryParam("after", DATE_FORMAT.format(ZonedDateTime.ofInstant(after, ZoneId.systemDefault())));
 					}
 					return b.build();
 				})
