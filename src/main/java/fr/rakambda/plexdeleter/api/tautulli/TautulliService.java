@@ -12,6 +12,7 @@ import fr.rakambda.plexdeleter.config.ApplicationConfiguration;
 import fr.rakambda.plexdeleter.storage.entity.MediaType;
 import lombok.extern.slf4j.Slf4j;
 import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 import org.springframework.core.ParameterizedTypeReference;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -21,6 +22,10 @@ import org.springframework.web.reactive.function.client.ExchangeFilterFunction;
 import org.springframework.web.reactive.function.client.WebClient;
 import org.springframework.web.util.UriComponentsBuilder;
 import reactor.core.publisher.Mono;
+import java.time.Instant;
+import java.time.ZoneId;
+import java.time.ZonedDateTime;
+import java.time.format.DateTimeFormatter;
 import java.util.Collection;
 import java.util.Map;
 import java.util.Objects;
@@ -30,6 +35,8 @@ import java.util.Set;
 @Slf4j
 @Service
 public class TautulliService{
+	private static final DateTimeFormatter DATE_FORMAT = DateTimeFormatter.ofPattern("yyyy-MM-dd");
+	
 	private final WebClient apiClient;
 	
 	public TautulliService(ApplicationConfiguration applicationConfiguration){
@@ -125,26 +132,31 @@ public class TautulliService{
 	}
 	
 	@NotNull
-	public TautulliResponseWrapper<GetHistoryResponse> getHistory(int ratingKey, @NotNull MediaType mediaType, int userId) throws RequestFailedException{
+	public TautulliResponseWrapper<GetHistoryResponse> getHistory(int ratingKey, @NotNull MediaType mediaType, int userId, @Nullable Instant after) throws RequestFailedException{
 		return switch(mediaType){
-			case MOVIE -> getHistory(ratingKey, "rating_key", userId, "movie");
-			case SEASON -> getHistory(ratingKey, "parent_rating_key", userId, "episode");
-			case EPISODE -> getHistory(ratingKey, "rating_key", userId, "episode");
+			case MOVIE -> getHistory(ratingKey, "rating_key", userId, "movie", after);
+			case SEASON -> getHistory(ratingKey, "parent_rating_key", userId, "episode", after);
+			case EPISODE -> getHistory(ratingKey, "rating_key", userId, "episode", after);
 		};
 	}
 	
 	@NotNull
-	private TautulliResponseWrapper<GetHistoryResponse> getHistory(int ratingKey, @NotNull String ratingKeyParamName, int userId, @NotNull String mediaType) throws RequestFailedException{
+	private TautulliResponseWrapper<GetHistoryResponse> getHistory(int ratingKey, @NotNull String ratingKeyParamName, int userId, @NotNull String mediaType, @Nullable Instant after) throws RequestFailedException{
 		log.info("Getting history for Plex id {} of type {} and user id {}", ratingKey, mediaType, userId);
 		return HttpUtils.unwrapIfStatusOkAndNotNullBody(apiClient.get()
-				.uri(b -> b.pathSegment("api", "v2")
-						.queryParam("cmd", "get_history")
-						.queryParam(ratingKeyParamName, ratingKey)
-						.queryParam("user_id", userId)
-						.queryParam("media_type", mediaType)
-						.queryParam("length", 10000)
-						.queryParam("grouping ", 1)
-						.build())
+				.uri(b -> {
+					b = b.pathSegment("api", "v2")
+							.queryParam("cmd", "get_history")
+							.queryParam(ratingKeyParamName, ratingKey)
+							.queryParam("user_id", userId)
+							.queryParam("media_type", mediaType)
+							.queryParam("length", 10000)
+							.queryParam("grouping ", 1);
+					if(Objects.nonNull(after)){
+						b = b.queryParam("after", DATE_FORMAT.format(ZonedDateTime.from(after).withZoneSameInstant(ZoneId.systemDefault())));
+					}
+					return b.build();
+				})
 				.retrieve()
 				.toEntity(new ParameterizedTypeReference<TautulliResponseWrapper<GetHistoryResponse>>(){})
 				.blockOptional()

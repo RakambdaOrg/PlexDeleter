@@ -27,6 +27,7 @@ import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import java.time.Instant;
 import java.util.Objects;
 import java.util.Optional;
 import java.util.concurrent.locks.Lock;
@@ -375,6 +376,7 @@ public class MediaService{
 			}
 			media.setStatus(MediaStatus.WAITING);
 			media.setAvailablePartsCount(0);
+			media.setLastAddedTime(Instant.now());
 			return update(mediaRepository.save(media));
 		}
 		finally{
@@ -426,6 +428,7 @@ public class MediaService{
 				.partsCount(0)
 				.availablePartsCount(0)
 				.status(MediaStatus.WAITING)
+				.lastAddedTime(Instant.now())
 				.build());
 		
 		log.info("Creating new media {} for Overseerr id {}", media, overseerrId);

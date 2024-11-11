@@ -18,6 +18,7 @@ import lombok.NoArgsConstructor;
 import lombok.ToString;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
+import java.time.Instant;
 import java.util.Comparator;
 import java.util.List;
 
@@ -102,6 +103,10 @@ public class MediaEntity{
 	@Column(nullable = false)
 	@NotNull
 	private MediaStatus status;
+	@Basic
+	@Column(nullable = false)
+	@NotNull
+	private Instant lastAddedTime;
 	
 	@OneToMany(cascade = CascadeType.REMOVE, targetEntity = MediaRequirementEntity.class, mappedBy = "media")
 	private List<MediaRequirementEntity> requirements;
