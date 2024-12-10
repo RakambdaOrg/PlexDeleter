@@ -39,7 +39,7 @@ dependencies {
     implementation("org.flywaydb:flyway-mysql")
     implementation(libs.logbackEcs)
 
-    implementation("org.thymeleaf.extras:thymeleaf-extras-springsecurity6:3.1.2.RELEASE")
+    implementation("org.thymeleaf.extras:thymeleaf-extras-springsecurity6:3.1.3.RELEASE")
 
     testImplementation("org.springframework.boot:spring-boot-starter-test")
     testImplementation("org.springframework.security:spring-security-test")
