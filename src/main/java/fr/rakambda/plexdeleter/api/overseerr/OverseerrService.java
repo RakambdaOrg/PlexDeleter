@@ -38,7 +38,7 @@ public class OverseerrService{
 				.filter(HttpUtils.logErrorFilter())
 				.codecs(codec -> codec
 						.defaultCodecs()
-						.maxInMemorySize(1024 * 1024)
+						.maxInMemorySize(10 * 1024 * 1024)
 				)
 				.build();
 	}
