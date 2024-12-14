@@ -286,13 +286,9 @@ public class MediaService{
 	}
 	
 	@NotNull
-	public DeleteMediaResponse deleteMedia(@NotNull MediaEntity media, @Nullable UserGroupEntity userGroup, boolean deleteFromServarr) throws NotifyException, RequestFailedException{
+	public DeleteMediaResponse deleteMedia(@NotNull MediaEntity media, @Nullable UserGroupEntity userGroup, boolean deleteFromServarr) throws RequestFailedException{
 		mediaOperationLock.lock();
 		try{
-			var groups = media.getRequirements().stream()
-					.map(MediaRequirementEntity::getGroup)
-					.toList();
-			
 			var deletedServarr = false;
 			var deletedOverseerr = false;
 			
@@ -308,12 +304,6 @@ public class MediaService{
 				deletedServarr = deleteMediaFromServarr(media);
 			}
 			
-			media.setStatus(MediaStatus.PENDING_DELETION);
-			mediaRepository.delete(media);
-			//
-			// for(var group : groups){
-			// 	notificationService.notifyMediaDeleted(group, media);
-			// }
 			supervisionService.send("\uD83D\uDCDB Media marked ready to delete %s", media);
 			
 			return new DeleteMediaResponse(false, deletedServarr, deletedOverseerr);
