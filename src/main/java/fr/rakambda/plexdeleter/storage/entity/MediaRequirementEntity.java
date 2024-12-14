@@ -1,5 +1,6 @@
 package fr.rakambda.plexdeleter.storage.entity;
 
+import jakarta.persistence.Basic;
 import jakarta.persistence.Column;
 import jakarta.persistence.Embeddable;
 import jakarta.persistence.EmbeddedId;
@@ -17,8 +18,10 @@ import lombok.EqualsAndHashCode;
 import lombok.NoArgsConstructor;
 import lombok.ToString;
 import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 import java.io.Serial;
 import java.io.Serializable;
+import java.time.Instant;
 import java.util.Comparator;
 
 @Data
@@ -44,6 +47,10 @@ public class MediaRequirementEntity{
 	@NotNull
 	@ToString.Include
 	private Long watchedCount;
+	@Basic
+	@Column
+	@Nullable
+	private Instant lastCompletedTime;
 	
 	@ManyToOne(optional = false)
 	@JoinColumn(name = "mediaId", referencedColumnName = "id", updatable = false, nullable = false)

@@ -18,6 +18,7 @@ import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import java.time.Instant;
 import java.util.Objects;
 import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReentrantLock;
@@ -55,12 +56,13 @@ public class MediaRequirementService{
 			log.info("Marking requirement {} as completed", requirement);
 			
 			requirement.setStatus(MediaRequirementStatus.WATCHED);
+			requirement.setLastCompletedTime(Instant.now());
+			mediaRequirementRepository.save(requirement);
 			
 			var group = requirement.getGroup();
 			var media = requirement.getMedia();
 			
 			notificationService.notifyRequirementManuallyWatched(group, media);
-			mediaRequirementRepository.save(requirement);
 			supervisionService.send("✍\uFE0F\uD83D\uDC41\uFE0F Media manually watched %s for %s", media, group);
 		}
 		finally{
@@ -77,6 +79,7 @@ public class MediaRequirementService{
 			var media = requirement.getMedia();
 			
 			requirement.setStatus(MediaRequirementStatus.ABANDONED);
+			requirement.setLastCompletedTime(Instant.now());
 			mediaRequirementRepository.save(requirement);
 			
 			var deletionResult = mediaService.deleteMedia(media, requirement.getGroup(), true);

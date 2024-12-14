@@ -12,9 +12,11 @@ import fr.rakambda.plexdeleter.storage.entity.UserGroupEntity;
 import fr.rakambda.plexdeleter.storage.repository.MediaRequirementRepository;
 import lombok.extern.slf4j.Slf4j;
 import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import java.io.IOException;
+import java.time.Instant;
 import java.util.Collection;
 import java.util.LinkedList;
 import java.util.List;
@@ -37,13 +39,13 @@ public class WatchService{
 	}
 	
 	@NotNull
-	public Map<Integer, List<HistoryRecord>> getGroupWatchHistory(@NotNull UserGroupEntity userGroupEntity, @NotNull MediaEntity mediaEntity) throws RequestFailedException{
+	public Map<Integer, List<HistoryRecord>> getGroupWatchHistory(@NotNull UserGroupEntity userGroupEntity, @NotNull MediaEntity mediaEntity, @Nullable Instant historySince) throws RequestFailedException{
 		if(Objects.isNull(mediaEntity.getPlexId())){
 			throw new RequestFailedException("Could not get info for media with null PlexId");
 		}
 		var history = new LinkedList<GetHistoryResponse>();
 		for(var person : userGroupEntity.getPersons()){
-			var data = tautulliService.getHistory(mediaEntity.getPlexId(), mediaEntity.getType(), person.getPlexId(), mediaEntity.getLastAddedTime()).getResponse().getData();
+			var data = tautulliService.getHistory(mediaEntity.getPlexId(), mediaEntity.getType(), person.getPlexId(), historySince).getResponse().getData();
 			if(Objects.nonNull(data)){
 				history.add(data);
 			}
@@ -65,7 +67,7 @@ public class WatchService{
 			return;
 		}
 		
-		var historyPerPart = getGroupWatchHistory(group, media);
+		var historyPerPart = getGroupWatchHistory(group, media, mediaRequirementEntity.getLastCompletedTime());
 		var watchedFullyCount = historyPerPart.values().stream()
 				.filter(watches -> watches.stream().anyMatch(watch -> Objects.equals(watch.getWatchedStatus(), 1)))
 				.count();
@@ -74,6 +76,7 @@ public class WatchService{
 		if(watchedFullyCount >= media.getPartsCount()){
 			log.info("Setting {} as watched", mediaRequirementEntity);
 			mediaRequirementEntity.setStatus(MediaRequirementStatus.WATCHED);
+			mediaRequirementEntity.setLastCompletedTime(Instant.now());
 			supervisionService.send("\uD83D\uDC41\uFE0F %s watched %s", group.getName(), media);
 		}
 		

@@ -6,6 +6,7 @@ import fr.rakambda.plexdeleter.api.tautulli.data.MediaInfo;
 import fr.rakambda.plexdeleter.api.tautulli.data.MediaPart;
 import fr.rakambda.plexdeleter.service.WatchService;
 import fr.rakambda.plexdeleter.storage.entity.MediaEntity;
+import fr.rakambda.plexdeleter.storage.entity.MediaRequirementEntity;
 import fr.rakambda.plexdeleter.storage.entity.UserGroupEntity;
 import lombok.extern.slf4j.Slf4j;
 import org.jetbrains.annotations.NotNull;
@@ -14,6 +15,7 @@ import org.springframework.context.MessageSource;
 import java.time.Duration;
 import java.time.format.DateTimeFormatter;
 import java.util.Collection;
+import java.util.Comparator;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
@@ -47,7 +49,7 @@ public abstract class AbstractNotificationService{
 	}
 	
 	@NotNull
-	public Collection<String> getEpisodes(@NotNull MediaEntity media, @NotNull UserGroupEntity userGroupEntity) throws RequestFailedException{
+	public Collection<String> getEpisodes(@NotNull MediaEntity media, @NotNull UserGroupEntity userGroupEntity) throws RequestFailedException{				
 		return switch(media.getType()){
 			case MOVIE -> List.of();
 			case EPISODE -> Optional.ofNullable(media.getSubIndex())
@@ -58,7 +60,14 @@ public abstract class AbstractNotificationService{
 					yield List.of();
 				}
 				
-				var watched = watchService.getGroupWatchHistory(userGroupEntity, media).entrySet().stream()
+				var lastCompleted = media.getRequirements().stream()
+						.filter(r -> Objects.equals(r.getGroup().getId(), userGroupEntity.getId()))
+						.map(MediaRequirementEntity::getLastCompletedTime)
+						.filter(Objects::nonNull)
+						.max(Comparator.naturalOrder())
+						.orElse(null);
+				
+				var watched = watchService.getGroupWatchHistory(userGroupEntity, media, lastCompleted).entrySet().stream()
 						.filter(entry -> entry.getValue().stream().anyMatch(r -> Objects.equals(r.getWatchedStatus(), 1)))
 						.map(Map.Entry::getKey)
 						.toList();
