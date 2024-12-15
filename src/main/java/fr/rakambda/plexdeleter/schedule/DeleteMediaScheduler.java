@@ -79,6 +79,7 @@ public class DeleteMediaScheduler implements IScheduler{
 			}
 			catch(Exception e){
 				log.error("Failed to delete media {}", media, e);
+				supervisionService.send("♻\uFE0F❌ Failed to delete media %s", media);
 			}
 		}
 		
