@@ -147,12 +147,14 @@ public class DiscordNotificationService extends AbstractNotificationService{
 		var audioLanguages = getMediaStreams(metadata, AudioMediaPartStream.class)
 				.map(AudioMediaPartStream::getAudioLanguageCode)
 				.distinct()
+				.map(s -> Objects.equals(s, "") ? "unknown" : s)
 				.map("locale.%s"::formatted)
 				.map(key -> messageSource.getMessage(key, new Object[0], locale))
 				.toList();
 		var subtitleLanguages = getMediaStreams(metadata, SubtitlesMediaPartStream.class)
 				.map(SubtitlesMediaPartStream::getSubtitleLanguageCode)
 				.distinct()
+				.map(s -> Objects.equals(s, "") ? "unknown" : s)
 				.map("locale.%s"::formatted)
 				.map(key -> messageSource.getMessage(key, new Object[0], locale))
 				.toList();
