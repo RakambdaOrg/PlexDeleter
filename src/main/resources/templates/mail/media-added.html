@@ -45,6 +45,14 @@
             <h4 class="text-primary" th:text="#{mail.media.available.body.subtitles}"></h4>
             <div th:each="mediaSubtitle : ${mediaSubtitles}" th:text="#{${mediaSubtitle}}"/>
         </div>
+        <div class="mb-2" th:unless="${#lists.isEmpty(mediaResolutions)}">
+            <h4 class="text-primary" th:text="#{mail.media.available.body.resolutions}"></h4>
+            <div th:each="mediaResolution : ${mediaResolutions}" th:text="${mediaResolution}"/>
+        </div>
+        <div class="mb-2" th:unless="${#lists.isEmpty(mediaBitrates)}">
+            <h4 class="text-primary" th:text="#{mail.media.available.body.bitrates}"></h4>
+            <div th:each="mediaBitrate : ${mediaBitrates}" th:text="${mediaBitrate}"/>
+        </div>
         <div class="mb-2" th:unless="${#lists.isEmpty(mediaActors)}">
             <h4 class="text-primary" th:text="#{mail.media.available.body.actors}"></h4>
             <div th:each="mediaActor : ${mediaActors}" th:text="${mediaActor}"/>

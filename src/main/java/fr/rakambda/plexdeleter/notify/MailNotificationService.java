@@ -1,6 +1,7 @@
 package fr.rakambda.plexdeleter.notify;
 
 import fr.rakambda.plexdeleter.api.tautulli.data.AudioMediaPartStream;
+import fr.rakambda.plexdeleter.api.tautulli.data.MediaInfo;
 import fr.rakambda.plexdeleter.api.tautulli.data.SubtitlesMediaPartStream;
 import fr.rakambda.plexdeleter.config.ApplicationConfiguration;
 import fr.rakambda.plexdeleter.config.MailConfiguration;
@@ -157,6 +158,16 @@ public class MailNotificationService extends AbstractNotificationService{
 				.map(s -> Objects.equals(s, "") ? "unknown" : s)
 				.map("locale.%s"::formatted)
 				.toList();
+		var resolutions = metadata.getMediaInfo().stream()
+				.map(MediaInfo::getVideoFullResolution)
+				.filter(Objects::nonNull)
+				.distinct()
+				.toList();
+		var bitrates = metadata.getMediaInfo().stream()
+				.map(MediaInfo::getBitrate)
+				.filter(Objects::nonNull)
+				.distinct()
+				.toList();
 		
 		var posterData = mediaMetadataContext.getPosterData();
 		var mediaPosterResourceName = "mediaPosterResourceName";
@@ -180,6 +191,8 @@ public class MailNotificationService extends AbstractNotificationService{
 		context.setVariable("mediaPosterResourceName", posterData.isPresent() ? mediaPosterResourceName : null);
 		context.setVariable("mediaAudios", audioLanguages);
 		context.setVariable("mediaSubtitles", subtitleLanguages);
+		context.setVariable("mediaResolutions", resolutions);
+		context.setVariable("mediaBitrates", bitrates);
 		context.setVariable("suggestAddRequirementId", suggestAddRequirementId);
 		context.setVariable("metadataProvidersInfo", mediaMetadataContext.getMetadataProviderInfo());
 		

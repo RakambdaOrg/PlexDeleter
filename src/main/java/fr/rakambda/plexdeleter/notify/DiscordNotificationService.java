@@ -8,6 +8,7 @@ import fr.rakambda.plexdeleter.api.discord.data.Field;
 import fr.rakambda.plexdeleter.api.discord.data.Image;
 import fr.rakambda.plexdeleter.api.discord.data.WebhookMessage;
 import fr.rakambda.plexdeleter.api.tautulli.data.AudioMediaPartStream;
+import fr.rakambda.plexdeleter.api.tautulli.data.MediaInfo;
 import fr.rakambda.plexdeleter.api.tautulli.data.SubtitlesMediaPartStream;
 import fr.rakambda.plexdeleter.notify.context.MediaMetadataContext;
 import fr.rakambda.plexdeleter.service.ThymeleafService;
@@ -158,6 +159,17 @@ public class DiscordNotificationService extends AbstractNotificationService{
 				.map("locale.%s"::formatted)
 				.map(key -> messageSource.getMessage(key, new Object[0], locale))
 				.toList();
+		var resolutions = metadata.getMediaInfo().stream()
+				.map(MediaInfo::getVideoFullResolution)
+				.filter(Objects::nonNull)
+				.distinct()
+				.toList();
+		var bitrates = metadata.getMediaInfo().stream()
+				.map(MediaInfo::getBitrate)
+				.filter(Objects::nonNull)
+				.distinct()
+				.toList();
+		
 		var metadataProvidersInfo = mediaMetadataContext.getMetadataProviderInfo();
 		var requirements = Optional.ofNullable(media)
 				.map(m -> m.getRequirements().stream()
@@ -237,6 +249,18 @@ public class DiscordNotificationService extends AbstractNotificationService{
 			embed.field(Field.builder()
 					.name(messageSource.getMessage("discord.media.available.body.subtitles", new Object[0], locale))
 					.value(String.join(", ", subtitleLanguages))
+					.build());
+		}
+		if(!resolutions.isEmpty()){
+			embed.field(Field.builder()
+					.name(messageSource.getMessage("discord.media.available.body.resolutions", new Object[0], locale))
+					.value(String.join(", ", resolutions))
+					.build());
+		}
+		if(!bitrates.isEmpty()){
+			embed.field(Field.builder()
+					.name(messageSource.getMessage("discord.media.available.body.bitrates", new Object[0], locale))
+					.value(bitrates.stream().map(String::valueOf).collect(Collectors.joining(", ")))
 					.build());
 		}
 		if(!metadataProvidersInfo.isEmpty()){
