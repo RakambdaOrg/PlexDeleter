@@ -164,31 +164,37 @@ public class MediaRequirementService{
 		}
 	}
 	
-	private void addServarrTag(@NotNull MediaEntity media, @NotNull UserGroupEntity userGroup) throws RequestFailedException{
-		try{
-			if(Objects.nonNull(media.getServarrId()) && Objects.nonNull(userGroup.getServarrTag())){
+	private void addServarrTag(@NotNull MediaEntity media, @NotNull UserGroupEntity userGroup){
+		if(Objects.isNull(media.getServarrId()) || Objects.isNull(userGroup.getServarrTag())){
+			return;
+		}
+		for(var tag : userGroup.getServarrTag().split(",")){
+			try{
 				switch(media.getType()){
-					case MOVIE -> radarrService.addTag(media.getServarrId(), userGroup.getServarrTag());
-					case SEASON -> sonarrService.addTag(media.getServarrId(), userGroup.getServarrTag());
+					case MOVIE -> radarrService.addTag(media.getServarrId(), tag);
+					case SEASON -> sonarrService.addTag(media.getServarrId(), tag);
 				}
 			}
-		}
-		catch(Exception e){
-			log.error("Failed to update tags", e);
+			catch(Exception e){
+				log.error("Failed to update tags", e);
+			}
 		}
 	}
 	
-	private void removeServarrTag(@NotNull MediaEntity media, @NotNull UserGroupEntity userGroup) throws RequestFailedException{
-		try{
-			if(Objects.nonNull(media.getServarrId()) && Objects.nonNull(userGroup.getServarrTag())){
+	private void removeServarrTag(@NotNull MediaEntity media, @NotNull UserGroupEntity userGroup){
+		if(Objects.isNull(media.getServarrId()) || Objects.isNull(userGroup.getServarrTag())){
+			return;
+		}
+		for(var tag : userGroup.getServarrTag().split(",")){
+			try{
 				switch(media.getType()){
-					case MOVIE -> radarrService.removeTag(media.getServarrId(), userGroup.getServarrTag());
-					case SEASON -> sonarrService.removeTag(media.getServarrId(), userGroup.getServarrTag());
+					case MOVIE -> radarrService.removeTag(media.getServarrId(), tag);
+					case SEASON -> sonarrService.removeTag(media.getServarrId(), tag);
 				}
 			}
-		}
-		catch(Exception e){
-			log.error("Failed to update tags", e);
+			catch(Exception e){
+				log.error("Failed to update tags", e);
+			}
 		}
 	}
 }
