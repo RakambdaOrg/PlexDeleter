@@ -64,9 +64,6 @@ tasks {
 
     graalvmNative {
         testSupport = false
-        metadataRepository {
-            version = "0.3.14"
-        }
     }
 
     bootJar {
