@@ -1,14 +1,14 @@
 package fr.rakambda.plexdeleter.api.overseerr.data;
 
+import java.time.Instant;
+import java.util.HashSet;
+import java.util.Set;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import org.springframework.aot.hint.annotation.RegisterReflectionForBinding;
-import java.time.Instant;
-import java.util.HashSet;
-import java.util.Set;
 
 @Data
 @NoArgsConstructor
@@ -24,8 +24,10 @@ public final class Request{
 	@NotNull
 	private String type;
 	private boolean is4k;
-	private int serverId;
-	private int profileId;
+	@Nullable
+	private Integer serverId;
+	@Nullable
+	private Integer profileId;
 	@Nullable
 	private String rootFolder;
 	@Nullable
@@ -36,10 +38,10 @@ public final class Request{
 	@NotNull
 	private Set<RequestSeason> seasons = new HashSet<>();
 	private int seasonCount;
-	@NotNull
+	@Nullable
 	private RequestMedia media;
 	@NotNull
 	private User requestedBy;
-	@NotNull
+	@Nullable
 	private User modifiedBy;
 }

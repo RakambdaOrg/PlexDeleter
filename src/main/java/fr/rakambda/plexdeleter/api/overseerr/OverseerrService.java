@@ -1,5 +1,9 @@
 package fr.rakambda.plexdeleter.api.overseerr;
 
+import java.util.Collection;
+import java.util.HashSet;
+import java.util.Objects;
+import java.util.Set;
 import fr.rakambda.plexdeleter.api.HttpUtils;
 import fr.rakambda.plexdeleter.api.RequestFailedException;
 import fr.rakambda.plexdeleter.api.overseerr.data.Media;
@@ -20,10 +24,6 @@ import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.web.reactive.function.BodyInserters;
 import org.springframework.web.reactive.function.client.WebClient;
-import java.util.Collection;
-import java.util.HashSet;
-import java.util.Objects;
-import java.util.Set;
 
 @Slf4j
 @Service
@@ -103,6 +103,9 @@ public class OverseerrService{
 	}
 	
 	private static boolean filterRequest(@NotNull Request request, @NotNull MediaEntity media){
+		if(Objects.isNull(request.getMedia())){
+			return false;
+		}
 		if(media.getType() == fr.rakambda.plexdeleter.storage.entity.MediaType.SEASON){
 			if(!request.getSeasons().stream()
 					.map(RequestSeason::getSeasonNumber)

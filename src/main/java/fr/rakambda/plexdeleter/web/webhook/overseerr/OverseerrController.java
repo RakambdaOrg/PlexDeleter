@@ -1,5 +1,11 @@
 package fr.rakambda.plexdeleter.web.webhook.overseerr;
 
+import java.util.Arrays;
+import java.util.List;
+import java.util.Objects;
+import java.util.Optional;
+import java.util.Set;
+import java.util.stream.Collectors;
 import fr.rakambda.plexdeleter.api.RequestFailedException;
 import fr.rakambda.plexdeleter.api.overseerr.OverseerrService;
 import fr.rakambda.plexdeleter.api.servarr.data.Tag;
@@ -30,12 +36,6 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestController;
-import java.util.Arrays;
-import java.util.List;
-import java.util.Objects;
-import java.util.Optional;
-import java.util.Set;
-import java.util.stream.Collectors;
 
 @Slf4j
 @RestController
@@ -92,10 +92,11 @@ public class OverseerrController{
 		}
 		
 		var requestDetails = overseerrService.getRequestDetails(requestId.get());
-		var overseerrId = requestDetails.getMedia().getTmdbId();
+		var requestDetailsMedia = Objects.requireNonNull(requestDetails.getMedia());
+		var overseerrId = requestDetailsMedia.getTmdbId();
 		var plexUserId = requestDetails.getRequestedBy().getPlexId();
 		
-		var tags = switch(requestDetails.getMedia().getMediaType()){
+		var tags = switch(requestDetailsMedia.getMediaType()){
 			case MOVIE -> radarrService.getTags();
 			case TV -> sonarrService.getTags();
 		};
@@ -108,7 +109,7 @@ public class OverseerrController{
 			return;
 		}
 		
-		var seasons = switch(requestDetails.getMedia().getMediaType()){
+		var seasons = switch(requestDetailsMedia.getMediaType()){
 			case MOVIE -> List.of(1);
 			case TV -> data.getExtra().stream()
 					.filter(extra -> Objects.equals(extra.getName(), "Requested Seasons"))
@@ -127,7 +128,7 @@ public class OverseerrController{
 			return;
 		}
 		
-		var mediaType = switch(requestDetails.getMedia().getMediaType()){
+		var mediaType = switch(requestDetailsMedia.getMediaType()){
 			case MOVIE -> MediaType.MOVIE;
 			case TV -> MediaType.SEASON;
 		};
