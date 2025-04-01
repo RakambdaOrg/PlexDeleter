@@ -479,6 +479,22 @@ public class MediaService{
 		supervisionService.send("\u26D3\uFE0F\u200D\uD83D\uDCA5 Unkept media %s", media);
 	}
 	
+	public void manual(@NotNull MediaEntity media){
+		media.setStatus(MediaStatus.MANUAL);
+		mediaRepository.save(media);
+		
+		log.info("Setting manual media {}", media);
+		supervisionService.send("🖐️ Manual media %s", media);
+	}
+	
+	public void unmanual(@NotNull MediaEntity media){
+		media.setStatus(MediaStatus.WAITING);
+		mediaRepository.save(media);
+		
+		log.info("Setting automatic media {}", media);
+		supervisionService.send("🤖 Automatic media %s", media);
+	}
+	
 	public void manuallyDelete(@NotNull MediaEntity media){
 		media.setStatus(MediaStatus.MANUALLY_DELETED);
 		mediaRepository.save(media);

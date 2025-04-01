@@ -47,6 +47,24 @@ public class ApiAdminMediaController{
 	}
 	
 	@Transactional
+	@PostMapping("/manual")
+	public ModelAndView manual(@NotNull @RequestParam("mediaId") int mediaId){
+		var media = mediaRepository.findById(mediaId)
+				.orElseThrow(() -> new RuntimeException("Media not found"));
+		mediaService.manual(media);
+		return new ModelAndView("api/success");
+	}
+	
+	@Transactional
+	@PostMapping("/unmanual")
+	public ModelAndView unmanual(@NotNull @RequestParam("mediaId") int mediaId){
+		var media = mediaRepository.findById(mediaId)
+				.orElseThrow(() -> new RuntimeException("Media not found"));
+		mediaService.unmanual(media);
+		return new ModelAndView("api/success");
+	}
+	
+	@Transactional
 	@PostMapping("/manually-delete")
 	public ModelAndView delete(@NotNull @RequestParam("mediaId") int mediaId){
 		var media = mediaRepository.findById(mediaId)

@@ -16,11 +16,13 @@ public enum MediaStatus{
 			false,
 			false,
 			false,
+			false,
 			"media.availability.waiting",
 			""),
 	DOWNLOADING(true,
 			false,
 			true,
+			false,
 			false,
 			false,
 			false,
@@ -32,12 +34,14 @@ public enum MediaStatus{
 			true,
 			false,
 			false,
+			false,
 			"media.availability.downloaded",
 			"table-success"),
 	DOWNLOADED(false,
 			true,
 			true,
 			true,
+			false,
 			false,
 			false,
 			"media.availability.downloaded",
@@ -48,9 +52,11 @@ public enum MediaStatus{
 			true,
 			true,
 			false,
+			false,
 			"media.availability.pending-deletion",
 			"table-success"),
 	DELETED(false,
+			false,
 			false,
 			false,
 			false,
@@ -64,6 +70,7 @@ public enum MediaStatus{
 			false,
 			false,
 			false,
+			false,
 			"media.availability.manually-deleted",
 			"table-success"),
 	MANUAL(false,
@@ -71,6 +78,7 @@ public enum MediaStatus{
 			false,
 			false,
 			false,
+			true,
 			true,
 			"media.availability.manual",
 			"table-info"),
@@ -80,6 +88,7 @@ public enum MediaStatus{
 			true,
 			false,
 			true,
+			false,
 			"media.availability.keep",
 			"table-info");
 	
@@ -89,6 +98,7 @@ public enum MediaStatus{
 	private final boolean fullyDownloaded;
 	private final boolean canBeDeleted;
 	private final boolean neverChange;
+	private final boolean manual;
 	private final String localizationKey;
 	private final String tableClass;
 	
