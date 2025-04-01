@@ -99,7 +99,7 @@
                                 </button>
                             </form>
                         </div>
-                        <div class="m-1" th:unless="${media.getStatus().isOnDiskOrWillBe()}">
+                        <div class="m-1" th:if="${media.getStatus().isOnDiskOrWillBe()}">
                             <form th:action="@{~/api/admin/media/manual}" onsubmit="return onMediaActionFormSubmit(this);" method="post">
                                 <input type="hidden" name="mediaId" class="form-control" th:value="${media.getId()}"/>
                                 <button type="submit" class="btn btn-success btn-sm media-action-button d-flex flex-row justify-content-center align-items-center">
@@ -108,7 +108,7 @@
                                 </button>
                             </form>
                         </div>
-                        <div class="m-1" th:unless="${media.getStatus().isManual()}">
+                        <div class="m-1" th:if="${media.getStatus().isManual()}">
                             <form th:action="@{~/api/admin/media/unmanual}" onsubmit="return onMediaActionFormSubmit(this);" method="post">
                                 <input type="hidden" name="mediaId" class="form-control" th:value="${media.getId()}"/>
                                 <button type="submit" class="btn btn-success btn-sm media-action-button d-flex flex-row justify-content-center align-items-center">
