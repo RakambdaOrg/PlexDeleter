@@ -4,7 +4,7 @@ jetbrains-annotations-version = "26.0.2"
 sptringboot-version = "3.4.4"
 sptringboot-dm-version = "1.1.7"
 graalvm-version = "0.10.6"
-logback-ecs-version = "1.6.0"
+logback-ecs-version = "1.7.0"
 
 [libraries]
 jetbrainsAnnotations = { group = "org.jetbrains", name = "annotations", version.ref = "jetbrains-annotations-version" }
