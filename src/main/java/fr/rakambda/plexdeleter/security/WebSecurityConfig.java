@@ -8,7 +8,6 @@ import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.annotation.web.configurers.AbstractHttpConfigurer;
 import org.springframework.security.config.annotation.web.configurers.LogoutConfigurer;
-import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
@@ -23,7 +22,6 @@ public class WebSecurityConfig{
 	@Bean
 	public SecurityFilterChain basicFilterChain(HttpSecurity http, PlexAuthenticationProvider plexAuthenticationProvider, DaoAuthenticationProvider daoAuthenticationProvider) throws Exception{
 		return http
-				.sessionManagement(conf -> conf.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
 				.authenticationProvider(plexAuthenticationProvider)
 				.authenticationProvider(daoAuthenticationProvider)
 				.authorizeHttpRequests(auth -> auth
