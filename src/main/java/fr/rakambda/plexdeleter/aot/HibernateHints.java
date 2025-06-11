@@ -17,6 +17,13 @@ public class HibernateHints implements RuntimeHintsRegistrar{
 						MemberCategory.INVOKE_DECLARED_METHODS,
 						MemberCategory.INVOKE_PUBLIC_CONSTRUCTORS,
 						MemberCategory.INVOKE_PUBLIC_METHODS
+				)
+				.registerType(org.mariadb.jdbc.Configuration.Builder.class,
+						MemberCategory.DECLARED_FIELDS,
+						MemberCategory.INVOKE_DECLARED_CONSTRUCTORS,
+						MemberCategory.INVOKE_DECLARED_METHODS,
+						MemberCategory.INVOKE_PUBLIC_CONSTRUCTORS,
+						MemberCategory.INVOKE_PUBLIC_METHODS
 				);
 	}
 }

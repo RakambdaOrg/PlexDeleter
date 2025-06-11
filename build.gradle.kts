@@ -37,9 +37,11 @@ dependencies {
     implementation("org.springframework.boot:spring-boot-starter-webflux")
     implementation("org.flywaydb:flyway-core")
     implementation("org.flywaydb:flyway-mysql")
+    implementation("org.mariadb.jdbc:mariadb-java-client")
     implementation(libs.logbackEcs)
 
-    implementation("org.thymeleaf.extras:thymeleaf-extras-springsecurity6:3.1.3.RELEASE")
+    implementation(libs.thymeleafSpringSecurity)
+    implementation(libs.webauthn4j)
 
     testImplementation("org.springframework.boot:spring-boot-starter-test")
     testImplementation("org.springframework.security:spring-security-test")
@@ -52,7 +54,6 @@ dependencies {
     testAnnotationProcessor("org.projectlombok:lombok")
     testCompileOnly("org.projectlombok:lombok")
 
-    runtimeOnly("org.mariadb.jdbc:mariadb-java-client")
 
     developmentOnly("org.springframework.boot:spring-boot-devtools")
 }

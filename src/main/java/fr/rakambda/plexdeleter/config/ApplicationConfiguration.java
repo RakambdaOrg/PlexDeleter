@@ -43,4 +43,6 @@ public class ApplicationConfiguration{
 	private MailConfiguration mail;
 	@NestedConfigurationProperty
 	private SupervisionConfiguration supervision;
+	@NestedConfigurationProperty
+	private WebAuthNConfiguration webAuthN;
 }

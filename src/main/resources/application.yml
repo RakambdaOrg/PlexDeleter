@@ -4,6 +4,9 @@ logging:
     root: INFO
 
 spring:
+  profiles:
+    active:
+      - local
   datasource:
     url: "jdbc:mariadb://fake:3306/PlexDeleter"
     username: ""
@@ -13,6 +16,9 @@ spring:
       connectionTimeout: 180000
   flyway:
     baseline-on-migrate: true
+    url: "jdbc:mariadb://fake:3306/PlexDeleter"
+    user: ""
+    password: ""
   jpa:
     generate-ddl: false
     database-platform: org.hibernate.dialect.MariaDBDialect
@@ -65,6 +71,11 @@ management:
 app:
   applicationUrl: "http://app.url"
   exclude-tag: "no-deleter"
+  web-auth-n:
+    relaying-party-name: "PlexDeleter"
+    relaying-party-id: "app.url"
+    allowed-origins:
+      - "http://app.url"
   plex:
     endpoint: "https://plex.tv"
     app-endpoint: "https://app.plex.tv"

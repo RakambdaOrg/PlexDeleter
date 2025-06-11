@@ -18,6 +18,7 @@
                     </th:block>
                 </ul>
                 <div class="navbar-nav">
+                    <a class="nav-link" th:href="@{~/webauthn/register}" th:text="#{web.navbar.passkey}"></a>
                     <div class="nav-item dropdown">
                         <a class="nav-link d-flex flex-row align-items-center me-3" href="#" role="button" data-bs-toggle="dropdown" aria-expanded="false" id="bd-theme">
                             <img alt="Light theme logo" class="theme-icon-active d-inline-block align-text-top" style="max-height: 16px; max-width: 16px;" th:src="@{~/static/theme-circle-half.svg}">

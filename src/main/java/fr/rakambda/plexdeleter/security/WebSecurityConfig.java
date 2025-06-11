@@ -1,7 +1,12 @@
 package fr.rakambda.plexdeleter.security;
 
+import fr.rakambda.plexdeleter.config.ApplicationConfiguration;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.jdbc.core.JdbcOperations;
+import org.springframework.security.authentication.AuthenticationManager;
+import org.springframework.security.authentication.ProviderManager;
 import org.springframework.security.authentication.dao.DaoAuthenticationProvider;
 import org.springframework.security.config.Customizer;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
@@ -14,16 +19,23 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.provisioning.JdbcUserDetailsManager;
 import org.springframework.security.provisioning.UserDetailsManager;
 import org.springframework.security.web.SecurityFilterChain;
+import org.springframework.security.web.webauthn.management.JdbcPublicKeyCredentialUserEntityRepository;
+import org.springframework.security.web.webauthn.management.JdbcUserCredentialRepository;
 import javax.sql.DataSource;
 
 @Configuration
 @EnableWebSecurity
 public class WebSecurityConfig{
+	private final ApplicationConfiguration configuration;
+	
+	@Autowired
+	public WebSecurityConfig(ApplicationConfiguration configuration){
+		this.configuration = configuration;
+	}
+	
 	@Bean
-	public SecurityFilterChain basicFilterChain(HttpSecurity http, PlexAuthenticationProvider plexAuthenticationProvider, DaoAuthenticationProvider daoAuthenticationProvider) throws Exception{
+	public SecurityFilterChain basicFilterChain(HttpSecurity http) throws Exception{
 		return http
-				.authenticationProvider(plexAuthenticationProvider)
-				.authenticationProvider(daoAuthenticationProvider)
 				.authorizeHttpRequests(auth -> auth
 						.requestMatchers("/").authenticated()
 						.requestMatchers("/actuator/health").permitAll()
@@ -50,6 +62,10 @@ public class WebSecurityConfig{
 						.loginProcessingUrl("/login")
 						.permitAll()
 				)
+				.webAuthn(webAuthn -> webAuthn
+						.rpName(configuration.getWebAuthN().getRelayingPartyName())
+						.rpId(configuration.getWebAuthN().getRelayingPartyId())
+						.allowedOrigins(configuration.getWebAuthN().getAllowedOrigins()))
 				.logout(LogoutConfigurer::permitAll)
 				.build();
 	}
@@ -60,14 +76,24 @@ public class WebSecurityConfig{
 	}
 	
 	@Bean
+	public AuthenticationManager authenticationManager(PasswordEncoder passwordEncoder, UserDetailsService userDetailsService, PlexAuthenticationProvider plexAuthenticationProvider){
+		DaoAuthenticationProvider authProvider = new DaoAuthenticationProvider(userDetailsService);
+		authProvider.setPasswordEncoder(passwordEncoder);
+		return new ProviderManager(plexAuthenticationProvider, authProvider);
+	}
+	
+	@Bean
 	public PasswordEncoder passwordEncoder(){
 		return new BCryptPasswordEncoder();
 	}
 	
 	@Bean
-	public DaoAuthenticationProvider daoAuthenticationProvider(PasswordEncoder passwordEncoder, UserDetailsService userDetailsService){
-		var provider = new DaoAuthenticationProvider(passwordEncoder);
-		provider.setUserDetailsService(userDetailsService);
-		return provider;
+	public JdbcPublicKeyCredentialUserEntityRepository jdbcPublicKeyCredentialRepository(JdbcOperations jdbc){
+		return new JdbcPublicKeyCredentialUserEntityRepository(jdbc);
+	}
+	
+	@Bean
+	public JdbcUserCredentialRepository jdbcUserCredentialRepository(JdbcOperations jdbc){
+		return new JdbcUserCredentialRepository(jdbc);
 	}
 }
