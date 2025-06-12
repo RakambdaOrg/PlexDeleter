@@ -1,7 +1,7 @@
 package fr.rakambda.plexdeleter.service;
 
 import fr.rakambda.plexdeleter.api.RequestFailedException;
-import fr.rakambda.plexdeleter.api.tautulli.TautulliService;
+import fr.rakambda.plexdeleter.api.tautulli.TautulliApiService;
 import fr.rakambda.plexdeleter.api.tautulli.data.GetLibraryMediaInfo;
 import fr.rakambda.plexdeleter.api.tautulli.data.TautulliResponse;
 import fr.rakambda.plexdeleter.config.ApplicationConfiguration;
@@ -22,13 +22,13 @@ import java.util.stream.Stream;
 @Service
 public class LibraryService{
 	private final ApplicationConfiguration applicationConfiguration;
-	private final TautulliService tautulliService;
+	private final TautulliApiService tautulliApiService;
 	private final MediaRepository mediaRepository;
 	
 	@Autowired
-	public LibraryService(ApplicationConfiguration applicationConfiguration, TautulliService tautulliService, MediaRepository mediaRepository){
+	public LibraryService(ApplicationConfiguration applicationConfiguration, TautulliApiService tautulliApiService, MediaRepository mediaRepository){
 		this.applicationConfiguration = applicationConfiguration;
-		this.tautulliService = tautulliService;
+		this.tautulliApiService = tautulliApiService;
 		this.mediaRepository = mediaRepository;
 	}
 	
@@ -54,7 +54,7 @@ public class LibraryService{
 	@NotNull
 	private Stream<LibraryElement> getLibraryContent(int section){
 		try{
-			return Optional.ofNullable(tautulliService.getLibraryMediaInfo(section).getResponse())
+			return Optional.ofNullable(tautulliApiService.getLibraryMediaInfo(section).getResponse())
 					.map(TautulliResponse::getData)
 					.map(GetLibraryMediaInfo::getData).stream()
 					.flatMap(Collection::stream)

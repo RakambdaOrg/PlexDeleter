@@ -1,4 +1,4 @@
-package fr.rakambda.plexdeleter.web.webhook.tautulli.data;
+package fr.rakambda.plexdeleter.amqp.message;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 import fr.rakambda.plexdeleter.api.tautulli.data.MediaType;
@@ -7,21 +7,18 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
-import org.springframework.lang.NonNull;
+import org.springframework.aot.hint.annotation.RegisterReflectionForBinding;
 
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
-public class TautulliWebhook{
-	@NonNull
+@RegisterReflectionForBinding(TautulliMessage.class)
+public final class TautulliMessage implements IAmqpMessage{
 	@NotNull
 	private String type;
 	@NotNull
 	@JsonProperty("media_type")
 	private MediaType mediaType;
-	@Nullable
-	@JsonProperty("user_id")
-	private Integer userId;
 	@Nullable
 	@JsonProperty("rating_key")
 	private Integer ratingKey;
@@ -37,4 +34,9 @@ public class TautulliWebhook{
 	@Nullable
 	@JsonProperty("tmdb_id")
 	private Integer tmdbId;
+	@Nullable
+	@JsonProperty("user_id")
+	private Integer userId;
+	@Nullable
+	private String user;
 }

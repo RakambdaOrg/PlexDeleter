@@ -34,12 +34,12 @@ import java.util.Set;
 
 @Slf4j
 @Service
-public class TautulliService{
+public class TautulliApiService{
 	private static final DateTimeFormatter DATE_FORMAT = DateTimeFormatter.ofPattern("yyyy-MM-dd");
 	
 	private final WebClient apiClient;
 	
-	public TautulliService(ApplicationConfiguration applicationConfiguration){
+	public TautulliApiService(ApplicationConfiguration applicationConfiguration){
 		apiClient = WebClient.builder()
 				.baseUrl(applicationConfiguration.getTautulli().getEndpoint())
 				.filter(ExchangeFilterFunction.ofRequestProcessor(req -> Mono.just(ClientRequest.from(req)

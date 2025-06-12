@@ -2,7 +2,7 @@ package fr.rakambda.plexdeleter.schedule;
 
 import fr.rakambda.plexdeleter.api.RequestFailedException;
 import fr.rakambda.plexdeleter.api.overseerr.OverseerrService;
-import fr.rakambda.plexdeleter.api.tautulli.TautulliService;
+import fr.rakambda.plexdeleter.api.tautulli.TautulliApiService;
 import fr.rakambda.plexdeleter.api.tautulli.data.GetMetadataResponse;
 import fr.rakambda.plexdeleter.api.tautulli.data.MediaInfo;
 import fr.rakambda.plexdeleter.api.tautulli.data.MediaPart;
@@ -53,7 +53,7 @@ class DeleteMediaSchedulerTest{
 	@Mock
 	private SupervisionService supervisionService;
 	@Mock
-	private TautulliService tautulliService;
+	private TautulliApiService tautulliApiService;
 	@Mock
 	private OverseerrService overseerrService;
 	@Mock
@@ -85,8 +85,8 @@ class DeleteMediaSchedulerTest{
 		lenient().when(deletionConfiguration.getRemotePathMappings()).thenReturn(Map.of(REMOTE_PREFIX, tempDir.toString()));
 		lenient().when(mediaEntity.getPlexId()).thenReturn(PLEX_ID);
 		lenient().when(mediaEntity.getType()).thenReturn(MEDIA_TYPE);
-		lenient().when(tautulliService.getElementsRatingKeys(PLEX_ID, MEDIA_TYPE)).thenReturn(List.of(RATING_KEY));
-		lenient().when(tautulliService.getMetadata(RATING_KEY)).thenReturn(getMetadataResponseTautulliResponseWrapper);
+		lenient().when(tautulliApiService.getElementsRatingKeys(PLEX_ID, MEDIA_TYPE)).thenReturn(List.of(RATING_KEY));
+		lenient().when(tautulliApiService.getMetadata(RATING_KEY)).thenReturn(getMetadataResponseTautulliResponseWrapper);
 		lenient().when(getMetadataResponseTautulliResponseWrapper.getResponse()).thenReturn(getMetadataResponseTautulliResponse);
 		lenient().when(getMetadataResponseTautulliResponse.getData()).thenReturn(getMetadataResponse);
 		lenient().when(getMetadataResponse.getAddedAt()).thenReturn(Instant.parse("2024-01-01T00:00:00.000Z"));
@@ -94,7 +94,7 @@ class DeleteMediaSchedulerTest{
 		lenient().when(mediaInfo.getParts()).thenReturn(Set.of(mediaPart));
 		lenient().when(mediaPart.getFile()).thenReturn(REMOTE_FILE);
 		
-		tested = new DeleteMediaScheduler(mediaRepository, supervisionService, tautulliService, applicationConfiguration, overseerrService);
+		tested = new DeleteMediaScheduler(mediaRepository, supervisionService, tautulliApiService, applicationConfiguration, overseerrService);
 	}
 	
 	@Test
@@ -107,7 +107,7 @@ class DeleteMediaSchedulerTest{
 	
 	@Test
 	void skipWhenNoRatingKey() throws RequestFailedException{
-		when(tautulliService.getElementsRatingKeys(PLEX_ID, MEDIA_TYPE)).thenReturn(List.of());
+		when(tautulliApiService.getElementsRatingKeys(PLEX_ID, MEDIA_TYPE)).thenReturn(List.of());
 		
 		assertThatThrownBy(() -> tested.delete(mediaEntity))
 				.hasMessage("Could not find metadata & files for mediaEntity");

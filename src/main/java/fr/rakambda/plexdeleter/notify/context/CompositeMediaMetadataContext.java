@@ -1,6 +1,6 @@
 package fr.rakambda.plexdeleter.notify.context;
 
-import fr.rakambda.plexdeleter.api.tautulli.TautulliService;
+import fr.rakambda.plexdeleter.api.tautulli.TautulliApiService;
 import fr.rakambda.plexdeleter.api.tautulli.data.GetMetadataResponse;
 import org.jetbrains.annotations.NotNull;
 import org.springframework.context.MessageSource;
@@ -12,8 +12,8 @@ public class CompositeMediaMetadataContext extends MediaMetadataContext{
 	@NotNull
 	private final Collection<MediaMetadataContext> contexts;
 	
-	public CompositeMediaMetadataContext(@NotNull TautulliService tautulliService, @NotNull GetMetadataResponse metadata, @NotNull Collection<MediaMetadataContext> contexts){
-		super(tautulliService, metadata);
+	public CompositeMediaMetadataContext(@NotNull TautulliApiService tautulliApiService, @NotNull GetMetadataResponse metadata, @NotNull Collection<MediaMetadataContext> contexts){
+		super(tautulliApiService, metadata);
 		this.contexts = contexts;
 	}
 	

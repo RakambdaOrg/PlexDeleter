@@ -1,5 +1,6 @@
 package fr.rakambda.plexdeleter;
 
+import fr.rakambda.plexdeleter.aot.AmqpHints;
 import fr.rakambda.plexdeleter.aot.HibernateHints;
 import fr.rakambda.plexdeleter.aot.JacksonHints;
 import fr.rakambda.plexdeleter.aot.ResourceHints;
@@ -17,6 +18,7 @@ import org.springframework.scheduling.annotation.EnableScheduling;
 @EnableJpaRepositories("fr.rakambda.plexdeleter.storage")
 @SpringBootApplication(scanBasePackages = "fr.rakambda.plexdeleter")
 @ImportRuntimeHints({
+		AmqpHints.class,
 		HibernateHints.class,
 		JacksonHints.class,
 		ResourceHints.class,

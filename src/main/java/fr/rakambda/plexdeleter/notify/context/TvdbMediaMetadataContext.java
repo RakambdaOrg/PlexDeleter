@@ -1,6 +1,6 @@
 package fr.rakambda.plexdeleter.notify.context;
 
-import fr.rakambda.plexdeleter.api.tautulli.TautulliService;
+import fr.rakambda.plexdeleter.api.tautulli.TautulliApiService;
 import fr.rakambda.plexdeleter.api.tautulli.data.GetMetadataResponse;
 import fr.rakambda.plexdeleter.api.tvdb.TvdbService;
 import fr.rakambda.plexdeleter.api.tvdb.data.MediaData;
@@ -32,8 +32,8 @@ public class TvdbMediaMetadataContext extends MediaMetadataContext{
 	@NotNull
 	private final Map<Integer, Map<Locale, Translation>> episodeTranslations = new HashMap<>();
 	
-	public TvdbMediaMetadataContext(@NotNull TautulliService tautulliService, @NotNull GetMetadataResponse metadata, @NotNull TvdbService tvdbService){
-		super(tautulliService, metadata);
+	public TvdbMediaMetadataContext(@NotNull TautulliApiService tautulliApiService, @NotNull GetMetadataResponse metadata, @NotNull TvdbService tvdbService){
+		super(tautulliApiService, metadata);
 		this.tvdbService = tvdbService;
 	}
 	

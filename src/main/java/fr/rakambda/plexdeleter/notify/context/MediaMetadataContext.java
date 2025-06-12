@@ -1,6 +1,6 @@
 package fr.rakambda.plexdeleter.notify.context;
 
-import fr.rakambda.plexdeleter.api.tautulli.TautulliService;
+import fr.rakambda.plexdeleter.api.tautulli.TautulliApiService;
 import fr.rakambda.plexdeleter.api.tautulli.data.GetMetadataResponse;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
@@ -17,7 +17,7 @@ import java.util.function.Function;
 @RequiredArgsConstructor
 public abstract class MediaMetadataContext{
 	@NotNull
-	private final TautulliService tautulliService;
+	private final TautulliApiService tautulliApiService;
 	@NotNull
 	@Getter
 	private final GetMetadataResponse metadata;
@@ -42,7 +42,7 @@ public abstract class MediaMetadataContext{
 		}
 		
 		posterCalled = true;
-		Function<Integer, Optional<byte[]>> posterFunction = ratingKey -> tautulliService.getPosterBytes(ratingKey, 222, 333)
+		Function<Integer, Optional<byte[]>> posterFunction = ratingKey -> tautulliApiService.getPosterBytes(ratingKey, 222, 333)
 				.filter(d -> d.length > 0);
 		
 		try{

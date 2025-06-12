@@ -2,7 +2,7 @@ package fr.rakambda.plexdeleter.schedule;
 
 import fr.rakambda.plexdeleter.api.RequestFailedException;
 import fr.rakambda.plexdeleter.api.overseerr.OverseerrService;
-import fr.rakambda.plexdeleter.api.tautulli.TautulliService;
+import fr.rakambda.plexdeleter.api.tautulli.TautulliApiService;
 import fr.rakambda.plexdeleter.api.tautulli.data.GetMetadataResponse;
 import fr.rakambda.plexdeleter.api.tautulli.data.MediaInfo;
 import fr.rakambda.plexdeleter.api.tautulli.data.MediaPart;
@@ -44,17 +44,17 @@ import java.util.stream.Collectors;
 public class DeleteMediaScheduler implements IScheduler{
 	private final MediaRepository mediaRepository;
 	private final SupervisionService supervisionService;
-	private final TautulliService tautulliService;
+	private final TautulliApiService tautulliApiService;
 	private final int daysDelay;
 	private final boolean dryDelete;
 	private final Map<String, String> remotePathMappings;
 	private final OverseerrService overseerrService;
 	
 	@Autowired
-	public DeleteMediaScheduler(MediaRepository mediaRepository, SupervisionService supervisionService, TautulliService tautulliService, ApplicationConfiguration applicationConfiguration, OverseerrService overseerrService){
+	public DeleteMediaScheduler(MediaRepository mediaRepository, SupervisionService supervisionService, TautulliApiService tautulliApiService, ApplicationConfiguration applicationConfiguration, OverseerrService overseerrService){
 		this.mediaRepository = mediaRepository;
 		this.supervisionService = supervisionService;
-		this.tautulliService = tautulliService;
+		this.tautulliApiService = tautulliApiService;
 		this.daysDelay = applicationConfiguration.getDeletion().getDaysDelay();
 		this.dryDelete = applicationConfiguration.getDeletion().isDryDelete();
 		this.remotePathMappings = applicationConfiguration.getDeletion().getRemotePathMappings();
@@ -109,10 +109,10 @@ public class DeleteMediaScheduler implements IScheduler{
 			throw new DeletionException("Cannot delete media %s as it does not have any Plex Id".formatted(mediaEntity));
 		}
 		
-		var ratingKeys = tautulliService.getElementsRatingKeys(mediaEntity.getPlexId(), mediaEntity.getType());
+		var ratingKeys = tautulliApiService.getElementsRatingKeys(mediaEntity.getPlexId(), mediaEntity.getType());
 		var metadata = new LinkedHashSet<GetMetadataResponse>();
 		for(var ratingKey : ratingKeys){
-			var metadataResponse = tautulliService.getMetadata(ratingKey).getResponse().getData();
+			var metadataResponse = tautulliApiService.getMetadata(ratingKey).getResponse().getData();
 			if(Objects.nonNull(metadataResponse)){
 				metadata.add(metadataResponse);
 			}

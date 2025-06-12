@@ -15,15 +15,15 @@ import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
 @DisabledIfEnvironmentVariable(named = "CI", matches = "true", disabledReason = "Required service not available on CI")
-class TautulliServiceTest{
-	private TautulliService tested;
+class TautulliApiServiceTest{
+	private TautulliApiService tested;
 	
 	@BeforeEach
 	void setUp(){
 		var conf = mock(ApplicationConfiguration.class);
 		when(conf.getTautulli()).thenReturn(new TautulliConfiguration(SecretsUtils.getSecret("tautulli.endpoint"), SecretsUtils.getSecret("tautulli.api-key")));
 		
-		tested = new TautulliService(conf);
+		tested = new TautulliApiService(conf);
 	}
 	
 	@Test

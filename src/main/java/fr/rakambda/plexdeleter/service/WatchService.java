@@ -1,7 +1,7 @@
 package fr.rakambda.plexdeleter.service;
 
 import fr.rakambda.plexdeleter.api.RequestFailedException;
-import fr.rakambda.plexdeleter.api.tautulli.TautulliService;
+import fr.rakambda.plexdeleter.api.tautulli.TautulliApiService;
 import fr.rakambda.plexdeleter.api.tautulli.data.GetHistoryResponse;
 import fr.rakambda.plexdeleter.api.tautulli.data.HistoryRecord;
 import fr.rakambda.plexdeleter.messaging.SupervisionService;
@@ -27,13 +27,13 @@ import java.util.stream.Collectors;
 @Slf4j
 @Service
 public class WatchService{
-	private final TautulliService tautulliService;
+	private final TautulliApiService tautulliApiService;
 	private final SupervisionService supervisionService;
 	private final MediaRequirementRepository mediaRequirementRepository;
 	
 	@Autowired
-	public WatchService(TautulliService tautulliService, SupervisionService supervisionService, MediaRequirementRepository mediaRequirementRepository){
-		this.tautulliService = tautulliService;
+	public WatchService(TautulliApiService tautulliApiService, SupervisionService supervisionService, MediaRequirementRepository mediaRequirementRepository){
+		this.tautulliApiService = tautulliApiService;
 		this.supervisionService = supervisionService;
 		this.mediaRequirementRepository = mediaRequirementRepository;
 	}
@@ -45,7 +45,7 @@ public class WatchService{
 		}
 		var history = new LinkedList<GetHistoryResponse>();
 		for(var person : userGroupEntity.getPersons()){
-			var data = tautulliService.getHistory(mediaEntity.getPlexId(), mediaEntity.getType(), person.getPlexId(), historySince).getResponse().getData();
+			var data = tautulliApiService.getHistory(mediaEntity.getPlexId(), mediaEntity.getType(), person.getPlexId(), historySince).getResponse().getData();
 			if(Objects.nonNull(data)){
 				history.add(data);
 			}

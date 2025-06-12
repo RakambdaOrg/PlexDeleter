@@ -1,7 +1,7 @@
 package fr.rakambda.plexdeleter.notify;
 
 import fr.rakambda.plexdeleter.api.RequestFailedException;
-import fr.rakambda.plexdeleter.api.tautulli.TautulliService;
+import fr.rakambda.plexdeleter.api.tautulli.TautulliApiService;
 import fr.rakambda.plexdeleter.api.tautulli.data.GetMetadataResponse;
 import fr.rakambda.plexdeleter.api.tmdb.TmdbService;
 import fr.rakambda.plexdeleter.api.tvdb.TvdbService;
@@ -35,17 +35,17 @@ public class NotificationService{
 	private final DiscordNotificationService discordNotificationService;
 	private final UserGroupRepository userGroupRepository;
 	private final TvdbService tvdbService;
-	private final TautulliService tautulliService;
+	private final TautulliApiService tautulliApiService;
 	private final TmdbService tmdbService;
 	private final MediaRepository mediaRepository;
 	
 	@Autowired
-	public NotificationService(MailNotificationService mailNotificationService, DiscordNotificationService discordNotificationService, UserGroupRepository userGroupRepository, TvdbService tvdbService, TautulliService tautulliService, TmdbService tmdbService, MediaRepository mediaRepository){
+	public NotificationService(MailNotificationService mailNotificationService, DiscordNotificationService discordNotificationService, UserGroupRepository userGroupRepository, TvdbService tvdbService, TautulliApiService tautulliApiService, TmdbService tmdbService, MediaRepository mediaRepository){
 		this.mailNotificationService = mailNotificationService;
 		this.discordNotificationService = discordNotificationService;
 		this.userGroupRepository = userGroupRepository;
 		this.tvdbService = tvdbService;
-		this.tautulliService = tautulliService;
+		this.tautulliApiService = tautulliApiService;
 		this.tmdbService = tmdbService;
 		this.mediaRepository = mediaRepository;
 	}
@@ -199,9 +199,9 @@ public class NotificationService{
 			return;
 		}
 		
-		var tmdbMediaMetadataContext = new TmdbMediaMetadataContext(tautulliService, metadata, tmdbService);
-		var tvdbMediaMetadataContext = new TvdbMediaMetadataContext(tautulliService, metadata, tvdbService);
-		var mediaMetadataContext = new CompositeMediaMetadataContext(tautulliService, metadata, List.of(
+		var tmdbMediaMetadataContext = new TmdbMediaMetadataContext(tautulliApiService, metadata, tmdbService);
+		var tvdbMediaMetadataContext = new TvdbMediaMetadataContext(tautulliApiService, metadata, tvdbService);
+		var mediaMetadataContext = new CompositeMediaMetadataContext(tautulliApiService, metadata, List.of(
 				tmdbMediaMetadataContext,
 				tvdbMediaMetadataContext
 		));

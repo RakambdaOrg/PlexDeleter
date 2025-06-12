@@ -45,4 +45,6 @@ public class ApplicationConfiguration{
 	private SupervisionConfiguration supervision;
 	@NestedConfigurationProperty
 	private WebAuthNConfiguration webAuthN;
+	@NestedConfigurationProperty
+	private AmqpConfiguration amqp;
 }

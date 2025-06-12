@@ -9,7 +9,7 @@ import fr.rakambda.plexdeleter.api.servarr.radarr.RadarrService;
 import fr.rakambda.plexdeleter.api.servarr.sonarr.SonarrService;
 import fr.rakambda.plexdeleter.api.servarr.sonarr.data.Season;
 import fr.rakambda.plexdeleter.api.servarr.sonarr.data.Statistics;
-import fr.rakambda.plexdeleter.api.tautulli.TautulliService;
+import fr.rakambda.plexdeleter.api.tautulli.TautulliApiService;
 import fr.rakambda.plexdeleter.messaging.SupervisionService;
 import fr.rakambda.plexdeleter.notify.NotificationService;
 import fr.rakambda.plexdeleter.notify.NotifyException;
@@ -36,7 +36,7 @@ import java.util.function.Predicate;
 @Slf4j
 @Service
 public class MediaService{
-	private final TautulliService tautulliService;
+	private final TautulliApiService tautulliApiService;
 	private final SupervisionService supervisionService;
 	private final MediaRepository mediaRepository;
 	private final OverseerrService overseerrService;
@@ -46,8 +46,8 @@ public class MediaService{
 	private final Lock mediaOperationLock;
 	
 	@Autowired
-	public MediaService(TautulliService tautulliService, SupervisionService supervisionService, MediaRepository mediaRepository, OverseerrService overseerrService, SonarrService sonarrService, RadarrService radarrService, NotificationService notificationService){
-		this.tautulliService = tautulliService;
+	public MediaService(TautulliApiService tautulliApiService, SupervisionService supervisionService, MediaRepository mediaRepository, OverseerrService overseerrService, SonarrService sonarrService, RadarrService radarrService, NotificationService notificationService){
+		this.tautulliApiService = tautulliApiService;
 		this.supervisionService = supervisionService;
 		this.mediaRepository = mediaRepository;
 		this.overseerrService = overseerrService;
@@ -202,7 +202,7 @@ public class MediaService{
 			return;
 		}
 		try{
-			var availablePartsCount = tautulliService.getElementsRatingKeys(mediaEntity.getPlexId(), mediaEntity.getType()).size();
+			var availablePartsCount = tautulliApiService.getElementsRatingKeys(mediaEntity.getPlexId(), mediaEntity.getType()).size();
 			
 			if(mediaEntity.getAvailablePartsCount() < availablePartsCount){
 				mediaEntity.setAvailablePartsCount(availablePartsCount);
@@ -274,7 +274,7 @@ public class MediaService{
 	private Optional<Integer> getActualRatingKey(@NotNull MediaEntity mediaEntity, int ratingKey){
 		try{
 			return switch(mediaEntity.getType()){
-				case SEASON -> tautulliService.getSeasonRatingKey(ratingKey, mediaEntity.getIndex());
+				case SEASON -> tautulliApiService.getSeasonRatingKey(ratingKey, mediaEntity.getIndex());
 				case EPISODE, MOVIE -> Optional.of(ratingKey);
 			};
 		}

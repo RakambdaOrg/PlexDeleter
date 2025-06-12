@@ -4,9 +4,6 @@ logging:
     root: INFO
 
 spring:
-  profiles:
-    active:
-      - local
   datasource:
     url: "jdbc:mariadb://fake:3306/PlexDeleter"
     username: ""
@@ -25,6 +22,10 @@ spring:
     open-in-view: false
     hibernate:
       ddl-auto: none
+  rabbitmq:
+    host: "rabbitmq"
+    username: "plexdeleter"
+    password: "password"
   mail:
     host: "smtp.host"
     port: 587
@@ -55,19 +56,18 @@ server:
       timeout: 12h
 
 management:
-  health:
-    mail:
-      enabled: false
   endpoint:
     health:
-      enabled: true
+      access: read_only
     info:
-      enabled: true
+      access: read_only
   endpoints:
-    enabled-by-default: false
+    access:
+      default: read_only
     web:
       exposure:
         include: "health,info"
+
 app:
   applicationUrl: "http://app.url"
   exclude-tag: "no-deleter"
@@ -76,6 +76,8 @@ app:
     relaying-party-id: "app.url"
     allowed-origins:
       - "http://app.url"
+  amqp:
+    prefix: "plexdeleter"
   plex:
     endpoint: "https://plex.tv"
     app-endpoint: "https://app.plex.tv"
