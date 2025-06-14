@@ -14,16 +14,17 @@ import org.jetbrains.annotations.NotNull;
 import org.springframework.amqp.rabbit.annotation.RabbitListener;
 import org.springframework.messaging.handler.annotation.Headers;
 import org.springframework.stereotype.Component;
+import org.springframework.transaction.annotation.Transactional;
 import java.io.IOException;
 import java.util.Map;
 
 @Component
 @Slf4j
-public class MessageHandler extends RetryMessageHandler<TautulliMessage>{
+public class TautulliHandler extends RetryMessageHandler<TautulliMessage>{
 	private final TautulliService tautulliService;
 	private final AmqpConstants amqpConstants;
 	
-	public MessageHandler(TautulliService tautulliService, RabbitService rabbitService, AmqpConstants amqpConstants){
+	public TautulliHandler(TautulliService tautulliService, RabbitService rabbitService, AmqpConstants amqpConstants){
 		super(rabbitService, amqpConstants);
 		this.tautulliService = tautulliService;
 		this.amqpConstants = amqpConstants;
@@ -34,6 +35,7 @@ public class MessageHandler extends RetryMessageHandler<TautulliMessage>{
 		return amqpConstants.ROUTING_KEY_PROCESS_TAUTULLI;
 	}
 	
+	@Transactional
 	@RabbitListener(queues = "#{amqpConfiguration.prefixed(amqpConstants.QUEUE_PROCESS_TAUTULLI)}")
 	public void receive(@NotNull TautulliMessage message, @Headers Map<String, Object> headers){
 		handle(message, headers, this::handleMessage);
