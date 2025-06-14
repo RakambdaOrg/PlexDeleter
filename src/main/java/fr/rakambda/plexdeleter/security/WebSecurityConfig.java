@@ -34,7 +34,7 @@ public class WebSecurityConfig{
 	}
 	
 	@Bean
-	public SecurityFilterChain basicFilterChain(HttpSecurity http) throws Exception{
+	public SecurityFilterChain basicFilterChain(HttpSecurity http, AuthenticationManager authenticationManager) throws Exception{
 		return http
 				.authorizeHttpRequests(auth -> auth
 						.requestMatchers("/").authenticated()
@@ -45,6 +45,7 @@ public class WebSecurityConfig{
 						.requestMatchers("/api/user/**").hasRole("USER")
 						.requestMatchers("/login/**").permitAll()
 						.requestMatchers("/static/**").permitAll()
+						.requestMatchers("/error").permitAll()
 						.requestMatchers("/user/**").hasRole("USER")
 						.requestMatchers("/webhook/overseerr/**").hasRole("OVERSEERR")
 						.requestMatchers("/webhook/radarr/**").hasRole("RADARR")
@@ -54,6 +55,7 @@ public class WebSecurityConfig{
 				)
 				.csrf(AbstractHttpConfigurer::disable)
 				.httpBasic(Customizer.withDefaults())
+				.authenticationManager(authenticationManager)
 				.with(new PlexFormLoginConfigurer<>(), c -> c
 						.authenticationFilter(new PlexAuthenticationFilter())
 						.defaultSuccessUrl("/auth/success", false)
