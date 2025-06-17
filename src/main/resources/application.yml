@@ -39,6 +39,7 @@ spring:
             enable: true
   messages:
     basename: lang/messages
+    use-code-as-default-message: true
   mvc:
     static-path-pattern: "/static/**"
   threads:
