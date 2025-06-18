@@ -57,6 +57,7 @@ public class WebSecurityConfig{
 				)
 				.csrf(csrf -> csrf
 						.ignoringRequestMatchers("/api/**")
+						.ignoringRequestMatchers("/webhook/**")
 				)
 				.httpBasic(Customizer.withDefaults())
 				.authenticationManager(authenticationManager)
