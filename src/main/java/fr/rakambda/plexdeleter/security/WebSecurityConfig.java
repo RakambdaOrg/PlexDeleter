@@ -11,7 +11,6 @@ import org.springframework.security.authentication.dao.DaoAuthenticationProvider
 import org.springframework.security.config.Customizer;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
-import org.springframework.security.config.annotation.web.configurers.AbstractHttpConfigurer;
 import org.springframework.security.config.annotation.web.configurers.LogoutConfigurer;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
@@ -41,6 +40,7 @@ public class WebSecurityConfig{
 						.requestMatchers("/actuator/health").permitAll()
 						.requestMatchers("/admin/**").hasRole("ADMIN")
 						.requestMatchers("/auth/**").permitAll()
+						.requestMatchers("/webauthn/**").permitAll()
 						.requestMatchers("/api/admin/**").hasRole("ADMIN")
 						.requestMatchers("/api/user/**").hasRole("USER")
 						.requestMatchers("/login/**").permitAll()
@@ -53,7 +53,9 @@ public class WebSecurityConfig{
 						.requestMatchers("/webhook/tautulli/**").hasRole("TAUTULLI")
 						.anyRequest().hasRole("ADMIN")
 				)
-				.csrf(AbstractHttpConfigurer::disable)
+				.csrf(csrf -> csrf
+						.ignoringRequestMatchers("/api/**")
+				)
 				.httpBasic(Customizer.withDefaults())
 				.authenticationManager(authenticationManager)
 				.with(new PlexFormLoginConfigurer<>(), c -> c

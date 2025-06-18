@@ -23,7 +23,6 @@
 
     <script type="text/javascript" th:src="@{~/login/webauthn.js}"></script>
     <script type="text/javascript" th:inline="javascript">
-        const contextPath = /*[[@{/}]]*/ "/";
         document.addEventListener("DOMContentLoaded", () => setupLogin({}, contextPath, document.getElementById('passkey-signin')));
     </script>
 </head>
