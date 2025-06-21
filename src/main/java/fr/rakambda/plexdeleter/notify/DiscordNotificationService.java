@@ -384,6 +384,14 @@ public class DiscordNotificationService extends AbstractNotificationService{
 			sb.append(")");
 		}
 		
+		var traktUrl = thymeleafService.getMediaTraktUrl(media);
+		if(Objects.nonNull(traktUrl)){
+			sb.append(" | ");
+			sb.append("[Trakt](");
+			sb.append(traktUrl);
+			sb.append(")");
+		}
+		
 		return sb.toString();
 	}
 }

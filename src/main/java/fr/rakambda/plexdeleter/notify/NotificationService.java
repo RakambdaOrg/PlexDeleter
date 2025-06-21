@@ -8,6 +8,7 @@ import fr.rakambda.plexdeleter.api.tvdb.TvdbService;
 import fr.rakambda.plexdeleter.notify.context.CompositeMediaMetadataContext;
 import fr.rakambda.plexdeleter.notify.context.MediaMetadataContext;
 import fr.rakambda.plexdeleter.notify.context.TmdbMediaMetadataContext;
+import fr.rakambda.plexdeleter.notify.context.TraktMediaMetadataContext;
 import fr.rakambda.plexdeleter.notify.context.TvdbMediaMetadataContext;
 import fr.rakambda.plexdeleter.storage.entity.MediaEntity;
 import fr.rakambda.plexdeleter.storage.entity.MediaRequirementEntity;
@@ -201,9 +202,11 @@ public class NotificationService{
 		
 		var tmdbMediaMetadataContext = new TmdbMediaMetadataContext(tautulliApiService, metadata, tmdbService);
 		var tvdbMediaMetadataContext = new TvdbMediaMetadataContext(tautulliApiService, metadata, tvdbService);
+		var traktMediaMetadataContext = new TraktMediaMetadataContext(tautulliApiService, metadata);
 		var mediaMetadataContext = new CompositeMediaMetadataContext(tautulliApiService, metadata, List.of(
 				tmdbMediaMetadataContext,
-				tvdbMediaMetadataContext
+				tvdbMediaMetadataContext,
+				traktMediaMetadataContext
 		));
 		
 		var media = mediaRepository.findByPlexId(ratingKey).orElse(null);

@@ -31,6 +31,12 @@
                 <img alt="Tvdb logo" style="height: 16px; width: 16px;" th:src="|cid:${tvdbLogoResourceName}|">
             </a>
         </th:block>
+        <th:block th:if="${media.getTmdbId()}">
+            <span class="me-1 ms-1">|</span>
+            <a class="text-decoration-none" style="text-decoration: none" th:href="${thymeleafService.getMediaTraktUrl(media)}">
+                <img alt="Trakt logo" style="height: 16px; width: 16px;" th:src="|cid:${traktLogoResourceName}|">
+            </a>
+        </th:block>
     </div>
 </th:block>
 

@@ -56,6 +56,13 @@ public class ThymeleafService{
 	}
 	
 	@Nullable
+	public String getMediaTraktUrl(@NotNull MediaEntity media){
+		return Optional.ofNullable(media.getTmdbId())
+				.map(id -> "https://trakt.tv/search/tmdb/%d?id_type=%s".formatted(id, media.getType().getOverseerrType().getTraktSearchValue()))
+				.orElse(null);
+	}
+	
+	@Nullable
 	public String getRatingKeyPlexUrl(int ratingKey){
 		return "%s/desktop/#!/server/%s/details?key=%%2Flibrary%%2Fmetadata%%2F%d".formatted(plexEndpoint, plexServerId, ratingKey);
 	}
