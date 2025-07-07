@@ -487,6 +487,16 @@ public class MediaService{
 		supervisionService.send("🖐️ Manual media %s", media);
 	}
 	
+	public void downloaded(@NotNull MediaEntity media) throws NotifyException{
+		media.setStatus(MediaStatus.DOWNLOADED);
+		mediaRepository.save(media);
+		
+		notificationService.notifyMediaAvailable(media);
+		
+		log.info("Setting downloaded media {}", media);
+		supervisionService.send("🖐️ Downloaded media %s", media);
+	}
+	
 	public void unmanual(@NotNull MediaEntity media){
 		media.setStatus(MediaStatus.WAITING);
 		mediaRepository.save(media);

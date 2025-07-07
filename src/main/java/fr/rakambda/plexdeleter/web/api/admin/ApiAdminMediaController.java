@@ -56,6 +56,15 @@ public class ApiAdminMediaController{
 	}
 	
 	@Transactional
+	@PostMapping("/downloaded")
+	public ModelAndView downloaded(@NotNull @RequestParam("mediaId") int mediaId) throws NotifyException{
+		var media = mediaRepository.findById(mediaId)
+				.orElseThrow(() -> new RuntimeException("Media not found"));
+		mediaService.downloaded(media);
+		return new ModelAndView("api/success");
+	}
+	
+	@Transactional
 	@PostMapping("/unmanual")
 	public ModelAndView unmanual(@NotNull @RequestParam("mediaId") int mediaId){
 		var media = mediaRepository.findById(mediaId)

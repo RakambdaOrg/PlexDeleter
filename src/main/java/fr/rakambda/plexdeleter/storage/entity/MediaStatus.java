@@ -114,6 +114,10 @@ public enum MediaStatus{
 		return isOnDisk() || isNeedsMetadataRefresh() || isNeedsRequirementsRefresh();
 	}
 	
+	public boolean isDownloading(){
+		return isNeedsMetadataRefresh() && !isFullyDownloaded();
+	}
+	
 	@NotNull
 	public static Collection<MediaStatus> allOnDisk(){
 		if(Objects.isNull(ALL_AVAILABLE)){
