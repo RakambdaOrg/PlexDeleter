@@ -73,7 +73,7 @@ public class WatchService{
 				.count();
 		
 		mediaRequirementEntity.setWatchedCount(watchedFullyCount);
-		if(watchedFullyCount >= media.getPartsCount()){
+		if(media.getStatus().isFullyDownloaded() && watchedFullyCount >= media.getAvailablePartsCount()){
 			log.info("Setting {} as watched", mediaRequirementEntity);
 			mediaRequirementEntity.setStatus(MediaRequirementStatus.WATCHED);
 			mediaRequirementEntity.setLastCompletedTime(Instant.now());
