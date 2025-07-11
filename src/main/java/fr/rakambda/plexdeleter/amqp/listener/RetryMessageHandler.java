@@ -58,7 +58,7 @@ public abstract class RetryMessageHandler<M>{
 		
 		var newRetry = retry - 1;
 		
-		if(retry < 0){
+		if(retry <= 0){
 			log.warn("Retry count for message is {}, not retrying", retry);
 			handleNoRetry(throwable, message);
 			return;
