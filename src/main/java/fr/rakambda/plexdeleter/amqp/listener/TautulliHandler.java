@@ -17,6 +17,7 @@ import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
 import java.io.IOException;
 import java.util.Map;
+import java.util.concurrent.TimeUnit;
 
 @Component
 @Slf4j
@@ -70,5 +71,10 @@ public class TautulliHandler extends RetryMessageHandler<TautulliMessage>{
 				tautulliService.addNewMediaIfPreviousExist(webhookData);
 			}
 		}
+	}
+	
+	@Override
+	protected long getRetryDelay(){
+		return TimeUnit.HOURS.toMillis(1);
 	}
 }

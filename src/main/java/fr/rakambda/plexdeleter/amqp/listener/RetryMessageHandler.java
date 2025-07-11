@@ -65,10 +65,14 @@ public abstract class RetryMessageHandler<M>{
 		}
 		
 		log.warn("Retrying message with retry count {} (was {})", newRetry, retry);
-		rabbitService.sendMessage(getExchange(), getRoutingKey(), newRetry, 30000, message);
+		rabbitService.sendMessage(getExchange(), getRoutingKey(), newRetry, getRetryDelay(), message);
 	}
 	
 	protected void handleNoRetry(@NotNull Throwable throwable, @NotNull M message){
 		rabbitService.sendDeadLetter(message);
+	}
+	
+	protected long getRetryDelay(){
+		return 30_000L;
 	}
 }
