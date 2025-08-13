@@ -23,6 +23,7 @@ jobs:
       docker-image: ${{ vars.DOCKER_IMAGE }}
       docker-tag: latest
       timeout: 30
+      environment: DockerSelfHosted
     secrets:
       docker-repo: ${{ secrets.DOCKER_REPO }}
       docker-username: ${{ secrets.DOCKER_USERNAME }}
