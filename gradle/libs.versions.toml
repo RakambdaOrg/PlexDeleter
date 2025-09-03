@@ -1,5 +1,5 @@
 [versions]
-jetbrains-annotations-version = "26.0.2"
+jetbrains-annotations-version = "26.0.2-1"
 
 sptringboot-version = "3.5.5"
 sptringboot-dm-version = "1.1.7"
