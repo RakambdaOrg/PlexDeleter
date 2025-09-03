@@ -14,7 +14,7 @@ import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 import lombok.ToString;
-import org.jetbrains.annotations.NotNull;
+import org.jspecify.annotations.NonNull;
 
 @Data
 @AllArgsConstructor
@@ -31,7 +31,7 @@ public class UserGroupLibraryEntity{
 	private Integer id;
 	@Basic
 	@Column(nullable = false)
-	@NotNull
+	@NonNull
 	@ToString.Include
 	private String name;
 	

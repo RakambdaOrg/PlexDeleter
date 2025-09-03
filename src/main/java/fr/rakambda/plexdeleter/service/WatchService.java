@@ -11,8 +11,8 @@ import fr.rakambda.plexdeleter.storage.entity.MediaRequirementStatus;
 import fr.rakambda.plexdeleter.storage.entity.UserGroupEntity;
 import fr.rakambda.plexdeleter.storage.repository.MediaRequirementRepository;
 import lombok.extern.slf4j.Slf4j;
-import org.jetbrains.annotations.NotNull;
-import org.jetbrains.annotations.Nullable;
+import org.jspecify.annotations.NonNull;
+import org.jspecify.annotations.Nullable;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import java.io.IOException;
@@ -38,8 +38,8 @@ public class WatchService{
 		this.mediaRequirementRepository = mediaRequirementRepository;
 	}
 	
-	@NotNull
-	public Map<Integer, List<HistoryRecord>> getGroupWatchHistory(@NotNull UserGroupEntity userGroupEntity, @NotNull MediaEntity mediaEntity, @Nullable Instant historySince) throws RequestFailedException{
+	@NonNull
+	public Map<Integer, List<HistoryRecord>> getGroupWatchHistory(@NonNull UserGroupEntity userGroupEntity, @NonNull MediaEntity mediaEntity, @Nullable Instant historySince) throws RequestFailedException{
 		if(Objects.isNull(mediaEntity.getPlexId())){
 			throw new RequestFailedException("Could not get info for media with null PlexId");
 		}
@@ -57,7 +57,7 @@ public class WatchService{
 				.collect(Collectors.groupingBy(HistoryRecord::getMediaIndex));
 	}
 	
-	public void update(@NotNull MediaRequirementEntity mediaRequirementEntity) throws RequestFailedException, IOException{
+	public void update(@NonNull MediaRequirementEntity mediaRequirementEntity) throws RequestFailedException, IOException{
 		log.info("Updating media requirement {}", mediaRequirementEntity);
 		
 		var media = mediaRequirementEntity.getMedia();

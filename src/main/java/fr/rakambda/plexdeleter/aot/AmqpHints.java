@@ -1,15 +1,15 @@
 package fr.rakambda.plexdeleter.aot;
 
 import fr.rakambda.plexdeleter.amqp.AmqpConstants;
-import org.jetbrains.annotations.NotNull;
-import org.jetbrains.annotations.Nullable;
+import org.jspecify.annotations.NonNull;
+import org.jspecify.annotations.Nullable;
 import org.springframework.aot.hint.MemberCategory;
 import org.springframework.aot.hint.RuntimeHints;
 import org.springframework.aot.hint.RuntimeHintsRegistrar;
 
 public class AmqpHints implements RuntimeHintsRegistrar{
 	@Override
-	public void registerHints(@NotNull RuntimeHints hints, @Nullable ClassLoader classLoader){
+	public void registerHints(@NonNull RuntimeHints hints, @Nullable ClassLoader classLoader){
 		hints.reflection()
 				.registerType(AmqpConstants.class,
 						MemberCategory.DECLARED_FIELDS,

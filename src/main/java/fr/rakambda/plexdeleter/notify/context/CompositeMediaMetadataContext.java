@@ -2,39 +2,39 @@ package fr.rakambda.plexdeleter.notify.context;
 
 import fr.rakambda.plexdeleter.api.tautulli.TautulliApiService;
 import fr.rakambda.plexdeleter.api.tautulli.data.GetMetadataResponse;
-import org.jetbrains.annotations.NotNull;
+import org.jspecify.annotations.NonNull;
 import org.springframework.context.MessageSource;
 import java.util.Collection;
 import java.util.Locale;
 import java.util.Optional;
 
 public class CompositeMediaMetadataContext extends MediaMetadataContext{
-	@NotNull
+	@NonNull
 	private final Collection<MediaMetadataContext> contexts;
 	
-	public CompositeMediaMetadataContext(@NotNull TautulliApiService tautulliApiService, @NotNull GetMetadataResponse metadata, @NotNull Collection<MediaMetadataContext> contexts){
+	public CompositeMediaMetadataContext(@NonNull TautulliApiService tautulliApiService, @NonNull GetMetadataResponse metadata, @NonNull Collection<MediaMetadataContext> contexts){
 		super(tautulliApiService, metadata);
 		this.contexts = contexts;
 	}
 	
-	@NotNull
-	public Optional<String> getTitle(@NotNull Locale locale){
+	@NonNull
+	public Optional<String> getTitle(@NonNull Locale locale){
 		return contexts.stream()
 				.map(c -> c.getTitle(locale))
 				.flatMap(Optional::stream)
 				.findFirst();
 	}
 	
-	@NotNull
-	public Optional<String> getSummary(@NotNull Locale locale){
+	@NonNull
+	public Optional<String> getSummary(@NonNull Locale locale){
 		return contexts.stream()
 				.map(c -> c.getSummary(locale))
 				.flatMap(Optional::stream)
 				.findFirst();
 	}
 	
-	@NotNull
-	public Optional<Collection<String>> getGenres(@NotNull MessageSource messageSource, @NotNull Locale locale){
+	@NonNull
+	public Optional<Collection<String>> getGenres(@NonNull MessageSource messageSource, @NonNull Locale locale){
 		return contexts.stream()
 				.map(c -> c.getGenres(messageSource, locale))
 				.flatMap(Optional::stream)

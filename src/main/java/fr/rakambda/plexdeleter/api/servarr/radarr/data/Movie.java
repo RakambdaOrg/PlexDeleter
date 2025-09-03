@@ -8,8 +8,8 @@ import fr.rakambda.plexdeleter.json.InstantAsStringWithoutNanosSerializer;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
-import org.jetbrains.annotations.NotNull;
-import org.jetbrains.annotations.Nullable;
+import org.jspecify.annotations.NonNull;
+import org.jspecify.annotations.Nullable;
 import org.springframework.aot.hint.annotation.RegisterReflectionForBinding;
 import java.time.Instant;
 import java.util.HashSet;
@@ -20,21 +20,21 @@ import java.util.Set;
 @AllArgsConstructor
 @RegisterReflectionForBinding(Movie.class)
 public final class Movie{
-	@NotNull
+	@NonNull
 	private String title;
-	@NotNull
+	@NonNull
 	private String originalTitle;
-	@NotNull
+	@NonNull
 	private OriginalLanguage originalLanguage;
-	@NotNull
+	@NonNull
 	private Set<AlternativeTitle> alternateTitles = new HashSet<>();
 	private int secondaryYearSourceId;
-	@NotNull
+	@NonNull
 	private String sortTitle;
 	private long sizeOnDisk;
-	@NotNull
+	@NonNull
 	private String status;
-	@NotNull
+	@NonNull
 	private String overview;
 	@Nullable
 	@JsonSerialize(using = InstantAsStringWithoutNanosSerializer.class)
@@ -45,7 +45,7 @@ public final class Movie{
 	@Nullable
 	@JsonSerialize(using = InstantAsStringWithoutNanosSerializer.class)
 	private Instant digitalRelease;
-	@NotNull
+	@NonNull
 	private Set<Image> images = new HashSet<>();
 	@Nullable
 	private String website;
@@ -54,11 +54,11 @@ public final class Movie{
 	@Nullable
 	private String youTubeTrailerId;
 	private int year;
-	@NotNull
+	@NonNull
 	private String path;
-	@NotNull
+	@NonNull
 	private String folderName;
-	@NotNull
+	@NonNull
 	private String minimumAvailability;
 	private int qualityProfileId;
 	private boolean monitored;
@@ -66,7 +66,7 @@ public final class Movie{
 	@JsonProperty("isAvailable")
 	private boolean available;
 	private int runtime;
-	@NotNull
+	@NonNull
 	private String cleanTitle;
 	@Nullable
 	private String titleSlug;
@@ -74,13 +74,13 @@ public final class Movie{
 	private String imdbId;
 	@Nullable
 	private Integer tmdbId;
-	@NotNull
+	@NonNull
 	private String rootFolderPath;
 	@Nullable
 	private String certification;
-	@NotNull
+	@NonNull
 	private Set<String> genres = new HashSet<>();
-	@NotNull
+	@NonNull
 	private Set<Integer> tags = new HashSet<>();
 	@Nullable
 	@JsonSerialize(using = InstantAsStringWithoutNanosSerializer.class)
@@ -90,7 +90,7 @@ public final class Movie{
 	@Nullable
 	private Collection collection;
 	private float popularity;
-	@NotNull
+	@NonNull
 	private Statistics statistics;
 	private int id;
 }

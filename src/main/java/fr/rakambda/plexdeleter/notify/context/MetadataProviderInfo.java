@@ -1,6 +1,6 @@
 package fr.rakambda.plexdeleter.notify.context;
 
-import org.jetbrains.annotations.NotNull;
+import org.jspecify.annotations.NonNull;
 
-public record MetadataProviderInfo(@NotNull String name, @NotNull String url){
+public record MetadataProviderInfo(@NonNull String name, @NonNull String url){
 }

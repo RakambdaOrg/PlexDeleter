@@ -3,8 +3,7 @@ package fr.rakambda.plexdeleter.web.webhook.sonarr.data;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
-import org.jetbrains.annotations.NotNull;
-import org.jetbrains.annotations.Nullable;
+import org.jspecify.annotations.Nullable;
 import org.springframework.lang.NonNull;
 import java.util.ArrayList;
 import java.util.List;
@@ -14,10 +13,10 @@ import java.util.List;
 @AllArgsConstructor
 public class SonarrWebhook{
 	@NonNull
-	@NotNull
+	@org.jspecify.annotations.NonNull
 	private String eventType;
 	@Nullable
 	private Series series;
-	@NotNull
+	@NonNull
 	private List<Episode> episodes = new ArrayList<>();
 }

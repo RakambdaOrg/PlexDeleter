@@ -5,8 +5,8 @@ import fr.rakambda.plexdeleter.json.InstantAsStringWithoutNanosSerializer;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
-import org.jetbrains.annotations.NotNull;
-import org.jetbrains.annotations.Nullable;
+import org.jspecify.annotations.NonNull;
+import org.jspecify.annotations.Nullable;
 import org.springframework.aot.hint.annotation.RegisterReflectionForBinding;
 import java.time.Instant;
 import java.util.HashSet;
@@ -18,12 +18,12 @@ import java.util.Set;
 @RegisterReflectionForBinding(MovieFile.class)
 public final class MovieFile{
 	private int movieId;
-	@NotNull
+	@NonNull
 	private String relativePath;
-	@NotNull
+	@NonNull
 	private String path;
 	private long size;
-	@NotNull
+	@NonNull
 	@JsonSerialize(using = InstantAsStringWithoutNanosSerializer.class)
 	private Instant dateAdded;
 	private int indexerFlags;
@@ -31,11 +31,11 @@ public final class MovieFile{
 	private boolean qualityCutoffNotMet;
 	private Quality quality;
 	private MediaInfo mediaInfo;
-	@NotNull
+	@NonNull
 	private Set<Language> languages = new HashSet<>();
 	@Nullable
 	private String releaseGroup;
-	@NotNull
+	@NonNull
 	private String edition;
 	private int id;
 }

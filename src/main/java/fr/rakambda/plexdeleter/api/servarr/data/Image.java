@@ -3,7 +3,7 @@ package fr.rakambda.plexdeleter.api.servarr.data;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
-import org.jetbrains.annotations.NotNull;
+import org.jspecify.annotations.NonNull;
 import org.springframework.aot.hint.annotation.RegisterReflectionForBinding;
 
 @Data
@@ -11,10 +11,10 @@ import org.springframework.aot.hint.annotation.RegisterReflectionForBinding;
 @AllArgsConstructor
 @RegisterReflectionForBinding(Image.class)
 public final class Image{
-	@NotNull
+	@NonNull
 	private String coverType;
-	@NotNull
+	@NonNull
 	private String url;
-	@NotNull
+	@NonNull
 	private String remoteUrl;
 }

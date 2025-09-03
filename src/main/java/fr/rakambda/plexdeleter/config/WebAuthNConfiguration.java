@@ -4,7 +4,6 @@ import jakarta.validation.constraints.NotEmpty;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
-import org.jetbrains.annotations.NotNull;
 import org.springframework.lang.NonNull;
 import java.util.Set;
 
@@ -12,13 +11,13 @@ import java.util.Set;
 @NoArgsConstructor
 @AllArgsConstructor
 public class WebAuthNConfiguration{
-	@NotNull
 	@NonNull
+	@org.jspecify.annotations.NonNull
 	private String relayingPartyName;
-	@NotNull
 	@NonNull
+	@org.jspecify.annotations.NonNull
 	private String relayingPartyId;
-	@NotNull
+	@org.jspecify.annotations.NonNull
 	@NotEmpty
 	private Set<String> allowedOrigins;
 }

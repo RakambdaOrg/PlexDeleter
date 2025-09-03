@@ -10,7 +10,7 @@ import fr.rakambda.plexdeleter.service.UpdateException;
 import fr.rakambda.plexdeleter.web.api.ThymeleafMessageException;
 import fr.rakambda.plexdeleter.web.webhook.tautulli.data.TautulliWebhook;
 import lombok.extern.slf4j.Slf4j;
-import org.jetbrains.annotations.NotNull;
+import org.jspecify.annotations.NonNull;
 import org.springframework.amqp.rabbit.annotation.RabbitListener;
 import org.springframework.messaging.handler.annotation.Headers;
 import org.springframework.stereotype.Component;
@@ -38,11 +38,11 @@ public class TautulliHandler extends RetryMessageHandler<TautulliMessage>{
 	
 	@Transactional
 	@RabbitListener(queues = "#{amqpConfiguration.prefixed(amqpConstants.QUEUE_PROCESS_TAUTULLI)}")
-	public void receive(@NotNull TautulliMessage message, @Headers Map<String, Object> headers){
+	public void receive(@NonNull TautulliMessage message, @Headers Map<String, Object> headers){
 		handle(message, headers, this::handleMessage);
 	}
 	
-	private void handleMessage(@NotNull TautulliMessage message) throws ThymeleafMessageException, RequestFailedException, UpdateException, NotifyException, IOException{
+	private void handleMessage(@NonNull TautulliMessage message) throws ThymeleafMessageException, RequestFailedException, UpdateException, NotifyException, IOException{
 		log.info("New AMQP Tautulli message received {}", message);
 		
 		if(!message.getMediaType().isNotifyAdded()){

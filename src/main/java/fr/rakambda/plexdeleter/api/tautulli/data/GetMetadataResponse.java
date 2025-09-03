@@ -5,8 +5,8 @@ import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 import lombok.ToString;
-import org.jetbrains.annotations.NotNull;
-import org.jetbrains.annotations.Nullable;
+import org.jspecify.annotations.NonNull;
+import org.jspecify.annotations.Nullable;
 import org.springframework.aot.hint.annotation.RegisterReflectionForBinding;
 import java.time.Instant;
 import java.time.LocalDate;
@@ -29,7 +29,7 @@ public class GetMetadataResponse{
 	@Nullable
 	private Integer mediaIndex;
 	@JsonProperty("rating_key")
-	@NotNull
+	@NonNull
 	private Integer ratingKey;
 	@JsonProperty("parent_rating_key")
 	@Nullable
@@ -38,10 +38,10 @@ public class GetMetadataResponse{
 	@Nullable
 	private Integer grandparentRatingKey;
 	@JsonProperty("library_name")
-	@NotNull
+	@NonNull
 	private String libraryName;
 	@JsonProperty("title")
-	@NotNull
+	@NonNull
 	private String title;
 	@JsonProperty("parent_title")
 	@Nullable
@@ -50,7 +50,7 @@ public class GetMetadataResponse{
 	@Nullable
 	private String grandparentTitle;
 	@JsonProperty("full_title")
-	@NotNull
+	@NonNull
 	private String fullTitle;
 	@JsonProperty("thumb")
 	@Nullable
@@ -63,29 +63,29 @@ public class GetMetadataResponse{
 	private Float rating;
 	@ToString.Exclude
 	@JsonProperty("media_info")
-	@NotNull
+	@NonNull
 	private Set<MediaInfo> mediaInfo = new HashSet<>();
 	@JsonProperty("added_at")
-	@NotNull
+	@NonNull
 	private Instant addedAt;
 	@JsonProperty("originally_available_at")
 	@Nullable
 	private LocalDate originallyAvailableAt;
 	@JsonProperty("actors")
-	@NotNull
+	@NonNull
 	private List<String> actors = new LinkedList<>();
 	@JsonProperty("genres")
-	@NotNull
+	@NonNull
 	private List<String> genres = new LinkedList<>();
 	@JsonProperty("duration")
 	private long duration;
 	@JsonProperty("guids")
-	@NotNull
+	@NonNull
 	private List<String> guids = new LinkedList<>();
 	@JsonProperty("parent_guids")
-	@NotNull
+	@NonNull
 	private List<String> parentGuids = new LinkedList<>();
 	@JsonProperty("grandparent_guids")
-	@NotNull
+	@NonNull
 	private List<String> grandparentGuids = new LinkedList<>();
 }

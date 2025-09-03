@@ -3,7 +3,7 @@ package fr.rakambda.plexdeleter.api.servarr.sonarr.data;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
-import org.jetbrains.annotations.NotNull;
+import org.jspecify.annotations.NonNull;
 import org.springframework.aot.hint.annotation.RegisterReflectionForBinding;
 
 @Data
@@ -13,6 +13,6 @@ import org.springframework.aot.hint.annotation.RegisterReflectionForBinding;
 public final class Season{
 	private int seasonNumber;
 	private boolean monitored;
-	@NotNull
+	@NonNull
 	private Statistics statistics;
 }

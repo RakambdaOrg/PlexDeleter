@@ -3,7 +3,7 @@ package fr.rakambda.plexdeleter.storage.repository;
 import fr.rakambda.plexdeleter.storage.entity.MediaEntity;
 import fr.rakambda.plexdeleter.storage.entity.MediaStatus;
 import fr.rakambda.plexdeleter.storage.entity.MediaType;
-import org.jetbrains.annotations.NotNull;
+import org.jspecify.annotations.NonNull;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
 import java.util.Collection;
@@ -12,34 +12,34 @@ import java.util.Optional;
 
 @Repository
 public interface MediaRepository extends JpaRepository<MediaEntity, Integer>{
-	@NotNull
-	List<MediaEntity> findAllByStatusIn(@NotNull Collection<MediaStatus> availability);
+	@NonNull
+	List<MediaEntity> findAllByStatusIn(@NonNull Collection<MediaStatus> availability);
 	
-	@NotNull
+	@NonNull
 	Optional<MediaEntity> findByPlexId(int plexId);
 	
-	@NotNull
+	@NonNull
 	List<MediaEntity> findAllByOverseerrId(int tvdbId);
 	
-	@NotNull
+	@NonNull
 	Optional<MediaEntity> findByOverseerrIdAndIndex(int overseerrId, int index);
 	
-	@NotNull
+	@NonNull
 	Optional<MediaEntity> findByOverseerrIdAndIndexAndSubIndex(int overseerrId, int index, int episode);
 	
-	@NotNull
+	@NonNull
 	Optional<MediaEntity> findByTmdbIdAndIndex(int tmdbId, int index);
 	
-	@NotNull
+	@NonNull
 	Optional<MediaEntity> findByTvdbIdAndIndex(int tvdbId, int index);
 	
-	@NotNull
+	@NonNull
 	Optional<MediaEntity> findByServarrIdAndIndex(int servarrId, int index);
 	
-	@NotNull
+	@NonNull
 	Optional<MediaEntity> findByRootPlexIdAndIndex(int ratingKey, int index);
 	
-	long countByServarrIdAndType(int servarrId, @NotNull MediaType type);
+	long countByServarrIdAndType(int servarrId, @NonNull MediaType type);
 	
 	boolean existsByRootPlexId(int ratingKey);
 }

@@ -2,8 +2,8 @@ package fr.rakambda.plexdeleter.storage.repository;
 
 import fr.rakambda.plexdeleter.storage.entity.MediaRequirementStatus;
 import fr.rakambda.plexdeleter.storage.entity.UserGroupEntity;
-import org.jetbrains.annotations.NotNull;
-import org.jetbrains.annotations.Nullable;
+import org.jspecify.annotations.NonNull;
+import org.jspecify.annotations.Nullable;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.stereotype.Repository;
@@ -13,8 +13,8 @@ import java.util.Optional;
 
 @Repository
 public interface UserGroupRepository extends JpaRepository<UserGroupEntity, Integer>{
-	@NotNull
-	List<UserGroupEntity> findAllByLastNotificationBefore(@NotNull Instant before);
+	@NonNull
+	List<UserGroupEntity> findAllByLastNotificationBefore(@NonNull Instant before);
 	
 	@Query(value = """
 			SELECT DISTINCT G
@@ -22,7 +22,7 @@ public interface UserGroupRepository extends JpaRepository<UserGroupEntity, Inte
 			INNER JOIN UserPersonEntity P ON P.groupId = G.id
 			WHERE P.plexId = ?1"""
 	)
-	@NotNull
+	@NonNull
 	Optional<UserGroupEntity> findByContainingPlexUserId(int plexUserId);
 	
 	@Query(value = """
@@ -40,7 +40,7 @@ public interface UserGroupRepository extends JpaRepository<UserGroupEntity, Inte
 			INNER JOIN MediaRequirementEntity MR ON MR.group.id = G.id
 			WHERE MR.media.id = ?1 AND MR.status = ?2"""
 	)
-	List<UserGroupEntity> findAllByHasRequirementOnOverseerr(int overseerrId, @NotNull MediaRequirementStatus status);
+	List<UserGroupEntity> findAllByHasRequirementOnOverseerr(int overseerrId, @NonNull MediaRequirementStatus status);
 	
 	@Query(value = """
 			SELECT DISTINCT G
@@ -59,5 +59,5 @@ public interface UserGroupRepository extends JpaRepository<UserGroupEntity, Inte
 			OR
 			(UGL.name = ?3)"""
 	)
-	List<UserGroupEntity> findAllByHasRequirementOnPlex(int ratingKey, @NotNull MediaRequirementStatus status, @NotNull String libraryName, @Nullable Integer tmdbId, @Nullable Integer tvdbId, int mediaIndex);
+	List<UserGroupEntity> findAllByHasRequirementOnPlex(int ratingKey, @NonNull MediaRequirementStatus status, @NonNull String libraryName, @Nullable Integer tmdbId, @Nullable Integer tvdbId, int mediaIndex);
 }

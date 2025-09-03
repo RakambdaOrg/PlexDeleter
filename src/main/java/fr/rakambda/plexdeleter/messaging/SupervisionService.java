@@ -1,13 +1,12 @@
 package fr.rakambda.plexdeleter.messaging;
 
-import fr.rakambda.plexdeleter.api.RequestFailedException;
 import fr.rakambda.plexdeleter.api.discord.DiscordWebhookService;
 import fr.rakambda.plexdeleter.api.discord.data.WebhookMessage;
 import fr.rakambda.plexdeleter.config.ApplicationConfiguration;
 import fr.rakambda.plexdeleter.config.SupervisionConfiguration;
 import lombok.extern.slf4j.Slf4j;
-import org.jetbrains.annotations.NotNull;
-import org.jetbrains.annotations.Nullable;
+import org.jspecify.annotations.NonNull;
+import org.jspecify.annotations.Nullable;
 import org.springframework.stereotype.Service;
 
 @Slf4j
@@ -21,7 +20,7 @@ public class SupervisionService{
 		this.discordWebhookService = discordWebhookService;
 	}
 	
-	public void send(@NotNull String message, @Nullable Object... args){
+	public void send(@NonNull String message, @Nullable Object... args){
 		var body = message.formatted(args);
 		var webhookMessage = WebhookMessage.builder()
 				.content(body)
@@ -35,7 +34,7 @@ public class SupervisionService{
 		}
 	}
 	
-	@NotNull
+	@NonNull
 	public String sizeToHuman(long size){
 		if(size < 1024){
 			return size + " B";

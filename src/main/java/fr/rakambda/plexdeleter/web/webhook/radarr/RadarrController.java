@@ -5,6 +5,7 @@ import fr.rakambda.plexdeleter.storage.repository.MediaRepository;
 import fr.rakambda.plexdeleter.web.webhook.radarr.data.RadarrWebhook;
 import jakarta.validation.constraints.NotNull;
 import lombok.extern.slf4j.Slf4j;
+import org.jspecify.annotations.NonNull;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -36,7 +37,7 @@ public class RadarrController{
 		}
 	}
 	
-	private void onEpisodeGrabbed(@org.jetbrains.annotations.NotNull RadarrWebhook data){
+	private void onEpisodeGrabbed(@NonNull RadarrWebhook data){
 		var movie = data.getMovie();
 		if(Objects.isNull(movie)){
 			log.warn("Not updating any media, could not determine tmdb id from {}", data);

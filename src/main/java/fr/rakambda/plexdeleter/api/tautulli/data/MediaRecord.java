@@ -4,8 +4,8 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
-import org.jetbrains.annotations.NotNull;
-import org.jetbrains.annotations.Nullable;
+import org.jspecify.annotations.NonNull;
+import org.jspecify.annotations.Nullable;
 import org.springframework.aot.hint.annotation.RegisterReflectionForBinding;
 
 @Data
@@ -13,17 +13,17 @@ import org.springframework.aot.hint.annotation.RegisterReflectionForBinding;
 @AllArgsConstructor
 @RegisterReflectionForBinding(MediaRecord.class)
 public class MediaRecord{
-	@NotNull
+	@NonNull
 	@JsonProperty("section_id")
 	private Integer sectionId;
-	@NotNull
+	@NonNull
 	@JsonProperty("section_type")
 	private MediaType sectionType;
-	@NotNull
+	@NonNull
 	@JsonProperty("media_type")
 	private MediaType mediaType;
 	@JsonProperty("rating_key")
-	@NotNull
+	@NonNull
 	private Integer ratingKey;
 	@Nullable
 	@JsonProperty("grandparent_rating_key")
@@ -31,6 +31,6 @@ public class MediaRecord{
 	@Nullable
 	@JsonProperty("parent_rating_key")
 	private Integer parentRatingKey;
-	@NotNull
+	@NonNull
 	private String title;
 }

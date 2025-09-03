@@ -5,8 +5,8 @@ import fr.rakambda.plexdeleter.api.RequestFailedException;
 import fr.rakambda.plexdeleter.api.discord.data.DiscordResponse;
 import fr.rakambda.plexdeleter.api.discord.data.WebhookMessage;
 import lombok.extern.slf4j.Slf4j;
-import org.jetbrains.annotations.NotNull;
-import org.jetbrains.annotations.Nullable;
+import org.jspecify.annotations.NonNull;
+import org.jspecify.annotations.Nullable;
 import org.springframework.core.io.ByteArrayResource;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
@@ -40,13 +40,13 @@ public class DiscordWebhookService{
 		locks = new ConcurrentHashMap<>();
 	}
 	
-	@NotNull
-	public DiscordResponse sendWebhookMessage(@NotNull String url, @NotNull WebhookMessage message) throws InterruptedException, RequestFailedException{
+	@NonNull
+	public DiscordResponse sendWebhookMessage(@NonNull String url, @NonNull WebhookMessage message) throws InterruptedException, RequestFailedException{
 		return sendWebhookMessage(url, null, message);
 	}
 	
-	@NotNull
-	public DiscordResponse sendWebhookMessage(@NotNull String url, @Nullable Long threadId, @NotNull WebhookMessage message) throws InterruptedException, RequestFailedException{
+	@NonNull
+	public DiscordResponse sendWebhookMessage(@NonNull String url, @Nullable Long threadId, @NonNull WebhookMessage message) throws InterruptedException, RequestFailedException{
 		var lock = locks.computeIfAbsent(url, key -> new Semaphore(1));
 		lock.acquire();
 		try{
@@ -74,8 +74,8 @@ public class DiscordWebhookService{
 		}
 	}
 	
-	@NotNull
-	private DiscordResponse sendWebhookMessageAs(@NotNull String url, @Nullable Long threadId, @NotNull WebhookMessage message, @NotNull MediaType mediaType, @NotNull BodyInserter<?, ? super ClientHttpRequest> bodyInserter) throws RequestFailedException{
+	@NonNull
+	private DiscordResponse sendWebhookMessageAs(@NonNull String url, @Nullable Long threadId, @NonNull WebhookMessage message, @NonNull MediaType mediaType, @NonNull BodyInserter<?, ? super ClientHttpRequest> bodyInserter) throws RequestFailedException{
 		return HttpUtils.unwrapIfStatusOkAndNotNullBody(apiClient.post()
 				.uri(url, b -> {
 					b = b.queryParam("wait", true);

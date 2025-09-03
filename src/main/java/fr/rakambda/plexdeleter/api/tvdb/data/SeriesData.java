@@ -4,7 +4,7 @@ import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.NoArgsConstructor;
-import org.jetbrains.annotations.NotNull;
+import org.jspecify.annotations.NonNull;
 import org.springframework.aot.hint.annotation.RegisterReflectionForBinding;
 import java.util.ArrayList;
 import java.util.List;
@@ -15,6 +15,6 @@ import java.util.List;
 @EqualsAndHashCode(callSuper = true)
 @RegisterReflectionForBinding(SeriesData.class)
 public class SeriesData extends MediaData{
-	@NotNull
+	@NonNull
 	private List<EpisodeData> episodes = new ArrayList<>();
 }

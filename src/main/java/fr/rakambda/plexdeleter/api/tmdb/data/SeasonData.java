@@ -6,8 +6,8 @@ import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.NoArgsConstructor;
-import org.jetbrains.annotations.NotNull;
-import org.jetbrains.annotations.Nullable;
+import org.jspecify.annotations.NonNull;
+import org.jspecify.annotations.Nullable;
 import org.springframework.aot.hint.annotation.RegisterReflectionForBinding;
 import java.util.ArrayList;
 import java.util.List;
@@ -21,6 +21,6 @@ public final class SeasonData extends MediaData{
 	@Nullable
 	@JsonDeserialize(using = EmptyStringAsNullDeserializer.class)
 	private String name;
-	@NotNull
+	@NonNull
 	private List<EpisodeData> episodes = new ArrayList<>();
 }

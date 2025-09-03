@@ -11,8 +11,8 @@ import fr.rakambda.plexdeleter.api.tautulli.data.TautulliResponseWrapper;
 import fr.rakambda.plexdeleter.config.ApplicationConfiguration;
 import fr.rakambda.plexdeleter.storage.entity.MediaType;
 import lombok.extern.slf4j.Slf4j;
-import org.jetbrains.annotations.NotNull;
-import org.jetbrains.annotations.Nullable;
+import org.jspecify.annotations.NonNull;
+import org.jspecify.annotations.Nullable;
 import org.springframework.core.ParameterizedTypeReference;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -58,8 +58,8 @@ public class TautulliApiService{
 				.build();
 	}
 	
-	@NotNull
-	public Collection<Integer> getElementsRatingKeys(int ratingKey, @NotNull MediaType mediaType) throws RequestFailedException{
+	@NonNull
+	public Collection<Integer> getElementsRatingKeys(int ratingKey, @NonNull MediaType mediaType) throws RequestFailedException{
 		return switch(mediaType){
 			case MOVIE -> getNewRatingKeys(ratingKey, "movie").getResponse().getDataOptional()
 					.map(GetNewRatingKeysResponse::getData)
@@ -93,7 +93,7 @@ public class TautulliApiService{
 		};
 	}
 	
-	@NotNull
+	@NonNull
 	public Optional<Integer> getSeasonRatingKey(int ratingKey, int season) throws RequestFailedException{
 		return Optional.ofNullable(getNewRatingKeys(ratingKey, "show").getResponse().getData())
 				.map(GetNewRatingKeysResponse::getData)
@@ -102,8 +102,8 @@ public class TautulliApiService{
 				.map(GetNewRatingKeysData::getRatingKey);
 	}
 	
-	@NotNull
-	private TautulliResponseWrapper<GetNewRatingKeysResponse> getNewRatingKeys(int ratingKey, @NotNull String mediaType) throws RequestFailedException{
+	@NonNull
+	private TautulliResponseWrapper<GetNewRatingKeysResponse> getNewRatingKeys(int ratingKey, @NonNull String mediaType) throws RequestFailedException{
 		log.info("Getting new rating keys for Plex id {} and type {}", ratingKey, mediaType);
 		return HttpUtils.unwrapIfStatusOkAndNotNullBody(apiClient.get()
 				.uri(b -> b.pathSegment("api", "v2")
@@ -117,7 +117,7 @@ public class TautulliApiService{
 				.orElseThrow(() -> new RequestFailedException("Failed to new rating key %s with type %s".formatted(ratingKey, mediaType))));
 	}
 	
-	@NotNull
+	@NonNull
 	public TautulliResponseWrapper<GetMetadataResponse> getMetadata(int ratingKey) throws RequestFailedException{
 		log.info("Getting metadata for Plex id {}", ratingKey);
 		return HttpUtils.unwrapIfStatusOkAndNotNullBody(apiClient.get()
@@ -131,8 +131,8 @@ public class TautulliApiService{
 				.orElseThrow(() -> new RequestFailedException("Failed to get metadata with rating key %d".formatted(ratingKey))));
 	}
 	
-	@NotNull
-	public TautulliResponseWrapper<GetHistoryResponse> getHistory(int ratingKey, @NotNull MediaType mediaType, int userId, @Nullable Instant after) throws RequestFailedException{
+	@NonNull
+	public TautulliResponseWrapper<GetHistoryResponse> getHistory(int ratingKey, @NonNull MediaType mediaType, int userId, @Nullable Instant after) throws RequestFailedException{
 		return switch(mediaType){
 			case MOVIE -> getHistory(ratingKey, "rating_key", userId, "movie", after);
 			case SEASON -> getHistory(ratingKey, "parent_rating_key", userId, "episode", after);
@@ -140,8 +140,8 @@ public class TautulliApiService{
 		};
 	}
 	
-	@NotNull
-	private TautulliResponseWrapper<GetHistoryResponse> getHistory(int ratingKey, @NotNull String ratingKeyParamName, int userId, @NotNull String mediaType, @Nullable Instant after) throws RequestFailedException{
+	@NonNull
+	private TautulliResponseWrapper<GetHistoryResponse> getHistory(int ratingKey, @NonNull String ratingKeyParamName, int userId, @NonNull String mediaType, @Nullable Instant after) throws RequestFailedException{
 		log.info("Getting history for Plex id {} of type {} and user id {}", ratingKey, mediaType, userId);
 		return HttpUtils.unwrapIfStatusOkAndNotNullBody(apiClient.get()
 				.uri(b -> {
@@ -163,7 +163,7 @@ public class TautulliApiService{
 				.orElseThrow(() -> new RequestFailedException("Failed to get metadata with rating key %d".formatted(ratingKey))));
 	}
 	
-	@NotNull
+	@NonNull
 	public TautulliResponseWrapper<GetLibraryMediaInfo> getLibraryMediaInfo(int sectionId) throws RequestFailedException{
 		log.info("Getting library media info for Section id {}", sectionId);
 		return HttpUtils.unwrapIfStatusOkAndNotNullBody(apiClient.get()
@@ -179,7 +179,7 @@ public class TautulliApiService{
 				.orElseThrow(() -> new RequestFailedException("Failed to get library media info with section id %d ".formatted(sectionId))));
 	}
 	
-	@NotNull
+	@NonNull
 	public Optional<byte[]> getPosterBytes(int ratingKey, int width, int height){
 		log.info("Getting poster bytes for Plex id {}", ratingKey);
 		return apiClient.get()

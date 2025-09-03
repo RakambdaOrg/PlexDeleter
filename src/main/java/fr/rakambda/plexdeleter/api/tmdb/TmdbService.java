@@ -7,7 +7,7 @@ import fr.rakambda.plexdeleter.api.tmdb.data.SeasonData;
 import fr.rakambda.plexdeleter.api.tmdb.data.SeriesData;
 import fr.rakambda.plexdeleter.config.ApplicationConfiguration;
 import lombok.extern.slf4j.Slf4j;
-import org.jetbrains.annotations.NotNull;
+import org.jspecify.annotations.NonNull;
 import org.springframework.core.ParameterizedTypeReference;
 import org.springframework.http.HttpHeaders;
 import org.springframework.stereotype.Service;
@@ -32,8 +32,8 @@ public class TmdbService{
 				.build();
 	}
 	
-	@NotNull
-	public MovieData getMovieData(int movieId, @NotNull Locale locale) throws RequestFailedException{
+	@NonNull
+	public MovieData getMovieData(int movieId, @NonNull Locale locale) throws RequestFailedException{
 		log.info("Getting movie data from Tmdb");
 		return HttpUtils.unwrapIfStatusOkAndNotNullBody(apiClient.get()
 				.uri(b -> b.pathSegment("3", "movie", "{movieId}")
@@ -45,8 +45,8 @@ public class TmdbService{
 				.orElseThrow(() -> new RequestFailedException("Failed to get movie data from Tmdb with id %d".formatted(movieId))));
 	}
 	
-	@NotNull
-	public SeriesData getSeriesData(int seriesId, @NotNull Locale locale) throws RequestFailedException{
+	@NonNull
+	public SeriesData getSeriesData(int seriesId, @NonNull Locale locale) throws RequestFailedException{
 		log.info("Getting series data from Tmdb");
 		return HttpUtils.unwrapIfStatusOkAndNotNullBody(apiClient.get()
 				.uri(b -> b.pathSegment("3", "tv", "{seriesId}")
@@ -58,8 +58,8 @@ public class TmdbService{
 				.orElseThrow(() -> new RequestFailedException("Failed to get series data from Tmdb with id %d".formatted(seriesId))));
 	}
 	
-	@NotNull
-	public SeasonData getSeasonData(int seriesId, int season, @NotNull Locale locale) throws RequestFailedException{
+	@NonNull
+	public SeasonData getSeasonData(int seriesId, int season, @NonNull Locale locale) throws RequestFailedException{
 		log.info("Getting season data from Tmdb");
 		return HttpUtils.unwrapIfStatusOkAndNotNullBody(apiClient.get()
 				.uri(b -> b.pathSegment("3", "tv", "{seriesId}", "season", "{season}")

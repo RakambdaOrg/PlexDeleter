@@ -4,8 +4,8 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
-import org.jetbrains.annotations.NotNull;
-import org.jetbrains.annotations.Nullable;
+import org.jspecify.annotations.NonNull;
+import org.jspecify.annotations.Nullable;
 import org.springframework.aot.hint.annotation.RegisterReflectionForBinding;
 
 @Data
@@ -14,7 +14,7 @@ import org.springframework.aot.hint.annotation.RegisterReflectionForBinding;
 @RegisterReflectionForBinding(GetNewRatingKeysResponse.class)
 public class GetNewRatingKeysResponse{
 	@JsonProperty("0")
-	@NotNull
+	@NonNull
 	private GetNewRatingKeysData data;
 	@JsonProperty("section_id")
 	@Nullable

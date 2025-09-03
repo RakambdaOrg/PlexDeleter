@@ -23,8 +23,8 @@ import fr.rakambda.plexdeleter.storage.entity.UserGroupEntity;
 import fr.rakambda.plexdeleter.storage.entity.UserPersonEntity;
 import fr.rakambda.plexdeleter.storage.repository.MediaRepository;
 import lombok.extern.slf4j.Slf4j;
-import org.jetbrains.annotations.NotNull;
-import org.jetbrains.annotations.Nullable;
+import org.jspecify.annotations.NonNull;
+import org.jspecify.annotations.Nullable;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import java.util.Objects;
@@ -73,13 +73,13 @@ public class MediaService{
 		log.info("Done updating {} media", medias.size());
 	}
 	
-	@NotNull
-	public MediaEntity update(@NotNull MediaEntity mediaEntity) throws UpdateException, RequestFailedException, NotifyException{
+	@NonNull
+	public MediaEntity update(@NonNull MediaEntity mediaEntity) throws UpdateException, RequestFailedException, NotifyException{
 		return update(mediaEntity, false);
 	}
 	
-	@NotNull
-	public MediaEntity update(@NotNull MediaEntity mediaEntity, boolean forceMediaCount) throws UpdateException, RequestFailedException, NotifyException{
+	@NonNull
+	public MediaEntity update(@NonNull MediaEntity mediaEntity, boolean forceMediaCount) throws UpdateException, RequestFailedException, NotifyException{
 		mediaOperationLock.lock();
 		try{
 			log.info("Updating media {}", mediaEntity);
@@ -120,7 +120,7 @@ public class MediaService{
 		}
 	}
 	
-	private void handleRequirements(@NotNull MediaEntity mediaEntity){
+	private void handleRequirements(@NonNull MediaEntity mediaEntity){
 		if(!mediaEntity.getStatus().isFullyDownloaded() || mediaEntity.getStatus().isNeedsMetadataRefresh()){
 			return;
 		}
@@ -139,7 +139,7 @@ public class MediaService{
 		}
 	}
 	
-	private void updateFromOverseerr(@NotNull MediaEntity mediaEntity){
+	private void updateFromOverseerr(@NonNull MediaEntity mediaEntity){
 		if(Objects.isNull(mediaEntity.getOverseerrId())){
 			log.warn("Cannot update media {} as it does not seem to be in Overseerr", mediaEntity);
 			return;
@@ -196,7 +196,7 @@ public class MediaService{
 		}
 	}
 	
-	private void updateFromTautulli(@NotNull MediaEntity mediaEntity){
+	private void updateFromTautulli(@NonNull MediaEntity mediaEntity){
 		if(Objects.isNull(mediaEntity.getPlexId())){
 			log.warn("Cannot update media {} as it does not seem to be in Plex/Tautulli", mediaEntity);
 			return;
@@ -213,7 +213,7 @@ public class MediaService{
 		}
 	}
 	
-	private void updateFromServarr(@NotNull MediaEntity mediaEntity, boolean forceMediaCount){
+	private void updateFromServarr(@NonNull MediaEntity mediaEntity, boolean forceMediaCount){
 		if(Objects.isNull(mediaEntity.getServarrId())){
 			log.warn("Cannot update media {} as it does not seem to be in Sonarr/Radarr", mediaEntity);
 			return;
@@ -270,8 +270,8 @@ public class MediaService{
 		}
 	}
 	
-	@NotNull
-	private Optional<Integer> getActualRatingKey(@NotNull MediaEntity mediaEntity, int ratingKey){
+	@NonNull
+	private Optional<Integer> getActualRatingKey(@NonNull MediaEntity mediaEntity, int ratingKey){
 		try{
 			return switch(mediaEntity.getType()){
 				case SEASON -> tautulliApiService.getSeasonRatingKey(ratingKey, mediaEntity.getIndex());
@@ -284,8 +284,8 @@ public class MediaService{
 		}
 	}
 	
-	@NotNull
-	public DeleteMediaResponse deleteMedia(@NotNull MediaEntity media, @Nullable UserGroupEntity userGroup, boolean deleteFromServarr) throws RequestFailedException{
+	@NonNull
+	public DeleteMediaResponse deleteMedia(@NonNull MediaEntity media, @Nullable UserGroupEntity userGroup, boolean deleteFromServarr) throws RequestFailedException{
 		mediaOperationLock.lock();
 		try{
 			var deletedServarr = false;
@@ -312,7 +312,7 @@ public class MediaService{
 		}
 	}
 	
-	private boolean deleteMediaFromServarr(@NotNull MediaEntity media) throws RequestFailedException{
+	private boolean deleteMediaFromServarr(@NonNull MediaEntity media) throws RequestFailedException{
 		if(Objects.isNull(media.getServarrId())){
 			return false;
 		}
@@ -335,7 +335,7 @@ public class MediaService{
 		return true;
 	}
 	
-	private boolean deleteMediaRequestsFromOverseerr(@NotNull MediaEntity media, @NotNull UserGroupEntity userGroup) throws RequestFailedException{
+	private boolean deleteMediaRequestsFromOverseerr(@NonNull MediaEntity media, @NonNull UserGroupEntity userGroup) throws RequestFailedException{
 		if(Objects.isNull(media.getOverseerrId())){
 			return false;
 		}
@@ -354,8 +354,8 @@ public class MediaService{
 		return true;
 	}
 	
-	@NotNull
-	public MediaEntity addMedia(int overseerrId, @NotNull MediaType mediaType, int season, @Nullable Integer episode) throws RequestFailedException, UpdateException, NotifyException{
+	@NonNull
+	public MediaEntity addMedia(int overseerrId, @NonNull MediaType mediaType, int season, @Nullable Integer episode) throws RequestFailedException, UpdateException, NotifyException{
 		mediaOperationLock.lock();
 		try{
 			log.info("Adding media with Overseerr id {}, season {}, episode {}", overseerrId, season, episode);
@@ -372,8 +372,8 @@ public class MediaService{
 		}
 	}
 	
-	@NotNull
-	public MediaEntity addMediaFromPrevious(@NotNull MediaEntity previousMedia, int season) throws RequestFailedException, UpdateException, NotifyException{
+	@NonNull
+	public MediaEntity addMediaFromPrevious(@NonNull MediaEntity previousMedia, int season) throws RequestFailedException, UpdateException, NotifyException{
 		mediaOperationLock.lock();
 		try{
 			log.info("Adding media from previous {} season {}", previousMedia, season);
@@ -389,8 +389,8 @@ public class MediaService{
 		}
 	}
 	
-	@NotNull
-	private MediaEntity getOrCreateMedia(int overseerrId, @NotNull MediaType mediaType, int season, @Nullable Integer episode) throws RequestFailedException{
+	@NonNull
+	private MediaEntity getOrCreateMedia(int overseerrId, @NonNull MediaType mediaType, int season, @Nullable Integer episode) throws RequestFailedException{
 		var media = episode == null
 				? mediaRepository.findByOverseerrIdAndIndex(overseerrId, season)
 				: mediaRepository.findByOverseerrIdAndIndexAndSubIndex(overseerrId, season, episode);
@@ -400,8 +400,8 @@ public class MediaService{
 		return createMedia(overseerrId, mediaType, season, episode);
 	}
 	
-	@NotNull
-	private MediaEntity createMedia(int overseerrId, @NotNull MediaType mediaType, int season, @Nullable Integer episode) throws RequestFailedException{
+	@NonNull
+	private MediaEntity createMedia(int overseerrId, @NonNull MediaType mediaType, int season, @Nullable Integer episode) throws RequestFailedException{
 		var mediaDetails = overseerrService.getMediaDetails(overseerrId, mediaType.getOverseerrType());
 		var media = mediaRepository.save(MediaEntity.builder()
 				.type(mediaType)
@@ -423,8 +423,8 @@ public class MediaService{
 		return media;
 	}
 	
-	@NotNull
-	private MediaEntity createMediaFromPrevious(@NotNull MediaEntity previous, int season){
+	@NonNull
+	private MediaEntity createMediaFromPrevious(@NonNull MediaEntity previous, int season){
 		var media = MediaEntity.builder()
 				.type(previous.getType())
 				.rootPlexId(previous.getRootPlexId())
@@ -463,7 +463,7 @@ public class MediaService{
 		update(media);
 	}
 	
-	public void keep(@NotNull MediaEntity media){
+	public void keep(@NonNull MediaEntity media){
 		media.setStatus(MediaStatus.KEEP);
 		mediaRepository.save(media);
 		
@@ -471,7 +471,7 @@ public class MediaService{
 		supervisionService.send("\uD83D\uDCE6 Kept media %s", media);
 	}
 	
-	public void unkeep(@NotNull MediaEntity media){
+	public void unkeep(@NonNull MediaEntity media){
 		media.setStatus(MediaStatus.WAITING);
 		mediaRepository.save(media);
 		
@@ -479,7 +479,7 @@ public class MediaService{
 		supervisionService.send("\u26D3\uFE0F\u200D\uD83D\uDCA5 Unkept media %s", media);
 	}
 	
-	public void manual(@NotNull MediaEntity media){
+	public void manual(@NonNull MediaEntity media){
 		media.setStatus(MediaStatus.MANUAL);
 		mediaRepository.save(media);
 		
@@ -487,7 +487,7 @@ public class MediaService{
 		supervisionService.send("🖐️ Manual media %s", media);
 	}
 	
-	public void downloaded(@NotNull MediaEntity media) throws NotifyException{
+	public void downloaded(@NonNull MediaEntity media) throws NotifyException{
 		media.setStatus(MediaStatus.DOWNLOADED);
 		mediaRepository.save(media);
 		
@@ -497,7 +497,7 @@ public class MediaService{
 		supervisionService.send("🖐️ Downloaded media %s", media);
 	}
 	
-	public void unmanual(@NotNull MediaEntity media){
+	public void unmanual(@NonNull MediaEntity media){
 		media.setStatus(MediaStatus.WAITING);
 		mediaRepository.save(media);
 		
@@ -505,7 +505,7 @@ public class MediaService{
 		supervisionService.send("🤖 Automatic media %s", media);
 	}
 	
-	public void manuallyDelete(@NotNull MediaEntity media){
+	public void manuallyDelete(@NonNull MediaEntity media){
 		media.setStatus(MediaStatus.MANUALLY_DELETED);
 		mediaRepository.save(media);
 		

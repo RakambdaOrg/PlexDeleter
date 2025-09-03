@@ -7,7 +7,7 @@ import fr.rakambda.plexdeleter.api.tvdb.data.MediaData;
 import fr.rakambda.plexdeleter.api.tvdb.data.Translation;
 import fr.rakambda.plexdeleter.api.tvdb.data.TvdbResponseWrapper;
 import lombok.extern.slf4j.Slf4j;
-import org.jetbrains.annotations.NotNull;
+import org.jspecify.annotations.NonNull;
 import org.springframework.context.MessageSource;
 import org.springframework.context.NoSuchMessageException;
 import java.util.Collection;
@@ -20,35 +20,35 @@ import java.util.Optional;
 
 @Slf4j
 public class TvdbMediaMetadataContext extends MediaMetadataContext{
-	@NotNull
+	@NonNull
 	private final TvdbService tvdbService;
 	
-	@NotNull
+	@NonNull
 	private final Map<Integer, MediaData> mediaDatas = new HashMap<>();
-	@NotNull
+	@NonNull
 	private final Map<Integer, Map<Locale, Translation>> mediaTranslations = new HashMap<>();
-	@NotNull
+	@NonNull
 	private final Map<Integer, Map<Locale, Translation>> seasonTranslations = new HashMap<>();
-	@NotNull
+	@NonNull
 	private final Map<Integer, Map<Locale, Translation>> episodeTranslations = new HashMap<>();
 	
-	public TvdbMediaMetadataContext(@NotNull TautulliApiService tautulliApiService, @NotNull GetMetadataResponse metadata, @NotNull TvdbService tvdbService){
+	public TvdbMediaMetadataContext(@NonNull TautulliApiService tautulliApiService, @NonNull GetMetadataResponse metadata, @NonNull TvdbService tvdbService){
 		super(tautulliApiService, metadata);
 		this.tvdbService = tvdbService;
 	}
 	
-	@NotNull
-	public Optional<String> getTitle(@NotNull Locale locale){
+	@NonNull
+	public Optional<String> getTitle(@NonNull Locale locale){
 		return getMediaTranslation(locale).map(Translation::getName);
 	}
 	
-	@NotNull
-	public Optional<String> getSummary(@NotNull Locale locale){
+	@NonNull
+	public Optional<String> getSummary(@NonNull Locale locale){
 		return getElementTranslation(locale).map(Translation::getOverview);
 	}
 	
-	@NotNull
-	public Optional<Collection<String>> getGenres(@NotNull MessageSource messageSource, @NotNull Locale locale){
+	@NonNull
+	public Optional<Collection<String>> getGenres(@NonNull MessageSource messageSource, @NonNull Locale locale){
 		return getMediaData()
 				.map(MediaData::getGenres)
 				.filter(g -> !g.isEmpty())
@@ -58,8 +58,8 @@ public class TvdbMediaMetadataContext extends MediaMetadataContext{
 						.toList());
 	}
 	
-	@NotNull
-	private Optional<String> translateSlug(@NotNull MessageSource messageSource, @NotNull String type, @NotNull String slug, @NotNull Locale locale){
+	@NonNull
+	private Optional<String> translateSlug(@NonNull MessageSource messageSource, @NonNull String type, @NonNull String slug, @NonNull Locale locale){
 		var key = "tvdb.%s.%s".formatted(type, slug);
 		try{
 			return Optional.of(messageSource.getMessage(key, new Object[0], locale));
@@ -70,15 +70,15 @@ public class TvdbMediaMetadataContext extends MediaMetadataContext{
 		}
 	}
 	
-	@NotNull
+	@NonNull
 	public Optional<Integer> getTvdbId(){
 		return getTvdbId(getMetadata().getGrandparentGuids())
 				.or(() -> getTvdbId(getMetadata().getParentGuids()))
 				.or(() -> getTvdbId(getMetadata().getGuids()));
 	}
 	
-	@NotNull
-	private Optional<Integer> getTvdbId(@NotNull Collection<String> guids){
+	@NonNull
+	private Optional<Integer> getTvdbId(@NonNull Collection<String> guids){
 		return guids.stream()
 				.filter(guid -> guid.matches("tvdb://\\d+"))
 				.map(guid -> guid.substring("tvdb://".length()))
@@ -86,7 +86,7 @@ public class TvdbMediaMetadataContext extends MediaMetadataContext{
 				.findFirst();
 	}
 	
-	@NotNull
+	@NonNull
 	private Optional<? extends MediaData> getMediaData(){
 		var tvdbId = getTvdbId().orElse(null);
 		
@@ -116,8 +116,8 @@ public class TvdbMediaMetadataContext extends MediaMetadataContext{
 		}
 	}
 	
-	@NotNull
-	private Optional<Translation> getMediaTranslation(@NotNull Locale locale){
+	@NonNull
+	private Optional<Translation> getMediaTranslation(@NonNull Locale locale){
 		var tvdbId = getTvdbId().orElse(null);
 		
 		if(Objects.isNull(tvdbId)){
@@ -146,8 +146,8 @@ public class TvdbMediaMetadataContext extends MediaMetadataContext{
 		}
 	}
 	
-	@NotNull
-	private Optional<Translation> getElementTranslation(@NotNull Locale locale){
+	@NonNull
+	private Optional<Translation> getElementTranslation(@NonNull Locale locale){
 		return switch(getMetadata().getMediaType()){
 			case MOVIE, SHOW -> getMediaTranslation(locale);
 			case SEASON -> getSeasonTranslation(locale)
@@ -159,8 +159,8 @@ public class TvdbMediaMetadataContext extends MediaMetadataContext{
 		};
 	}
 	
-	@NotNull
-	private Optional<Translation> getSeasonTranslation(@NotNull Locale locale){
+	@NonNull
+	private Optional<Translation> getSeasonTranslation(@NonNull Locale locale){
 		var tvdbId = switch(getMetadata().getMediaType()){
 			case SEASON, SHOW -> getTvdbId(getMetadata().getGuids()).orElse(null);
 			case EPISODE -> getTvdbId(getMetadata().getParentGuids()).orElse(null);
@@ -188,8 +188,8 @@ public class TvdbMediaMetadataContext extends MediaMetadataContext{
 		}
 	}
 	
-	@NotNull
-	private Optional<Translation> getEpisodeTranslation(@NotNull Locale locale){
+	@NonNull
+	private Optional<Translation> getEpisodeTranslation(@NonNull Locale locale){
 		var tvdbId = switch(getMetadata().getMediaType()){
 			case EPISODE -> getTvdbId(getMetadata().getGuids()).orElse(null);
 			case TRACK, MOVIE, SEASON, SHOW, ARTIST, PHOTO -> null;

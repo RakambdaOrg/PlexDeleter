@@ -15,8 +15,8 @@ import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 import lombok.ToString;
-import org.jetbrains.annotations.NotNull;
-import org.jetbrains.annotations.Nullable;
+import org.jspecify.annotations.NonNull;
+import org.jspecify.annotations.Nullable;
 
 @Data
 @AllArgsConstructor
@@ -33,12 +33,12 @@ public class UserPersonEntity{
 	private Integer id;
 	@Basic
 	@Column(nullable = false)
-	@NotNull
+	@NonNull
 	@ToString.Include
 	private String name;
 	@Basic
 	@Column(nullable = false)
-	@NotNull
+	@NonNull
 	private Integer plexId;
 	@Basic
 	@Column
@@ -46,7 +46,7 @@ public class UserPersonEntity{
 	private Integer overseerrId;
 	@Basic
 	@Column(nullable = false)
-	@NotNull
+	@NonNull
 	private Integer groupId;
 	
 	@ManyToOne(optional = false)

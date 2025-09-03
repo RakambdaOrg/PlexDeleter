@@ -5,8 +5,8 @@ import fr.rakambda.plexdeleter.json.EmptyStringAsNullDeserializer;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
-import org.jetbrains.annotations.NotNull;
-import org.jetbrains.annotations.Nullable;
+import org.jspecify.annotations.NonNull;
+import org.jspecify.annotations.Nullable;
 import org.springframework.aot.hint.annotation.RegisterReflectionForBinding;
 
 @Data
@@ -14,7 +14,7 @@ import org.springframework.aot.hint.annotation.RegisterReflectionForBinding;
 @AllArgsConstructor
 @RegisterReflectionForBinding(MediaData.class)
 public sealed abstract class MediaData permits RootMediaData, SeasonData, EpisodeData{
-	@NotNull
+	@NonNull
 	private Integer id;
 	@Nullable
 	@JsonDeserialize(using = EmptyStringAsNullDeserializer.class)

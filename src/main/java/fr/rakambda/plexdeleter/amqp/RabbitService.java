@@ -3,8 +3,8 @@ package fr.rakambda.plexdeleter.amqp;
 import fr.rakambda.plexdeleter.amqp.message.IAmqpMessage;
 import fr.rakambda.plexdeleter.amqp.message.TautulliMessage;
 import lombok.extern.slf4j.Slf4j;
-import org.jetbrains.annotations.NotNull;
-import org.jetbrains.annotations.Nullable;
+import org.jspecify.annotations.NonNull;
+import org.jspecify.annotations.Nullable;
 import org.springframework.amqp.core.MessagePostProcessor;
 import org.springframework.amqp.rabbit.core.RabbitTemplate;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -26,11 +26,11 @@ public class RabbitService{
 		this.amqpConstants = amqpConstants;
 	}
 	
-	public void sendMessage(@NotNull IAmqpMessage message){
+	public void sendMessage(@NonNull IAmqpMessage message){
 		sendMessage(message, null, Duration.ZERO);
 	}
 	
-	public void sendMessage(@NotNull IAmqpMessage message, @Nullable Integer retry, @NotNull Duration delay){
+	public void sendMessage(@NonNull IAmqpMessage message, @Nullable Integer retry, @NonNull Duration delay){
 		var delayMs = delay.toMillis();
 		var retryCount = Optional.ofNullable(retry);
 		switch(message){
@@ -38,22 +38,22 @@ public class RabbitService{
 		}
 	}
 	
-	public void sendMessage(@NotNull String exchange, @NotNull String key, int retryCount, long delay, @NotNull IAmqpMessage message){
+	public void sendMessage(@NonNull String exchange, @NonNull String key, int retryCount, long delay, @NonNull IAmqpMessage message){
 		log.info("Sending message {}", message);
 		rabbitTemplate.convertAndSend(amqpConfiguration.prefixed(exchange), key, message, getMessagePostProcessor(retryCount, delay));
 	}
 	
-	public void sendMessage(@NotNull String exchange, @NotNull String key, int retryCount, long delay, @NotNull Object message){
+	public void sendMessage(@NonNull String exchange, @NonNull String key, int retryCount, long delay, @NonNull Object message){
 		log.info("Sending message {} => {} with {} retries and delay of {} ms : {}", exchange, key, retryCount, delay, message);
 		rabbitTemplate.convertAndSend(amqpConfiguration.prefixed(exchange), key, message, getMessagePostProcessor(retryCount, delay));
 	}
 	
-	public void sendDeadLetter(@NotNull Object message){
+	public void sendDeadLetter(@NonNull Object message){
 		log.info("Sending event message {}", message);
 		rabbitTemplate.convertAndSend(amqpConfiguration.prefixed(amqpConstants.EXCHANGE_DEAD_LETTER), amqpConstants.ROUTING_KEY_DEAD_LETTER_DEFAULT, message);
 	}
 	
-	@NotNull
+	@NonNull
 	private MessagePostProcessor getMessagePostProcessor(int retryCount, long delay){
 		return m -> {
 			m.getMessageProperties().setHeader(amqpConstants.HEADER_X_DELAY, Math.min(Integer.MAX_VALUE, delay));

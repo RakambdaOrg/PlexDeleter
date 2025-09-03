@@ -3,7 +3,7 @@ package fr.rakambda.plexdeleter.api.overseerr.data;
 import com.fasterxml.jackson.annotation.JsonValue;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
-import org.jetbrains.annotations.NotNull;
+import org.jspecify.annotations.NonNull;
 import org.springframework.aot.hint.annotation.RegisterReflectionForBinding;
 
 @Getter
@@ -13,9 +13,9 @@ public enum MediaType{
 	MOVIE("movie", "movie"),
 	TV("tv", "show");
 	
-	@NotNull
+	@NonNull
 	@JsonValue
 	private final String value;
-	@NotNull
+	@NonNull
 	private final String traktSearchValue;
 }

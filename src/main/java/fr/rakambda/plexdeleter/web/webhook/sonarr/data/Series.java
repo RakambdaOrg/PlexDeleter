@@ -3,15 +3,15 @@ package fr.rakambda.plexdeleter.web.webhook.sonarr.data;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
-import org.jetbrains.annotations.NotNull;
+import org.jspecify.annotations.NonNull;
 
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
 public class Series{
 	private int id;
-	@NotNull
+	@NonNull
 	private String title;
-	@NotNull
+	@NonNull
 	private Integer tvdbId;
 }

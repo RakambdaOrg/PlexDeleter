@@ -17,8 +17,8 @@ import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.NoArgsConstructor;
 import lombok.ToString;
-import org.jetbrains.annotations.NotNull;
-import org.jetbrains.annotations.Nullable;
+import org.jspecify.annotations.NonNull;
+import org.jspecify.annotations.Nullable;
 import java.io.Serial;
 import java.io.Serializable;
 import java.time.Instant;
@@ -40,11 +40,11 @@ public class MediaRequirementEntity{
 	private TableId id;
 	@Enumerated(EnumType.STRING)
 	@Column(nullable = false)
-	@NotNull
+	@NonNull
 	@ToString.Include
 	private MediaRequirementStatus status;
 	@Column(nullable = false)
-	@NotNull
+	@NonNull
 	@ToString.Include
 	private Long watchedCount;
 	@Basic
@@ -71,10 +71,10 @@ public class MediaRequirementEntity{
 		private static final long serialVersionUID = 6710822541443664746L;
 		
 		@Column(nullable = false)
-		@NotNull
+		@NonNull
 		private Integer mediaId;
 		@Column(nullable = false)
-		@NotNull
+		@NonNull
 		private Integer groupId;
 	}
 }

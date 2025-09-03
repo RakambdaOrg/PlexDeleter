@@ -16,8 +16,8 @@ import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 import lombok.ToString;
-import org.jetbrains.annotations.NotNull;
-import org.jetbrains.annotations.Nullable;
+import org.jspecify.annotations.NonNull;
+import org.jspecify.annotations.Nullable;
 import java.util.Comparator;
 import java.util.List;
 
@@ -40,7 +40,7 @@ public class MediaEntity{
 	private Integer id;
 	@Enumerated(EnumType.STRING)
 	@Column(nullable = false)
-	@NotNull
+	@NonNull
 	@ToString.Include
 	private MediaType type;
 	@Basic
@@ -77,12 +77,12 @@ public class MediaEntity{
 	private String radarrSlug;
 	@Basic
 	@Column(nullable = false)
-	@NotNull
+	@NonNull
 	@ToString.Include
 	private String name;
 	@Basic
 	@Column(name = "media_index")
-	@NotNull
+	@NonNull
 	@ToString.Include
 	private Integer index;
 	@Basic
@@ -92,15 +92,15 @@ public class MediaEntity{
 	private Integer subIndex;
 	@Basic
 	@Column(nullable = false)
-	@NotNull
+	@NonNull
 	private Integer partsCount;
 	@Basic
 	@Column(nullable = false)
-	@NotNull
+	@NonNull
 	private Integer availablePartsCount;
 	@Enumerated(EnumType.STRING)
 	@Column(nullable = false)
-	@NotNull
+	@NonNull
 	private MediaStatus status;
 	
 	@OneToMany(cascade = CascadeType.REMOVE, targetEntity = MediaRequirementEntity.class, mappedBy = "media")

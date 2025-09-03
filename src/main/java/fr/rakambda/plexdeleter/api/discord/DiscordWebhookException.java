@@ -1,6 +1,6 @@
 package fr.rakambda.plexdeleter.api.discord;
 
-import org.jetbrains.annotations.Nullable;
+import org.jspecify.annotations.Nullable;
 
 public class DiscordWebhookException extends Exception{
 	public DiscordWebhookException(int status){

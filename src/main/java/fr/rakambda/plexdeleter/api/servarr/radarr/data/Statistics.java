@@ -3,7 +3,7 @@ package fr.rakambda.plexdeleter.api.servarr.radarr.data;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
-import org.jetbrains.annotations.NotNull;
+import org.jspecify.annotations.NonNull;
 import org.springframework.aot.hint.annotation.RegisterReflectionForBinding;
 import java.util.HashSet;
 import java.util.Set;
@@ -15,6 +15,6 @@ import java.util.Set;
 public final class Statistics{
 	private int movieFileCount;
 	private long sizeOnDisk;
-	@NotNull
+	@NonNull
 	private Set<String> releaseGroups = new HashSet<>();
 }

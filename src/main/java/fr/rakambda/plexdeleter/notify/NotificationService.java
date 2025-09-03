@@ -18,8 +18,8 @@ import fr.rakambda.plexdeleter.storage.repository.MediaRepository;
 import fr.rakambda.plexdeleter.storage.repository.UserGroupRepository;
 import jakarta.mail.MessagingException;
 import lombok.extern.slf4j.Slf4j;
-import org.jetbrains.annotations.NotNull;
-import org.jetbrains.annotations.Nullable;
+import org.jspecify.annotations.NonNull;
+import org.jspecify.annotations.Nullable;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -51,7 +51,7 @@ public class NotificationService{
 		this.mediaRepository = mediaRepository;
 	}
 	
-	public void notifyWatchlist(@NotNull UserGroupEntity userGroupEntity, @NotNull Collection<MediaRequirementEntity> requirements) throws NotifyException{
+	public void notifyWatchlist(@NonNull UserGroupEntity userGroupEntity, @NonNull Collection<MediaRequirementEntity> requirements) throws NotifyException{
 		try{
 			if(requirements.isEmpty()){
 				return;
@@ -74,7 +74,7 @@ public class NotificationService{
 		}
 	}
 	
-	public void notifyRequirementAdded(@NotNull UserGroupEntity userGroupEntity, @NotNull MediaEntity media) throws NotifyException{
+	public void notifyRequirementAdded(@NonNull UserGroupEntity userGroupEntity, @NonNull MediaEntity media) throws NotifyException{
 		try{
 			log.info("Notifying a requirement on {} has been added to {}", media, userGroupEntity);
 			if(!userGroupEntity.getNotifyRequirementAdded()){
@@ -95,14 +95,14 @@ public class NotificationService{
 	}
 	
 	@Transactional
-	public void notifyMediaAvailable(@NotNull MediaEntity media) throws NotifyException{
+	public void notifyMediaAvailable(@NonNull MediaEntity media) throws NotifyException{
 		var userGroups = userGroupRepository.findAllByHasRequirementOnOverseerr(media.getId(), MediaRequirementStatus.WAITING);
 		for(var userGroup : userGroups){
 			notifyMediaAvailable(userGroup, media);
 		}
 	}
 	
-	public void notifyMediaAvailable(@NotNull UserGroupEntity userGroupEntity, @NotNull MediaEntity media) throws NotifyException{
+	public void notifyMediaAvailable(@NonNull UserGroupEntity userGroupEntity, @NonNull MediaEntity media) throws NotifyException{
 		try{
 			log.info("Notifying {} is available to {}", media, userGroupEntity);
 			if(!userGroupEntity.getNotifyMediaAvailable()){
@@ -122,7 +122,7 @@ public class NotificationService{
 		}
 	}
 	
-	public void notifyMediaDeleted(@NotNull UserGroupEntity userGroupEntity, @NotNull MediaEntity media) throws NotifyException{
+	public void notifyMediaDeleted(@NonNull UserGroupEntity userGroupEntity, @NonNull MediaEntity media) throws NotifyException{
 		try{
 			log.info("Notifying {} has been deleted to {}", media, userGroupEntity);
 			if(!userGroupEntity.getNotifyMediaDeleted()){
@@ -142,7 +142,7 @@ public class NotificationService{
 		}
 	}
 	
-	public void notifyRequirementManuallyWatched(@NotNull UserGroupEntity userGroupEntity, @NotNull MediaEntity media) throws NotifyException{
+	public void notifyRequirementManuallyWatched(@NonNull UserGroupEntity userGroupEntity, @NonNull MediaEntity media) throws NotifyException{
 		try{
 			log.info("Notifying {} has been manually marked as watched to {}", media, userGroupEntity);
 			if(!userGroupEntity.getNotifyRequirementManuallyWatched()){
@@ -162,7 +162,7 @@ public class NotificationService{
 		}
 	}
 	
-	public void notifyRequirementManuallyAbandoned(@NotNull UserGroupEntity userGroupEntity, @NotNull MediaEntity media) throws NotifyException{
+	public void notifyRequirementManuallyAbandoned(@NonNull UserGroupEntity userGroupEntity, @NonNull MediaEntity media) throws NotifyException{
 		try{
 			log.info("Notifying {} has been manually marked as abandoned to {}", media, userGroupEntity);
 			if(!userGroupEntity.getNotifyRequirementManuallyAbandoned()){
@@ -182,7 +182,7 @@ public class NotificationService{
 		}
 	}
 	
-	public void notifyMediaAdded(@NotNull GetMetadataResponse metadata) throws NotifyException{
+	public void notifyMediaAdded(@NonNull GetMetadataResponse metadata) throws NotifyException{
 		var ratingKey = switch(metadata.getMediaType()){
 			case MOVIE, SEASON -> metadata.getRatingKey();
 			case EPISODE -> metadata.getParentRatingKey();
@@ -246,7 +246,7 @@ public class NotificationService{
 		}
 	}
 	
-	private void notifyMediaAdded(@NotNull UserGroupEntity userGroupEntity, @NotNull MediaMetadataContext metadata, @Nullable MediaEntity media) throws NotifyException{
+	private void notifyMediaAdded(@NonNull UserGroupEntity userGroupEntity, @NonNull MediaMetadataContext metadata, @Nullable MediaEntity media) throws NotifyException{
 		try{
 			log.info("Notifying {} has been added to {}", metadata.getMetadata(), userGroupEntity);
 			if(!userGroupEntity.getNotifyMediaAdded()){

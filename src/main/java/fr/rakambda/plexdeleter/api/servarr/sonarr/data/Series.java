@@ -7,8 +7,8 @@ import fr.rakambda.plexdeleter.json.InstantAsStringWithoutNanosSerializer;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
-import org.jetbrains.annotations.NotNull;
-import org.jetbrains.annotations.Nullable;
+import org.jspecify.annotations.NonNull;
+import org.jspecify.annotations.Nullable;
 import org.springframework.aot.hint.annotation.RegisterReflectionForBinding;
 import java.time.Instant;
 import java.util.HashSet;
@@ -19,58 +19,58 @@ import java.util.Set;
 @AllArgsConstructor
 @RegisterReflectionForBinding(Series.class)
 public final class Series{
-	@NotNull
+	@NonNull
 	private String title;
-	@NotNull
+	@NonNull
 	private String sortTitle;
-	@NotNull
+	@NonNull
 	private String overview;
-	@NotNull
+	@NonNull
 	private String status;
 	@Nullable
 	private String network;
 	@Nullable
 	private String airTime;
-	@NotNull
+	@NonNull
 	private Boolean ended;
-	@NotNull
+	@NonNull
 	private Set<AlternativeTitle> alternateTitles = new HashSet<>();
-	@NotNull
+	@NonNull
 	private Set<Image> images = new HashSet<>();
 	@Nullable
 	@JsonSerialize(using = InstantAsStringWithoutNanosSerializer.class)
 	private Instant previousAiring;
-	@NotNull
+	@NonNull
 	private OriginalLanguage originalLanguage;
-	@NotNull
+	@NonNull
 	private Set<Season> seasons = new HashSet<>();
-	@NotNull
+	@NonNull
 	private Set<String> genres = new HashSet<>();
-	@NotNull
+	@NonNull
 	private Set<Integer> tags = new HashSet<>();
-	@NotNull
+	@NonNull
 	private Integer year;
-	@NotNull
+	@NonNull
 	private String path;
-	@NotNull
+	@NonNull
 	private String rootFolderPath;
 	@Nullable
 	private String certification;
-	@NotNull
+	@NonNull
 	private Integer qualityProfileId;
-	@NotNull
+	@NonNull
 	private Integer languageProfileId;
-	@NotNull
+	@NonNull
 	private Integer id;
-	@NotNull
+	@NonNull
 	private Boolean seasonFolder;
-	@NotNull
+	@NonNull
 	private Boolean monitored;
-	@NotNull
+	@NonNull
 	private Boolean useSceneNumbering;
-	@NotNull
+	@NonNull
 	private String monitorNewItems;
-	@NotNull
+	@NonNull
 	private Integer runtime;
 	@Nullable
 	private Integer tvdbId;
@@ -89,12 +89,12 @@ public final class Series{
 	@Nullable
 	@JsonSerialize(using = InstantAsStringWithoutNanosSerializer.class)
 	private Instant added;
-	@NotNull
+	@NonNull
 	private String seriesType;
-	@NotNull
+	@NonNull
 	private String cleanTitle;
 	@Nullable
 	private String titleSlug;
-	@NotNull
+	@NonNull
 	private Statistics statistics;
 }

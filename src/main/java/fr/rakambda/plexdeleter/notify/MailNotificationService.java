@@ -14,8 +14,8 @@ import fr.rakambda.plexdeleter.storage.entity.NotificationEntity;
 import fr.rakambda.plexdeleter.storage.entity.UserGroupEntity;
 import jakarta.mail.MessagingException;
 import lombok.extern.slf4j.Slf4j;
-import org.jetbrains.annotations.NotNull;
-import org.jetbrains.annotations.Nullable;
+import org.jspecify.annotations.NonNull;
+import org.jspecify.annotations.Nullable;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.MessageSource;
 import org.springframework.core.io.ByteArrayResource;
@@ -50,7 +50,7 @@ public class MailNotificationService extends AbstractNotificationService{
 		this.thymeleafService = thymeleafService;
 	}
 	
-	public void notifyWatchlist(@NotNull NotificationEntity notification, @NotNull UserGroupEntity userGroupEntity, @NotNull Collection<MediaRequirementEntity> requirements) throws MessagingException, UnsupportedEncodingException{
+	public void notifyWatchlist(@NonNull NotificationEntity notification, @NonNull UserGroupEntity userGroupEntity, @NonNull Collection<MediaRequirementEntity> requirements) throws MessagingException, UnsupportedEncodingException{
 		var locale = userGroupEntity.getLocaleAsObject();
 		var context = new Context();
 		context.setLocale(userGroupEntity.getLocaleAsObject());
@@ -121,27 +121,27 @@ public class MailNotificationService extends AbstractNotificationService{
 		});
 	}
 	
-	public void notifyRequirementAdded(@NotNull NotificationEntity notification, @NotNull UserGroupEntity userGroupEntity, @NotNull MediaEntity media) throws MessagingException, UnsupportedEncodingException{
+	public void notifyRequirementAdded(@NonNull NotificationEntity notification, @NonNull UserGroupEntity userGroupEntity, @NonNull MediaEntity media) throws MessagingException, UnsupportedEncodingException{
 		notifySimple(notification, userGroupEntity, media, "mail.requirement.added.subject");
 	}
 	
-	public void notifyMediaAvailable(@NotNull NotificationEntity notification, @NotNull UserGroupEntity userGroupEntity, @NotNull MediaEntity media) throws MessagingException, UnsupportedEncodingException{
+	public void notifyMediaAvailable(@NonNull NotificationEntity notification, @NonNull UserGroupEntity userGroupEntity, @NonNull MediaEntity media) throws MessagingException, UnsupportedEncodingException{
 		notifySimple(notification, userGroupEntity, media, "mail.media.available.subject");
 	}
 	
-	public void notifyMediaDeleted(@NotNull NotificationEntity notification, @NotNull UserGroupEntity userGroupEntity, @NotNull MediaEntity media) throws MessagingException, UnsupportedEncodingException{
+	public void notifyMediaDeleted(@NonNull NotificationEntity notification, @NonNull UserGroupEntity userGroupEntity, @NonNull MediaEntity media) throws MessagingException, UnsupportedEncodingException{
 		notifySimple(notification, userGroupEntity, media, "mail.media.deleted.subject");
 	}
 	
-	public void notifyRequirementManuallyWatched(@NotNull NotificationEntity notification, @NotNull UserGroupEntity userGroupEntity, @NotNull MediaEntity media) throws MessagingException, UnsupportedEncodingException{
+	public void notifyRequirementManuallyWatched(@NonNull NotificationEntity notification, @NonNull UserGroupEntity userGroupEntity, @NonNull MediaEntity media) throws MessagingException, UnsupportedEncodingException{
 		notifySimple(notification, userGroupEntity, media, "mail.requirement.manually-watched.subject");
 	}
 	
-	public void notifyRequirementManuallyAbandoned(@NotNull NotificationEntity notification, @NotNull UserGroupEntity userGroupEntity, @NotNull MediaEntity media) throws MessagingException, UnsupportedEncodingException{
+	public void notifyRequirementManuallyAbandoned(@NonNull NotificationEntity notification, @NonNull UserGroupEntity userGroupEntity, @NonNull MediaEntity media) throws MessagingException, UnsupportedEncodingException{
 		notifySimple(notification, userGroupEntity, media, "mail.requirement.manually-abandoned.subject");
 	}
 	
-	public void notifyMediaAdded(@NotNull NotificationEntity notification, @NotNull UserGroupEntity userGroupEntity, @Nullable MediaEntity media, @NotNull MediaMetadataContext mediaMetadataContext) throws MessagingException, UnsupportedEncodingException{
+	public void notifyMediaAdded(@NonNull NotificationEntity notification, @NonNull UserGroupEntity userGroupEntity, @Nullable MediaEntity media, @NonNull MediaMetadataContext mediaMetadataContext) throws MessagingException, UnsupportedEncodingException{
 		var locale = userGroupEntity.getLocaleAsObject();
 		var metadata = mediaMetadataContext.getMetadata();
 		
@@ -211,7 +211,7 @@ public class MailNotificationService extends AbstractNotificationService{
 		});
 	}
 	
-	private void notifySimple(@NotNull NotificationEntity notification, @NotNull UserGroupEntity userGroupEntity, @NotNull MediaEntity media, @NotNull String subjectKey) throws MessagingException, UnsupportedEncodingException{
+	private void notifySimple(@NonNull NotificationEntity notification, @NonNull UserGroupEntity userGroupEntity, @NonNull MediaEntity media, @NonNull String subjectKey) throws MessagingException, UnsupportedEncodingException{
 		var locale = userGroupEntity.getLocaleAsObject();
 		var context = new Context();
 		context.setLocale(userGroupEntity.getLocaleAsObject());
@@ -259,7 +259,7 @@ public class MailNotificationService extends AbstractNotificationService{
 		});
 	}
 	
-	private void sendMail(@NotNull NotificationEntity notification, @NotNull MessageFiller messageFiller) throws MessagingException, UnsupportedEncodingException{
+	private void sendMail(@NonNull NotificationEntity notification, @NonNull MessageFiller messageFiller) throws MessagingException, UnsupportedEncodingException{
 		var mimeMessage = emailSender.createMimeMessage();
 		var mailHelper = new MimeMessageHelper(mimeMessage, true, "utf-8");
 		
@@ -274,33 +274,33 @@ public class MailNotificationService extends AbstractNotificationService{
 		emailSender.send(mimeMessage);
 	}
 	
-	@NotNull
+	@NonNull
 	private Optional<byte[]> getOverseerrLogoBytes(){
 		return getResourceBytes("static/overseerr.png");
 	}
 	
-	@NotNull
+	@NonNull
 	private Optional<byte[]> getPlexLogoBytes(){
 		return getResourceBytes("static/plex.png");
 	}
 	
-	@NotNull
+	@NonNull
 	private Optional<byte[]> getTmdbLogoBytes(){
 		return getResourceBytes("static/tmdb.png");
 	}
 	
-	@NotNull
+	@NonNull
 	private Optional<byte[]> getTvdbLogoBytes(){
 		return getResourceBytes("static/tvdb.png");
 	}
 	
-	@NotNull
+	@NonNull
 	private Optional<byte[]> getTraktLogoBytes(){
 		return getResourceBytes("static/trakt.png");
 	}
 	
-	@NotNull
-	private Optional<byte[]> getResourceBytes(@NotNull String path){
+	@NonNull
+	private Optional<byte[]> getResourceBytes(@NonNull String path){
 		try{
 			var classPathResource = new ClassPathResource(path);
 			if(!classPathResource.exists()){

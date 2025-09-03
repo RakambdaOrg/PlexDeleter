@@ -3,8 +3,8 @@ package fr.rakambda.plexdeleter.api.overseerr.data;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
-import org.jetbrains.annotations.NotNull;
-import org.jetbrains.annotations.Nullable;
+import org.jspecify.annotations.NonNull;
+import org.jspecify.annotations.Nullable;
 import org.springframework.aot.hint.annotation.RegisterReflectionForBinding;
 
 @Data
@@ -13,9 +13,9 @@ import org.springframework.aot.hint.annotation.RegisterReflectionForBinding;
 @RegisterReflectionForBinding(Settings.class)
 public class Settings{
 	private int id;
-	@NotNull
+	@NonNull
 	private String locale;
-	@NotNull
+	@NonNull
 	private String region;
 	@Nullable
 	private String originalLanguage;
@@ -39,6 +39,6 @@ public class Settings{
 	private String watchlistSyncMovies;
 	@Nullable
 	private String watchlistSyncTv;
-	@NotNull
+	@NonNull
 	private NotificationTypes notificationTypes;
 }

@@ -40,6 +40,7 @@ dependencies {
     implementation("org.flywaydb:flyway-mysql")
     implementation("org.mariadb.jdbc:mariadb-java-client")
     implementation(libs.logbackEcs)
+    compileOnly("org.jspecify:jspecify")
 
     implementation(libs.thymeleafSpringSecurity)
     implementation(libs.webauthn4j)
@@ -50,7 +51,6 @@ dependencies {
     annotationProcessor("org.springframework.boot:spring-boot-configuration-processor")
     annotationProcessor("org.projectlombok:lombok")
     compileOnly("org.projectlombok:lombok")
-    compileOnly(libs.jetbrainsAnnotations)
 
     testAnnotationProcessor("org.projectlombok:lombok")
     testCompileOnly("org.projectlombok:lombok")

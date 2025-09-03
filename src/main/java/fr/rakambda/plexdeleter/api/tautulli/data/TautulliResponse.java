@@ -5,8 +5,8 @@ import fr.rakambda.plexdeleter.json.EmptyObjectAsNullDeserializer;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
-import org.jetbrains.annotations.NotNull;
-import org.jetbrains.annotations.Nullable;
+import org.jspecify.annotations.NonNull;
+import org.jspecify.annotations.Nullable;
 import org.springframework.aot.hint.annotation.RegisterReflectionForBinding;
 import java.util.Optional;
 
@@ -21,7 +21,7 @@ public class TautulliResponse<T>{
 	@JsonDeserialize(using = EmptyObjectAsNullDeserializer.class)
 	private T data;
 	
-	@NotNull
+	@NonNull
 	public Optional<T> getDataOptional(){
 		return Optional.ofNullable(data);
 	}

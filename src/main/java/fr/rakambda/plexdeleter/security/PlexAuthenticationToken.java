@@ -1,7 +1,7 @@
 package fr.rakambda.plexdeleter.security;
 
 import lombok.Getter;
-import org.jetbrains.annotations.Nullable;
+import org.jspecify.annotations.Nullable;
 import org.springframework.security.authentication.AbstractAuthenticationToken;
 import java.io.Serial;
 

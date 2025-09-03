@@ -2,7 +2,7 @@ package fr.rakambda.plexdeleter.amqp;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import fr.rakambda.plexdeleter.config.ApplicationConfiguration;
-import org.jetbrains.annotations.NotNull;
+import org.jspecify.annotations.NonNull;
 import org.springframework.amqp.core.Binding;
 import org.springframework.amqp.core.BindingBuilder;
 import org.springframework.amqp.core.CustomExchange;
@@ -95,8 +95,8 @@ public class AmqpConfiguration{
 		return new Jackson2JsonMessageConverter(jsonObjectMapper);
 	}
 	
-	@NotNull
-	public String prefixed(@NotNull String name){
+	@NonNull
+	public String prefixed(@NonNull String name){
 		return applicationConfiguration.getAmqp().getPrefix() + "." + name;
 	}
 }

@@ -5,7 +5,6 @@ import fr.rakambda.plexdeleter.storage.repository.MediaRepository;
 import fr.rakambda.plexdeleter.web.webhook.sonarr.data.Episode;
 import fr.rakambda.plexdeleter.web.webhook.sonarr.data.SonarrWebhook;
 import lombok.extern.slf4j.Slf4j;
-import org.jetbrains.annotations.NotNull;
 import org.springframework.http.HttpStatus;
 import org.springframework.lang.NonNull;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -37,7 +36,7 @@ public class SonarrController{
 		}
 	}
 	
-	private void onEpisodeGrabbed(@NotNull SonarrWebhook data){
+	private void onEpisodeGrabbed(@org.jspecify.annotations.NonNull SonarrWebhook data){
 		var series = data.getSeries();
 		if(Objects.isNull(series)){
 			log.warn("Not updating any media, could not determine tvdb id from {}", data);

@@ -1,6 +1,6 @@
 package fr.rakambda.plexdeleter.security;
 
-import org.jetbrains.annotations.NotNull;
+import org.jspecify.annotations.NonNull;
 import org.springframework.http.HttpMethod;
 import org.springframework.security.config.annotation.web.HttpSecurityBuilder;
 import org.springframework.security.config.annotation.web.configurers.AbstractAuthenticationFilterConfigurer;
@@ -9,26 +9,26 @@ import org.springframework.security.web.servlet.util.matcher.PathPatternRequestM
 import org.springframework.security.web.util.matcher.RequestMatcher;
 
 public class PlexFormLoginConfigurer<H extends HttpSecurityBuilder<H>> extends AbstractAuthenticationFilterConfigurer<H, PlexFormLoginConfigurer<H>, PlexAuthenticationFilter>{
-	@NotNull
-	public PlexFormLoginConfigurer<H> authenticationFilter(@NotNull PlexAuthenticationFilter authenticationFilter){
+	@NonNull
+	public PlexFormLoginConfigurer<H> authenticationFilter(@NonNull PlexAuthenticationFilter authenticationFilter){
 		super.setAuthenticationFilter(authenticationFilter);
 		return this;
 	}
 	
-	@NotNull
+	@NonNull
 	@Override
-	protected RequestMatcher createLoginProcessingUrlMatcher(@NotNull String loginProcessingUrl){
+	protected RequestMatcher createLoginProcessingUrlMatcher(@NonNull String loginProcessingUrl){
 		return PathPatternRequestMatcher.withDefaults().matcher(HttpMethod.POST, loginProcessingUrl);
 	}
 	
-	@NotNull
+	@NonNull
 	@Override
-	public PlexFormLoginConfigurer<H> loginPage(@NotNull String loginPage){
+	public PlexFormLoginConfigurer<H> loginPage(@NonNull String loginPage){
 		return super.loginPage(loginPage);
 	}
 	
-	@NotNull
-	public PlexFormLoginConfigurer<H> failureForwardUrl(@NotNull String forwardUrl){
+	@NonNull
+	public PlexFormLoginConfigurer<H> failureForwardUrl(@NonNull String forwardUrl){
 		failureHandler(new ForwardAuthenticationFailureHandler(forwardUrl));
 		return this;
 	}

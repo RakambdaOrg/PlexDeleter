@@ -8,7 +8,7 @@ import fr.rakambda.plexdeleter.api.servarr.sonarr.data.Queue;
 import fr.rakambda.plexdeleter.api.servarr.sonarr.data.Series;
 import fr.rakambda.plexdeleter.config.ApplicationConfiguration;
 import lombok.extern.slf4j.Slf4j;
-import org.jetbrains.annotations.NotNull;
+import org.jspecify.annotations.NonNull;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.ParameterizedTypeReference;
 import org.springframework.http.HttpStatus;
@@ -41,7 +41,7 @@ public class SonarrService{
 				.build();
 	}
 	
-	@NotNull
+	@NonNull
 	public Series getSeries(int id) throws RequestFailedException{
 		log.info("Getting series info with id {}", id);
 		return HttpUtils.unwrapIfStatusOkAndNotNullBody(apiClient.get()
@@ -53,7 +53,7 @@ public class SonarrService{
 				.orElseThrow(() -> new RequestFailedException("Failed to get series details with id %d".formatted(id))));
 	}
 	
-	@NotNull
+	@NonNull
 	public Collection<Tag> getTags() throws RequestFailedException{
 		log.info("Getting Sonarr tags");
 		return HttpUtils.unwrapIfStatusOkAndNotNullBody(apiClient.get()
@@ -112,7 +112,7 @@ public class SonarrService{
 				.orElseThrow(() -> new RequestFailedException("Failed to delete media with id %d".formatted(mediaId))));
 	}
 	
-	public void addTag(int mediaId, @NotNull String tagName) throws RequestFailedException{
+	public void addTag(int mediaId, @NonNull String tagName) throws RequestFailedException{
 		var tagId = getTags().stream()
 				.filter(tag -> Objects.equals(tag.getLabel(), tagName))
 				.findFirst()
@@ -131,7 +131,7 @@ public class SonarrService{
 		}
 	}
 	
-	public void removeTag(int mediaId, @NotNull String tagName) throws RequestFailedException{
+	public void removeTag(int mediaId, @NonNull String tagName) throws RequestFailedException{
 		var tagId = getTags().stream()
 				.filter(tag -> Objects.equals(tag.getLabel(), tagName))
 				.findFirst()
@@ -150,7 +150,7 @@ public class SonarrService{
 		}
 	}
 	
-	private void updateSeries(int mediaId, @NotNull Series media) throws RequestFailedException{
+	private void updateSeries(int mediaId, @NonNull Series media) throws RequestFailedException{
 		HttpUtils.requireStatusOk(apiClient.put()
 				.uri(b -> b.pathSegment("api", "v3", "series", "{mediaId}")
 						.build(mediaId))

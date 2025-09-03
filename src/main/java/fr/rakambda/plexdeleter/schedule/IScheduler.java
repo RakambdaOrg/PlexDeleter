@@ -1,8 +1,8 @@
 package fr.rakambda.plexdeleter.schedule;
 
-import org.jetbrains.annotations.NotNull;
+import org.jspecify.annotations.NonNull;
 
 public interface IScheduler extends Runnable{
-	@NotNull
+	@NonNull
 	String getTaskId();
 }

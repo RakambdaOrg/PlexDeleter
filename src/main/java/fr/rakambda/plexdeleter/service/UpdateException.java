@@ -1,9 +1,9 @@
 package fr.rakambda.plexdeleter.service;
 
-import org.jetbrains.annotations.NotNull;
+import org.jspecify.annotations.NonNull;
 
 public class UpdateException extends Exception{
-	public UpdateException(@NotNull String message){
+	public UpdateException(@NonNull String message){
 		super(message);
 	}
 }

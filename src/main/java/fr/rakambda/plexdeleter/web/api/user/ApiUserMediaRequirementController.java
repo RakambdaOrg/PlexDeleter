@@ -14,6 +14,7 @@ import fr.rakambda.plexdeleter.storage.repository.UserPersonRepository;
 import fr.rakambda.plexdeleter.web.api.ThymeleafMessageException;
 import jakarta.validation.constraints.NotNull;
 import lombok.extern.slf4j.Slf4j;
+import org.jspecify.annotations.NonNull;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.core.Authentication;
 import org.springframework.transaction.annotation.Transactional;
@@ -47,7 +48,7 @@ public class ApiUserMediaRequirementController{
 			RequestMethod.GET,
 			RequestMethod.POST
 	})
-	public ModelAndView add(@org.jetbrains.annotations.NotNull Authentication authentication, @NotNull @RequestParam("media") int mediaId) throws NotifyException, RequestFailedException, UpdateException, ThymeleafMessageException{
+	public ModelAndView add(@NonNull Authentication authentication, @NotNull @RequestParam("media") int mediaId) throws NotifyException, RequestFailedException, UpdateException, ThymeleafMessageException{
 		var userPerson = getUserPersonEntityFromAuth(authentication);
 		var media = mediaRepository.findById(mediaId)
 				.orElseThrow(() -> new RuntimeException("Media not found"));
@@ -57,7 +58,7 @@ public class ApiUserMediaRequirementController{
 	
 	@Transactional
 	@PostMapping("/abandon")
-	public ModelAndView abandon(@org.jetbrains.annotations.NotNull Authentication authentication, @NotNull @RequestParam("media") int mediaId) throws NotifyException, RequestFailedException{
+	public ModelAndView abandon(@NonNull Authentication authentication, @NotNull @RequestParam("media") int mediaId) throws NotifyException, RequestFailedException{
 		var userPerson = getUserPersonEntityFromAuth(authentication);
 		var requirement = mediaRequirementRepository.findById(new MediaRequirementEntity.TableId(mediaId, userPerson.getGroupId()))
 				.orElseThrow(() -> new RuntimeException("Requirement not found"));
@@ -67,7 +68,7 @@ public class ApiUserMediaRequirementController{
 	
 	@Transactional
 	@PostMapping("/complete")
-	public ModelAndView complete(@org.jetbrains.annotations.NotNull Authentication authentication, @NotNull @RequestParam("media") int mediaId) throws NotifyException, ServiceException{
+	public ModelAndView complete(@NonNull Authentication authentication, @NotNull @RequestParam("media") int mediaId) throws NotifyException, ServiceException{
 		var userPerson = getUserPersonEntityFromAuth(authentication);
 		var requirement = mediaRequirementRepository.findById(new MediaRequirementEntity.TableId(mediaId, userPerson.getGroupId()))
 				.orElseThrow(() -> new RuntimeException("Requirement not found"));
@@ -75,7 +76,7 @@ public class ApiUserMediaRequirementController{
 		return new ModelAndView("/api/success");
 	}
 	
-	private UserPersonEntity getUserPersonEntityFromAuth(@org.jetbrains.annotations.NotNull Authentication authentication){
+	private UserPersonEntity getUserPersonEntityFromAuth(@NonNull Authentication authentication){
 		var plexId = Optional.ofNullable(authentication.getPrincipal())
 				.filter(PlexUser.class::isInstance)
 				.map(PlexUser.class::cast)

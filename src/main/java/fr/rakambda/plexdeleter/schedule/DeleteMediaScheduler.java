@@ -12,8 +12,7 @@ import fr.rakambda.plexdeleter.storage.entity.MediaEntity;
 import fr.rakambda.plexdeleter.storage.entity.MediaStatus;
 import fr.rakambda.plexdeleter.storage.repository.MediaRepository;
 import lombok.extern.slf4j.Slf4j;
-import org.jetbrains.annotations.NotNull;
-import org.jetbrains.annotations.VisibleForTesting;
+import org.jspecify.annotations.NonNull;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Component;
@@ -62,7 +61,7 @@ public class DeleteMediaScheduler implements IScheduler{
 	}
 	
 	@Override
-	@NotNull
+	@NonNull
 	public String getTaskId(){
 		return "media-delete";
 	}
@@ -102,7 +101,6 @@ public class DeleteMediaScheduler implements IScheduler{
 		}
 	}
 	
-	@VisibleForTesting
 	long delete(MediaEntity mediaEntity) throws DeletionException, RequestFailedException, IOException{
 		log.info("Deleting media {}", mediaEntity);
 		if(Objects.isNull(mediaEntity.getPlexId())){
@@ -166,8 +164,7 @@ public class DeleteMediaScheduler implements IScheduler{
 		return size;
 	}
 	
-	@NotNull
-	private Map.Entry<Path, Path> extractPath(@NotNull String file){
+	private Map.@NonNull Entry<Path, Path> extractPath(@NonNull String file){
 		for(var mapping : remotePathMappings.entrySet()){
 			if(file.startsWith(mapping.getKey())){
 				try{
@@ -187,7 +184,7 @@ public class DeleteMediaScheduler implements IScheduler{
 		throw new IllegalStateException("Could not find path mapping for " + file);
 	}
 	
-	private long deleteRecursive(@NotNull Queue<Map.Entry<Path, Path>> paths) throws IOException{
+	private long deleteRecursive(@NonNull Queue<Map.Entry<Path, Path>> paths) throws IOException{
 		var sizeDeleted = new AtomicLong(0);
 		while(!paths.isEmpty()){
 			var pathEntry = paths.poll();
@@ -211,8 +208,8 @@ public class DeleteMediaScheduler implements IScheduler{
 		return sizeDeleted.get();
 	}
 	
-	@NotNull
-	private Collection<Path> deleteDirectory(@NotNull Path path, @NotNull AtomicLong sizeDeleted) throws IOException{
+	@NonNull
+	private Collection<Path> deleteDirectory(@NonNull Path path, @NonNull AtomicLong sizeDeleted) throws IOException{
 		try(var list = Files.list(path)){
 			var children = list.toList();
 			for(var child : children){
@@ -236,7 +233,7 @@ public class DeleteMediaScheduler implements IScheduler{
 		}
 	}
 	
-	private void deleteCompanion(@NotNull Path path, @NotNull AtomicLong sizeDeleted) throws IOException{
+	private void deleteCompanion(@NonNull Path path, @NonNull AtomicLong sizeDeleted) throws IOException{
 		var filename = path.getFileName().toString();
 		try{
 			if(Files.isRegularFile(path)){
@@ -288,7 +285,7 @@ public class DeleteMediaScheduler implements IScheduler{
 		}
 	}
 	
-	private void deleteFile(@NotNull Path path, @NotNull AtomicLong sizeDeleted) throws IOException{
+	private void deleteFile(@NonNull Path path, @NonNull AtomicLong sizeDeleted) throws IOException{
 		var size = Files.size(path);
 		if(!dryDelete){
 			Files.delete(path);
@@ -297,7 +294,7 @@ public class DeleteMediaScheduler implements IScheduler{
 		supervisionService.send("\uD83D\uDEAE Deleted file %s for a size of %s", path, supervisionService.sizeToHuman(size));
 	}
 	
-	private void deleteFromOverseerr(@NotNull MediaEntity mediaEntity){
+	private void deleteFromOverseerr(@NonNull MediaEntity mediaEntity){
 		if(Objects.isNull(mediaEntity.getOverseerrId())){
 			return;
 		}
@@ -313,9 +310,8 @@ public class DeleteMediaScheduler implements IScheduler{
 		}
 	}
 	
-	@VisibleForTesting
 	static class DeletionException extends Exception{
-		public DeletionException(@NotNull String message){
+		public DeletionException(@NonNull String message){
 			super(message);
 		}
 	}

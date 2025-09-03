@@ -7,8 +7,8 @@ import fr.rakambda.plexdeleter.service.data.LibraryElement;
 import fr.rakambda.plexdeleter.storage.entity.MediaEntity;
 import fr.rakambda.plexdeleter.storage.entity.UserGroupEntity;
 import lombok.extern.slf4j.Slf4j;
-import org.jetbrains.annotations.NotNull;
-import org.jetbrains.annotations.Nullable;
+import org.jspecify.annotations.NonNull;
+import org.jspecify.annotations.Nullable;
 import org.springframework.aot.hint.ExecutableMode;
 import org.springframework.aot.hint.MemberCategory;
 import org.springframework.aot.hint.ReflectionHints;
@@ -24,7 +24,7 @@ import java.util.Locale;
 @Slf4j
 public class ThymeleafHints implements RuntimeHintsRegistrar{
 	@Override
-	public void registerHints(@NotNull RuntimeHints hints, @Nullable ClassLoader classLoader){
+	public void registerHints(@NonNull RuntimeHints hints, @Nullable ClassLoader classLoader){
 		try{
 			hints.reflection().registerMethod(ThymeleafService.class.getMethod("getMediaOverseerrUrl", MediaEntity.class), ExecutableMode.INVOKE);
 			hints.reflection().registerMethod(ThymeleafService.class.getMethod("getMediaRadarrUrl", MediaEntity.class), ExecutableMode.INVOKE);
@@ -58,7 +58,7 @@ public class ThymeleafHints implements RuntimeHintsRegistrar{
 		}
 	}
 	
-	private void registerType(@NotNull ReflectionHints reflection, @NotNull Class<?> klass){
+	private void registerType(@NonNull ReflectionHints reflection, @NonNull Class<?> klass){
 		reflection.registerType(klass,
 				MemberCategory.DECLARED_FIELDS,
 				MemberCategory.INVOKE_DECLARED_CONSTRUCTORS,

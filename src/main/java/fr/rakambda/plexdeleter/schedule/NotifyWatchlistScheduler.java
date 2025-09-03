@@ -8,8 +8,7 @@ import fr.rakambda.plexdeleter.storage.entity.UserGroupEntity;
 import fr.rakambda.plexdeleter.storage.repository.MediaRequirementRepository;
 import fr.rakambda.plexdeleter.storage.repository.UserGroupRepository;
 import lombok.extern.slf4j.Slf4j;
-import org.jetbrains.annotations.NotNull;
-import org.jetbrains.annotations.VisibleForTesting;
+import org.jspecify.annotations.NonNull;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Component;
@@ -34,7 +33,7 @@ public class NotifyWatchlistScheduler implements IScheduler{
 	}
 	
 	@Override
-	@NotNull
+	@NonNull
 	public String getTaskId(){
 		return "notify-watchlist";
 	}
@@ -58,8 +57,7 @@ public class NotifyWatchlistScheduler implements IScheduler{
 		log.info("Done notifying {} user groups", userGroups.size());
 	}
 	
-	@VisibleForTesting
-	void update(@NotNull UserGroupEntity userGroupEntity) throws NotifyException{
+	void update(@NonNull UserGroupEntity userGroupEntity) throws NotifyException{
 		log.info("Notifying user group {}", userGroupEntity);
 		
 		var requirements = mediaRequirementRepository.findAllByIdGroupIdAndStatusIs(userGroupEntity.getId(), MediaRequirementStatus.WAITING);

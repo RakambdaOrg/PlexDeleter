@@ -3,8 +3,7 @@ package fr.rakambda.plexdeleter.config;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
-import org.jetbrains.annotations.NotNull;
-import org.jetbrains.annotations.Nullable;
+import org.jspecify.annotations.Nullable;
 import org.springframework.lang.NonNull;
 import java.util.List;
 
@@ -12,14 +11,14 @@ import java.util.List;
 @NoArgsConstructor
 @AllArgsConstructor
 public class PlexConfiguration{
-	@NotNull
 	@NonNull
+	@org.jspecify.annotations.NonNull
 	private String endpoint;
-	@NotNull
 	@NonNull
+	@org.jspecify.annotations.NonNull
 	private String appEndpoint;
-	@NotNull
 	@NonNull
+	@org.jspecify.annotations.NonNull
 	private String serverId;
 	@Nullable
 	private List<Integer> temporaryLibraries;

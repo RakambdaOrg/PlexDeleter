@@ -3,7 +3,7 @@ package fr.rakambda.plexdeleter.api.tmdb.data;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
-import org.jetbrains.annotations.NotNull;
+import org.jspecify.annotations.NonNull;
 import org.springframework.aot.hint.annotation.RegisterReflectionForBinding;
 
 @Data
@@ -12,6 +12,6 @@ import org.springframework.aot.hint.annotation.RegisterReflectionForBinding;
 @RegisterReflectionForBinding(Genre.class)
 public class Genre{
 	private int id;
-	@NotNull
+	@NonNull
 	private String name;
 }

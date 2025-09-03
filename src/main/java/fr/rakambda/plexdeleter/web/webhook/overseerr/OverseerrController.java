@@ -1,11 +1,5 @@
 package fr.rakambda.plexdeleter.web.webhook.overseerr;
 
-import java.util.Arrays;
-import java.util.List;
-import java.util.Objects;
-import java.util.Optional;
-import java.util.Set;
-import java.util.stream.Collectors;
 import fr.rakambda.plexdeleter.api.RequestFailedException;
 import fr.rakambda.plexdeleter.api.overseerr.OverseerrService;
 import fr.rakambda.plexdeleter.api.servarr.data.Tag;
@@ -27,7 +21,6 @@ import fr.rakambda.plexdeleter.web.webhook.overseerr.data.Media;
 import fr.rakambda.plexdeleter.web.webhook.overseerr.data.OverseerrWebhook;
 import fr.rakambda.plexdeleter.web.webhook.overseerr.data.Request;
 import lombok.extern.slf4j.Slf4j;
-import org.jetbrains.annotations.NotNull;
 import org.springframework.http.HttpStatus;
 import org.springframework.lang.NonNull;
 import org.springframework.transaction.annotation.Transactional;
@@ -36,6 +29,12 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestController;
+import java.util.Arrays;
+import java.util.List;
+import java.util.Objects;
+import java.util.Optional;
+import java.util.Set;
+import java.util.stream.Collectors;
 
 @Slf4j
 @RestController
@@ -72,7 +71,7 @@ public class OverseerrController{
 		}
 	}
 	
-	private void onMediaAdded(@NotNull OverseerrWebhook data) throws RequestFailedException, UpdateException, NotifyException{
+	private void onMediaAdded(@org.jspecify.annotations.NonNull OverseerrWebhook data) throws RequestFailedException, UpdateException, NotifyException{
 		var overseerrId = Optional.ofNullable(data.getMedia()).map(Media::getTmdbId);
 		
 		var medias = overseerrId
@@ -84,7 +83,7 @@ public class OverseerrController{
 		}
 	}
 	
-	private void onMediaApproved(@NotNull OverseerrWebhook data) throws RequestFailedException, UpdateException, NotifyException, ServiceException, ThymeleafMessageException{
+	private void onMediaApproved(@org.jspecify.annotations.NonNull OverseerrWebhook data) throws RequestFailedException, UpdateException, NotifyException, ThymeleafMessageException{
 		var requestId = Optional.ofNullable(data.getRequest()).map(Request::getRequestId);
 		if(requestId.isEmpty()){
 			log.warn("Not adding any media, could not determine request id from {}", data);

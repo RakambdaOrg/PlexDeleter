@@ -2,8 +2,8 @@ package fr.rakambda.plexdeleter.service;
 
 import fr.rakambda.plexdeleter.config.ApplicationConfiguration;
 import fr.rakambda.plexdeleter.storage.entity.MediaEntity;
-import org.jetbrains.annotations.NotNull;
-import org.jetbrains.annotations.Nullable;
+import org.jspecify.annotations.NonNull;
+import org.jspecify.annotations.Nullable;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import java.util.Optional;
@@ -28,35 +28,35 @@ public class ThymeleafService{
 	}
 	
 	@Nullable
-	public String getMediaOverseerrUrl(@NotNull MediaEntity media){
+	public String getMediaOverseerrUrl(@NonNull MediaEntity media){
 		return Optional.ofNullable(media.getOverseerrId())
 				.map(id -> "%s/%s/%d".formatted(overseerrEndpoint, media.getType().getOverseerrType().getValue(), id))
 				.orElse(null);
 	}
 	
 	@Nullable
-	public String getMediaSonarrUrl(@NotNull MediaEntity media){
+	public String getMediaSonarrUrl(@NonNull MediaEntity media){
 		return Optional.ofNullable(media.getSonarrSlug())
 				.map(id -> "%s/series/%s".formatted(sonarrEndpoint, id))
 				.orElse(null);
 	}
 	
 	@Nullable
-	public String getMediaRadarrUrl(@NotNull MediaEntity media){
+	public String getMediaRadarrUrl(@NonNull MediaEntity media){
 		return Optional.ofNullable(media.getRadarrSlug())
 				.map(id -> "%s/movie/%s".formatted(radarrEndpoint, id))
 				.orElse(null);
 	}
 	
 	@Nullable
-	public String getMediaPlexUrl(@NotNull MediaEntity media){
+	public String getMediaPlexUrl(@NonNull MediaEntity media){
 		return Optional.ofNullable(media.getPlexId())
 				.map(this::getRatingKeyPlexUrl)
 				.orElse(null);
 	}
 	
 	@Nullable
-	public String getMediaTraktUrl(@NotNull MediaEntity media){
+	public String getMediaTraktUrl(@NonNull MediaEntity media){
 		return Optional.ofNullable(media.getTmdbId())
 				.map(id -> "https://trakt.tv/search/tmdb/%d?id_type=%s".formatted(id, media.getType().getOverseerrType().getTraktSearchValue()))
 				.orElse(null);
@@ -68,7 +68,7 @@ public class ThymeleafService{
 	}
 	
 	@Nullable
-	public String getMediaTmdbUrl(@NotNull MediaEntity media){
+	public String getMediaTmdbUrl(@NonNull MediaEntity media){
 		var type = switch(media.getType()){
 			case MOVIE -> "movie";
 			case SEASON, EPISODE -> "tv";
@@ -80,7 +80,7 @@ public class ThymeleafService{
 	}
 	
 	@Nullable
-	public String getMediaTvdbUrl(@NotNull MediaEntity media){
+	public String getMediaTvdbUrl(@NonNull MediaEntity media){
 		var type = switch(media.getType()){
 			case MOVIE -> "movie";
 			case SEASON, EPISODE -> "series";
@@ -96,13 +96,13 @@ public class ThymeleafService{
 		return applicationEndpoint;
 	}
 	
-	@NotNull
+	@NonNull
 	public String getAddWatchMediaUrl(int mediaId){
 		return "%s/api/user/media-requirement/add?media=%d".formatted(getOwnUrl(), mediaId);
 	}
 	
 	@Nullable
-	public String getTableColorClass(@NotNull MediaEntity media){
+	public String getTableColorClass(@NonNull MediaEntity media){
 		return media.getStatus().getTableClass();
 	}
 }

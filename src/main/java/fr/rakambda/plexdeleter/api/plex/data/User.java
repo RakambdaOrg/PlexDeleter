@@ -3,8 +3,8 @@ package fr.rakambda.plexdeleter.api.plex.data;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
-import org.jetbrains.annotations.NotNull;
-import org.jetbrains.annotations.Nullable;
+import org.jspecify.annotations.NonNull;
+import org.jspecify.annotations.Nullable;
 import org.springframework.aot.hint.annotation.RegisterReflectionForBinding;
 
 @Data
@@ -14,13 +14,13 @@ import org.springframework.aot.hint.annotation.RegisterReflectionForBinding;
 public class User{
 	@Nullable
 	private Integer id;
-	@NotNull
+	@NonNull
 	private String username;
-	@NotNull
+	@NonNull
 	private String uuid;
 	@Nullable
 	private String title;
-	@NotNull
+	@NonNull
 	private String email;
 	@Nullable
 	private String friendlyName;

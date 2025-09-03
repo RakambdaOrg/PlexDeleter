@@ -3,7 +3,7 @@ package fr.rakambda.plexdeleter.api.servarr.data;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
-import org.jetbrains.annotations.NotNull;
+import org.jspecify.annotations.NonNull;
 import org.springframework.aot.hint.annotation.RegisterReflectionForBinding;
 import java.util.Set;
 
@@ -12,7 +12,7 @@ import java.util.Set;
 @AllArgsConstructor
 @RegisterReflectionForBinding(UpdateMedia.class)
 public class UpdateMedia{
-	@NotNull
+	@NonNull
 	private String path;
 	private int qualityProfileId;
 	private Set<Integer> tags;

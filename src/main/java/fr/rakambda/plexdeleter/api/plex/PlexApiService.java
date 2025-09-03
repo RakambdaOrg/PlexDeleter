@@ -5,7 +5,7 @@ import fr.rakambda.plexdeleter.api.RequestFailedException;
 import fr.rakambda.plexdeleter.api.plex.data.User;
 import fr.rakambda.plexdeleter.config.ApplicationConfiguration;
 import lombok.extern.slf4j.Slf4j;
-import org.jetbrains.annotations.NotNull;
+import org.jspecify.annotations.NonNull;
 import org.springframework.http.HttpHeaders;
 import org.springframework.stereotype.Service;
 import org.springframework.util.MimeTypeUtils;
@@ -24,8 +24,8 @@ public class PlexApiService{
 				.build();
 	}
 	
-	@NotNull
-	public User getUserInfo(@NotNull String authToken) throws RequestFailedException{
+	@NonNull
+	public User getUserInfo(@NonNull String authToken) throws RequestFailedException{
 		log.info("Getting user info from auth token");
 		return HttpUtils.unwrapIfStatusOkAndNotNullBody(apiClient.get()
 				.uri(b -> b.pathSegment("api", "v2", "user")

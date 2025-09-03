@@ -4,7 +4,7 @@ import fr.rakambda.plexdeleter.ThrowingRunnable;
 import fr.rakambda.plexdeleter.amqp.AmqpConstants;
 import fr.rakambda.plexdeleter.amqp.RabbitService;
 import lombok.extern.slf4j.Slf4j;
-import org.jetbrains.annotations.NotNull;
+import org.jspecify.annotations.NonNull;
 import org.springframework.messaging.Message;
 import java.util.List;
 import java.util.Map;
@@ -26,7 +26,7 @@ public abstract class RetryMessageHandler<M>{
 	
 	protected abstract String getRoutingKey();
 	
-	protected void handle(@NotNull M message, @NotNull Map<String, Object> headers, @NotNull ThrowingRunnable<M> handler){
+	protected void handle(@NonNull M message, @NonNull Map<String, Object> headers, @NonNull ThrowingRunnable<M> handler){
 		try{
 			handler.run(message);
 		}
@@ -35,7 +35,7 @@ public abstract class RetryMessageHandler<M>{
 		}
 	}
 	
-	protected void handle(@NotNull List<Message<M>> messages, @NotNull ThrowingRunnable<List<Message<M>>> handler){
+	protected void handle(@NonNull List<Message<M>> messages, @NonNull ThrowingRunnable<List<Message<M>>> handler){
 		try{
 			handler.run(messages);
 		}
@@ -44,11 +44,11 @@ public abstract class RetryMessageHandler<M>{
 		}
 	}
 	
-	protected void handleErrors(@NotNull Throwable throwable, @NotNull List<Message<M>> messages){
+	protected void handleErrors(@NonNull Throwable throwable, @NonNull List<Message<M>> messages){
 		messages.forEach(m -> handleError(throwable, m.getHeaders(), m.getPayload()));
 	}
 	
-	protected void handleError(@NotNull Throwable throwable, @NotNull Map<String, Object> headers, @NotNull M message){
+	protected void handleError(@NonNull Throwable throwable, @NonNull Map<String, Object> headers, @NonNull M message){
 		log.warn("Failed to handle message {}", message, throwable);
 		
 		var retry = Optional.ofNullable(headers.get(amqpConstants.HEADER_X_REDELIVER_COUNT_REMAINING))
@@ -68,7 +68,7 @@ public abstract class RetryMessageHandler<M>{
 		rabbitService.sendMessage(getExchange(), getRoutingKey(), newRetry, getRetryDelay(), message);
 	}
 	
-	protected void handleNoRetry(@NotNull Throwable throwable, @NotNull M message){
+	protected void handleNoRetry(@NonNull Throwable throwable, @NonNull M message){
 		rabbitService.sendDeadLetter(message);
 	}
 	

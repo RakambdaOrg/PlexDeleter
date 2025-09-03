@@ -12,7 +12,7 @@ import fr.rakambda.plexdeleter.storage.repository.MediaRepository;
 import fr.rakambda.plexdeleter.storage.repository.MediaRequirementRepository;
 import fr.rakambda.plexdeleter.storage.repository.UserPersonRepository;
 import lombok.extern.slf4j.Slf4j;
-import org.jetbrains.annotations.NotNull;
+import org.jspecify.annotations.NonNull;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.core.Authentication;
 import org.springframework.transaction.annotation.Transactional;
@@ -42,7 +42,7 @@ public class UserController{
 	}
 	
 	@GetMapping(value = "/home")
-	public ModelAndView index(@NotNull Authentication authentication){
+	public ModelAndView index(@NonNull Authentication authentication){
 		var plexId = Optional.ofNullable(authentication.getPrincipal())
 				.filter(PlexUser.class::isInstance)
 				.map(PlexUser.class::cast)
@@ -65,7 +65,7 @@ public class UserController{
 	
 	@Transactional
 	@GetMapping(value = "/medias")
-	public ModelAndView medias(@NotNull Authentication authentication){
+	public ModelAndView medias(@NonNull Authentication authentication){
 		var plexId = Optional.ofNullable(authentication.getPrincipal())
 				.filter(PlexUser.class::isInstance)
 				.map(PlexUser.class::cast)
@@ -86,7 +86,7 @@ public class UserController{
 		return mav;
 	}
 	
-	private boolean userHasNoRequirement(@NotNull UserPersonEntity userPerson, @NotNull MediaEntity media){
+	private boolean userHasNoRequirement(@NonNull UserPersonEntity userPerson, @NonNull MediaEntity media){
 		return media.getRequirements().stream()
 				.map(MediaRequirementEntity::getGroup)
 				.map(UserGroupEntity::getPersons)

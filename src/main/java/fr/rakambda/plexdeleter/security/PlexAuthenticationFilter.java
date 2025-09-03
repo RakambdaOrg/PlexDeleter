@@ -3,7 +3,7 @@ package fr.rakambda.plexdeleter.security;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.extern.slf4j.Slf4j;
-import org.jetbrains.annotations.NotNull;
+import org.jspecify.annotations.NonNull;
 import org.springframework.security.authentication.AuthenticationServiceException;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.AuthenticationException;
@@ -19,7 +19,7 @@ public class PlexAuthenticationFilter extends UsernamePasswordAuthenticationFilt
 	}
 	
 	@Override
-	public Authentication attemptAuthentication(@NotNull HttpServletRequest request, @NotNull HttpServletResponse response) throws AuthenticationException{
+	public Authentication attemptAuthentication(@NonNull HttpServletRequest request, @NonNull HttpServletResponse response) throws AuthenticationException{
 		if(!request.getMethod().equals("POST")){
 			throw new AuthenticationServiceException("Authentication method not supported: " + request.getMethod());
 		}

@@ -1,9 +1,5 @@
 package fr.rakambda.plexdeleter.api.overseerr;
 
-import java.util.Collection;
-import java.util.HashSet;
-import java.util.Objects;
-import java.util.Set;
 import fr.rakambda.plexdeleter.api.HttpUtils;
 import fr.rakambda.plexdeleter.api.RequestFailedException;
 import fr.rakambda.plexdeleter.api.overseerr.data.Media;
@@ -18,12 +14,16 @@ import fr.rakambda.plexdeleter.api.overseerr.data.SeriesMedia;
 import fr.rakambda.plexdeleter.config.ApplicationConfiguration;
 import fr.rakambda.plexdeleter.storage.entity.MediaEntity;
 import lombok.extern.slf4j.Slf4j;
-import org.jetbrains.annotations.NotNull;
+import org.jspecify.annotations.NonNull;
 import org.springframework.core.ParameterizedTypeReference;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.web.reactive.function.BodyInserters;
 import org.springframework.web.reactive.function.client.WebClient;
+import java.util.Collection;
+import java.util.HashSet;
+import java.util.Objects;
+import java.util.Set;
 
 @Slf4j
 @Service
@@ -43,15 +43,15 @@ public class OverseerrService{
 				.build();
 	}
 	
-	@NotNull
-	public Media getMediaDetails(int mediaId, @NotNull MediaType type) throws RequestFailedException{
+	@NonNull
+	public Media getMediaDetails(int mediaId, @NonNull MediaType type) throws RequestFailedException{
 		return switch(type){
 			case TV -> getTvDetails(mediaId);
 			case MOVIE -> getMovieDetails(mediaId);
 		};
 	}
 	
-	@NotNull
+	@NonNull
 	private MovieMedia getMovieDetails(int mediaId) throws RequestFailedException{
 		log.info("Getting movie details for media id {}", mediaId);
 		return HttpUtils.unwrapIfStatusOkAndNotNullBody(apiClient.get()
@@ -63,7 +63,7 @@ public class OverseerrService{
 				.orElseThrow(() -> new RequestFailedException("Failed to get movie details with id %d".formatted(mediaId))));
 	}
 	
-	@NotNull
+	@NonNull
 	private SeriesMedia getTvDetails(int mediaId) throws RequestFailedException{
 		log.info("Getting tv details for media id {}", mediaId);
 		return HttpUtils.unwrapIfStatusOkAndNotNullBody(apiClient.get()
@@ -75,7 +75,7 @@ public class OverseerrService{
 				.orElseThrow(() -> new RequestFailedException("Failed to get series details with id %d".formatted(mediaId))));
 	}
 	
-	@NotNull
+	@NonNull
 	public Request getRequestDetails(int requestId) throws RequestFailedException{
 		log.info("Getting request details for request id {}", requestId);
 		return HttpUtils.unwrapIfStatusOkAndNotNullBody(apiClient.get()
@@ -87,7 +87,7 @@ public class OverseerrService{
 				.orElseThrow(() -> new RequestFailedException("Failed to get request details with id %d".formatted(requestId))));
 	}
 	
-	public void deleteRequestForUserAndMedia(@NotNull Collection<Integer> userIds, @NotNull MediaEntity media) throws RequestFailedException{
+	public void deleteRequestForUserAndMedia(@NonNull Collection<Integer> userIds, @NonNull MediaEntity media) throws RequestFailedException{
 		var requestIds = new HashSet<Integer>();
 		for(var userId : userIds){
 			requestIds.addAll(getUserRequests(userId)
@@ -102,7 +102,7 @@ public class OverseerrService{
 		}
 	}
 	
-	private static boolean filterRequest(@NotNull Request request, @NotNull MediaEntity media){
+	private static boolean filterRequest(@NonNull Request request, @NonNull MediaEntity media){
 		if(Objects.isNull(request.getMedia())){
 			return false;
 		}
@@ -127,7 +127,7 @@ public class OverseerrService{
 		return false;
 	}
 	
-	@NotNull
+	@NonNull
 	public PagedResponse<Request> getUserRequests(int userId) throws RequestFailedException{
 		log.info("Getting user requests for user id {}", userId);
 		return HttpUtils.unwrapIfStatusOkAndNotNullBody(apiClient.get()
@@ -140,7 +140,7 @@ public class OverseerrService{
 				.orElseThrow(() -> new RequestFailedException("Failed to get request details with id %d".formatted(userId))));
 	}
 	
-	@NotNull
+	@NonNull
 	public PlexSyncResponse plexSync(boolean cancel, boolean start) throws RequestFailedException{
 		var data = new PlexSyncRequest(cancel, start);
 		log.info("Modifying plex sync with params {}", data);

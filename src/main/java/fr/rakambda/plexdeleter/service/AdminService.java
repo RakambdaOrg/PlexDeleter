@@ -6,7 +6,7 @@ import fr.rakambda.plexdeleter.storage.entity.MediaRequirementStatus;
 import fr.rakambda.plexdeleter.storage.entity.MediaStatus;
 import fr.rakambda.plexdeleter.storage.repository.MediaRepository;
 import fr.rakambda.plexdeleter.storage.repository.MediaRequirementRepository;
-import org.jetbrains.annotations.NotNull;
+import org.jspecify.annotations.NonNull;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import java.util.List;
@@ -23,7 +23,7 @@ public class AdminService{
 		this.mediaRequirementRepository = mediaRequirementRepository;
 	}
 	
-	@NotNull
+	@NonNull
 	public List<MediaRequirementEntity> getMediaRequirementsThatCanBeCompleted(){
 		return mediaRequirementRepository.findAllByStatusIs(MediaRequirementStatus.WAITING).stream()
 				.sorted((r1, r2) -> {
@@ -36,14 +36,14 @@ public class AdminService{
 				.toList();
 	}
 	
-	@NotNull
+	@NonNull
 	public List<MediaEntity> getAllMedias(){
 		return mediaRepository.findAllByStatusIn(MediaStatus.allOnDiskOrWillBe()).stream()
 				.sorted(MediaEntity.COMPARATOR_BY_TYPE_THEN_NAME_THEN_INDEX)
 				.toList();
 	}
 	
-	@NotNull
+	@NonNull
 	public List<MediaEntity> getSoonDeletedMedias(){
 		return mediaRepository.findAllByStatusIn(Set.of(MediaStatus.PENDING_DELETION)).stream()
 				.sorted(MediaEntity.COMPARATOR_BY_TYPE_THEN_NAME_THEN_INDEX)

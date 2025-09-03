@@ -1,14 +1,14 @@
 package fr.rakambda.plexdeleter.api.overseerr.data;
 
-import java.time.Instant;
-import java.util.HashSet;
-import java.util.Set;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
-import org.jetbrains.annotations.NotNull;
-import org.jetbrains.annotations.Nullable;
+import org.jspecify.annotations.NonNull;
+import org.jspecify.annotations.Nullable;
 import org.springframework.aot.hint.annotation.RegisterReflectionForBinding;
+import java.time.Instant;
+import java.util.HashSet;
+import java.util.Set;
 
 @Data
 @NoArgsConstructor
@@ -17,11 +17,11 @@ import org.springframework.aot.hint.annotation.RegisterReflectionForBinding;
 public final class Request{
 	private int id;
 	private int status;
-	@NotNull
+	@NonNull
 	private Instant createdAt;
-	@NotNull
+	@NonNull
 	private Instant updatedAt;
-	@NotNull
+	@NonNull
 	private String type;
 	private boolean is4k;
 	@Nullable
@@ -35,12 +35,12 @@ public final class Request{
 	@Nullable
 	private Set<Integer> tags = new HashSet<>();
 	private boolean isAutoRequest;
-	@NotNull
+	@NonNull
 	private Set<RequestSeason> seasons = new HashSet<>();
 	private int seasonCount;
 	@Nullable
 	private RequestMedia media;
-	@NotNull
+	@NonNull
 	private User requestedBy;
 	@Nullable
 	private User modifiedBy;

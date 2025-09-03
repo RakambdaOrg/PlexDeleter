@@ -11,7 +11,7 @@ import fr.rakambda.plexdeleter.storage.repository.UserPersonRepository;
 import fr.rakambda.plexdeleter.web.api.ThymeleafMessageException;
 import fr.rakambda.plexdeleter.web.webhook.tautulli.data.TautulliWebhook;
 import lombok.extern.slf4j.Slf4j;
-import org.jetbrains.annotations.NotNull;
+import org.jspecify.annotations.NonNull;
 import org.springframework.stereotype.Service;
 import java.io.IOException;
 import java.util.Objects;
@@ -40,7 +40,7 @@ public class TautulliService{
 		this.mediaRequirementService = mediaRequirementService;
 	}
 	
-	public void updateRequirement(@NotNull TautulliWebhook data) throws RequestFailedException, IOException{
+	public void updateRequirement(@NonNull TautulliWebhook data) throws RequestFailedException, IOException{
 		if(Objects.isNull(data.getUserId())){
 			log.warn("Not updating any requirement, could not determine user id from {}", data);
 			return;
@@ -77,7 +77,7 @@ public class TautulliService{
 		watchService.update(mediaRequirementEntity.get());
 	}
 	
-	public void updateMedia(@NotNull TautulliWebhook data) throws RequestFailedException, UpdateException, NotifyException{
+	public void updateMedia(@NonNull TautulliWebhook data) throws RequestFailedException, UpdateException, NotifyException{
 		var ratingKey = switch(Objects.requireNonNull(data.getMediaType())){
 			case MOVIE, SEASON, SHOW, ARTIST -> data.getRatingKey();
 			case EPISODE, TRACK, PHOTO -> data.getParentRatingKey();
@@ -97,7 +97,7 @@ public class TautulliService{
 		mediaService.update(mediaEntity.get());
 	}
 	
-	public void notifyMedia(@NotNull TautulliWebhook data) throws RequestFailedException, NotifyException{
+	public void notifyMedia(@NonNull TautulliWebhook data) throws RequestFailedException, NotifyException{
 		var ratingKey = data.getRatingKey();
 		if(Objects.isNull(ratingKey)){
 			log.warn("Not notifying any media, could not determine rating key from {}", data);
@@ -112,7 +112,7 @@ public class TautulliService{
 		notificationService.notifyMediaAdded(metadata);
 	}
 	
-	public void addNewMediaIfPreviousExist(@NotNull TautulliWebhook data) throws RequestFailedException, NotifyException, UpdateException, ThymeleafMessageException{
+	public void addNewMediaIfPreviousExist(@NonNull TautulliWebhook data) throws RequestFailedException, NotifyException, UpdateException, ThymeleafMessageException{
 		var ratingKey = switch(Objects.requireNonNull(data.getMediaType())){
 			case MOVIE, SEASON, SHOW, ARTIST -> data.getRatingKey();
 			case EPISODE, TRACK, PHOTO -> data.getParentRatingKey();

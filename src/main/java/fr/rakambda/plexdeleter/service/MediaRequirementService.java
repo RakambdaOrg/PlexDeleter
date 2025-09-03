@@ -14,8 +14,8 @@ import fr.rakambda.plexdeleter.storage.repository.MediaRequirementRepository;
 import fr.rakambda.plexdeleter.storage.repository.UserGroupRepository;
 import fr.rakambda.plexdeleter.web.api.ThymeleafMessageException;
 import lombok.extern.slf4j.Slf4j;
-import org.jetbrains.annotations.NotNull;
-import org.jetbrains.annotations.Nullable;
+import org.jspecify.annotations.NonNull;
+import org.jspecify.annotations.Nullable;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import java.time.Instant;
@@ -47,7 +47,7 @@ public class MediaRequirementService{
 		this.sonarrService = sonarrService;
 	}
 	
-	public void complete(@NotNull MediaRequirementEntity requirement) throws NotifyException, ServiceException{
+	public void complete(@NonNull MediaRequirementEntity requirement) throws NotifyException, ServiceException{
 		requirementOperationLock.lock();
 		try{
 			if(!requirement.getMedia().isCompletable()){
@@ -70,7 +70,7 @@ public class MediaRequirementService{
 		}
 	}
 	
-	public void abandon(@NotNull MediaRequirementEntity requirement) throws NotifyException, RequestFailedException{
+	public void abandon(@NonNull MediaRequirementEntity requirement) throws NotifyException, RequestFailedException{
 		requirementOperationLock.lock();
 		try{
 			log.info("Marking requirement {} as abandoned", requirement);
@@ -95,7 +95,7 @@ public class MediaRequirementService{
 		}
 	}
 	
-	public void addRequirementForNewMedia(@NotNull MediaEntity media, @Nullable UserGroupEntity userGroupEntity) throws NotifyException, RequestFailedException, UpdateException, ThymeleafMessageException{
+	public void addRequirementForNewMedia(@NonNull MediaEntity media, @Nullable UserGroupEntity userGroupEntity) throws NotifyException, RequestFailedException, UpdateException, ThymeleafMessageException{
 		log.info("Adding requirements to media {}", media);
 		
 		var status = media.getStatus();
@@ -121,7 +121,7 @@ public class MediaRequirementService{
 		}
 	}
 	
-	private boolean addRequirement(@NotNull MediaEntity media, @NotNull UserGroupEntity userGroupEntity, boolean allowModify) throws NotifyException, RequestFailedException{
+	private boolean addRequirement(@NonNull MediaEntity media, @NonNull UserGroupEntity userGroupEntity, boolean allowModify) throws NotifyException, RequestFailedException{
 		requirementOperationLock.lock();
 		try{
 			log.info("Adding requirement on {} for {}", media, userGroupEntity);
@@ -164,7 +164,7 @@ public class MediaRequirementService{
 		}
 	}
 	
-	private void addServarrTag(@NotNull MediaEntity media, @NotNull UserGroupEntity userGroup){
+	private void addServarrTag(@NonNull MediaEntity media, @NonNull UserGroupEntity userGroup){
 		if(Objects.isNull(media.getServarrId()) || Objects.isNull(userGroup.getServarrTag())){
 			return;
 		}
@@ -181,7 +181,7 @@ public class MediaRequirementService{
 		}
 	}
 	
-	private void removeServarrTag(@NotNull MediaEntity media, @NotNull UserGroupEntity userGroup){
+	private void removeServarrTag(@NonNull MediaEntity media, @NonNull UserGroupEntity userGroup){
 		if(Objects.isNull(media.getServarrId()) || Objects.isNull(userGroup.getServarrTag())){
 			return;
 		}

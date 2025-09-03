@@ -3,8 +3,7 @@ package fr.rakambda.plexdeleter.web.webhook.radarr.data;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
-import org.jetbrains.annotations.NotNull;
-import org.jetbrains.annotations.Nullable;
+import org.jspecify.annotations.Nullable;
 import org.springframework.lang.NonNull;
 
 @Data
@@ -12,7 +11,7 @@ import org.springframework.lang.NonNull;
 @AllArgsConstructor
 public class RadarrWebhook{
 	@NonNull
-	@NotNull
+	@org.jspecify.annotations.NonNull
 	private String eventType;
 	@Nullable
 	private Movie movie;

@@ -2,8 +2,8 @@ package fr.rakambda.plexdeleter.security;
 
 import fr.rakambda.plexdeleter.api.plex.PlexApiService;
 import lombok.extern.slf4j.Slf4j;
-import org.jetbrains.annotations.NotNull;
-import org.jetbrains.annotations.Nullable;
+import org.jspecify.annotations.NonNull;
+import org.jspecify.annotations.Nullable;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.authentication.AuthenticationProvider;
 import org.springframework.security.authentication.BadCredentialsException;
@@ -38,7 +38,7 @@ public class PlexAuthenticationProvider implements AuthenticationProvider{
 		return authenticateAgainstThirdPartyAndGetAuthentication(authToken);
 	}
 	
-	@NotNull
+	@NonNull
 	private UsernamePasswordAuthenticationToken authenticateAgainstThirdPartyAndGetAuthentication(@Nullable String authToken){
 		try{
 			if(Objects.isNull(authToken)){
@@ -64,7 +64,7 @@ public class PlexAuthenticationProvider implements AuthenticationProvider{
 	}
 	
 	@Override
-	public boolean supports(@NotNull Class<?> authentication){
+	public boolean supports(@NonNull Class<?> authentication){
 		return PlexAuthenticationToken.class.isAssignableFrom(authentication);
 	}
 }

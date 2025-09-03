@@ -2,7 +2,7 @@ package fr.rakambda.plexdeleter.storage.entity;
 
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
-import org.jetbrains.annotations.NotNull;
+import org.jspecify.annotations.NonNull;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.Objects;
@@ -118,7 +118,7 @@ public enum MediaStatus{
 		return isNeedsMetadataRefresh() && !isFullyDownloaded();
 	}
 	
-	@NotNull
+	@NonNull
 	public static Collection<MediaStatus> allOnDisk(){
 		if(Objects.isNull(ALL_AVAILABLE)){
 			ALL_AVAILABLE = Arrays.stream(MediaStatus.values())
@@ -128,7 +128,7 @@ public enum MediaStatus{
 		return ALL_AVAILABLE;
 	}
 	
-	@NotNull
+	@NonNull
 	public static Collection<MediaStatus> allOnDiskOrWillBe(){
 		if(Objects.isNull(ALL_PRESENT)){
 			ALL_PRESENT = Arrays.stream(MediaStatus.values())
@@ -138,7 +138,7 @@ public enum MediaStatus{
 		return ALL_PRESENT;
 	}
 	
-	@NotNull
+	@NonNull
 	public static Collection<MediaStatus> allNeedRefresh(){
 		if(Objects.isNull(ALL_NEED_REFRESH)){
 			ALL_NEED_REFRESH = Arrays.stream(MediaStatus.values())

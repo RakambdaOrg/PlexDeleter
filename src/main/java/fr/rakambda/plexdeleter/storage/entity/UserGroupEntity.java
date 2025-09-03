@@ -15,8 +15,8 @@ import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 import lombok.ToString;
-import org.jetbrains.annotations.NotNull;
-import org.jetbrains.annotations.Nullable;
+import org.jspecify.annotations.NonNull;
+import org.jspecify.annotations.Nullable;
 import java.time.Instant;
 import java.util.List;
 import java.util.Locale;
@@ -36,16 +36,16 @@ public class UserGroupEntity{
 	private Integer id;
 	@Basic
 	@Column(nullable = false)
-	@NotNull
+	@NonNull
 	@ToString.Include
 	private String name;
 	@Basic
 	@Column
-	@NotNull
+	@NonNull
 	private String locale;
 	@Basic
 	@Column
-	@NotNull
+	@NonNull
 	private Instant lastNotification;
 	@Basic
 	@Column
@@ -53,31 +53,31 @@ public class UserGroupEntity{
 	private String servarrTag;
 	@Basic
 	@Column(nullable = false)
-	@NotNull
+	@NonNull
 	private Boolean notifyWatchlist;
 	@Basic
 	@Column(nullable = false)
-	@NotNull
+	@NonNull
 	private Boolean notifyRequirementAdded;
 	@Basic
 	@Column(nullable = false)
-	@NotNull
+	@NonNull
 	private Boolean notifyMediaAdded;
 	@Basic
 	@Column(nullable = false)
-	@NotNull
+	@NonNull
 	private Boolean notifyMediaAvailable;
 	@Basic
 	@Column(nullable = false)
-	@NotNull
+	@NonNull
 	private Boolean notifyMediaDeleted;
 	@Basic
 	@Column(nullable = false)
-	@NotNull
+	@NonNull
 	private Boolean notifyRequirementManuallyWatched;
 	@Basic
 	@Column(nullable = false)
-	@NotNull
+	@NonNull
 	private Boolean notifyRequirementManuallyAbandoned;
 	
 	@OneToMany(targetEntity = UserPersonEntity.class)
@@ -99,7 +99,7 @@ public class UserGroupEntity{
 	@Nullable
 	private NotificationEntity notificationMediaAdded;
 	
-	@NotNull
+	@NonNull
 	public Locale getLocaleAsObject(){
 		return new Locale.Builder().setLanguage(locale).build();
 	}

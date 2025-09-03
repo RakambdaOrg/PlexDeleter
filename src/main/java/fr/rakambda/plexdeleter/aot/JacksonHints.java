@@ -1,8 +1,8 @@
 package fr.rakambda.plexdeleter.aot;
 
 import lombok.extern.slf4j.Slf4j;
-import org.jetbrains.annotations.NotNull;
-import org.jetbrains.annotations.Nullable;
+import org.jspecify.annotations.NonNull;
+import org.jspecify.annotations.Nullable;
 import org.springframework.aot.hint.MemberCategory;
 import org.springframework.aot.hint.RuntimeHints;
 import org.springframework.aot.hint.RuntimeHintsRegistrar;
@@ -18,7 +18,7 @@ import java.util.stream.Collectors;
 @Slf4j
 public class JacksonHints implements RuntimeHintsRegistrar{
 	@Override
-	public void registerHints(@NotNull RuntimeHints hints, @Nullable ClassLoader classLoader){
+	public void registerHints(@NonNull RuntimeHints hints, @Nullable ClassLoader classLoader){
 		var cl = Optional.ofNullable(classLoader).orElseGet(ClassLoader::getSystemClassLoader);
 		
 		registerAll(hints, cl,
@@ -37,20 +37,20 @@ public class JacksonHints implements RuntimeHintsRegistrar{
 		register(hints, HashSet.class);
 	}
 	
-	private void registerAll(@NotNull RuntimeHints hints, @NotNull ClassLoader classLoader, @NotNull String... packageNames){
+	private void registerAll(@NonNull RuntimeHints hints, @NonNull ClassLoader classLoader, @NonNull String... packageNames){
 		for(var packageName : packageNames){
 			register(hints, classLoader, packageName);
 		}
 	}
 	
-	private void register(@NotNull RuntimeHints hints, @NotNull ClassLoader classLoader, @NotNull String packageName){
+	private void register(@NonNull RuntimeHints hints, @NonNull ClassLoader classLoader, @NonNull String packageName){
 		var klasses = findAllClassesUsingClassLoader(classLoader, packageName);
 		for(var klass : klasses){
 			register(hints, klass);
 		}
 	}
 	
-	private void register(@NotNull RuntimeHints hints, @NotNull Class<?> klass){
+	private void register(@NonNull RuntimeHints hints, @NonNull Class<?> klass){
 		log.info("Registering Jackson hint for {}", klass);
 		hints.reflection()
 				.registerType(klass,
@@ -62,8 +62,8 @@ public class JacksonHints implements RuntimeHintsRegistrar{
 				);
 	}
 	
-	@NotNull
-	public Set<Class<?>> findAllClassesUsingClassLoader(@NotNull ClassLoader classLoader, @NotNull String packageName){
+	@NonNull
+	public Set<Class<?>> findAllClassesUsingClassLoader(@NonNull ClassLoader classLoader, @NonNull String packageName){
 		try(var is = classLoader.getResourceAsStream(packageName.replaceAll("[.]", "/"));
 				var isr = new InputStreamReader(Objects.requireNonNull(is));
 				var reader = new BufferedReader(isr)){
@@ -81,7 +81,7 @@ public class JacksonHints implements RuntimeHintsRegistrar{
 	}
 	
 	@Nullable
-	private Class<?> getClass(@NotNull String className, @NotNull String packageName){
+	private Class<?> getClass(@NonNull String className, @NonNull String packageName){
 		try{
 			return Class.forName("%s.%s".formatted(packageName, className.substring(0, className.lastIndexOf('.'))));
 		}

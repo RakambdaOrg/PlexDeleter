@@ -8,7 +8,7 @@ import fr.rakambda.plexdeleter.api.servarr.radarr.data.Movie;
 import fr.rakambda.plexdeleter.api.servarr.radarr.data.Queue;
 import fr.rakambda.plexdeleter.config.ApplicationConfiguration;
 import lombok.extern.slf4j.Slf4j;
-import org.jetbrains.annotations.NotNull;
+import org.jspecify.annotations.NonNull;
 import org.springframework.core.ParameterizedTypeReference;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.HttpStatusCode;
@@ -39,7 +39,7 @@ public class RadarrService{
 				.build();
 	}
 	
-	@NotNull
+	@NonNull
 	public Movie getMovie(int id) throws RequestFailedException{
 		log.info("Getting movie info with mediaId {}", id);
 		return HttpUtils.unwrapIfStatusOkAndNotNullBody(apiClient.get()
@@ -51,7 +51,7 @@ public class RadarrService{
 				.orElseThrow(() -> new RequestFailedException("Failed to get movie details with mediaId %d".formatted(id))));
 	}
 	
-	@NotNull
+	@NonNull
 	public Collection<Tag> getTags() throws RequestFailedException{
 		log.info("Getting Radarr tags");
 		return HttpUtils.unwrapIfStatusOkAndNotNullBody(apiClient.get()
@@ -110,7 +110,7 @@ public class RadarrService{
 				.orElseThrow(() -> new RequestFailedException("Failed to delete media with id %d".formatted(mediaId))));
 	}
 	
-	public void addTag(int mediaId, @NotNull String tagName) throws RequestFailedException{
+	public void addTag(int mediaId, @NonNull String tagName) throws RequestFailedException{
 		var tagId = getTags().stream()
 				.filter(tag -> Objects.equals(tag.getLabel(), tagName))
 				.findFirst()
@@ -129,7 +129,7 @@ public class RadarrService{
 		}
 	}
 	
-	public void removeTag(int mediaId, @NotNull String tagName) throws RequestFailedException{
+	public void removeTag(int mediaId, @NonNull String tagName) throws RequestFailedException{
 		var tagId = getTags().stream()
 				.filter(tag -> Objects.equals(tag.getLabel(), tagName))
 				.findFirst()
@@ -148,7 +148,7 @@ public class RadarrService{
 		}
 	}
 	
-	private void updateMovie(int mediaId, @NotNull Movie media) throws RequestFailedException{
+	private void updateMovie(int mediaId, @NonNull Movie media) throws RequestFailedException{
 		HttpUtils.requireStatusOk(apiClient.put()
 				.uri(b -> b.pathSegment("api", "v3", "movie", "{mediaId}")
 						.build(mediaId))

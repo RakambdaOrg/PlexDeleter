@@ -4,7 +4,7 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
-import org.jetbrains.annotations.NotNull;
+import org.jspecify.annotations.NonNull;
 import org.springframework.aot.hint.annotation.RegisterReflectionForBinding;
 import java.util.HashMap;
 import java.util.Map;
@@ -17,6 +17,6 @@ public class GetNewRatingKeysData{
 	@JsonProperty("rating_key")
 	private int ratingKey;
 	@JsonProperty("children")
-	@NotNull
+	@NonNull
 	private Map<String, GetNewRatingKeysData> children = new HashMap<>();
 }

@@ -3,8 +3,8 @@ package fr.rakambda.plexdeleter.api.overseerr.data;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
-import org.jetbrains.annotations.NotNull;
-import org.jetbrains.annotations.Nullable;
+import org.jspecify.annotations.NonNull;
+import org.jspecify.annotations.Nullable;
 import org.springframework.aot.hint.annotation.RegisterReflectionForBinding;
 import java.time.Instant;
 
@@ -15,23 +15,23 @@ import java.time.Instant;
 public class User{
 	private int permissions;
 	private int id;
-	@NotNull
+	@NonNull
 	private String email;
-	@NotNull
+	@NonNull
 	private String plexUsername;
-	@NotNull
+	@NonNull
 	private String username;
-	@NotNull
+	@NonNull
 	private String displayName;
 	private int userType;
 	private int plexId;
 	@Nullable
 	private String avatar;
-	@NotNull
+	@NonNull
 	private Instant createdAt;
-	@NotNull
+	@NonNull
 	private Instant updatedAt;
 	private int requestCount;
-	@NotNull
+	@NonNull
 	private Settings settings;
 }

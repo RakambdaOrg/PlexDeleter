@@ -21,8 +21,8 @@ import fr.rakambda.plexdeleter.storage.entity.UserGroupEntity;
 import jakarta.mail.MessagingException;
 import lombok.SneakyThrows;
 import lombok.extern.slf4j.Slf4j;
-import org.jetbrains.annotations.NotNull;
-import org.jetbrains.annotations.Nullable;
+import org.jspecify.annotations.NonNull;
+import org.jspecify.annotations.Nullable;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.MessageSource;
 import org.springframework.http.MediaType;
@@ -54,7 +54,7 @@ public class DiscordNotificationService extends AbstractNotificationService{
 		this.thymeleafService = thymeleafService;
 	}
 	
-	public void notifyWatchlist(@NotNull NotificationEntity notification, @NotNull UserGroupEntity userGroupEntity, @NotNull Collection<MediaRequirementEntity> requirements) throws InterruptedException, RequestFailedException{
+	public void notifyWatchlist(@NonNull NotificationEntity notification, @NonNull UserGroupEntity userGroupEntity, @NonNull Collection<MediaRequirementEntity> requirements) throws InterruptedException, RequestFailedException{
 		var locale = userGroupEntity.getLocaleAsObject();
 		var params = notification.getValue().split(",");
 		var discordUserId = params[0];
@@ -111,27 +111,27 @@ public class DiscordNotificationService extends AbstractNotificationService{
 				.build());
 	}
 	
-	public void notifyRequirementAdded(@NotNull NotificationEntity notification, @NotNull UserGroupEntity userGroupEntity, @NotNull MediaEntity media) throws MessagingException, UnsupportedEncodingException, RequestFailedException, InterruptedException{
+	public void notifyRequirementAdded(@NonNull NotificationEntity notification, @NonNull UserGroupEntity userGroupEntity, @NonNull MediaEntity media) throws MessagingException, UnsupportedEncodingException, RequestFailedException, InterruptedException{
 		notifySimple(notification, userGroupEntity, media, "discord.requirement.added.subject");
 	}
 	
-	public void notifyMediaAvailable(@NotNull NotificationEntity notification, @NotNull UserGroupEntity userGroupEntity, @NotNull MediaEntity media) throws RequestFailedException, InterruptedException{
+	public void notifyMediaAvailable(@NonNull NotificationEntity notification, @NonNull UserGroupEntity userGroupEntity, @NonNull MediaEntity media) throws RequestFailedException, InterruptedException{
 		notifySimple(notification, userGroupEntity, media, "discord.media.available.subject");
 	}
 	
-	public void notifyMediaDeleted(@NotNull NotificationEntity notification, @NotNull UserGroupEntity userGroupEntity, @NotNull MediaEntity media) throws RequestFailedException, InterruptedException{
+	public void notifyMediaDeleted(@NonNull NotificationEntity notification, @NonNull UserGroupEntity userGroupEntity, @NonNull MediaEntity media) throws RequestFailedException, InterruptedException{
 		notifySimple(notification, userGroupEntity, media, "discord.media.deleted.subject");
 	}
 	
-	public void notifyRequirementManuallyWatched(@NotNull NotificationEntity notification, @NotNull UserGroupEntity userGroupEntity, @NotNull MediaEntity media) throws MessagingException, UnsupportedEncodingException, RequestFailedException, InterruptedException{
+	public void notifyRequirementManuallyWatched(@NonNull NotificationEntity notification, @NonNull UserGroupEntity userGroupEntity, @NonNull MediaEntity media) throws MessagingException, UnsupportedEncodingException, RequestFailedException, InterruptedException{
 		notifySimple(notification, userGroupEntity, media, "discord.requirement.manually-watched.subject");
 	}
 	
-	public void notifyRequirementManuallyAbandoned(@NotNull NotificationEntity notification, @NotNull UserGroupEntity userGroupEntity, @NotNull MediaEntity media) throws RequestFailedException, InterruptedException{
+	public void notifyRequirementManuallyAbandoned(@NonNull NotificationEntity notification, @NonNull UserGroupEntity userGroupEntity, @NonNull MediaEntity media) throws RequestFailedException, InterruptedException{
 		notifySimple(notification, userGroupEntity, media, "discord.requirement.manually-abandoned.subject");
 	}
 	
-	public void notifyMediaAdded(@NotNull NotificationEntity notification, @NotNull UserGroupEntity userGroupEntity, @NotNull MediaMetadataContext mediaMetadataContext, @Nullable MediaEntity media) throws RequestFailedException, InterruptedException{
+	public void notifyMediaAdded(@NonNull NotificationEntity notification, @NonNull UserGroupEntity userGroupEntity, @NonNull MediaMetadataContext mediaMetadataContext, @Nullable MediaEntity media) throws RequestFailedException, InterruptedException{
 		var locale = userGroupEntity.getLocaleAsObject();
 		var metadata = mediaMetadataContext.getMetadata();
 		var params = notification.getValue().split(",");
@@ -289,7 +289,7 @@ public class DiscordNotificationService extends AbstractNotificationService{
 		discordWebhookService.sendWebhookMessage(discordUrl, messageBuilder.build());
 	}
 	
-	private void notifySimple(@NotNull NotificationEntity notification, @NotNull UserGroupEntity userGroupEntity, @NotNull MediaEntity media, @NotNull String subjectKey) throws RequestFailedException, InterruptedException{
+	private void notifySimple(@NonNull NotificationEntity notification, @NonNull UserGroupEntity userGroupEntity, @NonNull MediaEntity media, @NonNull String subjectKey) throws RequestFailedException, InterruptedException{
 		var locale = userGroupEntity.getLocaleAsObject();
 		var params = notification.getValue().split(",");
 		var discordUserId = params[0];
@@ -324,7 +324,7 @@ public class DiscordNotificationService extends AbstractNotificationService{
 		return "[%s](<%s>)".formatted(messageSource.getMessage("mail.footer.app-link", new Object[0], locale), thymeleafService.getOwnUrl());
 	}
 	
-	private void writeWatchlistSection(@NotNull String discordUrl, @Nullable Long threadId, @NotNull String sectionHeaderCode, @NotNull Locale locale, @NotNull UserGroupEntity userGroupEntity, @NotNull Collection<MediaEntity> medias) throws RequestFailedException, InterruptedException{
+	private void writeWatchlistSection(@NonNull String discordUrl, @Nullable Long threadId, @NonNull String sectionHeaderCode, @NonNull Locale locale, @NonNull UserGroupEntity userGroupEntity, @NonNull Collection<MediaEntity> medias) throws RequestFailedException, InterruptedException{
 		discordWebhookService.sendWebhookMessage(discordUrl, threadId, WebhookMessage.builder().content("# %s\n".formatted(messageSource.getMessage(sectionHeaderCode, new Object[0], locale))).build());
 		var messages = medias.stream()
 				.sorted(MediaEntity.COMPARATOR_BY_TYPE_THEN_NAME_THEN_INDEX)
@@ -339,7 +339,7 @@ public class DiscordNotificationService extends AbstractNotificationService{
 	}
 	
 	@SneakyThrows(RequestFailedException.class)
-	private String getWatchlistMediaText(@NotNull UserGroupEntity userGroupEntity, @NotNull MediaEntity media, @NotNull Locale locale){
+	private String getWatchlistMediaText(@NonNull UserGroupEntity userGroupEntity, @NonNull MediaEntity media, @NonNull Locale locale){
 		var sb = new StringBuilder();
 		sb.append(messageSource.getMessage(getTypeKey(media), new Object[]{
 				media.getName(),

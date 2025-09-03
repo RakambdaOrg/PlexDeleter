@@ -14,7 +14,7 @@ import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 import lombok.ToString;
-import org.jetbrains.annotations.NotNull;
+import org.jspecify.annotations.NonNull;
 
 @Data
 @AllArgsConstructor
@@ -31,10 +31,10 @@ public class NotificationEntity{
 	private Integer id;
 	@Enumerated(EnumType.STRING)
 	@Column(nullable = false)
-	@NotNull
+	@NonNull
 	private NotificationType type;
 	@Basic
 	@Column(nullable = false)
-	@NotNull
+	@NonNull
 	private String value;
 }

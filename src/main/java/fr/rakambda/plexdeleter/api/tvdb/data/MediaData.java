@@ -3,7 +3,7 @@ package fr.rakambda.plexdeleter.api.tvdb.data;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
-import org.jetbrains.annotations.NotNull;
+import org.jspecify.annotations.NonNull;
 import org.springframework.aot.hint.annotation.RegisterReflectionForBinding;
 import java.util.ArrayList;
 import java.util.List;
@@ -13,10 +13,10 @@ import java.util.List;
 @AllArgsConstructor
 @RegisterReflectionForBinding(MediaData.class)
 public abstract class MediaData{
-	@NotNull
+	@NonNull
 	private Integer id;
-	@NotNull
+	@NonNull
 	private String slug;
-	@NotNull
+	@NonNull
 	private List<Genre> genres = new ArrayList<>();
 }

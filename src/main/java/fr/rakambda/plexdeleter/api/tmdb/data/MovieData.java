@@ -7,8 +7,8 @@ import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.NoArgsConstructor;
-import org.jetbrains.annotations.NotNull;
-import org.jetbrains.annotations.Nullable;
+import org.jspecify.annotations.NonNull;
+import org.jspecify.annotations.Nullable;
 import org.springframework.aot.hint.annotation.RegisterReflectionForBinding;
 
 @Data
@@ -17,7 +17,7 @@ import org.springframework.aot.hint.annotation.RegisterReflectionForBinding;
 @EqualsAndHashCode(callSuper = true)
 @RegisterReflectionForBinding(MovieData.class)
 public final class MovieData extends RootMediaData{
-	@NotNull
+	@NonNull
 	@JsonProperty("original_title")
 	private String originalTitle;
 	@Nullable

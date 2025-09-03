@@ -9,8 +9,8 @@ import fr.rakambda.plexdeleter.storage.entity.MediaEntity;
 import fr.rakambda.plexdeleter.storage.entity.MediaRequirementEntity;
 import fr.rakambda.plexdeleter.storage.entity.UserGroupEntity;
 import lombok.extern.slf4j.Slf4j;
-import org.jetbrains.annotations.NotNull;
-import org.jetbrains.annotations.Nullable;
+import org.jspecify.annotations.NonNull;
+import org.jspecify.annotations.Nullable;
 import org.springframework.context.MessageSource;
 import java.time.Duration;
 import java.time.format.DateTimeFormatter;
@@ -37,8 +37,8 @@ public abstract class AbstractNotificationService{
 		this.messageSource = messageSource;
 	}
 	
-	@NotNull
-	protected <T> Stream<T> getMediaStreams(@NotNull GetMetadataResponse metadata, @NotNull Class<T> klass){
+	@NonNull
+	protected <T> Stream<T> getMediaStreams(@NonNull GetMetadataResponse metadata, @NonNull Class<T> klass){
 		return metadata.getMediaInfo().stream()
 				.map(MediaInfo::getParts)
 				.flatMap(Collection::stream)
@@ -48,8 +48,8 @@ public abstract class AbstractNotificationService{
 				.map(klass::cast);
 	}
 	
-	@NotNull
-	public Collection<String> getEpisodes(@NotNull MediaEntity media, @NotNull UserGroupEntity userGroupEntity) throws RequestFailedException{				
+	@NonNull
+	public Collection<String> getEpisodes(@NonNull MediaEntity media, @NonNull UserGroupEntity userGroupEntity) throws RequestFailedException{				
 		return switch(media.getType()){
 			case MOVIE -> List.of();
 			case EPISODE -> Optional.ofNullable(media.getSubIndex())
@@ -80,8 +80,8 @@ public abstract class AbstractNotificationService{
 		};
 	}
 	
-	@NotNull
-	public String getTypeKey(@NotNull MediaEntity media){
+	@NonNull
+	public String getTypeKey(@NonNull MediaEntity media){
 		return switch(media.getType()){
 			case MOVIE -> "mail.watchlist.body.media.movie";
 			case SEASON -> "mail.watchlist.body.media.series";
@@ -89,8 +89,8 @@ public abstract class AbstractNotificationService{
 		};
 	}
 	
-	@NotNull
-	public String getMediaDuration(@NotNull Duration duration){
+	@NonNull
+	public String getMediaDuration(@NonNull Duration duration){
 		var hours = duration.toHoursPart();
 		var minutes = duration.toMinutesPart();
 		if(hours <= 0){
@@ -100,7 +100,7 @@ public abstract class AbstractNotificationService{
 	}
 	
 	@Nullable
-	protected String getMediaSeason(@NotNull GetMetadataResponse metadata, @NotNull Locale locale){
+	protected String getMediaSeason(@NonNull GetMetadataResponse metadata, @NonNull Locale locale){
 		return switch(metadata.getMediaType()){
 			case EPISODE -> Stream.of(
 							Optional.ofNullable(metadata.getParentMediaIndex())

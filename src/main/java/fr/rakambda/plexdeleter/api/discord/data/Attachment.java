@@ -8,7 +8,7 @@ import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
-import org.jetbrains.annotations.NotNull;
+import org.jspecify.annotations.NonNull;
 import org.springframework.aot.hint.annotation.RegisterReflectionForBinding;
 import org.springframework.http.MediaType;
 
@@ -23,7 +23,7 @@ public class Attachment{
 	@JsonProperty
 	private int id;
 	@JsonProperty
-	@NotNull
+	@NonNull
 	private String filename;
 	@JsonProperty
 	private String description;

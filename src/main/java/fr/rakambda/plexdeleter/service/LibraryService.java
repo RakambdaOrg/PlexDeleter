@@ -9,7 +9,7 @@ import fr.rakambda.plexdeleter.service.data.LibraryElement;
 import fr.rakambda.plexdeleter.storage.entity.MediaType;
 import fr.rakambda.plexdeleter.storage.repository.MediaRepository;
 import lombok.extern.slf4j.Slf4j;
-import org.jetbrains.annotations.NotNull;
+import org.jspecify.annotations.NonNull;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import java.util.Collection;
@@ -32,7 +32,7 @@ public class LibraryService{
 		this.mediaRepository = mediaRepository;
 	}
 	
-	@NotNull
+	@NonNull
 	public Collection<LibraryElement> getAllLibraryContentWithoutMedia(){
 		var libraryElements = Optional.ofNullable(applicationConfiguration.getPlex().getTemporaryLibraries())
 				.stream()
@@ -47,11 +47,11 @@ public class LibraryService{
 				.toList();
 	}
 	
-	private boolean isRecordMissing(@NotNull LibraryElement element){
+	private boolean isRecordMissing(@NonNull LibraryElement element){
 		return !mediaRepository.existsByRootPlexId(element.ratingKey());
 	}
 	
-	@NotNull
+	@NonNull
 	private Stream<LibraryElement> getLibraryContent(int section){
 		try{
 			return Optional.ofNullable(tautulliApiService.getLibraryMediaInfo(section).getResponse())

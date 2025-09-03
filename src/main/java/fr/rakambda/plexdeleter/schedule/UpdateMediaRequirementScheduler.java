@@ -5,7 +5,7 @@ import fr.rakambda.plexdeleter.service.WatchService;
 import fr.rakambda.plexdeleter.storage.entity.MediaRequirementStatus;
 import fr.rakambda.plexdeleter.storage.repository.MediaRequirementRepository;
 import lombok.extern.slf4j.Slf4j;
-import org.jetbrains.annotations.NotNull;
+import org.jspecify.annotations.NonNull;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Component;
@@ -25,7 +25,7 @@ public class UpdateMediaRequirementScheduler implements IScheduler{
 	}
 	
 	@Override
-	@NotNull
+	@NonNull
 	public String getTaskId(){
 		return "media-requirement-update";
 	}
