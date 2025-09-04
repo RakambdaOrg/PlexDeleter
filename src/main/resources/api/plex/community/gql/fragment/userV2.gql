@@ -1,0 +1,3 @@
+fragment UserV2Parts on UserSimple {
+    id
+}

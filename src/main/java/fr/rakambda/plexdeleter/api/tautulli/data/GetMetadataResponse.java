@@ -13,6 +13,7 @@ import java.time.LocalDate;
 import java.util.HashSet;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.Objects;
 import java.util.Set;
 
 @Data
@@ -79,6 +80,9 @@ public class GetMetadataResponse{
 	private List<String> genres = new LinkedList<>();
 	@JsonProperty("duration")
 	private long duration;
+	@JsonProperty("guid")
+	@Nullable
+	private String guid;
 	@JsonProperty("guids")
 	@NonNull
 	private List<String> guids = new LinkedList<>();
@@ -88,4 +92,16 @@ public class GetMetadataResponse{
 	@JsonProperty("grandparent_guids")
 	@NonNull
 	private List<String> grandparentGuids = new LinkedList<>();
+	
+	@Nullable
+	public String getGuidId(){
+		if(Objects.isNull(this.guid)){
+			return null;
+		}
+		int lastIndex = guid.lastIndexOf('/');
+		if(lastIndex < 0){
+			return guid;
+		}
+		return guid.substring(lastIndex + 1);
+	}
 }

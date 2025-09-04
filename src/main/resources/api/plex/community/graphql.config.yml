@@ -1,0 +1,8 @@
+schema: schema.gql
+extensions:
+  endpoints:
+    PlexCommunity:
+      url: https://community.plex.tv/api
+      introspect: false
+      headers:
+        X-Plex-Token: ${TOKEN}

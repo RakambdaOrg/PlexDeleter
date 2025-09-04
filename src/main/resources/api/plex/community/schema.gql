@@ -1,0 +1,156 @@
+schema {
+    query: Query
+}
+
+union ActivityUnion = ActivityWatchSession | ActivityWatchHistory
+
+type PageInfo {
+    endCursor: String
+    hasNextPage: Boolean!
+}
+
+type ActivityFeedResponse {
+    pageInfo: PageInfo!
+    nodes: [ActivityUnion!]!
+}
+
+interface Activity {
+    commentCount: Int!
+    date: String!
+    id: String!
+    isMuted: Boolean!
+    isPrimary: Boolean
+    metadataItem: MetadataItem
+    privacy: Privacy
+    reaction: String
+    reactionsCount: Int!
+    reactionsTypes: [ReactionType!]!
+    userV2: UserSimple
+}
+
+type ActivityWatchSession {
+    commentCount: Int!
+    date: String!
+    episodeCount: Int!
+    id: String!
+    isMuted: Boolean!
+    isPrimary: Boolean
+    metadataItem: MetadataItem
+    privacy: Privacy
+    reaction: String
+    reactionsCount: Int!
+    reactionsTypes: [ReactionType!]!
+    userV2: UserSimple
+}
+
+type ActivityWatchHistory {
+    commentCount: Int!
+    date: String!
+    id: String!
+    isMuted: Boolean!
+    isPrimary: Boolean
+    metadataItem: MetadataItem
+    privacy: Privacy
+    reaction: String
+    reactionsCount: Int!
+    reactionsTypes: [ReactionType!]!
+    userV2: UserSimple
+}
+
+interface Item {
+    images: Images
+    index: Int!
+    key: String!
+    publishedAt: String!
+    title: String!
+    type: MetadataType
+    userState: UserState!
+}
+
+type MetadataItem implements Item{
+    childCount: Int
+    grandparent: Item
+    id: String!
+    images: Images
+    index: Int!
+    key: String!
+    leafCount: Int
+    originallyAvailableAt: String!
+    parent: Item
+    publicPagesURL: String!
+    publishedAt: String!
+    title: String!
+    type: MetadataType
+    userState: UserState!
+    year: Int!
+}
+
+type Images {
+    art: String!
+    coverArt: String!
+    coverPoster: String!
+    thumbnail: String!
+}
+
+type UserState {
+    viewCount: Int!
+    viewLeafCount: Int!
+    watchListedAt: String
+}
+
+type UserSimple {
+    avatar: String
+    displayName: String!
+    friendStatus: FriendStatus
+    id: String!
+    isBlocked: Boolean!
+    isHidden: Boolean!
+    isMuted: Boolean!
+    mutualFriends: MutualFriends
+    username: String
+}
+
+type MutualFriends {
+    count: Int!
+    friends: [String!]!
+}
+
+type Query {
+    activityFeed(
+        first: PaginationInt!,
+        after: String,
+        metadataID: ID,
+        types: [ActivityType!]!,
+        includeDescendants: Boolean = false,
+    ): ActivityFeedResponse
+}
+
+enum ActivityType {
+    METADATA_MESSAGE
+    RATING
+    WATCH_HISTORY
+    WATCHLIST
+    POST
+    WATCH_SESSION
+    WATCH_RATING
+    REVIEW
+    WATCH_REVIEW
+}
+
+enum Privacy {
+    FRIENDS
+}
+
+enum ReactionType {
+    IDK
+}
+
+enum FriendStatus {
+    FRIENDS
+}
+
+enum MetadataType {
+    EPISODE
+}
+
+scalar PaginationInt

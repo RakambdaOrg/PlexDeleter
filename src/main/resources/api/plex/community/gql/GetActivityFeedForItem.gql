@@ -1,0 +1,30 @@
+#include "./fragment/metadataItem.gql"
+#include "./fragment/pageInfo.gql"
+#include "./fragment/userV2.gql"
+
+query($first: PaginationInt!, $after: String, $metadataID: ID!) {
+    query: activityFeed(
+        after: $after
+        first: $first
+        metadataID: $metadataID,
+        types: [WATCH_HISTORY],
+        includeDescendants: true,
+    ) {
+        nodes {
+            ... on ActivityWatchHistory {
+                __typename
+                id
+                date
+                metadataItem {
+                    ...MetadataItemParts
+                }
+                userV2 {
+                    ...UserV2Parts
+                }
+            }
+        }
+        pageInfo {
+            ...PageInfoParts
+        }
+    }
+}

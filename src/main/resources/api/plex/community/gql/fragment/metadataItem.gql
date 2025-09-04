@@ -1,0 +1,4 @@
+fragment MetadataItemParts on MetadataItem {
+    id
+    index
+}

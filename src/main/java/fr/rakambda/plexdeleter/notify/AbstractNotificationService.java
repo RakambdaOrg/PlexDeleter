@@ -68,7 +68,7 @@ public abstract class AbstractNotificationService{
 						.orElse(null);
 				
 				var watched = watchService.getGroupWatchHistory(userGroupEntity, media, lastCompleted).entrySet().stream()
-						.filter(entry -> entry.getValue().stream().anyMatch(r -> Objects.equals(r.getWatchedStatus(), 1)))
+						.filter(Map.Entry::getValue)
 						.map(Map.Entry::getKey)
 						.toList();
 				

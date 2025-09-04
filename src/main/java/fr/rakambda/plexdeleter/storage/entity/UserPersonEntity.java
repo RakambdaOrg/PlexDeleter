@@ -43,6 +43,10 @@ public class UserPersonEntity{
 	@Basic
 	@Column
 	@Nullable
+	private String communityId;
+	@Basic
+	@Column
+	@Nullable
 	private Integer overseerrId;
 	@Basic
 	@Column(nullable = false)

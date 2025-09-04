@@ -19,6 +19,12 @@ public class PlexConfiguration{
 	private String appEndpoint;
 	@NonNull
 	@org.jspecify.annotations.NonNull
+	private String communityEndpoint;
+	@NonNull
+	@org.jspecify.annotations.NonNull
+	private String communityToken;
+	@NonNull
+	@org.jspecify.annotations.NonNull
 	private String serverId;
 	@Nullable
 	private List<Integer> temporaryLibraries;
