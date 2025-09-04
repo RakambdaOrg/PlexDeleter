@@ -24,7 +24,7 @@ public class ThymeleafService{
 		this.sonarrEndpoint = applicationConfiguration.getSonarr().getEndpoint();
 		this.plexEndpoint = applicationConfiguration.getPlex().getAppEndpoint();
 		this.plexServerId = applicationConfiguration.getPlex().getServerId();
-		this.applicationEndpoint = applicationConfiguration.getApplicationUrl();
+		this.applicationEndpoint = applicationConfiguration.getServer().getApplicationUrl();
 	}
 	
 	@Nullable
