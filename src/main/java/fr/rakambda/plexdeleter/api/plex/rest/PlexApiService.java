@@ -1,8 +1,8 @@
-package fr.rakambda.plexdeleter.api.plex;
+package fr.rakambda.plexdeleter.api.plex.rest;
 
 import fr.rakambda.plexdeleter.api.HttpUtils;
 import fr.rakambda.plexdeleter.api.RequestFailedException;
-import fr.rakambda.plexdeleter.api.plex.data.User;
+import fr.rakambda.plexdeleter.api.plex.rest.data.User;
 import fr.rakambda.plexdeleter.config.ApplicationConfiguration;
 import lombok.extern.slf4j.Slf4j;
 import org.jspecify.annotations.NonNull;

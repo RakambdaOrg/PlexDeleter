@@ -1,6 +1,6 @@
 package fr.rakambda.plexdeleter.security;
 
-import fr.rakambda.plexdeleter.api.plex.PlexApiService;
+import fr.rakambda.plexdeleter.api.plex.rest.PlexApiService;
 import lombok.extern.slf4j.Slf4j;
 import org.jspecify.annotations.NonNull;
 import org.jspecify.annotations.Nullable;

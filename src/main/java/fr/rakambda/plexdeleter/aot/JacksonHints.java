@@ -25,7 +25,7 @@ public class JacksonHints implements RuntimeHintsRegistrar{
 				"fr.rakambda.plexdeleter.json",
 				"fr.rakambda.plexdeleter.api.discord.data",
 				"fr.rakambda.plexdeleter.api.overseerr.data",
-				"fr.rakambda.plexdeleter.api.plex.data",
+				"fr.rakambda.plexdeleter.api.plex.rest.data",
 				"fr.rakambda.plexdeleter.api.servarr.data",
 				"fr.rakambda.plexdeleter.api.servarr.radarr.data",
 				"fr.rakambda.plexdeleter.api.servarr.sonarr.data",

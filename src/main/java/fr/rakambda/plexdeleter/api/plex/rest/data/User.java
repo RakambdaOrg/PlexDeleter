@@ -1,4 +1,4 @@
-package fr.rakambda.plexdeleter.api.plex.data;
+package fr.rakambda.plexdeleter.api.plex.rest.data;
 
 import lombok.AllArgsConstructor;
 import lombok.Data;
