@@ -54,7 +54,7 @@ server:
   forward-headers-strategy: native
   servlet:
     session:
-      timeout: 12h
+      timeout: 48h
 
 management:
   endpoint:
@@ -70,13 +70,14 @@ management:
         include: "health,info"
 
 app:
-  applicationUrl: "http://app.url"
   exclude-tag: "no-deleter"
-  web-auth-n:
-    relaying-party-name: "PlexDeleter"
-    relaying-party-id: "app.url"
-    allowed-origins:
-      - "http://app.url"
+  server:
+    applicationUrl: "http://app.url"
+    web-auth-n:
+      relaying-party-name: "PlexDeleter"
+      relaying-party-id: "app.url"
+      allowed-origins:
+        - "http://app.url"
   amqp:
     prefix: "plexdeleter"
   plex:

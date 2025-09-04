@@ -70,9 +70,9 @@ public class WebSecurityConfig{
 						.permitAll()
 				)
 				.webAuthn(webAuthn -> webAuthn
-						.rpName(configuration.getWebAuthN().getRelayingPartyName())
-						.rpId(configuration.getWebAuthN().getRelayingPartyId())
-						.allowedOrigins(configuration.getWebAuthN().getAllowedOrigins()))
+						.rpName(configuration.getServer().getWebAuthN().getRelayingPartyName())
+						.rpId(configuration.getServer().getWebAuthN().getRelayingPartyId())
+						.allowedOrigins(configuration.getServer().getWebAuthN().getAllowedOrigins()))
 				.logout(LogoutConfigurer::permitAll)
 				.build();
 	}

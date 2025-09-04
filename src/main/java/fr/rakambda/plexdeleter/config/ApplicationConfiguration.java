@@ -16,9 +16,6 @@ import org.springframework.lang.NonNull;
 public class ApplicationConfiguration{
 	@NonNull
 	@org.jspecify.annotations.NonNull
-	private String applicationUrl;
-	@NonNull
-	@org.jspecify.annotations.NonNull
 	private String excludeTag;
 	@NestedConfigurationProperty
 	private PlexConfiguration plex;
@@ -43,7 +40,7 @@ public class ApplicationConfiguration{
 	@NestedConfigurationProperty
 	private SupervisionConfiguration supervision;
 	@NestedConfigurationProperty
-	private WebAuthNConfiguration webAuthN;
+	private ServerConfiguration server;
 	@NestedConfigurationProperty
 	private AmqpConfiguration amqp;
 }
