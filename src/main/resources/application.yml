@@ -48,6 +48,8 @@ spring:
   web:
     resources:
       static-locations: "classpath:/static/"
+  session:
+    timeout: 48h
 
 server:
   port: 8080
