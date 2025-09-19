@@ -1,5 +1,5 @@
 [versions]
-sptringboot-version = "3.5.5"
+sptringboot-version = "3.5.6"
 sptringboot-dm-version = "1.1.7"
 graalvm-version = "0.11.0"
 logback-ecs-version = "1.7.0"
