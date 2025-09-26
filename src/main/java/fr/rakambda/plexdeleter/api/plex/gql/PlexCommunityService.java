@@ -17,8 +17,10 @@ import org.jspecify.annotations.Nullable;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.ParameterizedTypeReference;
 import org.springframework.http.HttpHeaders;
+import org.springframework.http.MediaType;
 import org.springframework.stereotype.Service;
 import org.springframework.util.MimeTypeUtils;
+import org.springframework.web.reactive.function.BodyInserters;
 import org.springframework.web.reactive.function.client.WebClient;
 import org.springframework.web.reactive.function.client.WebClientResponseException;
 import reactor.core.publisher.Mono;
@@ -118,7 +120,8 @@ public class PlexCommunityService{
 			log.info("Sending gql query {}", gqlQuery);
 			
 			var response = HttpUtils.unwrapIfStatusOkAndNotNullBody(apiClient.post()
-					.bodyValue(gqlQuery)
+					.contentType(MediaType.APPLICATION_JSON)
+					.body(BodyInserters.fromValue(gqlQuery))
 					.retrieve()
 					.toEntity(type)
 					.retryWhen(Retry.indefinitely()
