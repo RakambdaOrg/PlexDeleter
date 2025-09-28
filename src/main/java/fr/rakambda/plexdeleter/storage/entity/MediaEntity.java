@@ -54,6 +54,10 @@ public class MediaEntity{
 	@Basic
 	@Column
 	@Nullable
+	private String plexGuid;
+	@Basic
+	@Column
+	@Nullable
 	private Integer overseerrId;
 	@Basic
 	@Column

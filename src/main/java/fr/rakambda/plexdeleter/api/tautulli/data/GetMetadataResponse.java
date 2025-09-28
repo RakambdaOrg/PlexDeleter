@@ -83,6 +83,12 @@ public class GetMetadataResponse{
 	@JsonProperty("guid")
 	@Nullable
 	private String guid;
+	@JsonProperty("parent_guid")
+	@Nullable
+	private String parentGuid;
+	@JsonProperty("grandparent_guid")
+	@Nullable
+	private String grandparentGuid;
 	@JsonProperty("guids")
 	@NonNull
 	private List<String> guids = new LinkedList<>();

@@ -202,6 +202,12 @@ public class MediaService{
 			return;
 		}
 		try{
+			tautulliApiService.getMetadata(mediaEntity.getPlexId()).getResponse().getDataOptional()
+					.flatMap(d -> Optional.ofNullable(d.getGrandparentGuid())
+							.or(() -> Optional.ofNullable(d.getParentGuid()))
+							.or(() -> Optional.ofNullable(d.getGuid())))
+					.ifPresent(mediaEntity::setPlexGuid);
+			
 			var availablePartsCount = tautulliApiService.getElementsRatingKeys(mediaEntity.getPlexId(), mediaEntity.getType()).size();
 			
 			if(mediaEntity.getAvailablePartsCount() < availablePartsCount){
