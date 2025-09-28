@@ -10,24 +10,24 @@ import org.springframework.transaction.annotation.Transactional;
 
 @Slf4j
 @Component
-public class UpdateMediaScheduler implements IScheduler{
+public class UpdateMediaMetadataAllScheduler implements IScheduler{
 	private final MediaService mediaService;
 	
 	@Autowired
-	public UpdateMediaScheduler(MediaService mediaService){
+	public UpdateMediaMetadataAllScheduler(MediaService mediaService){
 		this.mediaService = mediaService;
 	}
 	
 	@Override
 	@NonNull
 	public String getTaskId(){
-		return "media-update";
+		return "media-update-all-metadata";
 	}
 	
 	@Override
-	@Scheduled(cron = "0 0 0,8,15 * * *")
+	@Scheduled(cron = "-")
 	@Transactional
 	public void run(){
-		mediaService.updateAll();
+		mediaService.updateAllMetadata();
 	}
 }

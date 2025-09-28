@@ -73,6 +73,22 @@ public class MediaService{
 		log.info("Done updating {} media", medias.size());
 	}
 	
+	public void updateAllMetadata(){
+		log.info("Updating medias metadata");
+		
+		var medias = mediaRepository.findAll();
+		for(var media : medias){
+			try{
+				update(media);
+			}
+			catch(UpdateException | RequestFailedException | NotifyException e){
+				log.error("Failed to update media {}", media, e);
+			}
+		}
+		
+		log.info("Done updating {} media metadata", medias.size());
+	}
+	
 	@NonNull
 	public MediaEntity update(@NonNull MediaEntity mediaEntity) throws UpdateException, RequestFailedException, NotifyException{
 		return update(mediaEntity, false);
