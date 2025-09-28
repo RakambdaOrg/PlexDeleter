@@ -38,6 +38,9 @@ public interface MediaRepository extends JpaRepository<MediaEntity, Integer>{
 	
 	@NonNull
 	Optional<MediaEntity> findByRootPlexIdAndIndex(int ratingKey, int index);
+
+	@NonNull
+	Optional<MediaEntity> findByPlexGuidAndIndex(String guid, int index);
 	
 	long countByServarrIdAndType(int servarrId, @NonNull MediaType type);
 	

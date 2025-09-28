@@ -137,13 +137,18 @@ public class TautulliService{
 		var rootRatingKey = Optional.ofNullable(metadata.getGrandparentRatingKey())
 				.or(() -> Optional.ofNullable(metadata.getParentRatingKey()))
 				.orElseGet(metadata::getRatingKey);
+		var rootGuid = Optional.ofNullable(metadata.getGrandparentGuid())
+				.or(() -> Optional.ofNullable(metadata.getParentGuid()))
+				.orElseGet(metadata::getGuid);
 		var mediaIndex = switch(Objects.requireNonNull(data.getMediaType())){
 			case MOVIE, SHOW, ARTIST -> 1;
 			case SEASON -> metadata.getMediaIndex();
 			case EPISODE, TRACK, PHOTO -> metadata.getParentMediaIndex();
 		};
 		
-		var previous = Optional.of(rootRatingKey).flatMap(id -> mediaRepository.findByRootPlexIdAndIndex(rootRatingKey, mediaIndex - 1))
+		var previous = Optional
+				.of(rootRatingKey).flatMap(id -> mediaRepository.findByRootPlexIdAndIndex(rootRatingKey, mediaIndex - 1))
+				.or(() -> Optional.ofNullable(rootGuid).flatMap(id -> mediaRepository.findByPlexGuidAndIndex(id, mediaIndex - 1)))
 				.or(() -> Optional.ofNullable(data.getTvdbId()).flatMap(id -> mediaRepository.findByTmdbIdAndIndex(id, mediaIndex - 1)))
 				.or(() -> Optional.ofNullable(data.getTmdbId()).flatMap(id -> mediaRepository.findByTvdbIdAndIndex(id, mediaIndex - 1)));
 		if(previous.isEmpty()){
