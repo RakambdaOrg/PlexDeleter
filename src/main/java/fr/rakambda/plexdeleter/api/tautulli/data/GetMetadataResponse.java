@@ -1,6 +1,8 @@
 package fr.rakambda.plexdeleter.api.tautulli.data;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
+import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
+import fr.rakambda.plexdeleter.json.EmptyStringAsNullDeserializer;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
@@ -46,18 +48,22 @@ public class GetMetadataResponse{
 	private String title;
 	@JsonProperty("parent_title")
 	@Nullable
+	@JsonDeserialize(using = EmptyStringAsNullDeserializer.class)
 	private String parentTitle;
 	@JsonProperty("grandparent_title")
 	@Nullable
+	@JsonDeserialize(using = EmptyStringAsNullDeserializer.class)
 	private String grandparentTitle;
 	@JsonProperty("full_title")
 	@NonNull
 	private String fullTitle;
 	@JsonProperty("thumb")
 	@Nullable
+	@JsonDeserialize(using = EmptyStringAsNullDeserializer.class)
 	private String thumb;
 	@JsonProperty("summary")
 	@Nullable
+	@JsonDeserialize(using = EmptyStringAsNullDeserializer.class)
 	private String summary;
 	@JsonProperty("rating")
 	@Nullable
@@ -82,21 +88,27 @@ public class GetMetadataResponse{
 	private long duration;
 	@JsonProperty("guid")
 	@Nullable
+	@JsonDeserialize(using = EmptyStringAsNullDeserializer.class)
 	private String guid;
 	@JsonProperty("parent_guid")
 	@Nullable
+	@JsonDeserialize(using = EmptyStringAsNullDeserializer.class)
 	private String parentGuid;
 	@JsonProperty("grandparent_guid")
 	@Nullable
+	@JsonDeserialize(using = EmptyStringAsNullDeserializer.class)
 	private String grandparentGuid;
 	@JsonProperty("guids")
 	@NonNull
+	@JsonDeserialize(contentUsing = EmptyStringAsNullDeserializer.class)
 	private List<String> guids = new LinkedList<>();
 	@JsonProperty("parent_guids")
 	@NonNull
+	@JsonDeserialize(contentUsing = EmptyStringAsNullDeserializer.class)
 	private List<String> parentGuids = new LinkedList<>();
 	@JsonProperty("grandparent_guids")
 	@NonNull
+	@JsonDeserialize(contentUsing = EmptyStringAsNullDeserializer.class)
 	private List<String> grandparentGuids = new LinkedList<>();
 	
 	@Nullable
