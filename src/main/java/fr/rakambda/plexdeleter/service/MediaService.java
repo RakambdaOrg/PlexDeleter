@@ -174,9 +174,6 @@ public class MediaService{
 					.flatMap(key -> getActualRatingKey(mediaEntity, key))
 					.ifPresent(mediaEntity::setPlexId);
 			Optional.ofNullable(mediaDetails.getMediaInfo())
-					.map(MediaInfo::getRatingKey)
-					.ifPresent(mediaEntity::setRootPlexId);
-			Optional.ofNullable(mediaDetails.getMediaInfo())
 					.map(MediaInfo::getExternalServiceId)
 					.ifPresent(mediaEntity::setServarrId);
 			Optional.ofNullable(mediaDetails.getMediaInfo())
@@ -449,7 +446,6 @@ public class MediaService{
 	private MediaEntity createMediaFromPrevious(@NonNull MediaEntity previous, int season){
 		var media = MediaEntity.builder()
 				.type(previous.getType())
-				.rootPlexId(previous.getRootPlexId())
 				.plexGuid(previous.getPlexGuid())
 				.overseerrId(previous.getOverseerrId())
 				.servarrId(previous.getServarrId())

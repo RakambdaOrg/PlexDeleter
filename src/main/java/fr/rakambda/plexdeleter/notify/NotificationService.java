@@ -27,7 +27,6 @@ import java.io.UnsupportedEncodingException;
 import java.util.Collection;
 import java.util.List;
 import java.util.Objects;
-import java.util.Optional;
 
 @Slf4j
 @Service
@@ -221,13 +220,8 @@ public class NotificationService{
 				case TRACK, ARTIST, SHOW, PHOTO -> null;
 			};
 			
-			var rootRatingKeyToSet = Optional.ofNullable(metadata.getGrandparentRatingKey())
-					.or(() -> Optional.ofNullable(metadata.getParentRatingKey()))
-					.orElseGet(metadata::getRatingKey);
-			
 			if(mediaOther.isPresent() && Objects.nonNull(ratingKeyToSet)){
 				mediaOther.get().setPlexId(ratingKeyToSet);
-				mediaOther.get().setRootPlexId(rootRatingKeyToSet);
 				media = mediaRepository.save(mediaOther.get());
 			}
 		}

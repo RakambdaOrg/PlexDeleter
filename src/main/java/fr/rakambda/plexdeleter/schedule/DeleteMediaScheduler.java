@@ -154,7 +154,6 @@ public class DeleteMediaScheduler implements IScheduler{
 		if(!dryDelete){
 			mediaEntity.setStatus(MediaStatus.DELETED);
 			mediaEntity.setPlexId(null);
-			mediaEntity.setRootPlexId(null);
 			mediaEntity = mediaRepository.save(mediaEntity);
 			deleteFromOverseerr(mediaEntity);
 		}
