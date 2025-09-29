@@ -450,6 +450,7 @@ public class MediaService{
 		var media = MediaEntity.builder()
 				.type(previous.getType())
 				.rootPlexId(previous.getRootPlexId())
+				.plexGuid(previous.getPlexGuid())
 				.overseerrId(previous.getOverseerrId())
 				.servarrId(previous.getServarrId())
 				.tvdbId(previous.getTvdbId())

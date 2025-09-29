@@ -140,7 +140,7 @@ public class TautulliService{
 		var rootGuid = Optional.ofNullable(metadata.getGrandparentGuid())
 				.or(() -> Optional.ofNullable(metadata.getParentGuid()))
 				.orElseGet(metadata::getGuid);
-		var mediaIndex = switch(Objects.requireNonNull(data.getMediaType())){
+		var mediaIndex = switch(Objects.requireNonNull(metadata.getMediaType())){
 			case MOVIE, SHOW, ARTIST -> 1;
 			case SEASON -> metadata.getMediaIndex();
 			case EPISODE, TRACK, PHOTO -> metadata.getParentMediaIndex();

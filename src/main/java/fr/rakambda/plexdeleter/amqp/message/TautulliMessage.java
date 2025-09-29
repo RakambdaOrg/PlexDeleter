@@ -1,7 +1,9 @@
 package fr.rakambda.plexdeleter.amqp.message;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
+import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import fr.rakambda.plexdeleter.api.tautulli.data.MediaType;
+import fr.rakambda.plexdeleter.json.EmptyStringAsNullDeserializer;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
@@ -38,5 +40,6 @@ public final class TautulliMessage implements IAmqpMessage{
 	@JsonProperty("user_id")
 	private Integer userId;
 	@Nullable
+	@JsonDeserialize(using = EmptyStringAsNullDeserializer.class)
 	private String user;
 }
