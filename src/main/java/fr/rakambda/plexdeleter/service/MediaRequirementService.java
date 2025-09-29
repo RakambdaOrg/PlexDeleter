@@ -20,6 +20,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import java.time.Instant;
 import java.util.Objects;
+import java.util.Set;
 import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReentrantLock;
 
@@ -108,7 +109,7 @@ public class MediaRequirementService{
 			added |= addRequirement(media, userGroupEntity, true);
 		}
 		
-		var otherGroups = userGroupRepository.findAllByHasRequirementOn(Objects.requireNonNull(media.getOverseerrId()), media.getIndex() - 1);
+		var otherGroups = userGroupRepository.findAllByHasRequirementOn(Objects.requireNonNull(media.getOverseerrId()), media.getIndex() - 1, Set.of(MediaRequirementStatus.ABANDONED));
 		for(var otherGroup : otherGroups){
 			if(Objects.nonNull(userGroupEntity) && Objects.equals(otherGroup.getId(), userGroupEntity.getId())){
 				continue;

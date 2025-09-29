@@ -8,6 +8,7 @@ import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.stereotype.Repository;
 import java.time.Instant;
+import java.util.Collection;
 import java.util.List;
 import java.util.Optional;
 
@@ -26,13 +27,13 @@ public interface UserGroupRepository extends JpaRepository<UserGroupEntity, Inte
 	Optional<UserGroupEntity> findByContainingPlexUserId(int plexUserId);
 	
 	@Query(value = """
-			SELECT G
+			SELECT DISTINCT G
 			FROM UserGroupEntity G
 			INNER JOIN MediaRequirementEntity MR ON MR.group.id = G.id
 			INNER JOIN MediaEntity M ON M.id = MR.media.id
-			WHERE M.overseerrId = ?1 AND M.index = ?2"""
+			WHERE M.overseerrId = ?1 AND M.index = ?2 AND MR.status NOT IN ?3"""
 	)
-	List<UserGroupEntity> findAllByHasRequirementOn(int overseerrId, int index);
+	List<UserGroupEntity> findAllByHasRequirementOn(int overseerrId, int index, Collection<MediaRequirementStatus> excludedStatuses);
 	
 	@Query(value = """
 			SELECT G
