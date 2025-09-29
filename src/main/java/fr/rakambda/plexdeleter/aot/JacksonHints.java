@@ -25,7 +25,8 @@ public class JacksonHints implements RuntimeHintsRegistrar{
 				"fr.rakambda.plexdeleter.json",
 				"fr.rakambda.plexdeleter.api.discord.data",
 				"fr.rakambda.plexdeleter.api.overseerr.data",
-				"fr.rakambda.plexdeleter.api.plex.gql.data",
+				"fr.rakambda.plexdeleter.api.plex.gql.data.request",
+				"fr.rakambda.plexdeleter.api.plex.gql.data.response",
 				"fr.rakambda.plexdeleter.api.plex.rest.data",
 				"fr.rakambda.plexdeleter.api.servarr.data",
 				"fr.rakambda.plexdeleter.api.servarr.radarr.data",
@@ -45,6 +46,7 @@ public class JacksonHints implements RuntimeHintsRegistrar{
 	}
 	
 	private void register(@NonNull RuntimeHints hints, @NonNull ClassLoader classLoader, @NonNull String packageName){
+		log.info("Registering Jackson hint for package {}", packageName);
 		var klasses = findAllClassesUsingClassLoader(classLoader, packageName);
 		for(var klass : klasses){
 			register(hints, klass);
@@ -52,7 +54,7 @@ public class JacksonHints implements RuntimeHintsRegistrar{
 	}
 	
 	private void register(@NonNull RuntimeHints hints, @NonNull Class<?> klass){
-		log.info("Registering Jackson hint for {}", klass);
+		log.info("Registering Jackson hint for class {}", klass);
 		hints.reflection()
 				.registerType(klass,
 						MemberCategory.DECLARED_FIELDS,
