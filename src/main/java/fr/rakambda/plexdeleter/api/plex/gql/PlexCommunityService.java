@@ -17,22 +17,20 @@ import org.jspecify.annotations.Nullable;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.ParameterizedTypeReference;
 import org.springframework.http.HttpHeaders;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.stereotype.Service;
 import org.springframework.util.MimeTypeUtils;
 import org.springframework.web.reactive.function.BodyInserters;
 import org.springframework.web.reactive.function.client.WebClient;
-import org.springframework.web.reactive.function.client.WebClientResponseException;
-import reactor.core.publisher.Mono;
-import reactor.util.retry.Retry;
-import java.time.Duration;
 import java.time.Instant;
+import java.time.temporal.ChronoUnit;
 import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
-import java.util.Optional;
+import java.util.Set;
 import java.util.function.Predicate;
 import java.util.stream.Collectors;
 
@@ -50,6 +48,7 @@ public class PlexCommunityService{
 				.baseUrl(applicationConfiguration.getPlex().getCommunityEndpoint())
 				.defaultHeader(HttpHeaders.ACCEPT, MimeTypeUtils.APPLICATION_JSON_VALUE)
 				.defaultHeader("X-Plex-Token", applicationConfiguration.getPlex().getCommunityToken())
+				.filter(HttpUtils.retryOnStatus(Set.of(HttpStatus.TOO_MANY_REQUESTS), ChronoUnit.SECONDS, 60))
 				.filter(HttpUtils.logErrorFilter())
 				.codecs(codec -> codec
 						.defaultCodecs()
@@ -128,9 +127,6 @@ public class PlexCommunityService{
 					.body(BodyInserters.fromValue(gqlQuery))
 					.retrieve()
 					.toEntity(type)
-					.retryWhen(Retry.indefinitely()
-							.filter(WebClientResponseException.TooManyRequests.class::isInstance)
-							.doBeforeRetryAsync(signal -> Mono.delay(calculateDelay(signal.failure())).then()))
 					.blockOptional()
 					.orElseThrow(RequestFailedException::new));
 			
@@ -143,21 +139,5 @@ public class PlexCommunityService{
 		catch(ParseException e){
 			throw new RequestFailedException("Failed to construct request", e);
 		}
-	}
-	
-	@NonNull
-	private static Duration calculateDelay(@NonNull Throwable failure){
-		if(!(failure instanceof WebClientResponseException.TooManyRequests webClientResponseException)){
-			return Duration.ofMinutes(1);
-		}
-		
-		var retryAfterHeader = webClientResponseException.getHeaders().getFirst("Retry-After");
-		var retryAfter = Duration.ofSeconds(Optional.ofNullable(retryAfterHeader)
-				.filter(s -> !s.isBlank())
-				.map(Integer::parseInt)
-				.orElse(60));
-		
-		log.warn("Anilist graphql api retry later : {}", retryAfter);
-		return retryAfter;
 	}
 }

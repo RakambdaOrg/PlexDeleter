@@ -18,6 +18,8 @@ import reactor.netty.http.client.HttpClient;
 import reactor.netty.transport.logging.AdvancedByteBufFormat;
 import reactor.util.retry.Retry;
 import java.time.Duration;
+import java.time.temporal.ChronoUnit;
+import java.time.temporal.TemporalUnit;
 import java.util.Collection;
 import java.util.Objects;
 import java.util.Optional;
@@ -94,28 +96,33 @@ public final class HttpUtils{
 	
 	@NonNull
 	public static ExchangeFilterFunction retryOnStatus(@NonNull Collection<HttpStatusCode> statuses){
-		return retryOnStatus(statuses, 100);
+		return retryOnStatus(statuses, 100, ChronoUnit.MILLIS, 60_000);
 	}
 	
 	@NonNull
-	public static ExchangeFilterFunction retryOnStatus(@NonNull Collection<HttpStatusCode> statuses, int max){
+	public static ExchangeFilterFunction retryOnStatus(@NonNull Collection<HttpStatusCode> statuses, @NonNull TemporalUnit unit, int defaultDelay){
+		return retryOnStatus(statuses, 100, unit, defaultDelay);
+	}
+	
+	@NonNull
+	public static ExchangeFilterFunction retryOnStatus(@NonNull Collection<HttpStatusCode> statuses, int max, @NonNull TemporalUnit unit, int defaultDelay){
 		return (request, next) -> next.exchange(request)
 				.retryWhen(Retry.max(max)
 						.filter(err -> err instanceof WebClientResponseException webClientResponseException && statuses.contains(webClientResponseException.getStatusCode()))
-						.doBeforeRetryAsync(signal -> Mono.delay(calculateDelay(signal.failure())).then()));
+						.doBeforeRetryAsync(signal -> Mono.delay(calculateDelay(signal.failure(), unit, defaultDelay)).then()));
 	}
 	
 	@NonNull
-	public static Duration calculateDelay(@NonNull Throwable failure){
+	public static Duration calculateDelay(@NonNull Throwable failure, @NonNull TemporalUnit unit, int defaultDelay){
 		if(!(failure instanceof WebClientResponseException webClientResponseException)){
-			return Duration.ofMinutes(1);
+			return Duration.of(defaultDelay, unit);
 		}
 		
 		var retryAfterHeader = webClientResponseException.getHeaders().getFirst("Retry-After");
-		var retryAfter = Duration.ofMillis(Optional.ofNullable(retryAfterHeader)
+		var retryAfter = Duration.of(Optional.ofNullable(retryAfterHeader)
 				.filter(s -> !s.isBlank())
 				.map(Integer::parseInt)
-				.orElse(60000));
+				.orElse(defaultDelay), unit);
 		
 		log.warn("Retry later for request on {}: {}", Optional.ofNullable(webClientResponseException.getRequest()).map(HttpRequest::getURI).orElse(null), retryAfter);
 		return retryAfter;

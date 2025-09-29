@@ -17,9 +17,6 @@ import org.springframework.web.reactive.function.BodyInserter;
 import org.springframework.web.reactive.function.BodyInserters;
 import org.springframework.web.reactive.function.UnsupportedMediaTypeException;
 import org.springframework.web.reactive.function.client.WebClient;
-import org.springframework.web.reactive.function.client.WebClientResponseException;
-import reactor.core.publisher.Mono;
-import reactor.util.retry.Retry;
 import java.util.Map;
 import java.util.Objects;
 import java.util.Set;
@@ -88,10 +85,6 @@ public class DiscordWebhookService{
 				.body(bodyInserter)
 				.retrieve()
 				.toEntity(DiscordResponse.class)
-				.retryWhen(Retry.indefinitely()
-						.filter(WebClientResponseException.TooManyRequests.class::isInstance)
-						.doBeforeRetryAsync(signal -> Mono.delay(HttpUtils.calculateDelay(signal.failure())).then()))
-				
 				.blockOptional()
 				.orElseThrow(() -> new RequestFailedException("Failed to send discord webhook message %s".formatted(message))));
 	}
