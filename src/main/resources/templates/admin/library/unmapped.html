@@ -18,20 +18,20 @@
         </thead>
         <tbody class="table-group-divider">
         <tr th:each="element : ${elements}">
-            <td th:text="${element.ratingKey()}"></td>
+            <td th:text="${element.getRatingKey()}"></td>
             <td>
                 <div class="d-flex flex-row justify-content-center align-items-center col-auto">
                     <svg class="m-1" height="20" width="20">
-                        <image th:xlink:href="@{~/static/__${element.type().getIcon()}__}" height="20" width="20"/>
+                        <image th:xlink:href="@{~/static/__${element.getMediaType().getIcon()}__}" height="20" width="20"/>
                     </svg>
-                    <span class="m-1" th:text="#{${element.type().getLocalizationKey()}}"></span>
+                    <span class="m-1" th:text="#{${element.getMediaType().getLocalizationKey()}}"></span>
                 </div>
             </td>
-            <td th:text="${element.name()}"></td>
+            <td th:text="${element.getTitle()}"></td>
             <td>
                 <div class="d-flex flex-row justify-content-center align-items-center">
                     <div class="m-1">
-                        <a title="Plex" th:href="${thymeleafService.getRatingKeyPlexUrl(element.ratingKey())}" th:target="_blank">
+                        <a title="Plex" th:href="${thymeleafService.getRatingKeyPlexUrl(element.getRatingKey())}" th:target="_blank">
                             <svg class="m-1" height="20" width="20">
                                 <image th:xlink:href="@{~/static/plex.svg}" height="20" width="20"/>
                             </svg>

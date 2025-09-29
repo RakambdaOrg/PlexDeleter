@@ -3,6 +3,7 @@ package fr.rakambda.plexdeleter.service;
 import fr.rakambda.plexdeleter.api.RequestFailedException;
 import fr.rakambda.plexdeleter.api.tautulli.TautulliApiService;
 import fr.rakambda.plexdeleter.api.tautulli.data.GetLibraryMediaInfo;
+import fr.rakambda.plexdeleter.api.tautulli.data.GetMetadataResponse;
 import fr.rakambda.plexdeleter.api.tautulli.data.TautulliResponse;
 import fr.rakambda.plexdeleter.config.ApplicationConfiguration;
 import fr.rakambda.plexdeleter.service.data.LibraryElement;
@@ -33,22 +34,34 @@ public class LibraryService{
 	}
 	
 	@NonNull
-	public Collection<LibraryElement> getAllLibraryContentWithoutMedia(){
+	public Collection<GetMetadataResponse> getAllLibraryContentWithoutMedia(){
 		var libraryElements = Optional.ofNullable(applicationConfiguration.getPlex().getTemporaryLibraries())
 				.stream()
 				.flatMap(Collection::stream)
 				.flatMap(this::getLibraryContent)
+				.map(this::getLibraryElementDetails)
+				.flatMap(Optional::stream)
 				.toList();
 		
 		return libraryElements.stream()
 				.filter(this::isRecordMissing)
-				.sorted(Comparator.comparing(LibraryElement::type)
-						.thenComparing(LibraryElement::name))
+				.sorted(Comparator.comparing(GetMetadataResponse::getMediaType)
+						.thenComparing(GetMetadataResponse::getTitle))
 				.toList();
 	}
 	
-	private boolean isRecordMissing(@NonNull LibraryElement element){
-		return !mediaRepository.existsByRootPlexId(element.ratingKey());
+	@NonNull
+	private Optional<GetMetadataResponse> getLibraryElementDetails(@NonNull LibraryElement element){
+		try{
+			return tautulliApiService.getMetadata(element.ratingKey()).getResponse().getDataOptional();
+		}
+		catch(RequestFailedException e){
+			throw new RuntimeException(e);
+		}
+	}
+	
+	private boolean isRecordMissing(@NonNull GetMetadataResponse element){
+		return !mediaRepository.existsByPlexGuid(element.getGuid());
 	}
 	
 	@NonNull
