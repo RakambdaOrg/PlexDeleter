@@ -51,6 +51,10 @@ public class PlexCommunityService{
 				.defaultHeader(HttpHeaders.ACCEPT, MimeTypeUtils.APPLICATION_JSON_VALUE)
 				.defaultHeader("X-Plex-Token", applicationConfiguration.getPlex().getCommunityToken())
 				.filter(HttpUtils.logErrorFilter())
+				.codecs(codec -> codec
+						.defaultCodecs()
+						.maxInMemorySize(1024 * 1024)
+				)
 				.build();
 	}
 	
