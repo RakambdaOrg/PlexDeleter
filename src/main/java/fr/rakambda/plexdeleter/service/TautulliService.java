@@ -147,8 +147,7 @@ public class TautulliService{
 		};
 		
 		var previous = Optional
-				.of(rootRatingKey).flatMap(id -> mediaRepository.findByRootPlexIdAndIndex(rootRatingKey, mediaIndex - 1))
-				.or(() -> Optional.ofNullable(rootGuid).flatMap(id -> mediaRepository.findByPlexGuidAndIndex(id, mediaIndex - 1)))
+				.ofNullable(rootGuid).flatMap(id -> mediaRepository.findByPlexGuidAndIndex(id, mediaIndex - 1))
 				.or(() -> Optional.ofNullable(data.getTvdbId()).flatMap(id -> mediaRepository.findByTmdbIdAndIndex(id, mediaIndex - 1)))
 				.or(() -> Optional.ofNullable(data.getTmdbId()).flatMap(id -> mediaRepository.findByTvdbIdAndIndex(id, mediaIndex - 1)));
 		if(previous.isEmpty()){
