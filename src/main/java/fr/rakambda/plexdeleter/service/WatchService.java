@@ -90,13 +90,13 @@ public class WatchService{
 						.filter(a -> userIds.contains(a.getUserV2().getId()))
 						.filter(ActivityWatchHistory.class::isInstance)
 						.map(ActivityWatchHistory.class::cast)
-						.filter(a -> a.getDate().isAfter(historySince) || a.getDate().equals(historySince))
+						.filter(a -> Objects.isNull(historySince) || a.getDate().isAfter(historySince) || a.getDate().equals(historySince))
 						.map(a -> new WatchState(a.getMetadataItem().getIndex(), true))
 						.toList());
 			}
 		}
 		catch(Exception e){
-			log.error("Failed to get watch history from Plex Community");
+			log.error("Failed to get watch history from Plex Community", e);
 		}
 		return history;
 	}
