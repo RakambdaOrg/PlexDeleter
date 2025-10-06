@@ -112,6 +112,12 @@ public final class HttpUtils{
 	@NonNull
 	public static ExchangeFilterFunction retryOnStatus(@NonNull Collection<HttpStatusCode> statuses, int max, @NonNull TemporalUnit unit, int defaultDelay){
 		return (request, next) -> next.exchange(request)
+				.flatMap(response -> {
+					if(statuses.contains(response.statusCode())){
+						return response.createException().flatMap(Mono::error);
+					}
+					return Mono.just(response);
+				})
 				.retryWhen(Retry.max(max)
 						.filter(err -> err instanceof WebClientResponseException webClientResponseException && statuses.contains(webClientResponseException.getStatusCode()))
 						.doBeforeRetryAsync(signal -> {
@@ -139,7 +145,7 @@ public final class HttpUtils{
 				.map(Integer::parseInt)
 				.orElse(defaultDelay), unit);
 		
-		log.warn("Retry later for request on {}: {}", Optional.ofNullable(webClientResponseException.getRequest()).map(HttpRequest::getURI).orElse(null), retryAfter);
+		log.debug("Retry later for request on {}: {}", Optional.ofNullable(webClientResponseException.getRequest()).map(HttpRequest::getURI).orElse(null), retryAfter);
 		return retryAfter;
 	}
 }

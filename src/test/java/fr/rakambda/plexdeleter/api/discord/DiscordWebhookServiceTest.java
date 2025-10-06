@@ -67,7 +67,7 @@ class DiscordWebhookServiceTest{
 				.content("Test rate limit")
 				.build();
 		
-		for(var i = 0; i < 15; i++){
+		for(var i = 0; i < 30; i++){
 			assertThatCode(() -> tested.sendWebhookMessage(webhook, message)).doesNotThrowAnyException();
 		}
 	}
