@@ -32,8 +32,8 @@ public class SonarrService{
 		apiClient = WebClient.builder()
 				.baseUrl(applicationConfiguration.getSonarr().getEndpoint())
 				.defaultHeader("X-Api-Key", applicationConfiguration.getSonarr().getApiKey())
-				.filter(HttpUtils.retryOnStatus(Set.of(HttpStatus.BAD_GATEWAY)))
 				.filter(HttpUtils.logErrorFilter())
+				.filter(HttpUtils.retryOnStatus(Set.of(HttpStatus.BAD_GATEWAY)))
 				.codecs(codec -> codec
 						.defaultCodecs()
 						.maxInMemorySize(1024 * 1024)

@@ -34,8 +34,8 @@ public class OverseerrService{
 		apiClient = WebClient.builder()
 				.baseUrl(applicationConfiguration.getOverseerr().getEndpoint())
 				.defaultHeader("X-Api-Key", applicationConfiguration.getOverseerr().getApiKey())
-				.filter(HttpUtils.retryOnStatus(Set.of(HttpStatus.BAD_GATEWAY)))
 				.filter(HttpUtils.logErrorFilter())
+				.filter(HttpUtils.retryOnStatus(Set.of(HttpStatus.BAD_GATEWAY)))
 				.codecs(codec -> codec
 						.defaultCodecs()
 						.maxInMemorySize(10 * 1024 * 1024)

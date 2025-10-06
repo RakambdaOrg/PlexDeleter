@@ -96,7 +96,12 @@ public final class HttpUtils{
 	
 	@NonNull
 	public static ExchangeFilterFunction retryOnStatus(@NonNull Collection<HttpStatusCode> statuses){
-		return retryOnStatus(statuses, 100, ChronoUnit.MILLIS, 60_000);
+		return retryOnStatus(statuses, 100);
+	}
+	
+	@NonNull
+	public static ExchangeFilterFunction retryOnStatus(@NonNull Collection<HttpStatusCode> statuses, int max){
+		return retryOnStatus(statuses, max, ChronoUnit.MILLIS, 60_000);
 	}
 	
 	@NonNull
@@ -109,7 +114,17 @@ public final class HttpUtils{
 		return (request, next) -> next.exchange(request)
 				.retryWhen(Retry.max(max)
 						.filter(err -> err instanceof WebClientResponseException webClientResponseException && statuses.contains(webClientResponseException.getStatusCode()))
-						.doBeforeRetryAsync(signal -> Mono.delay(calculateDelay(signal.failure(), unit, defaultDelay)).then()));
+						.doBeforeRetryAsync(signal -> {
+							var requestUri = Optional.of(signal.failure())
+									.filter(WebClientResponseException.class::isInstance)
+									.map(WebClientResponseException.class::cast)
+									.map(WebClientResponseException::getRequest)
+									.map(HttpRequest::getURI)
+									.orElse(null);
+							var delay = calculateDelay(signal.failure(), unit, defaultDelay);
+							log.warn("Retrying request after {} on {} (total retries: {})", delay, requestUri, signal.totalRetries());
+							return Mono.delay(delay).then();
+						}));
 	}
 	
 	@NonNull

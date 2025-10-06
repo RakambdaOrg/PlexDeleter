@@ -31,8 +31,8 @@ public class DiscordWebhookService{
 	
 	public DiscordWebhookService(){
 		apiClient = WebClient.builder()
-				.filter(HttpUtils.retryOnStatus(Set.of(HttpStatus.TOO_MANY_REQUESTS)))
 				.filter(HttpUtils.logErrorFilter(Set.of(HttpStatus.TOO_MANY_REQUESTS)))
+				.filter(HttpUtils.retryOnStatus(Set.of(HttpStatus.TOO_MANY_REQUESTS), Integer.MAX_VALUE))
 				.build();
 		locks = new ConcurrentHashMap<>();
 	}
