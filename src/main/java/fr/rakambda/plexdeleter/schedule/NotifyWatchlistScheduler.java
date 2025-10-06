@@ -49,7 +49,7 @@ public class NotifyWatchlistScheduler implements IScheduler{
 			try{
 				update(userGroup);
 			}
-			catch(NotifyException e){
+			catch(Exception e){
 				log.error("Failed to notify user group {}", userGroup, e);
 			}
 		}
