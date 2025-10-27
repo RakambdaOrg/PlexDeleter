@@ -27,6 +27,7 @@ import org.jspecify.annotations.NonNull;
 import org.jspecify.annotations.Nullable;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import java.time.Instant;
 import java.util.Objects;
 import java.util.Optional;
 import java.util.concurrent.locks.Lock;
@@ -382,6 +383,9 @@ public class MediaService{
 			if(media.getStatus().isNeverChange() || media.getStatus().isOnDiskOrWillBe()){
 				return media;
 			}
+			if(media.getStatus().isDeleted()){
+				media.setLastRequestedTime(Instant.now());
+			}
 			media.setStatus(MediaStatus.WAITING);
 			media.setAvailablePartsCount(0);
 			return update(mediaRepository.save(media));
@@ -435,6 +439,7 @@ public class MediaService{
 				.partsCount(0)
 				.availablePartsCount(0)
 				.status(MediaStatus.WAITING)
+				.lastRequestedTime(Instant.now())
 				.build());
 		
 		log.info("Creating new media {} for Overseerr id {}", media, overseerrId);
@@ -458,6 +463,7 @@ public class MediaService{
 				.partsCount(0)
 				.availablePartsCount(0)
 				.status(MediaStatus.WAITING)
+				.lastRequestedTime(Instant.now())
 				.build();
 		
 		log.info("Creating new media {} from previous {}", media, previous);

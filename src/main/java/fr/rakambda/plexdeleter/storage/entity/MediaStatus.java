@@ -118,6 +118,10 @@ public enum MediaStatus{
 		return isNeedsMetadataRefresh() && !isFullyDownloaded();
 	}
 	
+	public boolean isDeleted(){
+		return this == DELETED || this == MANUALLY_DELETED;
+	}
+	
 	@NonNull
 	public static Collection<MediaStatus> allOnDisk(){
 		if(Objects.isNull(ALL_AVAILABLE)){

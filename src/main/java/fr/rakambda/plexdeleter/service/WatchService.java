@@ -20,12 +20,15 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import java.io.IOException;
 import java.time.Instant;
+import java.util.Comparator;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 import java.util.Optional;
+import java.util.function.Function;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 @Slf4j
 @Service
@@ -111,7 +114,11 @@ public class WatchService{
 			return;
 		}
 		
-		var historyPerPart = getGroupWatchHistory(group, media, mediaRequirementEntity.getLastCompletedTime());
+		var historySince = Stream.of(mediaRequirementEntity.getLastCompletedTime(), media.getLastRequestedTime())
+				.filter(Objects::nonNull)
+				.min(Comparator.comparing(Function.identity()))
+				.orElse(null);
+		var historyPerPart = getGroupWatchHistory(group, media, historySince);
 		var watchedFullyCount = historyPerPart.values().stream()
 				.filter(watched -> watched)
 				.count();
