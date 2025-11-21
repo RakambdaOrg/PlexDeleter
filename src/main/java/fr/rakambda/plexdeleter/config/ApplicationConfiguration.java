@@ -3,10 +3,10 @@ package fr.rakambda.plexdeleter.config;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+import org.jspecify.annotations.NonNull;
 import org.springframework.boot.context.properties.ConfigurationProperties;
 import org.springframework.boot.context.properties.NestedConfigurationProperty;
 import org.springframework.context.annotation.Configuration;
-import org.springframework.lang.NonNull;
 
 @Data
 @NoArgsConstructor
@@ -15,7 +15,6 @@ import org.springframework.lang.NonNull;
 @ConfigurationProperties(prefix = "app")
 public class ApplicationConfiguration{
 	@NonNull
-	@org.jspecify.annotations.NonNull
 	private String excludeTag;
 	@NestedConfigurationProperty
 	private PlexConfiguration plex;
