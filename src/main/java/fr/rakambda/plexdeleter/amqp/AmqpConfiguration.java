@@ -1,6 +1,5 @@
 package fr.rakambda.plexdeleter.amqp;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
 import fr.rakambda.plexdeleter.config.ApplicationConfiguration;
 import org.jspecify.annotations.NonNull;
 import org.springframework.amqp.core.Binding;
@@ -13,13 +12,15 @@ import org.springframework.amqp.core.QueueBuilder;
 import org.springframework.amqp.rabbit.annotation.EnableRabbit;
 import org.springframework.amqp.rabbit.connection.ConnectionFactory;
 import org.springframework.amqp.rabbit.core.RabbitTemplate;
-import org.springframework.amqp.support.converter.Jackson2JsonMessageConverter;
+import org.springframework.amqp.support.converter.JacksonJsonMessageConverter;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
-import org.springframework.retry.backoff.ExponentialBackOffPolicy;
-import org.springframework.retry.support.RetryTemplate;
+import org.springframework.core.retry.RetryPolicy;
+import org.springframework.core.retry.RetryTemplate;
+import org.springframework.util.backoff.ExponentialBackOff;
+import tools.jackson.databind.json.JsonMapper;
 import java.util.Map;
 
 @Configuration
@@ -75,14 +76,17 @@ public class AmqpConfiguration{
 	}
 	
 	@Bean
-	public RabbitTemplate rabbitTemplate(ConnectionFactory connectionFactory, Jackson2JsonMessageConverter messageConverter){
-		var backOffPolicy = new ExponentialBackOffPolicy();
-		backOffPolicy.setInitialInterval(1000);
-		backOffPolicy.setMultiplier(10);
-		backOffPolicy.setMaxInterval(60000);
+	public RabbitTemplate rabbitTemplate(ConnectionFactory connectionFactory, JacksonJsonMessageConverter messageConverter){
+		var backOff = new ExponentialBackOff();
+		backOff.setInitialInterval(1000);
+		backOff.setMultiplier(10);
+		backOff.setMaxInterval(60000);
 		
-		var retryTemplate = new RetryTemplate();
-		retryTemplate.setBackOffPolicy(backOffPolicy);
+		var retryPolicy = RetryPolicy.builder()
+				.backOff(backOff)
+				.build();
+		
+		var retryTemplate = new RetryTemplate(retryPolicy);
 		
 		var rabbitTemplate = new RabbitTemplate(connectionFactory);
 		rabbitTemplate.setMessageConverter(messageConverter);
@@ -91,8 +95,8 @@ public class AmqpConfiguration{
 	}
 	
 	@Bean
-	public Jackson2JsonMessageConverter producerJackson2MessageConverter(ObjectMapper jsonObjectMapper){
-		return new Jackson2JsonMessageConverter(jsonObjectMapper);
+	public JacksonJsonMessageConverter producerJackson2MessageConverter(JsonMapper jsonMapper){
+		return new JacksonJsonMessageConverter(jsonMapper);
 	}
 	
 	@NonNull
