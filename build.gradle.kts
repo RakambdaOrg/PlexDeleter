@@ -84,12 +84,13 @@ tasks.withType<BootBuildImage> {
         
         "BP_NATIVE_IMAGE_BUILD_ARGUMENTS" to
                 """
-                -H:+AddAllCharsets
 				-march=compatibility
-				-R:MaxHeapSize=256m
-				-O3
+                -H:+AddAllCharsets
+                -H:-ReduceImplicitExceptionStackTraceInformation
 				-J-XX:MaxRAMPercentage=80.0
-			""",
+				-O3
+				-R:MaxHeapSize=256m
+			    """,
     )
 }
 
