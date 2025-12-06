@@ -42,9 +42,9 @@ public class TraktMediaMetadataContext extends MediaMetadataContext{
 	
 	@NonNull
 	public Optional<Integer> getTmdbId(){
-		return getTmdbId(getMetadata().getGrandparentGuids())
-				.or(() -> getTmdbId(getMetadata().getParentGuids()))
-				.or(() -> getTmdbId(getMetadata().getGuids()));
+		return getTmdbId(getMetadata().grandparentGuids())
+				.or(() -> getTmdbId(getMetadata().parentGuids()))
+				.or(() -> getTmdbId(getMetadata().guids()));
 	}
 	
 	@NonNull
@@ -58,7 +58,7 @@ public class TraktMediaMetadataContext extends MediaMetadataContext{
 	
 	@Override
 	public Collection<MetadataProviderInfo> getMetadataProviderInfo(){
-		var type = switch(getMetadata().getMediaType()){
+		var type = switch(getMetadata().mediaType()){
 			case MOVIE -> "movie";
 			case SHOW, SEASON, EPISODE -> "show";
 			case TRACK, ARTIST, PHOTO -> null;

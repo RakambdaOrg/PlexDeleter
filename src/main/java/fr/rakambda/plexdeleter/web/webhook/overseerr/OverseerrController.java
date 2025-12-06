@@ -91,24 +91,24 @@ public class OverseerrController{
 		}
 		
 		var requestDetails = overseerrService.getRequestDetails(requestId.get());
-		var requestDetailsMedia = Objects.requireNonNull(requestDetails.getMedia());
-		var overseerrId = requestDetailsMedia.getTmdbId();
-		var plexUserId = requestDetails.getRequestedBy().getPlexId();
+		var requestDetailsMedia = Objects.requireNonNull(requestDetails.media());
+		var overseerrId = requestDetailsMedia.tmdbId();
+		var plexUserId = requestDetails.requestedBy().plexId();
 		
-		var tags = switch(requestDetailsMedia.getMediaType()){
+		var tags = switch(requestDetailsMedia.mediaType()){
 			case MOVIE -> radarrService.getTags();
 			case TV -> sonarrService.getTags();
 		};
-		var mappedTags = tags.stream().collect(Collectors.toMap(Tag::getId, Tag::getLabel));
+		var mappedTags = tags.stream().collect(Collectors.toMap(Tag::id, Tag::label));
 		
-		if(Optional.ofNullable(requestDetails.getTags()).orElse(Set.of()).stream()
+		if(Optional.ofNullable(requestDetails.tags()).orElse(Set.of()).stream()
 				.map(mappedTags::get)
 				.anyMatch(name -> Objects.equals(name, excludeTag))){
 			log.warn("Not adding any media, it is excluded by tag {}", data);
 			return;
 		}
 		
-		var seasons = switch(requestDetailsMedia.getMediaType()){
+		var seasons = switch(requestDetailsMedia.mediaType()){
 			case MOVIE -> List.of(1);
 			case TV -> data.getExtra().stream()
 					.filter(extra -> Objects.equals(extra.getName(), "Requested Seasons"))
@@ -127,7 +127,7 @@ public class OverseerrController{
 			return;
 		}
 		
-		var mediaType = switch(requestDetailsMedia.getMediaType()){
+		var mediaType = switch(requestDetailsMedia.mediaType()){
 			case MOVIE -> MediaType.MOVIE;
 			case TV -> MediaType.SEASON;
 		};

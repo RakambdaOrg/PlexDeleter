@@ -4,6 +4,7 @@ import fr.rakambda.plexdeleter.SecretsUtils;
 import fr.rakambda.plexdeleter.api.RequestFailedException;
 import fr.rakambda.plexdeleter.api.overseerr.data.MediaType;
 import fr.rakambda.plexdeleter.api.overseerr.data.MovieMedia;
+import fr.rakambda.plexdeleter.api.overseerr.data.RequestMedia;
 import fr.rakambda.plexdeleter.api.overseerr.data.SeriesMedia;
 import fr.rakambda.plexdeleter.config.ApplicationConfiguration;
 import fr.rakambda.plexdeleter.config.OverseerrConfiguration;
@@ -36,7 +37,7 @@ class OverseerrServiceTest{
 			assertThat(movie.getTitle()).isEqualTo("Ariel");
 			assertThat(movie.getStatus()).isEqualTo("Released");
 			assertThat(movie.getExternalIds()).isNotNull().satisfies(externalIds ->
-					assertThat(externalIds.getImdbId()).isEqualTo("tt0094675"));
+					assertThat(externalIds.imdbId()).isEqualTo("tt0094675"));
 			assertThat(movie.getMediaInfo()).isNull();
 		});
 	}
@@ -52,8 +53,8 @@ class OverseerrServiceTest{
 			assertThat(series.getStatus()).isEqualTo("Ended");
 			assertThat(series.getSeasons()).hasSize(1);
 			assertThat(series.getExternalIds()).isNotNull().satisfies(externalIds -> {
-				assertThat(externalIds.getImdbId()).isEqualTo("tt0416409");
-				assertThat(externalIds.getTvdbId()).isEqualTo(84831L);
+				assertThat(externalIds.imdbId()).isEqualTo("tt0416409");
+				assertThat(externalIds.tvdbId()).isEqualTo(84831L);
 			});
 			assertThat(series.getMediaInfo()).isNull();
 		});
@@ -64,7 +65,7 @@ class OverseerrServiceTest{
 		var result = tested.getMediaDetails(585, MediaType.MOVIE);
 		
 		assertThat(result.getMediaInfo()).isNotNull().satisfies(mediaInfo ->
-				assertThat(mediaInfo.getRatingKey()).isEqualTo(272271));
+				assertThat(mediaInfo.ratingKey()).isEqualTo(272271));
 	}
 	
 	@Test
@@ -72,23 +73,23 @@ class OverseerrServiceTest{
 		var result = tested.getMediaDetails(66038, MediaType.TV);
 		
 		assertThat(result.getMediaInfo()).isNotNull().satisfies(mediaInfo ->
-				assertThat(mediaInfo.getRatingKey()).isEqualTo(391959));
+				assertThat(mediaInfo.ratingKey()).isEqualTo(391959));
 	}
 	
 	@Test
 	void itShouldGetRequestDetailsForMovie() throws RequestFailedException{
-		var result = tested.getRequestDetails(534);
+		var result = tested.getRequestDetails(27);
 		
-		assertThat(result.getMedia()).isInstanceOfSatisfying(MovieMedia.class,
-				movieMedia -> assertThat(movieMedia.getId()).isEqualTo(660));
+		assertThat(result.media()).isInstanceOfSatisfying(RequestMedia.class,
+				movieMedia -> assertThat(movieMedia.id()).isEqualTo(165));
 	}
 	
 	@Test
 	void itShouldGetRequestDetailsForSeries() throws RequestFailedException{
-		var result = tested.getRequestDetails(530);
+		var result = tested.getRequestDetails(64);
 		
-		assertThat(result.getMedia()).isInstanceOfSatisfying(SeriesMedia.class,
-				movieMedia -> assertThat(movieMedia.getId()).isEqualTo(686));
+		assertThat(result.media()).isInstanceOfSatisfying(RequestMedia.class,
+				movieMedia -> assertThat(movieMedia.id()).isEqualTo(214));
 	}
 	
 	@Test

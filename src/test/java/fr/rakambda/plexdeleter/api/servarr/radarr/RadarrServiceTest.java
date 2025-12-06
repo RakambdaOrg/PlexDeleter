@@ -27,8 +27,8 @@ class RadarrServiceTest{
 	void getMovie() throws RequestFailedException{
 		var result = tested.getMovie(20);
 		
-		assertThat(result.getId()).isEqualTo(20);
-		assertThat(result.getTitle()).isEqualTo("Monsters, Inc.");
-		assertThat(result.isAvailable()).isTrue();
+		assertThat(result.id()).isEqualTo(20);
+		assertThat(result.title()).isEqualTo("Monsters, Inc.");
+		assertThat(result.available()).isTrue();
 	}
 }

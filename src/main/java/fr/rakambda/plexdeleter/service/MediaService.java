@@ -171,20 +171,20 @@ public class MediaService{
 					})
 					.ifPresent(mediaEntity::setName);
 			Optional.ofNullable(mediaDetails.getMediaInfo())
-					.map(MediaInfo::getRatingKey)
+					.map(MediaInfo::ratingKey)
 					.flatMap(key -> getActualRatingKey(mediaEntity, key))
 					.ifPresent(mediaEntity::setPlexId);
 			Optional.ofNullable(mediaDetails.getMediaInfo())
-					.map(MediaInfo::getExternalServiceId)
+					.map(MediaInfo::externalServiceId)
 					.ifPresent(mediaEntity::setServarrId);
 			Optional.ofNullable(mediaDetails.getMediaInfo())
-					.map(MediaInfo::getTvdbId)
+					.map(MediaInfo::tvdbId)
 					.ifPresent(mediaEntity::setTvdbId);
 			Optional.ofNullable(mediaDetails.getMediaInfo())
-					.map(MediaInfo::getTmdbId)
+					.map(MediaInfo::tmdbId)
 					.ifPresent(mediaEntity::setTmdbId);
 			Optional.ofNullable(mediaDetails.getMediaInfo())
-					.map(MediaInfo::getExternalServiceSlug)
+					.map(MediaInfo::externalServiceSlug)
 					.ifPresent(slug -> {
 						switch(mediaEntity.getType()){
 							case MOVIE -> mediaEntity.setRadarrSlug(slug);
@@ -216,10 +216,10 @@ public class MediaService{
 			return;
 		}
 		try{
-			tautulliApiService.getMetadata(mediaEntity.getPlexId()).getResponse().getDataOptional()
-					.flatMap(d -> Optional.ofNullable(d.getGrandparentGuid())
-							.or(() -> Optional.ofNullable(d.getParentGuid()))
-							.or(() -> Optional.ofNullable(d.getGuid())))
+			tautulliApiService.getMetadata(mediaEntity.getPlexId()).response().getDataOptional()
+					.flatMap(d -> Optional.ofNullable(d.grandparentGuid())
+							.or(() -> Optional.ofNullable(d.parentGuid()))
+							.or(() -> Optional.ofNullable(d.guid())))
 					.ifPresent(mediaEntity::setPlexGuid);
 			
 			var availablePartsCount = tautulliApiService.getElementsRatingKeys(mediaEntity.getPlexId(), mediaEntity.getType()).size();
@@ -247,31 +247,31 @@ public class MediaService{
 				case MOVIE -> {
 					partsCount = Optional.of(1);
 					var movie = radarrService.getMovie(mediaEntity.getServarrId());
-					availablePartsCount = Optional.of(movie.isHasFile() ? 1 : 0);
-					Optional.ofNullable(movie.getTmdbId()).ifPresent(mediaEntity::setTmdbId);
-					Optional.ofNullable(movie.getTitleSlug()).ifPresent(mediaEntity::setRadarrSlug);
+					availablePartsCount = Optional.of(movie.hasFile() ? 1 : 0);
+					Optional.ofNullable(movie.tmdbId()).ifPresent(mediaEntity::setTmdbId);
+					Optional.ofNullable(movie.titleSlug()).ifPresent(mediaEntity::setRadarrSlug);
 				}
 				case SEASON -> {
 					var series = sonarrService.getSeries(mediaEntity.getServarrId());
-					var stats = series.getSeasons().stream()
-							.filter(f -> Objects.equals(f.getSeasonNumber(), mediaEntity.getIndex()))
+					var stats = series.seasons().stream()
+							.filter(f -> Objects.equals(f.seasonNumber(), mediaEntity.getIndex()))
 							.findFirst()
-							.map(Season::getStatistics);
-					Optional.ofNullable(series.getTvdbId()).ifPresent(mediaEntity::setTvdbId);
-					Optional.ofNullable(series.getTitleSlug()).ifPresent(mediaEntity::setSonarrSlug);
-					partsCount = stats.map(Statistics::getTotalEpisodeCount);
-					availablePartsCount = stats.map(Statistics::getEpisodeFileCount);
+							.map(Season::statistics);
+					Optional.ofNullable(series.tvdbId()).ifPresent(mediaEntity::setTvdbId);
+					Optional.ofNullable(series.titleSlug()).ifPresent(mediaEntity::setSonarrSlug);
+					partsCount = stats.map(Statistics::totalEpisodeCount);
+					availablePartsCount = stats.map(Statistics::episodeFileCount);
 				}
 				case EPISODE -> {
 					partsCount = Optional.of(1);
 					var series = sonarrService.getSeries(mediaEntity.getServarrId());
-					var stats = series.getSeasons().stream()
-							.filter(f -> Objects.equals(f.getSeasonNumber(), mediaEntity.getIndex()))
+					var stats = series.seasons().stream()
+							.filter(f -> Objects.equals(f.seasonNumber(), mediaEntity.getIndex()))
 							.findFirst()
-							.map(Season::getStatistics);
-					Optional.ofNullable(series.getTvdbId()).ifPresent(mediaEntity::setTvdbId);
-					Optional.ofNullable(series.getTitleSlug()).ifPresent(mediaEntity::setSonarrSlug);
-					availablePartsCount = stats.map(Statistics::getEpisodeFileCount).map(v -> Math.min(1, v));
+							.map(Season::statistics);
+					Optional.ofNullable(series.tvdbId()).ifPresent(mediaEntity::setTvdbId);
+					Optional.ofNullable(series.titleSlug()).ifPresent(mediaEntity::setSonarrSlug);
+					availablePartsCount = stats.map(Statistics::episodeFileCount).map(v -> Math.min(1, v));
 				}
 			}
 			

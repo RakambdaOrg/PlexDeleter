@@ -1,20 +1,15 @@
 package fr.rakambda.plexdeleter.api.overseerr.data;
 
-import lombok.AllArgsConstructor;
-import lombok.Data;
-import lombok.NoArgsConstructor;
 import lombok.NonNull;
+import org.jspecify.annotations.Nullable;
 import org.springframework.aot.hint.annotation.RegisterReflectionForBinding;
 
-@Data
-@NoArgsConstructor
-@AllArgsConstructor
 @RegisterReflectionForBinding(RequestMedia.class)
-public class RequestMedia{
-	private int id;
-	private int tmdbId;
-	private int tvdbId;
-	private int ratingKey;
-	@NonNull
-	private MediaType mediaType;
+public record RequestMedia(
+		int id,
+		int tmdbId,
+		@Nullable Integer tvdbId,
+		int ratingKey,
+		@NonNull MediaType mediaType
+){
 }

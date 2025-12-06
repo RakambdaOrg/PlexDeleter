@@ -182,15 +182,15 @@ public class NotificationService{
 	}
 	
 	public void notifyMediaAdded(@NonNull GetMetadataResponse metadata) throws NotifyException{
-		var ratingKey = switch(metadata.getMediaType()){
-			case MOVIE, SEASON -> metadata.getRatingKey();
-			case EPISODE -> metadata.getParentRatingKey();
+		var ratingKey = switch(metadata.mediaType()){
+			case MOVIE, SEASON -> metadata.ratingKey();
+			case EPISODE -> metadata.parentRatingKey();
 			case TRACK, ARTIST, SHOW, PHOTO -> null;
 		};
-		var mediaIndex = switch(metadata.getMediaType()){
+		var mediaIndex = switch(metadata.mediaType()){
 			case MOVIE -> 1;
-			case SEASON -> metadata.getMediaIndex();
-			case EPISODE -> metadata.getParentMediaIndex();
+			case SEASON -> metadata.mediaIndex();
+			case EPISODE -> metadata.parentMediaIndex();
 			case TRACK, ARTIST, SHOW, PHOTO -> 1;
 		};
 		
@@ -214,9 +214,9 @@ public class NotificationService{
 			var mediaOther = tmdbMediaMetadataContext.getTmdbId().flatMap(id -> mediaRepository.findByTmdbIdAndIndex(id, mediaIndex))
 					.or(() -> tvdbMediaMetadataContext.getTvdbId().flatMap(id -> mediaRepository.findByTvdbIdAndIndex(id, mediaIndex)));
 			
-			var ratingKeyToSet = switch(metadata.getMediaType()){
-				case MOVIE, SEASON -> metadata.getRatingKey();
-				case EPISODE -> metadata.getParentRatingKey();
+			var ratingKeyToSet = switch(metadata.mediaType()){
+				case MOVIE, SEASON -> metadata.ratingKey();
+				case EPISODE -> metadata.parentRatingKey();
 				case TRACK, ARTIST, SHOW, PHOTO -> null;
 			};
 			
@@ -229,7 +229,7 @@ public class NotificationService{
 		var userGroupsRequirement = userGroupRepository.findAllByHasRequirementOnPlex(
 				ratingKey,
 				MediaRequirementStatus.WAITING,
-				metadata.getLibraryName(),
+				metadata.libraryName(),
 				tmdbMediaMetadataContext.getTmdbId().orElse(null),
 				tvdbMediaMetadataContext.getTvdbId().orElse(null),
 				mediaIndex

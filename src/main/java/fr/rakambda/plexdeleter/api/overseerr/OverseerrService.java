@@ -91,9 +91,9 @@ public class OverseerrService{
 		var requestIds = new HashSet<Integer>();
 		for(var userId : userIds){
 			requestIds.addAll(getUserRequests(userId)
-					.getResults().stream()
+					.results().stream()
 					.filter(request -> filterRequest(request, media))
-					.map(Request::getId)
+					.map(Request::id)
 					.toList());
 		}
 		
@@ -103,25 +103,25 @@ public class OverseerrService{
 	}
 	
 	private static boolean filterRequest(@NonNull Request request, @NonNull MediaEntity media){
-		if(Objects.isNull(request.getMedia())){
+		if(Objects.isNull(request.media())){
 			return false;
 		}
 		if(media.getType() == fr.rakambda.plexdeleter.storage.entity.MediaType.SEASON){
-			if(!request.getSeasons().stream()
-					.map(RequestSeason::getSeasonNumber)
+			if(!request.seasons().stream()
+					.map(RequestSeason::seasonNumber)
 					.toList()
 					.contains(media.getIndex())){
 				return false;
 			}
 		}
 		
-		if(Objects.nonNull(media.getTmdbId()) && Objects.equals(request.getMedia().getTmdbId(), media.getTmdbId())){
+		if(Objects.nonNull(media.getTmdbId()) && Objects.equals(request.media().tmdbId(), media.getTmdbId())){
 			return true;
 		}
-		if(Objects.nonNull(media.getTvdbId()) && Objects.equals(request.getMedia().getTvdbId(), media.getTvdbId())){
+		if(Objects.nonNull(media.getTvdbId()) && Objects.equals(request.media().tvdbId(), media.getTvdbId())){
 			return true;
 		}
-		if(Objects.nonNull(media.getPlexId()) && Objects.equals(request.getMedia().getRatingKey(), media.getPlexId())){
+		if(Objects.nonNull(media.getPlexId()) && Objects.equals(request.media().ratingKey(), media.getPlexId())){
 			return true;
 		}
 		return false;

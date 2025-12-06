@@ -39,10 +39,10 @@ public abstract class AbstractNotificationService{
 	
 	@NonNull
 	protected <T> Stream<T> getMediaStreams(@NonNull GetMetadataResponse metadata, @NonNull Class<T> klass){
-		return metadata.getMediaInfo().stream()
-				.map(MediaInfo::getParts)
+		return metadata.mediaInfo().stream()
+				.map(MediaInfo::parts)
 				.flatMap(Collection::stream)
-				.map(MediaPart::getStreams)
+				.map(MediaPart::streams)
 				.flatMap(Collection::stream)
 				.filter(klass::isInstance)
 				.map(klass::cast);
@@ -101,18 +101,18 @@ public abstract class AbstractNotificationService{
 	
 	@Nullable
 	protected String getMediaSeason(@NonNull GetMetadataResponse metadata, @NonNull Locale locale){
-		return switch(metadata.getMediaType()){
+		return switch(metadata.mediaType()){
 			case EPISODE -> Stream.of(
-							Optional.ofNullable(metadata.getParentMediaIndex())
+							Optional.ofNullable(metadata.parentMediaIndex())
 									.map(i -> messageSource.getMessage("mail.media.added.body.season", new Object[]{i}, locale))
 									.orElse(null),
-							Optional.ofNullable(metadata.getMediaIndex())
+							Optional.ofNullable(metadata.mediaIndex())
 									.map(i -> messageSource.getMessage("mail.media.added.body.episode", new Object[]{i}, locale))
 									.orElse(null)
 					)
 					.filter(Objects::nonNull)
 					.collect(Collectors.joining(" - "));
-			case SEASON -> Optional.ofNullable(metadata.getMediaIndex())
+			case SEASON -> Optional.ofNullable(metadata.mediaIndex())
 					.map(i -> messageSource.getMessage("mail.media.added.body.season", new Object[]{i}, locale))
 					.orElse(null);
 			default -> null;

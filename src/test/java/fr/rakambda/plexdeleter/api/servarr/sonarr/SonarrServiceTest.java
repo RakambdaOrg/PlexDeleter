@@ -27,8 +27,8 @@ class SonarrServiceTest{
 	void getSeries() throws RequestFailedException{
 		var result = tested.getSeries(34);
 		
-		assertThat(result.getId()).isEqualTo(34);
-		assertThat(result.getTitle()).isEqualTo("The Wakos");
-		assertThat(result.getSeasons()).hasSizeGreaterThan(6);
+		assertThat(result.id()).isEqualTo(34);
+		assertThat(result.title()).isEqualTo("The Wakos");
+		assertThat(result.seasons()).hasSizeGreaterThan(6);
 	}
 }

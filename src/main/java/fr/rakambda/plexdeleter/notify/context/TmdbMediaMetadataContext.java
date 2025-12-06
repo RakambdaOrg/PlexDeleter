@@ -55,8 +55,8 @@ public class TmdbMediaMetadataContext extends MediaMetadataContext{
 				.map(RootMediaData::getGenres)
 				.filter(g -> !g.isEmpty())
 				.map(gs -> gs.stream()
-						.map(g -> translateId(messageSource, "genre", g.getId(), locale)
-								.orElseGet(() -> "%s (%d)".formatted(g.getName(), g.getId())))
+						.map(g -> translateId(messageSource, "genre", g.id(), locale)
+								.orElseGet(() -> "%s (%d)".formatted(g.name(), g.id())))
 						.toList());
 	}
 	
@@ -74,9 +74,9 @@ public class TmdbMediaMetadataContext extends MediaMetadataContext{
 	
 	@NonNull
 	public Optional<Integer> getTmdbId(){
-		return getTmdbId(getMetadata().getGrandparentGuids())
-				.or(() -> getTmdbId(getMetadata().getParentGuids()))
-				.or(() -> getTmdbId(getMetadata().getGuids()));
+		return getTmdbId(getMetadata().grandparentGuids())
+				.or(() -> getTmdbId(getMetadata().parentGuids()))
+				.or(() -> getTmdbId(getMetadata().guids()));
 	}
 	
 	@NonNull
@@ -102,7 +102,7 @@ public class TmdbMediaMetadataContext extends MediaMetadataContext{
 		}
 		
 		try{
-			var response = switch(getMetadata().getMediaType()){
+			var response = switch(getMetadata().mediaType()){
 				case MOVIE -> tmdbService.getMovieData(tmdbId, locale);
 				case SHOW, SEASON, EPISODE -> tmdbService.getSeriesData(tmdbId, locale);
 				case TRACK, ARTIST, PHOTO -> null;
@@ -119,18 +119,18 @@ public class TmdbMediaMetadataContext extends MediaMetadataContext{
 	
 	@NonNull
 	private Optional<? extends MediaData> getElementTranslation(@NonNull Locale locale){
-		return switch(getMetadata().getMediaType()){
+		return switch(getMetadata().mediaType()){
 			case MOVIE, SHOW -> getMediaTranslation(locale);
-			case SEASON -> getSeasonTranslation(locale, getMetadata().getMediaIndex())
+			case SEASON -> getSeasonTranslation(locale, getMetadata().mediaIndex())
 					.or(() -> getMediaTranslation(locale));
-			case EPISODE -> getSeasonTranslation(locale, getMetadata().getParentMediaIndex())
+			case EPISODE -> getSeasonTranslation(locale, getMetadata().parentMediaIndex())
 					.<MediaData> flatMap(data -> switch(data){
 						case SeasonData series -> series.getEpisodes().stream()
-								.filter(e -> Objects.equals(e.getEpisodeNumber(), getMetadata().getMediaIndex()))
+								.filter(e -> Objects.equals(e.getEpisodeNumber(), getMetadata().mediaIndex()))
 								.findFirst();
 						default -> Optional.empty();
 					})
-					.or(() -> getSeasonTranslation(locale, getMetadata().getParentMediaIndex()))
+					.or(() -> getSeasonTranslation(locale, getMetadata().parentMediaIndex()))
 					.or(() -> getMediaTranslation(locale));
 			case TRACK, ARTIST, PHOTO -> Optional.empty();
 		};
@@ -162,7 +162,7 @@ public class TmdbMediaMetadataContext extends MediaMetadataContext{
 	
 	@Override
 	public Collection<MetadataProviderInfo> getMetadataProviderInfo(){
-		var type = switch(getMetadata().getMediaType()){
+		var type = switch(getMetadata().mediaType()){
 			case MOVIE -> "movie";
 			case SHOW, SEASON, EPISODE -> "tv";
 			case TRACK, ARTIST, PHOTO -> null;

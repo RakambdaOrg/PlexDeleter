@@ -33,9 +33,9 @@ class TvdbServiceTest{
 	void itShouldGetMovieTranslations(Locale locale, String expectedTitle, String expectedOverview) throws RequestFailedException{
 		var result = tested.getMovieTranslations(339249, locale);
 		
-		assertThat(result.getData()).isNotNull().satisfies(data -> {
-			assertThat(data.getName()).isEqualTo(expectedTitle);
-			assertThat(data.getOverview()).isEqualTo(expectedOverview);
+		assertThat(result.data()).isNotNull().satisfies(data -> {
+			assertThat(data.name()).isEqualTo(expectedTitle);
+			assertThat(data.overview()).isEqualTo(expectedOverview);
 		});
 	}
 	
@@ -44,9 +44,9 @@ class TvdbServiceTest{
 	void itShouldGetSeriesTranslations(Locale locale, String expectedTitle, String expectedOverview) throws RequestFailedException{
 		var result = tested.getSeriesTranslations(370853, locale);
 		
-		assertThat(result.getData()).isNotNull().satisfies(data -> {
-			assertThat(data.getName()).isEqualTo(expectedTitle);
-			assertThat(data.getOverview()).isEqualTo(expectedOverview);
+		assertThat(result.data()).isNotNull().satisfies(data -> {
+			assertThat(data.name()).isEqualTo(expectedTitle);
+			assertThat(data.overview()).isEqualTo(expectedOverview);
 		});
 	}
 	
@@ -55,9 +55,9 @@ class TvdbServiceTest{
 	void itShouldGetSeasonTranslations(Locale locale, String expectedTitle, String expectedOverview) throws RequestFailedException{
 		var result = tested.getSeasonTranslations(15688, locale);
 		
-		assertThat(result.getData()).isNotNull().satisfies(data -> {
-			assertThat(data.getName()).isEqualTo(expectedTitle);
-			assertThat(data.getOverview()).isEqualTo(expectedOverview);
+		assertThat(result.data()).isNotNull().satisfies(data -> {
+			assertThat(data.name()).isEqualTo(expectedTitle);
+			assertThat(data.overview()).isEqualTo(expectedOverview);
 		});
 	}
 	
@@ -66,9 +66,9 @@ class TvdbServiceTest{
 	void itShouldGetEpisodeTranslations(Locale locale, String expectedTitle, String expectedOverview) throws RequestFailedException{
 		var result = tested.getEpisodeTranslations(9115869, locale);
 		
-		assertThat(result.getData()).isNotNull().satisfies(data -> {
-			assertThat(data.getName()).isEqualTo(expectedTitle);
-			assertThat(data.getOverview()).isEqualTo(expectedOverview);
+		assertThat(result.data()).isNotNull().satisfies(data -> {
+			assertThat(data.name()).isEqualTo(expectedTitle);
+			assertThat(data.overview()).isEqualTo(expectedOverview);
 		});
 	}
 	
@@ -77,73 +77,73 @@ class TvdbServiceTest{
 		var seriesId = 370853;
 		var result = tested.getEpisodes(seriesId);
 		
-		assertThat(result.getData()).isNotNull().satisfies(data -> {
+		assertThat(result.data()).isNotNull().satisfies(data -> {
 			assertThat(data.getEpisodes()).hasSize(11)
 					.satisfiesOnlyOnce(episode -> {
-						assertThat(episode.getId()).isEqualTo(9115869);
-						assertThat(episode.getSeriesId()).isEqualTo(seriesId);
-						assertThat(episode.getSeasonNumber()).isEqualTo(1);
-						assertThat(episode.getNumber()).isEqualTo(1);
+						assertThat(episode.id()).isEqualTo(9115869);
+						assertThat(episode.seriesId()).isEqualTo(seriesId);
+						assertThat(episode.seasonNumber()).isEqualTo(1);
+						assertThat(episode.number()).isEqualTo(1);
 					})
 					.satisfiesOnlyOnce(episode -> {
-						assertThat(episode.getId()).isEqualTo(9549476);
-						assertThat(episode.getSeriesId()).isEqualTo(seriesId);
-						assertThat(episode.getSeasonNumber()).isEqualTo(1);
-						assertThat(episode.getNumber()).isEqualTo(2);
+						assertThat(episode.id()).isEqualTo(9549476);
+						assertThat(episode.seriesId()).isEqualTo(seriesId);
+						assertThat(episode.seasonNumber()).isEqualTo(1);
+						assertThat(episode.number()).isEqualTo(2);
 					})
 					.satisfiesOnlyOnce(episode -> {
-						assertThat(episode.getId()).isEqualTo(9549477);
-						assertThat(episode.getSeriesId()).isEqualTo(seriesId);
-						assertThat(episode.getSeasonNumber()).isEqualTo(1);
-						assertThat(episode.getNumber()).isEqualTo(3);
+						assertThat(episode.id()).isEqualTo(9549477);
+						assertThat(episode.seriesId()).isEqualTo(seriesId);
+						assertThat(episode.seasonNumber()).isEqualTo(1);
+						assertThat(episode.number()).isEqualTo(3);
 					})
 					.satisfiesOnlyOnce(episode -> {
-						assertThat(episode.getId()).isEqualTo(9549478);
-						assertThat(episode.getSeriesId()).isEqualTo(seriesId);
-						assertThat(episode.getSeasonNumber()).isEqualTo(1);
-						assertThat(episode.getNumber()).isEqualTo(4);
+						assertThat(episode.id()).isEqualTo(9549478);
+						assertThat(episode.seriesId()).isEqualTo(seriesId);
+						assertThat(episode.seasonNumber()).isEqualTo(1);
+						assertThat(episode.number()).isEqualTo(4);
 					})
 					.satisfiesOnlyOnce(episode -> {
-						assertThat(episode.getId()).isEqualTo(9549479);
-						assertThat(episode.getSeriesId()).isEqualTo(seriesId);
-						assertThat(episode.getSeasonNumber()).isEqualTo(1);
-						assertThat(episode.getNumber()).isEqualTo(5);
+						assertThat(episode.id()).isEqualTo(9549479);
+						assertThat(episode.seriesId()).isEqualTo(seriesId);
+						assertThat(episode.seasonNumber()).isEqualTo(1);
+						assertThat(episode.number()).isEqualTo(5);
 					})
 					.satisfiesOnlyOnce(episode -> {
-						assertThat(episode.getId()).isEqualTo(9549480);
-						assertThat(episode.getSeriesId()).isEqualTo(seriesId);
-						assertThat(episode.getSeasonNumber()).isEqualTo(1);
-						assertThat(episode.getNumber()).isEqualTo(6);
+						assertThat(episode.id()).isEqualTo(9549480);
+						assertThat(episode.seriesId()).isEqualTo(seriesId);
+						assertThat(episode.seasonNumber()).isEqualTo(1);
+						assertThat(episode.number()).isEqualTo(6);
 					})
 					.satisfiesOnlyOnce(episode -> {
-						assertThat(episode.getId()).isEqualTo(9549481);
-						assertThat(episode.getSeriesId()).isEqualTo(seriesId);
-						assertThat(episode.getSeasonNumber()).isEqualTo(1);
-						assertThat(episode.getNumber()).isEqualTo(7);
+						assertThat(episode.id()).isEqualTo(9549481);
+						assertThat(episode.seriesId()).isEqualTo(seriesId);
+						assertThat(episode.seasonNumber()).isEqualTo(1);
+						assertThat(episode.number()).isEqualTo(7);
 					})
 					.satisfiesOnlyOnce(episode -> {
-						assertThat(episode.getId()).isEqualTo(9549482);
-						assertThat(episode.getSeriesId()).isEqualTo(seriesId);
-						assertThat(episode.getSeasonNumber()).isEqualTo(1);
-						assertThat(episode.getNumber()).isEqualTo(8);
+						assertThat(episode.id()).isEqualTo(9549482);
+						assertThat(episode.seriesId()).isEqualTo(seriesId);
+						assertThat(episode.seasonNumber()).isEqualTo(1);
+						assertThat(episode.number()).isEqualTo(8);
 					})
 					.satisfiesOnlyOnce(episode -> {
-						assertThat(episode.getId()).isEqualTo(9549483);
-						assertThat(episode.getSeriesId()).isEqualTo(seriesId);
-						assertThat(episode.getSeasonNumber()).isEqualTo(1);
-						assertThat(episode.getNumber()).isEqualTo(9);
+						assertThat(episode.id()).isEqualTo(9549483);
+						assertThat(episode.seriesId()).isEqualTo(seriesId);
+						assertThat(episode.seasonNumber()).isEqualTo(1);
+						assertThat(episode.number()).isEqualTo(9);
 					})
 					.satisfiesOnlyOnce(episode -> {
-						assertThat(episode.getId()).isEqualTo(10258624);
-						assertThat(episode.getSeriesId()).isEqualTo(seriesId);
-						assertThat(episode.getSeasonNumber()).isEqualTo(0);
-						assertThat(episode.getNumber()).isEqualTo(1);
+						assertThat(episode.id()).isEqualTo(10258624);
+						assertThat(episode.seriesId()).isEqualTo(seriesId);
+						assertThat(episode.seasonNumber()).isEqualTo(0);
+						assertThat(episode.number()).isEqualTo(1);
 					})
 					.satisfiesOnlyOnce(episode -> {
-						assertThat(episode.getId()).isEqualTo(10354778);
-						assertThat(episode.getSeriesId()).isEqualTo(seriesId);
-						assertThat(episode.getSeasonNumber()).isEqualTo(0);
-						assertThat(episode.getNumber()).isEqualTo(2);
+						assertThat(episode.id()).isEqualTo(10354778);
+						assertThat(episode.seriesId()).isEqualTo(seriesId);
+						assertThat(episode.seasonNumber()).isEqualTo(0);
+						assertThat(episode.number()).isEqualTo(2);
 					});
 		});
 	}
@@ -151,14 +151,14 @@ class TvdbServiceTest{
 	private static Stream<Arguments> generateMovieTranslationsCases(){
 		return Stream.of(
 				Arguments.of(Locale.ENGLISH, "Kung Fu Panda 4", "Po is set to become the new spiritual leader of the Valley of Peace, but before he can do that, he must find a successor to become the new Dragon Warrior. He appears to find one in Zhen, a fox with plenty of promising abilities but who doesn’t quite like the idea of Po training her."),
-				Arguments.of(Locale.FRENCH, "Kung Fu Panda 4", "Après trois aventures dans lesquelles le guerrier dragon Po a combattu les maîtres du mal les plus redoutables grâce à un courage et des compétences en arts martiaux inégalés, le destin va de nouveau frapper à sa porte pour … l’inviter à enfin se reposer. Plus précisément, pour être nommé chef spirituel de la vallée de la Paix. Cela pose quelques problèmes évidents. Premièrement, Po maîtrise aussi bien le leadership spirituel que les régimes, et deuxièmement, il doit rapidement trouver et entraîner un nouveau guerrier dragon avant de pouvoir profiter des avantages de sa prestigieuse promotion. Pire encore, il est question de l’apparition récente d’une sorcière aussi mal intentionnée que puissante, Caméléone, une lézarde minuscule qui peut se métamorphoser en n'importe quelle créature, et ce sans distinction de taille. Or Caméléone lorgne de ses petits yeux avides et perçants sur le bâton de sagesse de Po, à l’aide duquel elle espère bien pouvoir réinvoquer du royaume des esprits tous les maîtres maléfiques que notre guerrier dragon a vaincu. Po va devoir trouver de l’aide. Il va en trouver (ou pas ?) auprès de Zhen, une renarde corsac, voleuse aussi rusée que vive d'esprit, qui a le don d’irriter Po mais dont les compétences vont s’avérer précieuses. Afin de réussir à protéger la Vallée de la Paix des griffes reptiliennes de Caméléone, ce drôle de duo va devoir trouver un terrain d’entente. Ce sera l’occasion pour Po de découvrir que les héros ne sont pas toujours là où on les attend.")
+				Arguments.of(Locale.FRENCH, "Kung Fu Panda 4", "Maître Shifu annonce à Po qu'il doit devenir le nouveau Guide Spirituel de la Vallée de la Paix, et ainsi laisser sa place à un autre Guerrier Dragon. Cette nouvelle ne plaît pas du tout au panda, qui s'épanouissait dans ce rôle de protecteur. Avant de léguer son Bâton de la Sagesse à un autre, il doit accomplir une dernière mission : empêcher la Caméléone, une sorcière pouvant se métamorphoser en n'importe quelle créature, d'étendre son pouvoir jusqu'à la Vallée de la Paix. Il sera aidé dans sa tâche par Zhen, une renarde rusée et une habile voleuse, qui sait où se cache la Caméléone.")
 		);
 	}
 	
 	private static Stream<Arguments> generateSeriesTranslationsCases(){
 		return Stream.of(
 				Arguments.of(Locale.ENGLISH, "Masters of the Air", "During World War II, airmen risk their lives with the 100th Bomb Group, a brotherhood forged by courage, loss, and triumph."),
-				Arguments.of(Locale.FRENCH, "Masters of the Air", "De Steven Spielberg, Tom Hanks et Gary Goetzman, les producteurs de Frères d'armes et Band of Brothers : l'Enfer du Pacifique. Pendant la Seconde Guerre mondiale, des pilotes de chasse risquent leur vie au sein du 100e groupe de bombardement, une confrérie unie par le courage, les défaites et les victoires.")
+				Arguments.of(Locale.FRENCH, "Les maîtres de l'air", "De Steven Spielberg, Tom Hanks et Gary Goetzman, les producteurs de Frères d'armes et Band of Brothers : l'Enfer du Pacifique. Pendant la Seconde Guerre mondiale, des pilotes de chasse risquent leur vie au sein du 100e groupe de bombardement, une confrérie unie par le courage, les défaites et les victoires.")
 		);
 	}
 	

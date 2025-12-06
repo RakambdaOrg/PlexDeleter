@@ -1,17 +1,19 @@
 package fr.rakambda.plexdeleter.api.plex.gql.data.response;
 
-import lombok.AllArgsConstructor;
-import lombok.Data;
-import lombok.NoArgsConstructor;
+import org.jspecify.annotations.NonNull;
 import org.jspecify.annotations.Nullable;
 import java.util.ArrayList;
 import java.util.List;
 
-@Data
-@AllArgsConstructor
-@NoArgsConstructor
-public final class GqlResponse<T>{
-	@Nullable
-	private T data;
-	private List<GqlError> errors = new ArrayList<>();
+public record GqlResponse<T>(
+		@Nullable
+		T data,
+		@NonNull
+		List<GqlError> errors
+){
+	public GqlResponse{
+		if(errors == null){
+			errors = new ArrayList<>();
+		}
+	}
 }

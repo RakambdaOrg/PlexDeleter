@@ -65,10 +65,10 @@ public class WatchService{
 		var history = new LinkedList<WatchState>();
 		try{
 			for(var person : userGroupEntity.getPersons()){
-				var data = tautulliApiService.getHistory(mediaPlexId, mediaEntity.getType(), person.getPlexId(), historySince).getResponse().getData();
+				var data = tautulliApiService.getHistory(mediaPlexId, mediaEntity.getType(), person.getPlexId(), historySince).response().data();
 				if(Objects.nonNull(data)){
-					history.addAll(data.getData().stream()
-							.map(h -> new WatchState(h.getMediaIndex(), h.getWatchedStatus() == 1))
+					history.addAll(data.data().stream()
+							.map(h -> new WatchState(Optional.ofNullable(h.mediaIndex()).orElse(1), h.watchedStatus() == 1))
 							.toList());
 				}
 			}
@@ -83,18 +83,18 @@ public class WatchService{
 	private List<WatchState> getWatchStateFromPlex(@NonNull UserGroupEntity userGroupEntity, @NonNull MediaEntity mediaEntity, int mediaPlexId, @Nullable Instant historySince){
 		var history = new LinkedList<WatchState>();
 		try{
-			var metadataId = Optional.ofNullable(tautulliApiService.getMetadata(mediaPlexId).getResponse().getData()).map(GetMetadataResponse::getGuidId).orElse(null);
+			var metadataId = Optional.ofNullable(tautulliApiService.getMetadata(mediaPlexId).response().data()).map(GetMetadataResponse::getGuidId).orElse(null);
 			var userIds = userGroupEntity.getPersons().stream()
 					.map(UserPersonEntity::getCommunityId)
 					.filter(Objects::nonNull)
 					.toList();
 			if(Objects.nonNull(metadataId) && !userIds.isEmpty()){
 				history.addAll(plexCommunityService.listActivityForItem(metadataId, historySince).stream()
-						.filter(a -> userIds.contains(a.getUserV2().getId()))
+						.filter(a -> userIds.contains(a.getUserV2().id()))
 						.filter(ActivityWatchHistory.class::isInstance)
 						.map(ActivityWatchHistory.class::cast)
 						.filter(a -> Objects.isNull(historySince) || a.getDate().isAfter(historySince) || a.getDate().equals(historySince))
-						.map(a -> new WatchState(a.getMetadataItem().getIndex(), true))
+						.map(a -> new WatchState(a.getMetadataItem().index(), true))
 						.toList());
 			}
 		}

@@ -87,12 +87,12 @@ class DeleteMediaSchedulerTest{
 		lenient().when(mediaEntity.getType()).thenReturn(MEDIA_TYPE);
 		lenient().when(tautulliApiService.getElementsRatingKeys(PLEX_ID, MEDIA_TYPE)).thenReturn(List.of(RATING_KEY));
 		lenient().when(tautulliApiService.getMetadata(RATING_KEY)).thenReturn(getMetadataResponseTautulliResponseWrapper);
-		lenient().when(getMetadataResponseTautulliResponseWrapper.getResponse()).thenReturn(getMetadataResponseTautulliResponse);
-		lenient().when(getMetadataResponseTautulliResponse.getData()).thenReturn(getMetadataResponse);
-		lenient().when(getMetadataResponse.getAddedAt()).thenReturn(Instant.parse("2024-01-01T00:00:00.000Z"));
-		lenient().when(getMetadataResponse.getMediaInfo()).thenReturn(Set.of(mediaInfo));
-		lenient().when(mediaInfo.getParts()).thenReturn(Set.of(mediaPart));
-		lenient().when(mediaPart.getFile()).thenReturn(REMOTE_FILE);
+		lenient().when(getMetadataResponseTautulliResponseWrapper.response()).thenReturn(getMetadataResponseTautulliResponse);
+		lenient().when(getMetadataResponseTautulliResponse.data()).thenReturn(getMetadataResponse);
+		lenient().when(getMetadataResponse.addedAt()).thenReturn(Instant.parse("2024-01-01T00:00:00.000Z"));
+		lenient().when(getMetadataResponse.mediaInfo()).thenReturn(Set.of(mediaInfo));
+		lenient().when(mediaInfo.parts()).thenReturn(Set.of(mediaPart));
+		lenient().when(mediaPart.file()).thenReturn(REMOTE_FILE);
 		
 		tested = new DeleteMediaScheduler(mediaRepository, supervisionService, tautulliApiService, applicationConfiguration, overseerrService);
 	}
@@ -115,7 +115,7 @@ class DeleteMediaSchedulerTest{
 	
 	@Test
 	void skipIfTooRecent() throws DeleteMediaScheduler.DeletionException, RequestFailedException, IOException{
-		when(getMetadataResponse.getAddedAt()).thenReturn(Instant.now());
+		when(getMetadataResponse.addedAt()).thenReturn(Instant.now());
 		
 		assertThat(tested.delete(mediaEntity)).isZero();
 		verify(mediaEntity, never()).setStatus(MediaStatus.DELETED);
@@ -126,7 +126,7 @@ class DeleteMediaSchedulerTest{
 		var remoteFile = "%d/%d/%s".formatted(System.nanoTime(), System.nanoTime(), "file");
 		var paths = createLocalFile(tempDir, remoteFile);
 		
-		when(mediaPart.getFile()).thenReturn(REMOTE_PREFIX + "/" + remoteFile);
+		when(mediaPart.file()).thenReturn(REMOTE_PREFIX + "/" + remoteFile);
 		
 		tested.delete(mediaEntity);
 		
@@ -143,7 +143,7 @@ class DeleteMediaSchedulerTest{
 		var remoteFileNfo = "%d/%d/%s.nfo".formatted(runaName, runaName, "file");
 		var paths = createLocalFile(tempDir, remoteFile, remoteFileNfo);
 		
-		when(mediaPart.getFile()).thenReturn(REMOTE_PREFIX + "/" + remoteFile);
+		when(mediaPart.file()).thenReturn(REMOTE_PREFIX + "/" + remoteFile);
 		
 		tested.delete(mediaEntity);
 		

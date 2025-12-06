@@ -65,16 +65,16 @@ class TautulliApiServiceTest{
 	void itShouldGetMetadata() throws RequestFailedException{
 		var result = tested.getMetadata(272271);
 		
-		assertThat(result.getResponse().getData()).satisfies(data -> {
-			assertThat(data.getMediaType()).isEqualTo(fr.rakambda.plexdeleter.api.tautulli.data.MediaType.MOVIE);
-			assertThat(data.getAddedAt()).isEqualTo("2022-09-23T17:35:49Z");
-			assertThat(data.getMediaInfo())
+		assertThat(result.response().data()).satisfies(data -> {
+			assertThat(data.mediaType()).isEqualTo(fr.rakambda.plexdeleter.api.tautulli.data.MediaType.MOVIE);
+			assertThat(data.addedAt()).isEqualTo("2022-09-23T17:35:49Z");
+			assertThat(data.mediaInfo())
 					.hasSize(1)
-					.anySatisfy(mediaInfo -> assertThat(mediaInfo.getParts())
+					.anySatisfy(mediaInfo -> assertThat(mediaInfo.parts())
 							.hasSize(1)
 							.anySatisfy(mediaPart -> {
-								assertThat(mediaPart.getId()).isEqualTo(862832);
-								assertThat(mediaPart.getFile()).isEqualTo("/volume1/Media/Media/Keep/Movie/Monsters, Inc. (2001) {imdb-tt0198781} {tmdb-585}/Monsters Inc. (2001) {imdb-tt0198781} [Bluray-1080p][AC3 5.1][FR+EN][x265]-H4S5S.mkv");
+								assertThat(mediaPart.id()).isEqualTo(862832);
+								assertThat(mediaPart.file()).isEqualTo("/volume1/Media/Media/Keep/Movie/Monsters, Inc. (2001) {imdb-tt0198781} {tmdb-585}/Monsters Inc. (2001) {imdb-tt0198781} [Bluray-1080p][AC3 5.1][FR+EN][x265]-H4S5S.mkv");
 							})
 					);
 		});
@@ -84,19 +84,19 @@ class TautulliApiServiceTest{
 	void itShouldGetMetadataOfUnknown() throws RequestFailedException{
 		var result = tested.getMetadata(123456789);
 		
-		assertThat(result.getResponse().getData()).isNull();
+		assertThat(result.response().data().ratingKey()).isNull();
 	}
 	
 	@Test
 	void itShouldGetMovieHistory() throws RequestFailedException{
 		var result = tested.getHistory(272271, MediaType.MOVIE, 17746770, Instant.EPOCH);
 		
-		assertThat(result.getResponse().getData()).satisfies(data -> {
-			assertThat(data.getRecordsFiltered()).isEqualTo(1);
-			assertThat(data.getData()).hasSize(1)
+		assertThat(result.response().data()).satisfies(data -> {
+			assertThat(data.recordsFiltered()).isEqualTo(1);
+			assertThat(data.data()).hasSize(1)
 					.allSatisfy(watch -> {
-						assertThat(watch.getPercentComplete()).isLessThan(50);
-						assertThat(watch.getWatchedStatus()).isEqualTo(0);
+						assertThat(watch.percentComplete()).isLessThan(50);
+						assertThat(watch.watchedStatus()).isEqualTo(0);
 					});
 		});
 	}
@@ -105,9 +105,9 @@ class TautulliApiServiceTest{
 	void itShouldGetMovieHistoryAfterToday() throws RequestFailedException{
 		var result = tested.getHistory(272271, MediaType.MOVIE, 17746770, Instant.now().plusSeconds(TimeUnit.DAYS.toSeconds(1)));
 		
-		assertThat(result.getResponse().getData()).satisfies(data -> {
-			assertThat(data.getRecordsFiltered()).isEqualTo(0);
-			assertThat(data.getData()).isEmpty();
+		assertThat(result.response().data()).satisfies(data -> {
+			assertThat(data.recordsFiltered()).isEqualTo(0);
+			assertThat(data.data()).isEmpty();
 		});
 	}
 	
@@ -115,12 +115,12 @@ class TautulliApiServiceTest{
 	void itShouldGetSeriesHistory() throws RequestFailedException{
 		var result = tested.getHistory(791642, MediaType.SEASON, 17746770, Instant.EPOCH);
 		
-		assertThat(result.getResponse().getData()).satisfies(data -> {
-			assertThat(data.getRecordsFiltered()).isGreaterThanOrEqualTo(10);
-			assertThat(data.getData()).hasSizeGreaterThanOrEqualTo(10)
+		assertThat(result.response().data()).satisfies(data -> {
+			assertThat(data.recordsFiltered()).isGreaterThanOrEqualTo(10);
+			assertThat(data.data()).hasSizeGreaterThanOrEqualTo(10)
 					.allSatisfy(watch -> {
-						assertThat(watch.getPercentComplete()).isGreaterThan(80);
-						assertThat(watch.getWatchedStatus()).isEqualTo(1);
+						assertThat(watch.percentComplete()).isGreaterThan(80);
+						assertThat(watch.watchedStatus()).isEqualTo(1);
 					});
 		});
 	}
@@ -129,9 +129,9 @@ class TautulliApiServiceTest{
 	void itShouldGetSeriesHistoryAfterToday() throws RequestFailedException{
 		var result = tested.getHistory(791642, MediaType.SEASON, 17746770, Instant.now().plusSeconds(TimeUnit.DAYS.toSeconds(1)));
 		
-		assertThat(result.getResponse().getData()).satisfies(data -> {
-			assertThat(data.getRecordsFiltered()).isGreaterThanOrEqualTo(0);
-			assertThat(data.getData()).isEmpty();
+		assertThat(result.response().data()).satisfies(data -> {
+			assertThat(data.recordsFiltered()).isGreaterThanOrEqualTo(0);
+			assertThat(data.data()).isEmpty();
 		});
 	}
 	
@@ -139,9 +139,9 @@ class TautulliApiServiceTest{
 	void itShouldGetUnknownHistory() throws RequestFailedException{
 		var result = tested.getHistory(99999999, MediaType.SEASON, 99999999, Instant.EPOCH);
 		
-		assertThat(result.getResponse().getData()).satisfies(data -> {
-			assertThat(data.getRecordsFiltered()).isEqualTo(0);
-			assertThat(data.getData()).isEmpty();
+		assertThat(result.response().data()).satisfies(data -> {
+			assertThat(data.recordsFiltered()).isEqualTo(0);
+			assertThat(data.data()).isEmpty();
 		});
 	}
 }

@@ -50,13 +50,13 @@ class DiscordWebhookServiceTest{
 		
 		var result = tested.sendWebhookMessage(SecretsUtils.getSecret("discord.webhook-forum"), message);
 		
-		assertThat(result.getChannelId()).isNotNull();
+		assertThat(result.channelId()).isNotNull();
 		
 		var messageReply = WebhookMessage.builder()
 				.content("This is a reply")
 				.build();
 		
-		assertThatCode(() -> tested.sendWebhookMessage(SecretsUtils.getSecret("discord.webhook-forum"), result.getChannelId(), messageReply))
+		assertThatCode(() -> tested.sendWebhookMessage(SecretsUtils.getSecret("discord.webhook-forum"), result.channelId(), messageReply))
 				.doesNotThrowAnyException();
 	}
 	

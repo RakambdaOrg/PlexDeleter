@@ -93,7 +93,7 @@ public class DeleteMediaScheduler implements IScheduler{
 	private boolean refreshOverseerr(){
 		try{
 			log.info("Starting Overseerr refresh");
-			return overseerrService.plexSync(false, true).isRunning();
+			return overseerrService.plexSync(false, true).running();
 		}
 		catch(RequestFailedException e){
 			log.error("Failed to refresh Overseerr after deletion");
@@ -110,7 +110,7 @@ public class DeleteMediaScheduler implements IScheduler{
 		var ratingKeys = tautulliApiService.getElementsRatingKeys(mediaEntity.getPlexId(), mediaEntity.getType());
 		var metadata = new LinkedHashSet<GetMetadataResponse>();
 		for(var ratingKey : ratingKeys){
-			var metadataResponse = tautulliApiService.getMetadata(ratingKey).getResponse().getData();
+			var metadataResponse = tautulliApiService.getMetadata(ratingKey).response().data();
 			if(Objects.nonNull(metadataResponse)){
 				metadata.add(metadataResponse);
 			}
@@ -121,7 +121,7 @@ public class DeleteMediaScheduler implements IScheduler{
 		}
 		
 		if(metadata.stream()
-				.map(GetMetadataResponse::getAddedAt)
+				.map(GetMetadataResponse::addedAt)
 				.max(Comparator.naturalOrder())
 				.map(date -> date.isAfter(ZonedDateTime.now().minusDays(daysDelay).toInstant()))
 				.orElse(false)){
@@ -130,11 +130,11 @@ public class DeleteMediaScheduler implements IScheduler{
 		}
 		
 		var files = metadata.stream()
-				.map(GetMetadataResponse::getMediaInfo)
+				.map(GetMetadataResponse::mediaInfo)
 				.flatMap(java.util.Collection::stream)
-				.map(MediaInfo::getParts)
+				.map(MediaInfo::parts)
 				.flatMap(java.util.Collection::stream)
-				.map(MediaPart::getFile)
+				.map(MediaPart::file)
 				.map(this::extractPath)
 				.distinct()
 				.collect(Collectors.toMap(Map.Entry::getValue, Map.Entry::getKey));
@@ -300,7 +300,7 @@ public class DeleteMediaScheduler implements IScheduler{
 		try{
 			var data = overseerrService.getMediaDetails(mediaEntity.getOverseerrId(), mediaEntity.getType().getOverseerrType());
 			var internalId = Optional.ofNullable(data.getMediaInfo())
-					.map(fr.rakambda.plexdeleter.api.overseerr.data.MediaInfo::getId)
+					.map(fr.rakambda.plexdeleter.api.overseerr.data.MediaInfo::id)
 					.orElseThrow(() -> new IllegalStateException("Couldn't find internal media id on Overseerr"));
 			overseerrService.deleteMedia(internalId);
 		}

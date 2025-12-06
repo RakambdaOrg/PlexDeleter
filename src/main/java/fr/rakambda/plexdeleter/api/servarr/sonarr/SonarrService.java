@@ -21,6 +21,7 @@ import reactor.core.publisher.Mono;
 import java.util.Collection;
 import java.util.Objects;
 import java.util.Set;
+import java.util.stream.Collectors;
 
 @Slf4j
 @Service
@@ -66,9 +67,9 @@ public class SonarrService{
 	}
 	
 	public void delete(int mediaId) throws RequestFailedException{
-		var queues = getQueue(mediaId).getRecords();
+		var queues = getQueue(mediaId).records();
 		for(var queue : queues){
-			deleteQueue(queue.getId(), true);
+			deleteQueue(queue.id(), true);
 		}
 		deleteSeries(mediaId, true);
 	}
@@ -114,9 +115,9 @@ public class SonarrService{
 	
 	public void addTag(int mediaId, @NonNull String tagName) throws RequestFailedException{
 		var tagId = getTags().stream()
-				.filter(tag -> Objects.equals(tag.getLabel(), tagName))
+				.filter(tag -> Objects.equals(tag.label(), tagName))
 				.findFirst()
-				.map(Tag::getId);
+				.map(Tag::id);
 		if(tagId.isEmpty()){
 			log.warn("Could not find tag with label {}", tagName);
 			return;
@@ -126,16 +127,16 @@ public class SonarrService{
 	
 	public void addTag(int mediaId, int tagId) throws RequestFailedException{
 		var series = getSeries(mediaId);
-		if(series.getTags().add(tagId)){
+		if(series.tags().add(tagId)){
 			updateSeries(mediaId, series);
 		}
 	}
 	
 	public void removeTag(int mediaId, @NonNull String tagName) throws RequestFailedException{
 		var tagId = getTags().stream()
-				.filter(tag -> Objects.equals(tag.getLabel(), tagName))
+				.filter(tag -> Objects.equals(tag.label(), tagName))
 				.findFirst()
-				.map(Tag::getId);
+				.map(Tag::id);
 		if(tagId.isEmpty()){
 			log.warn("Could not find tag with label {}", tagName);
 			return;
@@ -145,7 +146,7 @@ public class SonarrService{
 	
 	public void removeTag(int mediaId, int tagId) throws RequestFailedException{
 		var series = getSeries(mediaId);
-		if(series.getTags().remove(tagId)){
+		if(series.tags().remove(tagId)){
 			updateSeries(mediaId, series);
 		}
 	}
@@ -164,9 +165,17 @@ public class SonarrService{
 	
 	public void unmonitor(int id, int index) throws RequestFailedException{
 		var series = getSeries(id);
-		var season = series.getSeasons().stream().filter(s -> Objects.equals(s.getSeasonNumber(), index)).findFirst();
-		if(season.isPresent()){
-			season.get().setMonitored(false);
+		var seasons = series.seasons().stream()
+				.map(s -> {
+					if(Objects.equals(s.seasonNumber(), index)){
+						return s.withMonitored(false);
+					}
+					return s;
+				})
+				.collect(Collectors.toSet());
+		
+		var newSeries = series.withSeasons(seasons);
+		if(!Objects.equals(newSeries, series)){
 			updateSeries(id, series);
 		}
 	}

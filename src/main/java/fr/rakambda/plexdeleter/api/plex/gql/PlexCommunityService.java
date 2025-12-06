@@ -96,11 +96,11 @@ public class PlexCommunityService{
 			}
 			
 			var response = this.gqlQuery(definition, pagedVariables, type);
-			var newElements = response.getQuery().getNodes();
+			var newElements = response.query().nodes();
 			elements.addAll(newElements);
 			currentPage++;
-			nexCursor = response.getQuery().getPageInfo().getEndCursor();
-			hasNextPage = response.getQuery().getPageInfo().isHasNextPage();
+			nexCursor = response.query().pageInfo().endCursor();
+			hasNextPage = response.query().pageInfo().hasNextPage();
 			if(Objects.nonNull(halter) && halter.test(elements)){
 				break;
 			}
@@ -130,11 +130,11 @@ public class PlexCommunityService{
 					.blockOptional()
 					.orElseThrow(RequestFailedException::new));
 			
-			if(response.getErrors().isEmpty() && Objects.nonNull(response.getData())){
-				return response.getData();
+			if(response.errors().isEmpty() && Objects.nonNull(response.data())){
+				return response.data();
 			}
 			
-			throw new RequestFailedException(response.getErrors().stream().map(GqlError::getMessage).collect(Collectors.joining(" | ")));
+			throw new RequestFailedException(response.errors().stream().map(GqlError::message).collect(Collectors.joining(" | ")));
 		}
 		catch(ParseException e){
 			throw new RequestFailedException("Failed to construct request", e);

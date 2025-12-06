@@ -45,22 +45,22 @@ public class TautulliHandler extends RetryMessageHandler<TautulliMessage>{
 	private void handleMessage(@NonNull TautulliMessage message) throws ThymeleafMessageException, RequestFailedException, UpdateException, NotifyException, IOException{
 		log.info("New AMQP Tautulli message received {}", message);
 		
-		if(!message.getMediaType().isNotifyAdded()){
+		if(!message.mediaType().isNotifyAdded()){
 			return;
 		}
 		
 		var webhookData = new TautulliWebhook(
-				message.getType(),
-				message.getMediaType(),
-				message.getUserId(),
-				message.getRatingKey(),
-				message.getParentRatingKey(),
-				message.getGrandparentRatingKey(),
-				message.getTvdbId(),
-				message.getTmdbId()
+				message.type(),
+				message.mediaType(),
+				message.userId(),
+				message.ratingKey(),
+				message.parentRatingKey(),
+				message.grandparentRatingKey(),
+				message.tvdbId(),
+				message.tmdbId()
 		);
 		
-		switch(message.getType()){
+		switch(message.type()){
 			case "watched" -> {
 				tautulliService.updateRequirement(webhookData);
 				tautulliService.addNewMediaIfPreviousExist(webhookData);

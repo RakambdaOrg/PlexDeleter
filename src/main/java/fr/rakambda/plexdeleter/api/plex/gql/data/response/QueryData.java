@@ -1,18 +1,18 @@
 package fr.rakambda.plexdeleter.api.plex.gql.data.response;
 
-import lombok.AllArgsConstructor;
-import lombok.Data;
-import lombok.NoArgsConstructor;
 import org.jspecify.annotations.NonNull;
+import org.springframework.aot.hint.annotation.RegisterReflectionForBinding;
 import java.util.ArrayList;
 import java.util.List;
 
-@Data
-@AllArgsConstructor
-@NoArgsConstructor
-public class QueryData<T>{
-	@NonNull
-	private List<T> nodes = new ArrayList<>();
-	@NonNull
-	private PageInfo pageInfo;
+@RegisterReflectionForBinding(QueryData.class)
+public record QueryData<T>(
+		@NonNull List<T> nodes,
+		@NonNull PageInfo pageInfo
+){
+	public QueryData{
+		if(nodes == null){
+			nodes = new ArrayList<>();
+		}
+	}
 }

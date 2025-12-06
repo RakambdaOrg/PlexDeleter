@@ -3,113 +3,59 @@ package fr.rakambda.plexdeleter.api.tautulli.data;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import fr.rakambda.plexdeleter.json.EmptyStringAsNullDeserializer;
-import lombok.AllArgsConstructor;
-import lombok.Data;
-import lombok.NoArgsConstructor;
 import lombok.ToString;
 import org.jspecify.annotations.NonNull;
 import org.jspecify.annotations.Nullable;
 import org.springframework.aot.hint.annotation.RegisterReflectionForBinding;
 import java.time.Instant;
 import java.time.LocalDate;
-import java.util.HashSet;
-import java.util.LinkedList;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
 import java.util.Set;
 
-@Data
-@NoArgsConstructor
-@AllArgsConstructor
 @RegisterReflectionForBinding(GetMetadataResponse.class)
-public class GetMetadataResponse{
-	@JsonProperty("media_type")
-	private MediaType mediaType;
-	@JsonProperty("parent_media_index")
-	@Nullable
-	private Integer parentMediaIndex;
-	@JsonProperty("media_index")
-	@Nullable
-	private Integer mediaIndex;
-	@JsonProperty("rating_key")
-	@NonNull
-	private Integer ratingKey;
-	@JsonProperty("parent_rating_key")
-	@Nullable
-	private Integer parentRatingKey;
-	@JsonProperty("grandparent_rating_key")
-	@Nullable
-	private Integer grandparentRatingKey;
-	@JsonProperty("library_name")
-	@NonNull
-	private String libraryName;
-	@JsonProperty("title")
-	@NonNull
-	private String title;
-	@JsonProperty("parent_title")
-	@Nullable
-	@JsonDeserialize(using = EmptyStringAsNullDeserializer.class)
-	private String parentTitle;
-	@JsonProperty("grandparent_title")
-	@Nullable
-	@JsonDeserialize(using = EmptyStringAsNullDeserializer.class)
-	private String grandparentTitle;
-	@JsonProperty("full_title")
-	@NonNull
-	private String fullTitle;
-	@JsonProperty("thumb")
-	@Nullable
-	@JsonDeserialize(using = EmptyStringAsNullDeserializer.class)
-	private String thumb;
-	@JsonProperty("summary")
-	@Nullable
-	@JsonDeserialize(using = EmptyStringAsNullDeserializer.class)
-	private String summary;
-	@JsonProperty("rating")
-	@Nullable
-	private Float rating;
-	@ToString.Exclude
-	@JsonProperty("media_info")
-	@NonNull
-	private Set<MediaInfo> mediaInfo = new HashSet<>();
-	@JsonProperty("added_at")
-	@NonNull
-	private Instant addedAt;
-	@JsonProperty("originally_available_at")
-	@Nullable
-	private LocalDate originallyAvailableAt;
-	@JsonProperty("actors")
-	@NonNull
-	private List<String> actors = new LinkedList<>();
-	@JsonProperty("genres")
-	@NonNull
-	private List<String> genres = new LinkedList<>();
-	@JsonProperty("duration")
-	private long duration;
-	@JsonProperty("guid")
-	@Nullable
-	@JsonDeserialize(using = EmptyStringAsNullDeserializer.class)
-	private String guid;
-	@JsonProperty("parent_guid")
-	@Nullable
-	@JsonDeserialize(using = EmptyStringAsNullDeserializer.class)
-	private String parentGuid;
-	@JsonProperty("grandparent_guid")
-	@Nullable
-	@JsonDeserialize(using = EmptyStringAsNullDeserializer.class)
-	private String grandparentGuid;
-	@JsonProperty("guids")
-	@NonNull
-	@JsonDeserialize(contentUsing = EmptyStringAsNullDeserializer.class)
-	private List<String> guids = new LinkedList<>();
-	@JsonProperty("parent_guids")
-	@NonNull
-	@JsonDeserialize(contentUsing = EmptyStringAsNullDeserializer.class)
-	private List<String> parentGuids = new LinkedList<>();
-	@JsonProperty("grandparent_guids")
-	@NonNull
-	@JsonDeserialize(contentUsing = EmptyStringAsNullDeserializer.class)
-	private List<String> grandparentGuids = new LinkedList<>();
+public record GetMetadataResponse(
+		@JsonProperty("media_type") @NonNull MediaType mediaType,
+		@JsonProperty("parent_media_index") @Nullable Integer parentMediaIndex,
+		@JsonProperty("media_index") @Nullable Integer mediaIndex,
+		@JsonProperty("rating_key") @NonNull Integer ratingKey,
+		@JsonProperty("parent_rating_key") @Nullable Integer parentRatingKey,
+		@JsonProperty("grandparent_rating_key") @Nullable Integer grandparentRatingKey,
+		@JsonProperty("library_name") @NonNull String libraryName,
+		@JsonProperty("title") @NonNull String title,
+		@JsonProperty("full_title") @NonNull String fullTitle,
+		@JsonProperty("summary") @JsonDeserialize(using = EmptyStringAsNullDeserializer.class) @Nullable String summary,
+		@ToString.Exclude @JsonProperty("media_info") @NonNull Set<MediaInfo> mediaInfo,
+		@JsonProperty("added_at") @NonNull Instant addedAt,
+		@JsonProperty("originally_available_at") @Nullable LocalDate originallyAvailableAt,
+		@JsonProperty("actors") @NonNull List<String> actors,
+		@JsonProperty("genres") @NonNull List<String> genres,
+		@JsonProperty("duration") @Nullable Long duration,
+		@JsonProperty("guid") @JsonDeserialize(using = EmptyStringAsNullDeserializer.class) @Nullable String guid,
+		@JsonProperty("parent_guid") @JsonDeserialize(using = EmptyStringAsNullDeserializer.class) @Nullable String parentGuid,
+		@JsonProperty("grandparent_guid") @JsonDeserialize(using = EmptyStringAsNullDeserializer.class) @Nullable String grandparentGuid,
+		@JsonProperty("guids") @JsonDeserialize(contentUsing = EmptyStringAsNullDeserializer.class) @NonNull List<String> guids,
+		@JsonProperty("parent_guids") @JsonDeserialize(contentUsing = EmptyStringAsNullDeserializer.class) @NonNull List<String> parentGuids,
+		@JsonProperty("grandparent_guids") @JsonDeserialize(contentUsing = EmptyStringAsNullDeserializer.class) @NonNull List<String> grandparentGuids
+){
+	public GetMetadataResponse{
+		if(actors == null){
+			actors = new ArrayList<>();
+		}
+		if(genres == null){
+			genres = new ArrayList<>();
+		}
+		if(guids == null){
+			guids = new ArrayList<>();
+		}
+		if(parentGuids == null){
+			parentGuids = new ArrayList<>();
+		}
+		if(grandparentGuids == null){
+			grandparentGuids = new ArrayList<>();
+		}
+	}
 	
 	@Nullable
 	public String getGuidId(){

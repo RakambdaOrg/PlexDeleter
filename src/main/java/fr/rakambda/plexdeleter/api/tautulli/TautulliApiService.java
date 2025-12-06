@@ -61,32 +61,32 @@ public class TautulliApiService{
 	@NonNull
 	public Collection<Integer> getElementsRatingKeys(int ratingKey, @NonNull MediaType mediaType) throws RequestFailedException{
 		return switch(mediaType){
-			case MOVIE -> getNewRatingKeys(ratingKey, "movie").getResponse().getDataOptional()
-					.map(GetNewRatingKeysResponse::getData)
-					.map(GetNewRatingKeysData::getRatingKey)
+			case MOVIE -> getNewRatingKeys(ratingKey, "movie").response().getDataOptional()
+					.map(GetNewRatingKeysResponse::data)
+					.map(GetNewRatingKeysData::ratingKey)
 					.map(Set::of)
 					.orElseGet(Set::of);
-			case SEASON -> getNewRatingKeys(ratingKey, "season").getResponse().getDataOptional()
-					.map(GetNewRatingKeysResponse::getData)
-					.map(GetNewRatingKeysData::getChildren)
+			case SEASON -> getNewRatingKeys(ratingKey, "season").response().getDataOptional()
+					.map(GetNewRatingKeysResponse::data)
+					.map(GetNewRatingKeysData::children)
 					.orElseGet(Map::of)
 					.values().stream()
-					.filter(data -> Objects.equals(data.getRatingKey(), ratingKey))
-					.map(GetNewRatingKeysData::getChildren)
+					.filter(data -> Objects.equals(data.ratingKey(), ratingKey))
+					.map(GetNewRatingKeysData::children)
 					.map(Map::values)
 					.flatMap(Collection::stream)
-					.map(GetNewRatingKeysData::getRatingKey)
+					.map(GetNewRatingKeysData::ratingKey)
 					.distinct()
 					.toList();
-			case EPISODE -> getNewRatingKeys(ratingKey, "episode").getResponse().getDataOptional()
-					.map(GetNewRatingKeysResponse::getData)
-					.map(GetNewRatingKeysData::getChildren)
+			case EPISODE -> getNewRatingKeys(ratingKey, "episode").response().getDataOptional()
+					.map(GetNewRatingKeysResponse::data)
+					.map(GetNewRatingKeysData::children)
 					.orElseGet(Map::of)
 					.values().stream()
-					.map(GetNewRatingKeysData::getChildren)
+					.map(GetNewRatingKeysData::children)
 					.map(Map::values)
 					.flatMap(Collection::stream)
-					.map(GetNewRatingKeysData::getRatingKey)
+					.map(GetNewRatingKeysData::ratingKey)
 					.filter(key -> Objects.equals(key, ratingKey))
 					.distinct()
 					.toList();
@@ -95,11 +95,11 @@ public class TautulliApiService{
 	
 	@NonNull
 	public Optional<Integer> getSeasonRatingKey(int ratingKey, int season) throws RequestFailedException{
-		return Optional.ofNullable(getNewRatingKeys(ratingKey, "show").getResponse().getData())
-				.map(GetNewRatingKeysResponse::getData)
-				.map(GetNewRatingKeysData::getChildren)
+		return Optional.ofNullable(getNewRatingKeys(ratingKey, "show").response().data())
+				.map(GetNewRatingKeysResponse::data)
+				.map(GetNewRatingKeysData::children)
 				.map(m -> m.get(String.valueOf(season)))
-				.map(GetNewRatingKeysData::getRatingKey);
+				.map(GetNewRatingKeysData::ratingKey);
 	}
 	
 	@NonNull

@@ -64,9 +64,9 @@ public class RadarrService{
 	}
 	
 	public void delete(int mediaId) throws RequestFailedException{
-		var queues = getQueue(mediaId).getRecords();
+		var queues = getQueue(mediaId).records();
 		for(var queue : queues){
-			deleteQueue(queue.getId(), true);
+			deleteQueue(queue.id(), true);
 		}
 		deleteMovie(mediaId, true);
 	}
@@ -112,9 +112,9 @@ public class RadarrService{
 	
 	public void addTag(int mediaId, @NonNull String tagName) throws RequestFailedException{
 		var tagId = getTags().stream()
-				.filter(tag -> Objects.equals(tag.getLabel(), tagName))
+				.filter(tag -> Objects.equals(tag.label(), tagName))
 				.findFirst()
-				.map(Tag::getId);
+				.map(Tag::id);
 		if(tagId.isEmpty()){
 			log.warn("Could not find tag with label {}", tagName);
 			return;
@@ -124,16 +124,16 @@ public class RadarrService{
 	
 	public void addTag(int mediaId, int tagId) throws RequestFailedException{
 		var movie = getMovie(mediaId);
-		if(movie.getTags().add(tagId)){
+		if(movie.tags().add(tagId)){
 			updateMovie(mediaId, movie);
 		}
 	}
 	
 	public void removeTag(int mediaId, @NonNull String tagName) throws RequestFailedException{
 		var tagId = getTags().stream()
-				.filter(tag -> Objects.equals(tag.getLabel(), tagName))
+				.filter(tag -> Objects.equals(tag.label(), tagName))
 				.findFirst()
-				.map(Tag::getId);
+				.map(Tag::id);
 		if(tagId.isEmpty()){
 			log.warn("Could not find tag with label {}", tagName);
 			return;
@@ -143,7 +143,7 @@ public class RadarrService{
 	
 	public void removeTag(int mediaId, int tagId) throws RequestFailedException{
 		var movie = getMovie(mediaId);
-		if(movie.getTags().remove(tagId)){
+		if(movie.tags().remove(tagId)){
 			updateMovie(mediaId, movie);
 		}
 	}

@@ -149,28 +149,28 @@ public class MailNotificationService extends AbstractNotificationService{
 		context.setLocale(userGroupEntity.getLocaleAsObject());
 		
 		var mediaSeason = getMediaSeason(metadata, locale);
-		var releaseDate = Optional.ofNullable(metadata.getOriginallyAvailableAt())
+		var releaseDate = Optional.ofNullable(metadata.originallyAvailableAt())
 				.map(DATE_FORMATTER::format)
 				.orElse(null);
 		var audioLanguages = getMediaStreams(metadata, AudioMediaPartStream.class)
-				.map(AudioMediaPartStream::getAudioLanguageCode)
+				.map(AudioMediaPartStream::audioLanguageCode)
 				.distinct()
 				.map(s -> Objects.equals(s, "") ? "unknown" : s)
 				.map("locale.%s"::formatted)
 				.toList();
 		var subtitleLanguages = getMediaStreams(metadata, SubtitlesMediaPartStream.class)
-				.map(SubtitlesMediaPartStream::getSubtitleLanguageCode)
+				.map(SubtitlesMediaPartStream::subtitleLanguageCode)
 				.distinct()
 				.map(s -> Objects.equals(s, "") ? "unknown" : s)
 				.map("locale.%s"::formatted)
 				.toList();
-		var resolutions = metadata.getMediaInfo().stream()
-				.map(MediaInfo::getVideoFullResolution)
+		var resolutions = metadata.mediaInfo().stream()
+				.map(MediaInfo::videoFullResolution)
 				.filter(Objects::nonNull)
 				.distinct()
 				.toList();
-		var bitrates = metadata.getMediaInfo().stream()
-				.map(MediaInfo::getBitrate)
+		var bitrates = metadata.mediaInfo().stream()
+				.map(MediaInfo::bitrate)
 				.filter(Objects::nonNull)
 				.distinct()
 				.toList();
@@ -187,13 +187,13 @@ public class MailNotificationService extends AbstractNotificationService{
 				.orElse(null);
 		
 		context.setVariable("thymeleafService", thymeleafService);
-		context.setVariable("mediaTitle", mediaMetadataContext.getTitle(locale).orElseGet(metadata::getFullTitle));
+		context.setVariable("mediaTitle", mediaMetadataContext.getTitle(locale).orElseGet(metadata::fullTitle));
 		context.setVariable("mediaSeason", mediaSeason);
-		context.setVariable("mediaSummary", mediaMetadataContext.getSummary(locale).orElseGet(metadata::getSummary));
+		context.setVariable("mediaSummary", mediaMetadataContext.getSummary(locale).orElseGet(metadata::summary));
 		context.setVariable("mediaReleaseDate", releaseDate);
-		context.setVariable("mediaActors", metadata.getActors());
-		context.setVariable("mediaGenres", mediaMetadataContext.getGenres(messageSource, locale).orElseGet(metadata::getGenres));
-		context.setVariable("mediaDuration", getMediaDuration(Duration.ofMillis(metadata.getDuration())));
+		context.setVariable("mediaActors", metadata.actors());
+		context.setVariable("mediaGenres", mediaMetadataContext.getGenres(messageSource, locale).orElseGet(metadata::genres));
+		context.setVariable("mediaDuration", getMediaDuration(Duration.ofMillis(Optional.ofNullable(metadata.duration()).orElse(0L))));
 		context.setVariable("mediaPosterResourceName", posterData.isPresent() ? mediaPosterResourceName : null);
 		context.setVariable("mediaAudios", audioLanguages);
 		context.setVariable("mediaSubtitles", subtitleLanguages);

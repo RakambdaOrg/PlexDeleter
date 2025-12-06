@@ -1,13 +1,7 @@
 package fr.rakambda.plexdeleter.api.plex.gql.data.response;
 
-import lombok.AllArgsConstructor;
-import lombok.Data;
-import lombok.NoArgsConstructor;
+import org.springframework.aot.hint.annotation.RegisterReflectionForBinding;
 
-@Data
-@AllArgsConstructor
-@NoArgsConstructor
-public class MetadataItem{
-	private String id;
-	private int index;
+@RegisterReflectionForBinding(MetadataItem.class)
+public record MetadataItem(int index){
 }

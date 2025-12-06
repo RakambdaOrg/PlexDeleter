@@ -60,7 +60,8 @@ public class ThymeleafHints implements RuntimeHintsRegistrar{
 	
 	private void registerType(@NonNull ReflectionHints reflection, @NonNull Class<?> klass){
 		reflection.registerType(klass,
-				MemberCategory.DECLARED_FIELDS,
+				MemberCategory.ACCESS_DECLARED_FIELDS,
+				MemberCategory.ACCESS_PUBLIC_FIELDS,
 				MemberCategory.INVOKE_DECLARED_CONSTRUCTORS,
 				MemberCategory.INVOKE_DECLARED_METHODS,
 				MemberCategory.INVOKE_PUBLIC_CONSTRUCTORS,

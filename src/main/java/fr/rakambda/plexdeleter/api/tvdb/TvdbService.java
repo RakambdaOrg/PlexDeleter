@@ -58,8 +58,8 @@ public class TvdbService{
 		}
 		
 		try{
-			bearerToken = Optional.ofNullable(login(apiKey).getData())
-					.map(LoginResponse::getToken)
+			bearerToken = Optional.ofNullable(login(apiKey).data())
+					.map(LoginResponse::token)
 					.orElse(null);
 		}
 		catch(Exception e){

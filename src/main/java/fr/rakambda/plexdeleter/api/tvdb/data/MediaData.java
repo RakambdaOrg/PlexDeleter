@@ -1,22 +1,19 @@
 package fr.rakambda.plexdeleter.api.tvdb.data;
 
-import lombok.AllArgsConstructor;
 import lombok.Data;
-import lombok.NoArgsConstructor;
 import org.jspecify.annotations.NonNull;
+import org.jspecify.annotations.Nullable;
 import org.springframework.aot.hint.annotation.RegisterReflectionForBinding;
-import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 
 @Data
-@NoArgsConstructor
-@AllArgsConstructor
 @RegisterReflectionForBinding(MediaData.class)
 public abstract class MediaData{
 	@NonNull
-	private Integer id;
-	@NonNull
-	private String slug;
-	@NonNull
-	private List<Genre> genres = new ArrayList<>();
+	private final List<Genre> genres;
+	
+	public MediaData(@Nullable List<Genre> genres){
+		this.genres = Optional.ofNullable(genres).orElseGet(List::of);
+	}
 }

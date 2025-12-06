@@ -45,15 +45,15 @@ public class LibraryService{
 		
 		return libraryElements.stream()
 				.filter(this::isRecordMissing)
-				.sorted(Comparator.comparing(GetMetadataResponse::getMediaType)
-						.thenComparing(GetMetadataResponse::getTitle))
+				.sorted(Comparator.comparing(GetMetadataResponse::mediaType)
+						.thenComparing(GetMetadataResponse::title))
 				.toList();
 	}
 	
 	@NonNull
 	private Optional<GetMetadataResponse> getLibraryElementDetails(@NonNull LibraryElement element){
 		try{
-			return tautulliApiService.getMetadata(element.ratingKey()).getResponse().getDataOptional();
+			return tautulliApiService.getMetadata(element.ratingKey()).response().getDataOptional();
 		}
 		catch(RequestFailedException e){
 			throw new RuntimeException(e);
@@ -61,20 +61,20 @@ public class LibraryService{
 	}
 	
 	private boolean isRecordMissing(@NonNull GetMetadataResponse element){
-		return !mediaRepository.existsByPlexGuid(element.getGuid());
+		return !mediaRepository.existsByPlexGuid(element.guid());
 	}
 	
 	@NonNull
 	private Stream<LibraryElement> getLibraryContent(int section){
 		try{
-			return Optional.ofNullable(tautulliApiService.getLibraryMediaInfo(section).getResponse())
-					.map(TautulliResponse::getData)
-					.map(GetLibraryMediaInfo::getData).stream()
+			return Optional.ofNullable(tautulliApiService.getLibraryMediaInfo(section).response())
+					.map(TautulliResponse::data)
+					.map(GetLibraryMediaInfo::data).stream()
 					.flatMap(Collection::stream)
 					.map(record -> new LibraryElement(
-							record.getRatingKey(),
-							record.getTitle(),
-							switch(record.getMediaType()){
+							record.ratingKey(),
+							record.title(),
+							switch(record.mediaType()){
 								case SHOW, EPISODE, SEASON -> MediaType.SEASON;
 								case MOVIE -> MediaType.MOVIE;
 								case PHOTO, TRACK, ARTIST -> null;

@@ -104,7 +104,7 @@ public class TautulliService{
 			return;
 		}
 		
-		var metadata = tautulliApiService.getMetadata(ratingKey).getResponse().getData();
+		var metadata = tautulliApiService.getMetadata(ratingKey).response().data();
 		if(Objects.isNull(metadata)){
 			log.warn("Not notifying any media, could not get metadata from {}", data);
 			return;
@@ -128,22 +128,22 @@ public class TautulliService{
 			return;
 		}
 		
-		var metadata = tautulliApiService.getMetadata(ratingKey).getResponse().getData();
+		var metadata = tautulliApiService.getMetadata(ratingKey).response().data();
 		if(Objects.isNull(metadata)){
 			log.warn("Not adding any media, could not get metadata from {}", data);
 			return;
 		}
 		
-		var rootRatingKey = Optional.ofNullable(metadata.getGrandparentRatingKey())
-				.or(() -> Optional.ofNullable(metadata.getParentRatingKey()))
-				.orElseGet(metadata::getRatingKey);
-		var rootGuid = Optional.ofNullable(metadata.getGrandparentGuid())
-				.or(() -> Optional.ofNullable(metadata.getParentGuid()))
-				.orElseGet(metadata::getGuid);
-		var mediaIndex = switch(Objects.requireNonNull(metadata.getMediaType())){
+		var rootRatingKey = Optional.ofNullable(metadata.grandparentRatingKey())
+				.or(() -> Optional.ofNullable(metadata.parentRatingKey()))
+				.orElseGet(metadata::ratingKey);
+		var rootGuid = Optional.ofNullable(metadata.grandparentGuid())
+				.or(() -> Optional.ofNullable(metadata.parentGuid()))
+				.orElseGet(metadata::guid);
+		var mediaIndex = switch(Objects.requireNonNull(metadata.mediaType())){
 			case MOVIE, SHOW, ARTIST -> 1;
-			case SEASON -> metadata.getMediaIndex();
-			case EPISODE, TRACK, PHOTO -> metadata.getParentMediaIndex();
+			case SEASON -> metadata.mediaIndex();
+			case EPISODE, TRACK, PHOTO -> metadata.parentMediaIndex();
 		};
 		
 		var previous = Optional

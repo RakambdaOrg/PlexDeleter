@@ -46,9 +46,9 @@ public class PlexAuthenticationProvider implements AuthenticationProvider{
 			}
 			var userInfo = plexApiService.getUserInfo(authToken);
 			
-			var dbUsername = "plexid_%d".formatted(userInfo.getId());
+			var dbUsername = "plexid_%d".formatted(userInfo.id());
 			var userDetails = userDetailsService.loadUserByUsername(dbUsername);
-			var principal = new PlexUser(userInfo.getId(), userInfo.getUsername(), authToken, userDetails.getAuthorities());
+			var principal = new PlexUser(userInfo.id(), userInfo.username(), authToken, userDetails.getAuthorities());
 			
 			log.info("Got principal {}", principal);
 			return UsernamePasswordAuthenticationToken.authenticated(principal, authToken, userDetails.getAuthorities());

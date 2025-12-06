@@ -87,7 +87,7 @@ public class DiscordNotificationService extends AbstractNotificationService{
 									.threadName(header)
 									.content("<@%s>".formatted(discordUserId))
 									.build())
-							.getChannelId())
+							.channelId())
 					.orElseThrow(() -> new RequestFailedException("Couldn't get new thread channel id"));
 			default -> {
 				discordWebhookService.sendWebhookMessage(discordUrl, WebhookMessage.builder()
@@ -142,30 +142,30 @@ public class DiscordNotificationService extends AbstractNotificationService{
 		context.setLocale(userGroupEntity.getLocaleAsObject());
 		
 		var mediaSeason = getMediaSeason(metadata, locale);
-		var releaseDate = Optional.ofNullable(metadata.getOriginallyAvailableAt())
+		var releaseDate = Optional.ofNullable(metadata.originallyAvailableAt())
 				.map(DATE_FORMATTER::format)
 				.orElse(null);
 		var audioLanguages = getMediaStreams(metadata, AudioMediaPartStream.class)
-				.map(AudioMediaPartStream::getAudioLanguageCode)
+				.map(AudioMediaPartStream::audioLanguageCode)
 				.distinct()
 				.map(s -> Objects.equals(s, "") ? "unknown" : s)
 				.map("locale.%s"::formatted)
 				.map(key -> messageSource.getMessage(key, new Object[0], locale))
 				.toList();
 		var subtitleLanguages = getMediaStreams(metadata, SubtitlesMediaPartStream.class)
-				.map(SubtitlesMediaPartStream::getSubtitleLanguageCode)
+				.map(SubtitlesMediaPartStream::subtitleLanguageCode)
 				.distinct()
 				.map(s -> Objects.equals(s, "") ? "unknown" : s)
 				.map("locale.%s"::formatted)
 				.map(key -> messageSource.getMessage(key, new Object[0], locale))
 				.toList();
-		var resolutions = metadata.getMediaInfo().stream()
-				.map(MediaInfo::getVideoFullResolution)
+		var resolutions = metadata.mediaInfo().stream()
+				.map(MediaInfo::videoFullResolution)
 				.filter(Objects::nonNull)
 				.distinct()
 				.toList();
-		var bitrates = metadata.getMediaInfo().stream()
-				.map(MediaInfo::getBitrate)
+		var bitrates = metadata.mediaInfo().stream()
+				.map(MediaInfo::bitrate)
 				.filter(Objects::nonNull)
 				.distinct()
 				.toList();
@@ -182,7 +182,7 @@ public class DiscordNotificationService extends AbstractNotificationService{
 		
 		var messageBuilder = WebhookMessage.builder();
 		var embed = Embed.builder()
-				.title(mediaMetadataContext.getTitle(locale).orElseGet(metadata::getFullTitle))
+				.title(mediaMetadataContext.getTitle(locale).orElseGet(metadata::fullTitle))
 				.description(mediaSeason);
 		
 		mediaMetadataContext.getPosterData().ifPresent(poster -> {
@@ -211,7 +211,7 @@ public class DiscordNotificationService extends AbstractNotificationService{
 							.build()));
 		}
 		
-		Optional.ofNullable(mediaMetadataContext.getSummary(locale).orElseGet(metadata::getSummary))
+		Optional.ofNullable(mediaMetadataContext.getSummary(locale).orElseGet(metadata::summary))
 				.filter(s -> !s.isBlank())
 				.ifPresent(s -> embed.field(Field.builder()
 						.name(messageSource.getMessage("discord.media.available.body.summary", new Object[0], locale))
@@ -222,23 +222,25 @@ public class DiscordNotificationService extends AbstractNotificationService{
 						.name(messageSource.getMessage("discord.media.available.body.release-date", new Object[0], locale))
 						.value(s)
 						.build()));
-		if(!metadata.getActors().isEmpty()){
+		if(!metadata.actors().isEmpty()){
 			embed.field(Field.builder()
 					.name(messageSource.getMessage("discord.media.available.body.actors", new Object[0], locale))
-					.value(metadata.getActors().stream().limit(5).collect(Collectors.joining(", ")))
+					.value(metadata.actors().stream().limit(5).collect(Collectors.joining(", ")))
 					.build());
 		}
-		var genres = mediaMetadataContext.getGenres(messageSource, locale).orElseGet(metadata::getGenres);
+		var genres = mediaMetadataContext.getGenres(messageSource, locale).orElseGet(metadata::genres);
 		if(!genres.isEmpty()){
 			embed.field(Field.builder()
 					.name(messageSource.getMessage("discord.media.available.body.genres", new Object[0], locale))
 					.value(String.join(", ", genres))
 					.build());
 		}
-		embed.field(Field.builder()
-				.name(messageSource.getMessage("discord.media.available.body.length", new Object[0], locale))
-				.value(getMediaDuration(Duration.ofMillis(metadata.getDuration())))
-				.build());
+		if(Objects.nonNull(metadata.duration())){
+			embed.field(Field.builder()
+					.name(messageSource.getMessage("discord.media.available.body.length", new Object[0], locale))
+					.value(getMediaDuration(Duration.ofMillis(metadata.duration())))
+					.build());
+		}
 		if(!audioLanguages.isEmpty()){
 			embed.field(Field.builder()
 					.name(messageSource.getMessage("discord.media.available.body.audios", new Object[0], locale))

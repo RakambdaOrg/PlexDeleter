@@ -47,14 +47,14 @@ public class DiscordWebhookService{
 		var lock = locks.computeIfAbsent(url, key -> new Semaphore(1));
 		lock.acquire();
 		try{
-			if(!message.getAttachments().isEmpty()){
+			if(!message.attachments().isEmpty()){
 				log.info("Sending webhook message to discord as multipart");
 				
 				var multipart = new MultipartBodyBuilder();
 				multipart.part("payload_json", message, MediaType.APPLICATION_JSON);
-				message.getAttachments().forEach(attachment -> multipart
-						.part("files[%d]".formatted(attachment.getId()), new ByteArrayResource(attachment.getData()), attachment.getMediaType())
-						.filename(attachment.getFilename()));
+				message.attachments().forEach(attachment -> multipart
+						.part("files[%d]".formatted(attachment.id()), new ByteArrayResource(attachment.data()), attachment.mediaType())
+						.filename(attachment.filename()));
 				
 				return sendWebhookMessageAs(url, threadId, message, MediaType.MULTIPART_FORM_DATA, BodyInserters.fromMultipartData(multipart.build()));
 			}
