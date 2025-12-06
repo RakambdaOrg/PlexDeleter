@@ -88,10 +88,9 @@ public class UserController{
 	
 	private boolean userHasNoRequirement(@NonNull UserPersonEntity userPerson, @NonNull MediaEntity media){
 		return media.getRequirements().stream()
+				.filter(requirement -> !requirement.getStatus().isCompleted())
 				.map(MediaRequirementEntity::getGroup)
-				.map(UserGroupEntity::getPersons)
-				.flatMap(Collection::stream)
-				.map(UserPersonEntity::getId)
-				.noneMatch(id -> Objects.equals(id, userPerson.getPlexId()));
+				.map(UserGroupEntity::getId)
+				.noneMatch(id -> Objects.equals(id, userPerson.getGroupId()));
 	}
 }
