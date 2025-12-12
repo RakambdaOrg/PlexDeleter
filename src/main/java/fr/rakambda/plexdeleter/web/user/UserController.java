@@ -20,7 +20,6 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.servlet.ModelAndView;
-import java.util.Collection;
 import java.util.Objects;
 import java.util.Optional;
 
@@ -89,9 +88,7 @@ public class UserController{
 	private boolean userHasNoRequirement(@NonNull UserPersonEntity userPerson, @NonNull MediaEntity media){
 		return media.getRequirements().stream()
 				.map(MediaRequirementEntity::getGroup)
-				.map(UserGroupEntity::getPersons)
-				.flatMap(Collection::stream)
-				.map(UserPersonEntity::getId)
-				.noneMatch(id -> Objects.equals(id, userPerson.getPlexId()));
+				.map(UserGroupEntity::getId)
+				.noneMatch(groupId -> Objects.equals(groupId, userPerson.getGroupId()));
 	}
 }
