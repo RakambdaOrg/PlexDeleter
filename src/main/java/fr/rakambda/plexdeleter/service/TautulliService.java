@@ -14,6 +14,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.jspecify.annotations.NonNull;
 import org.springframework.stereotype.Service;
 import java.io.IOException;
+import java.time.Instant;
 import java.util.Objects;
 import java.util.Optional;
 
@@ -134,9 +135,6 @@ public class TautulliService{
 			return;
 		}
 		
-		var rootRatingKey = Optional.ofNullable(metadata.getGrandparentRatingKey())
-				.or(() -> Optional.ofNullable(metadata.getParentRatingKey()))
-				.orElseGet(metadata::getRatingKey);
 		var rootGuid = Optional.ofNullable(metadata.getGrandparentGuid())
 				.or(() -> Optional.ofNullable(metadata.getParentGuid()))
 				.orElseGet(metadata::getGuid);
@@ -154,7 +152,8 @@ public class TautulliService{
 			return;
 		}
 		
-		var media = mediaService.addMediaFromPrevious(previous.get(), mediaIndex);
+		var addedDate = Optional.ofNullable(data.getUtcTime()).map(t -> t.minusSeconds(10)).orElseGet(Instant::now);
+		var media = mediaService.addMediaFromPrevious(previous.get(), mediaIndex, addedDate);
 		media.setPlexId(ratingKey);
 		media = mediaRepository.save(media);
 		

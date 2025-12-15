@@ -396,11 +396,11 @@ public class MediaService{
 	}
 	
 	@NonNull
-	public MediaEntity addMediaFromPrevious(@NonNull MediaEntity previousMedia, int season) throws RequestFailedException, UpdateException, NotifyException{
+	public MediaEntity addMediaFromPrevious(@NonNull MediaEntity previousMedia, int season, @NonNull Instant addedDate) throws RequestFailedException, UpdateException, NotifyException{
 		mediaOperationLock.lock();
 		try{
 			log.info("Adding media from previous {} season {}", previousMedia, season);
-			var media = createMediaFromPrevious(previousMedia, season);
+			var media = createMediaFromPrevious(previousMedia, season, addedDate);
 			media.setStatus(MediaStatus.WAITING);
 			media.setAvailablePartsCount(0);
 			media = mediaRepository.save(media);
@@ -448,7 +448,7 @@ public class MediaService{
 	}
 	
 	@NonNull
-	private MediaEntity createMediaFromPrevious(@NonNull MediaEntity previous, int season){
+	private MediaEntity createMediaFromPrevious(@NonNull MediaEntity previous, int season, @NonNull Instant addedDate){
 		var media = MediaEntity.builder()
 				.type(previous.getType())
 				.plexGuid(previous.getPlexGuid())
@@ -463,7 +463,7 @@ public class MediaService{
 				.partsCount(0)
 				.availablePartsCount(0)
 				.status(MediaStatus.WAITING)
-				.lastRequestedTime(Instant.now())
+				.lastRequestedTime(addedDate)
 				.build();
 		
 		log.info("Creating new media {} from previous {}", media, previous);

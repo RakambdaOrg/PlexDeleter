@@ -55,7 +55,7 @@ public class WatchService{
 		var mediaPlexId = mediaEntity.getPlexId();
 		
 		history.addAll(getWatchStateFromTautulli(userGroupEntity, mediaEntity, mediaPlexId, historySince));
-		history.addAll(getWatchStateFromPlex(userGroupEntity, mediaEntity, mediaPlexId, historySince));
+		history.addAll(getWatchStateFromPlex(userGroupEntity, mediaPlexId, historySince));
 		
 		return history.stream().collect(Collectors.toMap(WatchState::index, WatchState::watched, Boolean::logicalOr));
 	}
@@ -80,7 +80,7 @@ public class WatchService{
 	}
 	
 	@NonNull
-	private List<WatchState> getWatchStateFromPlex(@NonNull UserGroupEntity userGroupEntity, @NonNull MediaEntity mediaEntity, int mediaPlexId, @Nullable Instant historySince){
+	private List<WatchState> getWatchStateFromPlex(@NonNull UserGroupEntity userGroupEntity, int mediaPlexId, @Nullable Instant historySince){
 		var history = new LinkedList<WatchState>();
 		try{
 			var metadataId = Optional.ofNullable(tautulliApiService.getMetadata(mediaPlexId).getResponse().getData()).map(GetMetadataResponse::getGuidId).orElse(null);

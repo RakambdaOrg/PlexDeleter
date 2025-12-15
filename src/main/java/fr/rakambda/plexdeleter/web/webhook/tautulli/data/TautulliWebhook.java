@@ -7,6 +7,7 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 import org.jspecify.annotations.Nullable;
 import org.springframework.lang.NonNull;
+import java.time.Instant;
 
 @Data
 @NoArgsConstructor
@@ -36,4 +37,7 @@ public class TautulliWebhook{
 	@Nullable
 	@JsonProperty("tmdb_id")
 	private Integer tmdbId;
+	@Nullable
+	@JsonProperty("utc_time")
+	private Instant utcTime;
 }
