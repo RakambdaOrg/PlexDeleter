@@ -10,6 +10,7 @@ import lombok.NoArgsConstructor;
 import org.jspecify.annotations.NonNull;
 import org.jspecify.annotations.Nullable;
 import org.springframework.aot.hint.annotation.RegisterReflectionForBinding;
+import java.time.Instant;
 
 @Data
 @NoArgsConstructor
@@ -42,4 +43,7 @@ public final class TautulliMessage implements IAmqpMessage{
 	@Nullable
 	@JsonDeserialize(using = EmptyStringAsNullDeserializer.class)
 	private String user;
+	@Nullable
+	@JsonProperty("utc_time")
+	private Instant utcTime;
 }

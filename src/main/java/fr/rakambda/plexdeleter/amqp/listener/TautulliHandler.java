@@ -57,7 +57,8 @@ public class TautulliHandler extends RetryMessageHandler<TautulliMessage>{
 				message.getParentRatingKey(),
 				message.getGrandparentRatingKey(),
 				message.getTvdbId(),
-				message.getTmdbId()
+				message.getTmdbId(),
+				message.getUtcTime()
 		);
 		
 		switch(message.getType()){
