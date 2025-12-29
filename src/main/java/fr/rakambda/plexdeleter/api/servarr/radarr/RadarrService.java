@@ -148,6 +148,12 @@ public class RadarrService{
 		}
 	}
 	
+	public void unmonitor(int mediaId) throws RequestFailedException{
+		var movie = getMovie(mediaId);
+		movie.setMonitored(false);
+		updateMovie(mediaId, movie);
+	}
+	
 	private void updateMovie(int mediaId, @NonNull Movie media) throws RequestFailedException{
 		HttpUtils.requireStatusOk(apiClient.put()
 				.uri(b -> b.pathSegment("api", "v3", "movie", "{mediaId}")

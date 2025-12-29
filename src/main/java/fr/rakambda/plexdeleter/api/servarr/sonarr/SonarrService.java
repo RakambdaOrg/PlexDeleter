@@ -126,7 +126,8 @@ public class SonarrService{
 	
 	public void addTag(int mediaId, int tagId) throws RequestFailedException{
 		var series = getSeries(mediaId);
-		if(series.getTags().add(tagId)){
+		if(!series.getTags().contains(tagId)){
+			series.getTags().add(tagId);
 			updateSeries(mediaId, series);
 		}
 	}
@@ -145,7 +146,7 @@ public class SonarrService{
 	
 	public void removeTag(int mediaId, int tagId) throws RequestFailedException{
 		var series = getSeries(mediaId);
-		if(series.getTags().remove(tagId)){
+		if(series.getTags().remove((Object) tagId)){
 			updateSeries(mediaId, series);
 		}
 	}
@@ -169,5 +170,12 @@ public class SonarrService{
 			season.get().setMonitored(false);
 			updateSeries(id, series);
 		}
+	}
+	
+	public void unmonitor(int id) throws RequestFailedException{
+		var series = getSeries(id);
+		series.setMonitorNewItems("none");
+		series.setMonitored(false);
+		updateSeries(id, series);
 	}
 }

@@ -2,6 +2,8 @@ package fr.rakambda.plexdeleter.schedule;
 
 import fr.rakambda.plexdeleter.api.RequestFailedException;
 import fr.rakambda.plexdeleter.api.overseerr.OverseerrService;
+import fr.rakambda.plexdeleter.api.servarr.radarr.RadarrService;
+import fr.rakambda.plexdeleter.api.servarr.sonarr.SonarrService;
 import fr.rakambda.plexdeleter.api.tautulli.TautulliApiService;
 import fr.rakambda.plexdeleter.api.tautulli.data.GetMetadataResponse;
 import fr.rakambda.plexdeleter.api.tautulli.data.MediaInfo;
@@ -48,9 +50,11 @@ public class DeleteMediaScheduler implements IScheduler{
 	private final boolean dryDelete;
 	private final Map<String, String> remotePathMappings;
 	private final OverseerrService overseerrService;
+	private final RadarrService radarrService;
+	private final SonarrService sonarrService;
 	
 	@Autowired
-	public DeleteMediaScheduler(MediaRepository mediaRepository, SupervisionService supervisionService, TautulliApiService tautulliApiService, ApplicationConfiguration applicationConfiguration, OverseerrService overseerrService){
+	public DeleteMediaScheduler(MediaRepository mediaRepository, SupervisionService supervisionService, TautulliApiService tautulliApiService, ApplicationConfiguration applicationConfiguration, OverseerrService overseerrService, RadarrService radarrService, SonarrService sonarrService){
 		this.mediaRepository = mediaRepository;
 		this.supervisionService = supervisionService;
 		this.tautulliApiService = tautulliApiService;
@@ -58,6 +62,8 @@ public class DeleteMediaScheduler implements IScheduler{
 		this.dryDelete = applicationConfiguration.getDeletion().isDryDelete();
 		this.remotePathMappings = applicationConfiguration.getDeletion().getRemotePathMappings();
 		this.overseerrService = overseerrService;
+		this.radarrService = radarrService;
+		this.sonarrService = sonarrService;
 	}
 	
 	@Override
@@ -156,6 +162,7 @@ public class DeleteMediaScheduler implements IScheduler{
 			mediaEntity.setPlexId(null);
 			mediaEntity = mediaRepository.save(mediaEntity);
 			deleteFromOverseerr(mediaEntity);
+			deleteFromServarr(mediaEntity);
 		}
 		
 		supervisionService.send("♻\uFE0F Deleted media %s with a size of %s", mediaEntity, supervisionService.sizeToHuman(size));
@@ -306,6 +313,21 @@ public class DeleteMediaScheduler implements IScheduler{
 		}
 		catch(Exception e){
 			log.error("Failed to delete media {} on Overseerr", mediaEntity);
+		}
+	}
+	
+	private void deleteFromServarr(@NonNull MediaEntity mediaEntity){
+		if(Objects.isNull(mediaEntity.getServarrId())){
+			return;
+		}
+		try{
+			switch(mediaEntity.getType()){
+				case MOVIE -> radarrService.unmonitor(mediaEntity.getServarrId());
+				case SEASON -> sonarrService.unmonitor(mediaEntity.getServarrId(), mediaEntity.getIndex());
+			}
+		}
+		catch(Exception e){
+			log.error("Failed to delete media {} on Servarr", mediaEntity);
 		}
 	}
 	

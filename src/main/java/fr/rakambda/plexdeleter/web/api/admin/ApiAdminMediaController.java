@@ -75,7 +75,7 @@ public class ApiAdminMediaController{
 	
 	@Transactional
 	@PostMapping("/manually-delete")
-	public ModelAndView delete(@NotNull @RequestParam("mediaId") int mediaId){
+	public ModelAndView delete(@NotNull @RequestParam("mediaId") int mediaId) throws RequestFailedException{
 		var media = mediaRepository.findById(mediaId)
 				.orElseThrow(() -> new RuntimeException("Media not found"));
 		mediaService.manuallyDelete(media);

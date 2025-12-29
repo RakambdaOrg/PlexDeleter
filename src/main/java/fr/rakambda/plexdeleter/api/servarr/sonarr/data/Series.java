@@ -11,8 +11,8 @@ import org.jspecify.annotations.NonNull;
 import org.jspecify.annotations.Nullable;
 import org.springframework.aot.hint.annotation.RegisterReflectionForBinding;
 import java.time.Instant;
-import java.util.HashSet;
-import java.util.Set;
+import java.util.LinkedList;
+import java.util.List;
 
 @Data
 @NoArgsConstructor
@@ -34,20 +34,20 @@ public final class Series{
 	@NonNull
 	private Boolean ended;
 	@NonNull
-	private Set<AlternativeTitle> alternateTitles = new HashSet<>();
+	private List<AlternativeTitle> alternateTitles = new LinkedList<>();
 	@NonNull
-	private Set<Image> images = new HashSet<>();
+	private List<Image> images = new LinkedList<>();
 	@Nullable
 	@JsonSerialize(using = InstantAsStringWithoutNanosSerializer.class)
 	private Instant previousAiring;
 	@NonNull
 	private OriginalLanguage originalLanguage;
 	@NonNull
-	private Set<Season> seasons = new HashSet<>();
+	private List<Season> seasons = new LinkedList<>();
 	@NonNull
-	private Set<String> genres = new HashSet<>();
+	private List<String> genres = new LinkedList<>();
 	@NonNull
-	private Set<Integer> tags = new HashSet<>();
+	private List<Integer> tags = new LinkedList<>();
 	@NonNull
 	private Integer year;
 	@NonNull

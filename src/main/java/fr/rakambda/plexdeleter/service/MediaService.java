@@ -28,6 +28,8 @@ import org.jspecify.annotations.Nullable;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import java.time.Instant;
+import java.util.Collection;
+import java.util.Comparator;
 import java.util.Objects;
 import java.util.Optional;
 import java.util.concurrent.locks.Lock;
@@ -336,23 +338,36 @@ public class MediaService{
 		if(Objects.isNull(media.getServarrId())){
 			return false;
 		}
-		if(media.getAvailablePartsCount() > 0
-				|| !media.getRequirements().stream().map(MediaRequirementEntity::getStatus).allMatch(MediaRequirementStatus::isCompleted)){
+		if(!media.getRequirements().stream().map(MediaRequirementEntity::getStatus).allMatch(MediaRequirementStatus::isCompleted)){
 			return false;
 		}
 		
-		if(media.getType() == MediaType.SEASON && mediaRepository.countByServarrIdAndType(media.getServarrId(), media.getType()) > 1){
-			log.info("Unmonitor media from Servarr {}", media);
+		if(media.getType() == MediaType.MOVIE){
+			log.info("Unmonitor movie from Servarr {}", media);
+			radarrService.unmonitor(media.getServarrId());
+		}
+		else if(media.getType() == MediaType.SEASON){
+			log.info("Unmonitor season from Servarr {}", media);
 			sonarrService.unmonitor(media.getServarrId(), media.getIndex());
+			
+			var seriesMedia = mediaRepository.findAllByServarrIdAndType(media.getServarrId(), media.getType());
+			if(seriesMedia.size() <= 1
+					|| seriesMedia.stream()
+					.max(Comparator.comparingInt(MediaEntity::getIndex))
+					.map(MediaEntity::getRequirements)
+					.stream()
+					.flatMap(Collection::stream)
+					.map(MediaRequirementEntity::getStatus)
+					.noneMatch(MediaRequirementStatus::isWantToWatchMore)
+			){
+				log.info("Unmonitor series from Servarr {}", media);
+				sonarrService.unmonitor(media.getServarrId());
+			}
+			
 			return true;
 		}
 		
-		log.info("Deleting media from Servarr {}", media);
-		switch(media.getType()){
-			case MOVIE -> radarrService.delete(media.getServarrId());
-			case SEASON -> sonarrService.delete(media.getServarrId());
-		}
-		return true;
+		return false;
 	}
 	
 	private boolean deleteMediaRequestsFromOverseerr(@NonNull MediaEntity media, @NonNull UserGroupEntity userGroup) throws RequestFailedException{
@@ -530,9 +545,15 @@ public class MediaService{
 		supervisionService.send("🤖 Automatic media %s", media);
 	}
 	
-	public void manuallyDelete(@NonNull MediaEntity media){
+	public void manuallyDelete(@NonNull MediaEntity media) throws RequestFailedException{
 		media.setStatus(MediaStatus.MANUALLY_DELETED);
 		mediaRepository.save(media);
+		if(Objects.nonNull(media.getServarrId())){
+			switch(media.getType()){
+				case MOVIE -> radarrService.unmonitor(media.getServarrId());
+				case SEASON -> sonarrService.unmonitor(media.getServarrId(), media.getIndex());
+			}
+		}
 		
 		log.info("Manually deleted media {}", media);
 		supervisionService.send("✍\uFE0F♻\uFE0F Manually deleted media %s", media);
