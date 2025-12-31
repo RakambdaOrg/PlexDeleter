@@ -57,9 +57,13 @@ public class AmqpConfiguration{
 	}
 	
 	@Bean
-	@Qualifier("queueDeadLetter")
-	public Queue queueDeadLetter(){
-		return QueueBuilder.durable(prefixed(amqpConstants.QUEUE_DEAD_LETTER)).build();
+	@Qualifier("queueDeadLetterTautulli")
+	public Queue queueDeadLetterTautulli(){
+		return QueueBuilder.durable(prefixed(amqpConstants.QUEUE_DEAD_LETTER_TAUTULLI))
+				.withArgument(amqpConstants.HEADER_X_DEAD_LETTER_EXCHANGE, prefixed(amqpConstants.EXCHANGE_PROCESS))
+				.withArgument(amqpConstants.HEADER_X_DEAD_LETTER_ROUTING_KEY, amqpConstants.ROUTING_KEY_PROCESS_TAUTULLI)
+				.withArgument(amqpConstants.HEADER_X_MESSAGE_TTL, applicationConfiguration.getAmqp().getRequeueDelay().toMillis())
+				.build();
 	}
 	
 	@Bean
@@ -70,7 +74,7 @@ public class AmqpConfiguration{
 	
 	@Bean
 	@Qualifier("bindingDeadLetter")
-	public Binding bindingDeadLetter(@Qualifier("queueDeadLetter") Queue queue, @Qualifier("exchangeDeadLetter") DirectExchange exchange){
+	public Binding bindingDeadLetter(@Qualifier("queueDeadLetterTautulli") Queue queue, @Qualifier("exchangeDeadLetter") DirectExchange exchange){
 		return BindingBuilder.bind(queue).to(exchange).with(amqpConstants.ROUTING_KEY_DEAD_LETTER_DEFAULT);
 	}
 	

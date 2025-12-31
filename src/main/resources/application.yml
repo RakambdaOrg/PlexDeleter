@@ -82,6 +82,7 @@ app:
         - "http://app.url"
   amqp:
     prefix: "plexdeleter"
+    requeueDelay: "PT3H"
   plex:
     endpoint: "https://plex.tv"
     app-endpoint: "https://app.plex.tv"
