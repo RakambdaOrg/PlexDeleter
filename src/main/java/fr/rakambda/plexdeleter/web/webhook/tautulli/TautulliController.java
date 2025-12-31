@@ -39,13 +39,13 @@ public class TautulliController{
 		
 		switch(data.getType()){
 			case "watched" -> {
-				tautulliService.updateRequirement(data);
 				tautulliService.addNewMediaIfPreviousExist(data);
+				tautulliService.updateRequirement(data);
 			}
 			case "added" -> {
+				tautulliService.addNewMediaIfPreviousExist(data);
 				tautulliService.updateMedia(data);
 				tautulliService.notifyMedia(data);
-				tautulliService.addNewMediaIfPreviousExist(data);
 			}
 		}
 	}

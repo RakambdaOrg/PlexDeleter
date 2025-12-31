@@ -78,6 +78,7 @@ public class GetMetadataResponse{
 	@JsonProperty("originally_available_at")
 	@Nullable
 	private LocalDate originallyAvailableAt;
+	@ToString.Exclude
 	@JsonProperty("actors")
 	@NonNull
 	private List<String> actors = new LinkedList<>();
