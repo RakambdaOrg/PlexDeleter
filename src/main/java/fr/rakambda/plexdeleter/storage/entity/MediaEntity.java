@@ -112,6 +112,6 @@ public class MediaEntity{
 	private List<MediaRequirementEntity> requirements;
 	
 	public boolean isCompletable(){
-		return status.isNeverChange() || availablePartsCount >= partsCount;
+		return status == MediaStatus.DOWNLOADED || status.isNeverChange() || availablePartsCount >= partsCount;
 	}
 }
