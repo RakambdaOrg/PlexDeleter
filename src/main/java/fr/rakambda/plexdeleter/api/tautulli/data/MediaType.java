@@ -14,7 +14,7 @@ public enum MediaType{
 	MOVIE("movie", true, "movie.svg", "media.type.movie"),
 	PHOTO("photo", false, "", ""),
 	SEASON("season", true, "tv.svg", "media.type.tv"),
-	SHOW("show", true, "episode.svg", "media.type.episode"),
+	SHOW("show", true, "tv.svg", "media.type.tv"),
 	TRACK("track", false, "", "");
 	
 	@JsonValue
