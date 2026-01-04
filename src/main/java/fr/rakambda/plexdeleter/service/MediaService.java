@@ -567,11 +567,11 @@ public class MediaService{
 		supervisionService.send("✍\uFE0F♻\uFE0F Manually deleted media %s", media);
 	}
 	
-	public void updateCollections(@NonNull MediaEntity media) throws RequestFailedException{
+	public void updateMediaLabels(@NonNull MediaEntity media) throws RequestFailedException{
 		if(Objects.isNull(media.getPlexId())){
 			return;
 		}
-		log.info("Updating media collections for {}", media);
+		log.info("Updating media labels for {}", media);
 		
 		var collections = media.getRequirements().stream()
 				.filter(mr -> mr.getStatus() == WAITING)
@@ -588,12 +588,16 @@ public class MediaService{
 					.map(fr.rakambda.plexdeleter.api.plex.rest.data.Collection::getTag)
 					.collect(Collectors.toSet());
 			
+			if(currentCollections.contains("Overlay")){
+				collections.add("Overlay");
+			}
+			
 			if(currentCollections.equals(collections)){
-				log.info("Collections are already correct");
+				log.info("Labels are already correct");
 				return;
 			}
 			
-			pmsApiService.setElementCollections(media.getPlexId(), collections);
+			pmsApiService.setElementLabels(media.getPlexId(), collections);
 		}
 		catch(StatusCodeException e){
 			if(e.getStatus() == HttpStatus.NOT_FOUND){

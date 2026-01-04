@@ -29,7 +29,7 @@ class PmsApiServiceTest{
 	
 	@Test
 	void itShouldGetMetadata() throws RequestFailedException{
-		var result = tested.getElementMetadata(784086);
+		var result = tested.getElementMetadata(832509);
 		
 		assertThat(result).isNotNull();
 	}

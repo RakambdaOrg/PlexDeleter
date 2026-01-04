@@ -12,12 +12,12 @@ import org.springframework.transaction.annotation.Transactional;
 
 @Slf4j
 @Component
-public class UpdateMediaCollectionsScheduler implements IScheduler{
+public class UpdateMediaLabelsScheduler implements IScheduler{
 	private final MediaRepository mediaRepository;
 	private final MediaService mediaService;
 	
 	@Autowired
-	public UpdateMediaCollectionsScheduler(MediaRepository mediaRepository, MediaService mediaService){
+	public UpdateMediaLabelsScheduler(MediaRepository mediaRepository, MediaService mediaService){
 		this.mediaRepository = mediaRepository;
 		this.mediaService = mediaService;
 	}
@@ -25,25 +25,25 @@ public class UpdateMediaCollectionsScheduler implements IScheduler{
 	@Override
 	@NonNull
 	public String getTaskId(){
-		return "media-collections-update";
+		return "media-labels-update";
 	}
 	
 	@Override
 	@Scheduled(cron = "0 45 0,8,15 * * *")
 	@Transactional
 	public void run(){
-		log.info("Updating media collections");
+		log.info("Updating media labels");
 		var medias = mediaRepository.findAllByStatusIn(MediaStatus.allOnDisk());
 		
 		for(var media : medias){
 			try{
-				mediaService.updateCollections(media);
+				mediaService.updateMediaLabels(media);
 			}
 			catch(Exception e){
-				log.error("Failed to update media collections {}", media, e);
+				log.error("Failed to update media labels {}", media, e);
 			}
 		}
 		
-		log.info("Done updating {} media collections", medias.size());
+		log.info("Done updating {} media labels", medias.size());
 	}
 }

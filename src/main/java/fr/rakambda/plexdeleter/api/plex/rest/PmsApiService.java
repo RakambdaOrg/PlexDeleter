@@ -56,4 +56,24 @@ public class PmsApiService{
 				.blockOptional()
 				.orElseThrow(() -> new RequestFailedException("Failed to set Plex element collections")));
 	}
+	
+	public void setElementLabels(int ratingKey, @NonNull Collection<String> labels) throws RequestFailedException{
+		log.info("Setting labels of {} to {}", ratingKey, labels);
+		HttpUtils.unwrapIfStatusOk(apiClient.put()
+				.uri(b -> {
+					b = b.pathSegment("library", "metadata", Integer.toString(ratingKey))
+							.queryParam("label.locked", 1);
+					
+					var i = 0;
+					for(var collection : labels){
+						b = b.queryParam("label[%d].tag.tag".formatted(i++), collection);
+					}
+					
+					return b.build();
+				})
+				.retrieve()
+				.toBodilessEntity()
+				.blockOptional()
+				.orElseThrow(() -> new RequestFailedException("Failed to set Plex element labels")));
+	}
 }
