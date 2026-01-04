@@ -79,6 +79,10 @@ public class UserGroupEntity{
 	@Column(nullable = false)
 	@NonNull
 	private Boolean notifyRequirementManuallyAbandoned;
+	@Basic
+	@Column(nullable = false)
+	@NonNull
+	private Boolean appearInCollections;
 	
 	@OneToMany(targetEntity = UserPersonEntity.class)
 	@JoinColumn(name = "groupId", referencedColumnName = "id")

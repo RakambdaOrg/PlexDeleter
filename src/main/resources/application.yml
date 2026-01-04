@@ -88,6 +88,8 @@ app:
     app-endpoint: "https://app.plex.tv"
     communityEndpoint: "https://community.plex.tv/api"
     communityToken: "token"
+    pms-endpoint: "http://127.0.0.1:32400"
+    pms-token: "token"
     server-id: "server-id"
   tvdb:
     endpoint: "https://api4.thetvdb.com"
