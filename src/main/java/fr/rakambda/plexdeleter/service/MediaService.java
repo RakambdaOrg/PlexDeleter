@@ -1,7 +1,6 @@
 package fr.rakambda.plexdeleter.service;
 
 import fr.rakambda.plexdeleter.api.RequestFailedException;
-import fr.rakambda.plexdeleter.api.StatusCodeException;
 import fr.rakambda.plexdeleter.api.overseerr.OverseerrService;
 import fr.rakambda.plexdeleter.api.overseerr.data.MediaInfo;
 import fr.rakambda.plexdeleter.api.overseerr.data.MovieMedia;
@@ -30,8 +29,8 @@ import lombok.extern.slf4j.Slf4j;
 import org.jspecify.annotations.NonNull;
 import org.jspecify.annotations.Nullable;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
+import org.springframework.web.reactive.function.client.WebClientResponseException;
 import java.time.Instant;
 import java.util.Collection;
 import java.util.Comparator;
@@ -574,6 +573,12 @@ public class MediaService{
 		}
 		log.info("Updating media labels for {}", media);
 		
+		var ratingKey = tautulliApiService.getMetadata(media.getPlexId()).getResponse().getDataOptional()
+				.map(d -> Optional.ofNullable(d.getGrandparentRatingKey())
+						.or(() -> Optional.ofNullable(d.getParentRatingKey()))
+						.orElseGet(d::getRatingKey))
+				.orElseGet(media::getPlexId);
+		
 		var collections = media.getRequirements().stream()
 				.filter(mr -> mr.getStatus() == WAITING)
 				.map(MediaRequirementEntity::getGroup)
@@ -582,7 +587,7 @@ public class MediaService{
 				.collect(Collectors.toSet());
 		
 		try{
-			var currentCollections = pmsApiService.getElementMetadata(media.getPlexId()).getMediaContainer().getMetadata().stream()
+			var currentCollections = pmsApiService.getElementMetadata(ratingKey).getMediaContainer().getMetadata().stream()
 					.map(Metadata::getLabels)
 					.filter(Objects::nonNull)
 					.flatMap(Collection::stream)
@@ -598,15 +603,12 @@ public class MediaService{
 				return;
 			}
 			
-			pmsApiService.setElementLabels(media.getPlexId(), collections);
+			pmsApiService.setElementLabels(ratingKey, collections);
 		}
-		catch(StatusCodeException e){
-			if(e.getStatus() == HttpStatus.NOT_FOUND){
-				media.setPlexId(null);
-				mediaRepository.save(media);
-				return;
-			}
-			throw e;
+		catch(WebClientResponseException.NotFound e){
+			log.warn("Failed to label media, got 404, removing plex id from database");
+			media.setPlexId(null);
+			mediaRepository.save(media);
 		}
 	}
 }
