@@ -90,6 +90,7 @@ public class MediaRequirementService{
 			
 			notificationService.notifyRequirementManuallyAbandoned(group, media);
 			supervisionService.send("✍\uFE0F\uD83D\uDE48 Media manually abandoned %s for %s", media, group);
+			mediaService.updateCollections(media);
 		}
 		finally{
 			requirementOperationLock.unlock();
@@ -138,6 +139,7 @@ public class MediaRequirementService{
 				addServarrTag(media, userGroupEntity);
 				supervisionService.send("\uD83D\uDED2 Added requirement %s to %s", media, userGroupEntity);
 				notificationService.notifyRequirementAdded(userGroupEntity, media);
+				mediaService.updateCollections(media);
 				return true;
 			}
 			
@@ -158,6 +160,7 @@ public class MediaRequirementService{
 			addServarrTag(media, userGroupEntity);
 			supervisionService.send("Updated requirement %s to %s", media, userGroupEntity);
 			notificationService.notifyRequirementAdded(userGroupEntity, media);
+			mediaService.updateCollections(media);
 			return true;
 		}
 		finally{

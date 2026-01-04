@@ -5,6 +5,8 @@ import fr.rakambda.plexdeleter.api.overseerr.OverseerrService;
 import fr.rakambda.plexdeleter.api.overseerr.data.MediaInfo;
 import fr.rakambda.plexdeleter.api.overseerr.data.MovieMedia;
 import fr.rakambda.plexdeleter.api.overseerr.data.SeriesMedia;
+import fr.rakambda.plexdeleter.api.plex.rest.PmsApiService;
+import fr.rakambda.plexdeleter.api.plex.rest.data.Metadata;
 import fr.rakambda.plexdeleter.api.servarr.radarr.RadarrService;
 import fr.rakambda.plexdeleter.api.servarr.sonarr.SonarrService;
 import fr.rakambda.plexdeleter.api.servarr.sonarr.data.Season;
@@ -35,6 +37,7 @@ import java.util.Optional;
 import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReentrantLock;
 import java.util.function.Predicate;
+import java.util.stream.Collectors;
 
 @Slf4j
 @Service
@@ -46,10 +49,11 @@ public class MediaService{
 	private final SonarrService sonarrService;
 	private final RadarrService radarrService;
 	private final NotificationService notificationService;
+	private final PmsApiService pmsApiService;
 	private final Lock mediaOperationLock;
 	
 	@Autowired
-	public MediaService(TautulliApiService tautulliApiService, SupervisionService supervisionService, MediaRepository mediaRepository, OverseerrService overseerrService, SonarrService sonarrService, RadarrService radarrService, NotificationService notificationService){
+	public MediaService(TautulliApiService tautulliApiService, SupervisionService supervisionService, MediaRepository mediaRepository, OverseerrService overseerrService, SonarrService sonarrService, RadarrService radarrService, NotificationService notificationService, PmsApiService pmsApiService){
 		this.tautulliApiService = tautulliApiService;
 		this.supervisionService = supervisionService;
 		this.mediaRepository = mediaRepository;
@@ -57,6 +61,7 @@ public class MediaService{
 		this.sonarrService = sonarrService;
 		this.radarrService = radarrService;
 		this.notificationService = notificationService;
+		this.pmsApiService = pmsApiService;
 		this.mediaOperationLock = new ReentrantLock();
 	}
 	
@@ -557,5 +562,32 @@ public class MediaService{
 		
 		log.info("Manually deleted media {}", media);
 		supervisionService.send("✍\uFE0F♻\uFE0F Manually deleted media %s", media);
+	}
+	
+	public void updateCollections(@NonNull MediaEntity media) throws RequestFailedException{
+		if(Objects.isNull(media.getPlexId())){
+			return;
+		}
+		log.info("Updating media collections for {}", media);
+		
+		var collections = media.getRequirements().stream()
+				.filter(mr -> mr.getStatus().isWantToWatchMore())
+				.map(MediaRequirementEntity::getGroup)
+				.filter(UserGroupEntity::getAppearInCollections)
+				.map(UserGroupEntity::getName)
+				.collect(Collectors.toSet());
+		
+		var currentCollections = pmsApiService.getElementMetadata(media.getPlexId()).getMediaContainer().getMetadata().stream()
+				.map(Metadata::getCollection)
+				.flatMap(Collection::stream)
+				.map(fr.rakambda.plexdeleter.api.plex.rest.data.Collection::getTag)
+				.collect(Collectors.toSet());
+		
+		if(currentCollections.equals(collections)){
+			log.info("Collections are already correct");
+			return;
+		}
+		
+		pmsApiService.setElementCollections(media.getPlexId(), collections);
 	}
 }
