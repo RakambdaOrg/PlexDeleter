@@ -4,7 +4,7 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
-import org.jspecify.annotations.NonNull;
+import org.jspecify.annotations.Nullable;
 import org.springframework.aot.hint.annotation.RegisterReflectionForBinding;
 import java.util.List;
 
@@ -13,7 +13,7 @@ import java.util.List;
 @AllArgsConstructor
 @RegisterReflectionForBinding(Metadata.class)
 public class Metadata{
-	@NonNull
+	@Nullable
 	@JsonProperty("Collection")
 	private List<Collection> collection;
 }

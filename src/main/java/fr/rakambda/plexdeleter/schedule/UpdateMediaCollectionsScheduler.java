@@ -9,7 +9,6 @@ import org.jspecify.annotations.NonNull;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Component;
-import org.springframework.transaction.annotation.Transactional;
 
 @Slf4j
 @Component
@@ -31,7 +30,6 @@ public class UpdateMediaCollectionsScheduler implements IScheduler{
 	
 	@Override
 	@Scheduled(cron = "0 45 0,8,15 * * *")
-	@Transactional
 	public void run(){
 		log.info("Updating media collections");
 		var medias = mediaRepository.findAllByStatusIn(MediaStatus.allOnDisk());

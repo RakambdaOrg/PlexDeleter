@@ -579,6 +579,7 @@ public class MediaService{
 		
 		var currentCollections = pmsApiService.getElementMetadata(media.getPlexId()).getMediaContainer().getMetadata().stream()
 				.map(Metadata::getCollection)
+				.filter(Objects::nonNull)
 				.flatMap(Collection::stream)
 				.map(fr.rakambda.plexdeleter.api.plex.rest.data.Collection::getTag)
 				.collect(Collectors.toSet());

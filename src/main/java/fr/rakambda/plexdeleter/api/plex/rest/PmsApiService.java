@@ -26,6 +26,7 @@ public class PmsApiService{
 				.build();
 	}
 	
+	@NonNull
 	public PmsMetadata getElementMetadata(int ratingKey) throws RequestFailedException{
 		log.info("Getting metadata of {}", ratingKey);
 		return HttpUtils.unwrapIfStatusOkAndNotNullBody(apiClient.get()
