@@ -1,6 +1,7 @@
 package fr.rakambda.plexdeleter.service;
 
 import fr.rakambda.plexdeleter.api.RequestFailedException;
+import fr.rakambda.plexdeleter.api.StatusCodeException;
 import fr.rakambda.plexdeleter.api.overseerr.OverseerrService;
 import fr.rakambda.plexdeleter.api.overseerr.data.MediaInfo;
 import fr.rakambda.plexdeleter.api.overseerr.data.MovieMedia;
@@ -28,6 +29,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.jspecify.annotations.NonNull;
 import org.jspecify.annotations.Nullable;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import java.time.Instant;
 import java.util.Collection;
@@ -577,18 +579,28 @@ public class MediaService{
 				.map(UserGroupEntity::getName)
 				.collect(Collectors.toSet());
 		
-		var currentCollections = pmsApiService.getElementMetadata(media.getPlexId()).getMediaContainer().getMetadata().stream()
-				.map(Metadata::getCollection)
-				.filter(Objects::nonNull)
-				.flatMap(Collection::stream)
-				.map(fr.rakambda.plexdeleter.api.plex.rest.data.Collection::getTag)
-				.collect(Collectors.toSet());
-		
-		if(currentCollections.equals(collections)){
-			log.info("Collections are already correct");
-			return;
+		try{
+			var currentCollections = pmsApiService.getElementMetadata(media.getPlexId()).getMediaContainer().getMetadata().stream()
+					.map(Metadata::getCollection)
+					.filter(Objects::nonNull)
+					.flatMap(Collection::stream)
+					.map(fr.rakambda.plexdeleter.api.plex.rest.data.Collection::getTag)
+					.collect(Collectors.toSet());
+			
+			if(currentCollections.equals(collections)){
+				log.info("Collections are already correct");
+				return;
+			}
+			
+			pmsApiService.setElementCollections(media.getPlexId(), collections);
 		}
-		
-		pmsApiService.setElementCollections(media.getPlexId(), collections);
+		catch(StatusCodeException e){
+			if(e.getStatus() == HttpStatus.NOT_FOUND){
+				media.setPlexId(null);
+				mediaRepository.save(media);
+				return;
+			}
+			throw e;
+		}
 	}
 }
