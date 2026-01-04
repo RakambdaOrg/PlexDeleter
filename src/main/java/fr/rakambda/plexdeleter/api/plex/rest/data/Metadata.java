@@ -14,6 +14,9 @@ import java.util.List;
 @RegisterReflectionForBinding(Metadata.class)
 public class Metadata{
 	@Nullable
+	@JsonProperty("Label")
+	private List<Label> labels;
+	@Nullable
 	@JsonProperty("Collection")
-	private List<Collection> collection;
+	private List<Collection> collections;
 }

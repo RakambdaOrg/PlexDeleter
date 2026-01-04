@@ -7,6 +7,7 @@ import fr.rakambda.plexdeleter.api.overseerr.data.MediaInfo;
 import fr.rakambda.plexdeleter.api.overseerr.data.MovieMedia;
 import fr.rakambda.plexdeleter.api.overseerr.data.SeriesMedia;
 import fr.rakambda.plexdeleter.api.plex.rest.PmsApiService;
+import fr.rakambda.plexdeleter.api.plex.rest.data.Label;
 import fr.rakambda.plexdeleter.api.plex.rest.data.Metadata;
 import fr.rakambda.plexdeleter.api.servarr.radarr.RadarrService;
 import fr.rakambda.plexdeleter.api.servarr.sonarr.SonarrService;
@@ -582,10 +583,10 @@ public class MediaService{
 		
 		try{
 			var currentCollections = pmsApiService.getElementMetadata(media.getPlexId()).getMediaContainer().getMetadata().stream()
-					.map(Metadata::getCollection)
+					.map(Metadata::getLabels)
 					.filter(Objects::nonNull)
 					.flatMap(Collection::stream)
-					.map(fr.rakambda.plexdeleter.api.plex.rest.data.Collection::getTag)
+					.map(Label::getTag)
 					.collect(Collectors.toSet());
 			
 			if(currentCollections.contains("Overlay")){

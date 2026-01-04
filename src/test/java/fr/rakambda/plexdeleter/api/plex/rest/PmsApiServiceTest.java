@@ -29,13 +29,18 @@ class PmsApiServiceTest{
 	
 	@Test
 	void itShouldGetMetadata() throws RequestFailedException{
-		var result = tested.getElementMetadata(832509);
+		var result = tested.getElementMetadata(829685);
 		
 		assertThat(result).isNotNull();
 	}
 	
 	@Test
 	void itShouldSetCollections() throws RequestFailedException{
-		tested.setElementCollections(832309, List.of("Test1", "Test3"));
+		tested.setElementCollections(829685, List.of("Test1", "Test3"));
+	}
+	
+	@Test
+	void itShouldSetLabels() throws RequestFailedException{
+		tested.setElementLabels(829685, List.of("Test1", "Test3"));
 	}
 }
