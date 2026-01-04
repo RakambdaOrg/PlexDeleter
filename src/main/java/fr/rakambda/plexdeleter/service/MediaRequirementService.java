@@ -48,7 +48,7 @@ public class MediaRequirementService{
 		this.sonarrService = sonarrService;
 	}
 	
-	public void complete(@NonNull MediaRequirementEntity requirement) throws NotifyException, ServiceException{
+	public void complete(@NonNull MediaRequirementEntity requirement) throws NotifyException, ServiceException, RequestFailedException{
 		requirementOperationLock.lock();
 		try{
 			if(!requirement.getMedia().isCompletable()){
@@ -65,6 +65,7 @@ public class MediaRequirementService{
 			
 			notificationService.notifyRequirementManuallyWatched(group, media);
 			supervisionService.send("✍\uFE0F\uD83D\uDC41\uFE0F Media manually watched %s for %s", media, group);
+			mediaService.updateMediaLabels(media);
 		}
 		finally{
 			requirementOperationLock.unlock();

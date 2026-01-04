@@ -58,7 +58,7 @@ public class ApiAdminMediaRequirementController{
 	
 	@Transactional
 	@PostMapping("/complete")
-	public ModelAndView complete(@NotNull @RequestParam("mediaId") int mediaId, @NotNull @RequestParam("groupId") int groupId) throws NotifyException, ServiceException{
+	public ModelAndView complete(@NotNull @RequestParam("mediaId") int mediaId, @NotNull @RequestParam("groupId") int groupId) throws NotifyException, ServiceException, RequestFailedException{
 		var requirement = mediaRequirementRepository.findById(new MediaRequirementEntity.TableId(mediaId, groupId))
 				.orElseThrow(() -> new RuntimeException("Requirement not found"));
 		mediaRequirementService.complete(requirement);

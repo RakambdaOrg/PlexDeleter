@@ -68,7 +68,7 @@ public class ApiUserMediaRequirementController{
 	
 	@Transactional
 	@PostMapping("/complete")
-	public ModelAndView complete(@NonNull Authentication authentication, @NotNull @RequestParam("media") int mediaId) throws NotifyException, ServiceException{
+	public ModelAndView complete(@NonNull Authentication authentication, @NotNull @RequestParam("media") int mediaId) throws NotifyException, ServiceException, RequestFailedException{
 		var userPerson = getUserPersonEntityFromAuth(authentication);
 		var requirement = mediaRequirementRepository.findById(new MediaRequirementEntity.TableId(mediaId, userPerson.getGroupId()))
 				.orElseThrow(() -> new RuntimeException("Requirement not found"));
