@@ -40,6 +40,7 @@ import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReentrantLock;
 import java.util.function.Predicate;
 import java.util.stream.Collectors;
+import static fr.rakambda.plexdeleter.storage.entity.MediaRequirementStatus.WAITING;
 
 @Slf4j
 @Service
@@ -573,7 +574,7 @@ public class MediaService{
 		log.info("Updating media collections for {}", media);
 		
 		var collections = media.getRequirements().stream()
-				.filter(mr -> mr.getStatus().isWantToWatchMore())
+				.filter(mr -> mr.getStatus() == WAITING)
 				.map(MediaRequirementEntity::getGroup)
 				.filter(UserGroupEntity::getAppearInCollections)
 				.map(UserGroupEntity::getName)
