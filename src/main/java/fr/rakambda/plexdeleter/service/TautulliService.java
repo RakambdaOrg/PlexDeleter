@@ -89,13 +89,15 @@ public class TautulliService{
 			return;
 		}
 		
-		var mediaEntity = mediaRepository.findByPlexId(ratingKey);
-		if(mediaEntity.isEmpty()){
+		var mediaEntityOptional = mediaRepository.findByPlexId(ratingKey);
+		if(mediaEntityOptional.isEmpty()){
 			mediaService.updateAll();
 			return;
 		}
 		
-		mediaService.update(mediaEntity.get());
+		var media = mediaEntityOptional.get();
+		media = mediaService.update(media);
+		mediaService.updateMediaLabels(media);
 	}
 	
 	public void notifyMedia(@NonNull TautulliWebhook data) throws RequestFailedException, NotifyException{
