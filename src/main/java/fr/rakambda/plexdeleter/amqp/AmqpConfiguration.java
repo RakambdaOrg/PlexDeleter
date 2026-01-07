@@ -48,11 +48,49 @@ public class AmqpConfiguration{
 	}
 	
 	@Bean
+	@Qualifier("queueProcessRadarr")
+	public Queue queueProcessRadarr(){
+		return QueueBuilder.durable(prefixed(amqpConstants.QUEUE_PROCESS_RADARR))
+				.withArgument(amqpConstants.HEADER_X_DEAD_LETTER_EXCHANGE, prefixed(amqpConstants.EXCHANGE_DEAD_LETTER))
+				.withArgument(amqpConstants.HEADER_X_DEAD_LETTER_ROUTING_KEY, amqpConstants.ROUTING_KEY_DEAD_LETTER_RADARR)
+				.build();
+	}
+	
+	@Bean
+	@Qualifier("queueDeadLetterRadarr")
+	public Queue queueDeadLetterRadarr(){
+		return QueueBuilder.durable(prefixed(amqpConstants.QUEUE_DEAD_LETTER_RADARR))
+				.withArgument(amqpConstants.HEADER_X_DEAD_LETTER_EXCHANGE, prefixed(amqpConstants.EXCHANGE_PROCESS))
+				.withArgument(amqpConstants.HEADER_X_DEAD_LETTER_ROUTING_KEY, amqpConstants.ROUTING_KEY_PROCESS_RADARR)
+				.withArgument(amqpConstants.HEADER_X_MESSAGE_TTL, applicationConfiguration.getAmqp().getRequeueDelay().toMillis())
+				.build();
+	}
+	
+	@Bean
+	@Qualifier("queueProcessSonarr")
+	public Queue queueProcessSonarr(){
+		return QueueBuilder.durable(prefixed(amqpConstants.QUEUE_PROCESS_SONARR))
+				.withArgument(amqpConstants.HEADER_X_DEAD_LETTER_EXCHANGE, prefixed(amqpConstants.EXCHANGE_DEAD_LETTER))
+				.withArgument(amqpConstants.HEADER_X_DEAD_LETTER_ROUTING_KEY, amqpConstants.ROUTING_KEY_DEAD_LETTER_SONARR)
+				.build();
+	}
+	
+	@Bean
+	@Qualifier("queueDeadLetterSonarr")
+	public Queue queueDeadLetterSonarr(){
+		return QueueBuilder.durable(prefixed(amqpConstants.QUEUE_DEAD_LETTER_SONARR))
+				.withArgument(amqpConstants.HEADER_X_DEAD_LETTER_EXCHANGE, prefixed(amqpConstants.EXCHANGE_PROCESS))
+				.withArgument(amqpConstants.HEADER_X_DEAD_LETTER_ROUTING_KEY, amqpConstants.ROUTING_KEY_PROCESS_SONARR)
+				.withArgument(amqpConstants.HEADER_X_MESSAGE_TTL, applicationConfiguration.getAmqp().getRequeueDelay().toMillis())
+				.build();
+	}
+	
+	@Bean
 	@Qualifier("queueProcessTautulli")
 	public Queue queueProcessTautulli(){
 		return QueueBuilder.durable(prefixed(amqpConstants.QUEUE_PROCESS_TAUTULLI))
 				.withArgument(amqpConstants.HEADER_X_DEAD_LETTER_EXCHANGE, prefixed(amqpConstants.EXCHANGE_DEAD_LETTER))
-				.withArgument(amqpConstants.HEADER_X_DEAD_LETTER_ROUTING_KEY, amqpConstants.ROUTING_KEY_DEAD_LETTER_DEFAULT)
+				.withArgument(amqpConstants.HEADER_X_DEAD_LETTER_ROUTING_KEY, amqpConstants.ROUTING_KEY_DEAD_LETTER_TAUTULLI)
 				.build();
 	}
 	
@@ -67,15 +105,39 @@ public class AmqpConfiguration{
 	}
 	
 	@Bean
+	@Qualifier("bindingProcessRadarr")
+	public Binding bindingProcessRadarr(@Qualifier("queueProcessRadarr") Queue queue, @Qualifier("exchangeProcess") CustomExchange exchange){
+		return BindingBuilder.bind(queue).to(exchange).with(amqpConstants.ROUTING_KEY_PROCESS_RADARR).noargs();
+	}
+	
+	@Bean
+	@Qualifier("bindingProcessSonarr")
+	public Binding bindingProcessSonarr(@Qualifier("queueProcessSonarr") Queue queue, @Qualifier("exchangeProcess") CustomExchange exchange){
+		return BindingBuilder.bind(queue).to(exchange).with(amqpConstants.ROUTING_KEY_PROCESS_SONARR).noargs();
+	}
+	
+	@Bean
 	@Qualifier("bindingProcessTautulli")
 	public Binding bindingProcessTautulli(@Qualifier("queueProcessTautulli") Queue queue, @Qualifier("exchangeProcess") CustomExchange exchange){
 		return BindingBuilder.bind(queue).to(exchange).with(amqpConstants.ROUTING_KEY_PROCESS_TAUTULLI).noargs();
 	}
 	
 	@Bean
-	@Qualifier("bindingDeadLetter")
-	public Binding bindingDeadLetter(@Qualifier("queueDeadLetterTautulli") Queue queue, @Qualifier("exchangeDeadLetter") DirectExchange exchange){
-		return BindingBuilder.bind(queue).to(exchange).with(amqpConstants.ROUTING_KEY_DEAD_LETTER_DEFAULT);
+	@Qualifier("bindingDeadLetterRadarr")
+	public Binding bindingDeadLetterRadarr(@Qualifier("queueDeadLetterRadarr") Queue queue, @Qualifier("exchangeDeadLetter") DirectExchange exchange){
+		return BindingBuilder.bind(queue).to(exchange).with(amqpConstants.ROUTING_KEY_DEAD_LETTER_RADARR);
+	}
+	
+	@Bean
+	@Qualifier("bindingDeadLetterSonarr")
+	public Binding bindingDeadLetterSonarr(@Qualifier("queueDeadLetterSonarr") Queue queue, @Qualifier("exchangeDeadLetter") DirectExchange exchange){
+		return BindingBuilder.bind(queue).to(exchange).with(amqpConstants.ROUTING_KEY_DEAD_LETTER_SONARR);
+	}
+	
+	@Bean
+	@Qualifier("bindingDeadLetterTautulli")
+	public Binding bindingDeadLetterTautulli(@Qualifier("queueDeadLetterTautulli") Queue queue, @Qualifier("exchangeDeadLetter") DirectExchange exchange){
+		return BindingBuilder.bind(queue).to(exchange).with(amqpConstants.ROUTING_KEY_DEAD_LETTER_TAUTULLI);
 	}
 	
 	@Bean

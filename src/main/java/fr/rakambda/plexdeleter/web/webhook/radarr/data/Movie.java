@@ -4,14 +4,16 @@ import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 import org.jspecify.annotations.NonNull;
+import org.jspecify.annotations.Nullable;
 
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
 public class Movie{
-	private int id;
+	@Nullable
+	private Integer id;
 	@NonNull
 	private String title;
-	@NonNull
+	@Nullable
 	private Integer tmdbId;
 }
