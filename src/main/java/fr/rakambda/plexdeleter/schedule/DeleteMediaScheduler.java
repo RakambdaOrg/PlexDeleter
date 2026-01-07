@@ -1,9 +1,9 @@
 package fr.rakambda.plexdeleter.schedule;
 
 import fr.rakambda.plexdeleter.api.RequestFailedException;
-import fr.rakambda.plexdeleter.api.overseerr.OverseerrService;
-import fr.rakambda.plexdeleter.api.servarr.radarr.RadarrService;
-import fr.rakambda.plexdeleter.api.servarr.sonarr.SonarrService;
+import fr.rakambda.plexdeleter.api.overseerr.OverseerrApiService;
+import fr.rakambda.plexdeleter.api.servarr.radarr.RadarrApiService;
+import fr.rakambda.plexdeleter.api.servarr.sonarr.SonarrApiService;
 import fr.rakambda.plexdeleter.api.tautulli.TautulliApiService;
 import fr.rakambda.plexdeleter.api.tautulli.data.GetMetadataResponse;
 import fr.rakambda.plexdeleter.api.tautulli.data.MediaInfo;
@@ -49,21 +49,21 @@ public class DeleteMediaScheduler implements IScheduler{
 	private final int daysDelay;
 	private final boolean dryDelete;
 	private final Map<String, String> remotePathMappings;
-	private final OverseerrService overseerrService;
-	private final RadarrService radarrService;
-	private final SonarrService sonarrService;
+	private final OverseerrApiService overseerrApiService;
+	private final RadarrApiService radarrApiService;
+	private final SonarrApiService sonarrApiService;
 	
 	@Autowired
-	public DeleteMediaScheduler(MediaRepository mediaRepository, SupervisionService supervisionService, TautulliApiService tautulliApiService, ApplicationConfiguration applicationConfiguration, OverseerrService overseerrService, RadarrService radarrService, SonarrService sonarrService){
+	public DeleteMediaScheduler(MediaRepository mediaRepository, SupervisionService supervisionService, TautulliApiService tautulliApiService, ApplicationConfiguration applicationConfiguration, OverseerrApiService overseerrApiService, RadarrApiService radarrApiService, SonarrApiService sonarrApiService){
 		this.mediaRepository = mediaRepository;
 		this.supervisionService = supervisionService;
 		this.tautulliApiService = tautulliApiService;
 		this.daysDelay = applicationConfiguration.getDeletion().getDaysDelay();
 		this.dryDelete = applicationConfiguration.getDeletion().isDryDelete();
 		this.remotePathMappings = applicationConfiguration.getDeletion().getRemotePathMappings();
-		this.overseerrService = overseerrService;
-		this.radarrService = radarrService;
-		this.sonarrService = sonarrService;
+		this.overseerrApiService = overseerrApiService;
+		this.radarrApiService = radarrApiService;
+		this.sonarrApiService = sonarrApiService;
 	}
 	
 	@Override
@@ -99,7 +99,7 @@ public class DeleteMediaScheduler implements IScheduler{
 	private boolean refreshOverseerr(){
 		try{
 			log.info("Starting Overseerr refresh");
-			return overseerrService.plexSync(false, true).isRunning();
+			return overseerrApiService.plexSync(false, true).isRunning();
 		}
 		catch(RequestFailedException e){
 			log.error("Failed to refresh Overseerr after deletion");
@@ -305,11 +305,11 @@ public class DeleteMediaScheduler implements IScheduler{
 			return;
 		}
 		try{
-			var data = overseerrService.getMediaDetails(mediaEntity.getOverseerrId(), mediaEntity.getType().getOverseerrType());
+			var data = overseerrApiService.getMediaDetails(mediaEntity.getOverseerrId(), mediaEntity.getType().getOverseerrType());
 			var internalId = Optional.ofNullable(data.getMediaInfo())
 					.map(fr.rakambda.plexdeleter.api.overseerr.data.MediaInfo::getId)
 					.orElseThrow(() -> new IllegalStateException("Couldn't find internal media id on Overseerr"));
-			overseerrService.deleteMedia(internalId);
+			overseerrApiService.deleteMedia(internalId);
 		}
 		catch(Exception e){
 			log.error("Failed to delete media {} on Overseerr", mediaEntity);
@@ -322,8 +322,8 @@ public class DeleteMediaScheduler implements IScheduler{
 		}
 		try{
 			switch(mediaEntity.getType()){
-				case MOVIE -> radarrService.unmonitor(mediaEntity.getServarrId());
-				case SEASON -> sonarrService.unmonitor(mediaEntity.getServarrId(), mediaEntity.getIndex());
+				case MOVIE -> radarrApiService.unmonitor(mediaEntity.getServarrId());
+				case SEASON -> sonarrApiService.unmonitor(mediaEntity.getServarrId(), mediaEntity.getIndex());
 			}
 		}
 		catch(Exception e){

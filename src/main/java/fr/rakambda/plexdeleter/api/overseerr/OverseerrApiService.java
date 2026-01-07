@@ -27,10 +27,10 @@ import java.util.Set;
 
 @Slf4j
 @Service
-public class OverseerrService{
+public class OverseerrApiService{
 	private final WebClient apiClient;
 	
-	public OverseerrService(ApplicationConfiguration applicationConfiguration){
+	public OverseerrApiService(ApplicationConfiguration applicationConfiguration){
 		apiClient = WebClient.builder()
 				.baseUrl(applicationConfiguration.getOverseerr().getEndpoint())
 				.defaultHeader("X-Api-Key", applicationConfiguration.getOverseerr().getApiKey())

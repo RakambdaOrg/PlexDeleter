@@ -1,8 +1,8 @@
 package fr.rakambda.plexdeleter.service;
 
 import fr.rakambda.plexdeleter.api.RequestFailedException;
-import fr.rakambda.plexdeleter.api.servarr.radarr.RadarrService;
-import fr.rakambda.plexdeleter.api.servarr.sonarr.SonarrService;
+import fr.rakambda.plexdeleter.api.servarr.radarr.RadarrApiService;
+import fr.rakambda.plexdeleter.api.servarr.sonarr.SonarrApiService;
 import fr.rakambda.plexdeleter.messaging.SupervisionService;
 import fr.rakambda.plexdeleter.notify.NotificationService;
 import fr.rakambda.plexdeleter.notify.NotifyException;
@@ -33,19 +33,19 @@ public class MediaRequirementService{
 	private final MediaService mediaService;
 	private final UserGroupRepository userGroupRepository;
 	private final Lock requirementOperationLock;
-	private final RadarrService radarrService;
-	private final SonarrService sonarrService;
+	private final RadarrApiService radarrApiService;
+	private final SonarrApiService sonarrApiService;
 	
 	@Autowired
-	public MediaRequirementService(MediaRequirementRepository mediaRequirementRepository, NotificationService notificationService, SupervisionService supervisionService, MediaService mediaService, UserGroupRepository userGroupRepository, RadarrService radarrService, SonarrService sonarrService){
+	public MediaRequirementService(MediaRequirementRepository mediaRequirementRepository, NotificationService notificationService, SupervisionService supervisionService, MediaService mediaService, UserGroupRepository userGroupRepository, RadarrApiService radarrApiService, SonarrApiService sonarrApiService){
 		this.mediaRequirementRepository = mediaRequirementRepository;
 		this.notificationService = notificationService;
 		this.supervisionService = supervisionService;
 		this.mediaService = mediaService;
 		this.userGroupRepository = userGroupRepository;
 		this.requirementOperationLock = new ReentrantLock();
-		this.radarrService = radarrService;
-		this.sonarrService = sonarrService;
+		this.radarrApiService = radarrApiService;
+		this.sonarrApiService = sonarrApiService;
 	}
 	
 	public void complete(@NonNull MediaRequirementEntity requirement) throws NotifyException, ServiceException, RequestFailedException{
@@ -176,8 +176,8 @@ public class MediaRequirementService{
 		for(var tag : userGroup.getServarrTag().split(",")){
 			try{
 				switch(media.getType()){
-					case MOVIE -> radarrService.addTag(media.getServarrId(), tag);
-					case SEASON -> sonarrService.addTag(media.getServarrId(), tag);
+					case MOVIE -> radarrApiService.addTag(media.getServarrId(), tag);
+					case SEASON -> sonarrApiService.addTag(media.getServarrId(), tag);
 				}
 			}
 			catch(Exception e){
@@ -193,8 +193,8 @@ public class MediaRequirementService{
 		for(var tag : userGroup.getServarrTag().split(",")){
 			try{
 				switch(media.getType()){
-					case MOVIE -> radarrService.removeTag(media.getServarrId(), tag);
-					case SEASON -> sonarrService.removeTag(media.getServarrId(), tag);
+					case MOVIE -> radarrApiService.removeTag(media.getServarrId(), tag);
+					case SEASON -> sonarrApiService.removeTag(media.getServarrId(), tag);
 				}
 			}
 			catch(Exception e){

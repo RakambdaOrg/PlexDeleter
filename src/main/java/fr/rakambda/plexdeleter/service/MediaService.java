@@ -1,15 +1,15 @@
 package fr.rakambda.plexdeleter.service;
 
 import fr.rakambda.plexdeleter.api.RequestFailedException;
-import fr.rakambda.plexdeleter.api.overseerr.OverseerrService;
+import fr.rakambda.plexdeleter.api.overseerr.OverseerrApiService;
 import fr.rakambda.plexdeleter.api.overseerr.data.MediaInfo;
 import fr.rakambda.plexdeleter.api.overseerr.data.MovieMedia;
 import fr.rakambda.plexdeleter.api.overseerr.data.SeriesMedia;
-import fr.rakambda.plexdeleter.api.plex.rest.PmsApiService;
+import fr.rakambda.plexdeleter.api.plex.rest.PlexMediaServerApiService;
 import fr.rakambda.plexdeleter.api.plex.rest.data.Label;
 import fr.rakambda.plexdeleter.api.plex.rest.data.Metadata;
-import fr.rakambda.plexdeleter.api.servarr.radarr.RadarrService;
-import fr.rakambda.plexdeleter.api.servarr.sonarr.SonarrService;
+import fr.rakambda.plexdeleter.api.servarr.radarr.RadarrApiService;
+import fr.rakambda.plexdeleter.api.servarr.sonarr.SonarrApiService;
 import fr.rakambda.plexdeleter.api.servarr.sonarr.data.Season;
 import fr.rakambda.plexdeleter.api.servarr.sonarr.data.Statistics;
 import fr.rakambda.plexdeleter.api.tautulli.TautulliApiService;
@@ -48,23 +48,23 @@ public class MediaService{
 	private final TautulliApiService tautulliApiService;
 	private final SupervisionService supervisionService;
 	private final MediaRepository mediaRepository;
-	private final OverseerrService overseerrService;
-	private final SonarrService sonarrService;
-	private final RadarrService radarrService;
+	private final OverseerrApiService overseerrApiService;
+	private final SonarrApiService sonarrApiService;
+	private final RadarrApiService radarrApiService;
 	private final NotificationService notificationService;
-	private final PmsApiService pmsApiService;
+	private final PlexMediaServerApiService plexMediaServerApiService;
 	private final Lock mediaOperationLock;
 	
 	@Autowired
-	public MediaService(TautulliApiService tautulliApiService, SupervisionService supervisionService, MediaRepository mediaRepository, OverseerrService overseerrService, SonarrService sonarrService, RadarrService radarrService, NotificationService notificationService, PmsApiService pmsApiService){
+	public MediaService(TautulliApiService tautulliApiService, SupervisionService supervisionService, MediaRepository mediaRepository, OverseerrApiService overseerrApiService, SonarrApiService sonarrApiService, RadarrApiService radarrApiService, NotificationService notificationService, PlexMediaServerApiService plexMediaServerApiService){
 		this.tautulliApiService = tautulliApiService;
 		this.supervisionService = supervisionService;
 		this.mediaRepository = mediaRepository;
-		this.overseerrService = overseerrService;
-		this.sonarrService = sonarrService;
-		this.radarrService = radarrService;
+		this.overseerrApiService = overseerrApiService;
+		this.sonarrApiService = sonarrApiService;
+		this.radarrApiService = radarrApiService;
 		this.notificationService = notificationService;
-		this.pmsApiService = pmsApiService;
+		this.plexMediaServerApiService = plexMediaServerApiService;
 		this.mediaOperationLock = new ReentrantLock();
 	}
 	
@@ -172,7 +172,7 @@ public class MediaService{
 			return;
 		}
 		try{
-			var mediaDetails = overseerrService.getMediaDetails(mediaEntity.getOverseerrId(), mediaEntity.getType().getOverseerrType());
+			var mediaDetails = overseerrApiService.getMediaDetails(mediaEntity.getOverseerrId(), mediaEntity.getType().getOverseerrType());
 			
 			Optional.ofNullable(switch(mediaDetails){
 						case MovieMedia movieMedia -> movieMedia.getTitle();
@@ -256,13 +256,13 @@ public class MediaService{
 			switch(mediaEntity.getType()){
 				case MOVIE -> {
 					partsCount = Optional.of(1);
-					var movie = radarrService.getMovie(mediaEntity.getServarrId());
+					var movie = radarrApiService.getMovie(mediaEntity.getServarrId());
 					availablePartsCount = Optional.of(movie.isHasFile() ? 1 : 0);
 					Optional.ofNullable(movie.getTmdbId()).ifPresent(mediaEntity::setTmdbId);
 					Optional.ofNullable(movie.getTitleSlug()).ifPresent(mediaEntity::setRadarrSlug);
 				}
 				case SEASON -> {
-					var series = sonarrService.getSeries(mediaEntity.getServarrId());
+					var series = sonarrApiService.getSeries(mediaEntity.getServarrId());
 					var stats = series.getSeasons().stream()
 							.filter(f -> Objects.equals(f.getSeasonNumber(), mediaEntity.getIndex()))
 							.findFirst()
@@ -274,7 +274,7 @@ public class MediaService{
 				}
 				case EPISODE -> {
 					partsCount = Optional.of(1);
-					var series = sonarrService.getSeries(mediaEntity.getServarrId());
+					var series = sonarrApiService.getSeries(mediaEntity.getServarrId());
 					var stats = series.getSeasons().stream()
 							.filter(f -> Objects.equals(f.getSeasonNumber(), mediaEntity.getIndex()))
 							.findFirst()
@@ -352,11 +352,11 @@ public class MediaService{
 		
 		if(media.getType() == MediaType.MOVIE){
 			log.info("Unmonitor movie from Servarr {}", media);
-			radarrService.unmonitor(media.getServarrId());
+			radarrApiService.unmonitor(media.getServarrId());
 		}
 		else if(media.getType() == MediaType.SEASON){
 			log.info("Unmonitor season from Servarr {}", media);
-			sonarrService.unmonitor(media.getServarrId(), media.getIndex());
+			sonarrApiService.unmonitor(media.getServarrId(), media.getIndex());
 			
 			var seriesMedia = mediaRepository.findAllByServarrIdAndType(media.getServarrId(), media.getType());
 			if(seriesMedia.size() <= 1
@@ -369,7 +369,7 @@ public class MediaService{
 					.noneMatch(MediaRequirementStatus::isWantToWatchMore)
 			){
 				log.info("Unmonitor series from Servarr {}", media);
-				sonarrService.unmonitor(media.getServarrId());
+				sonarrApiService.unmonitor(media.getServarrId());
 			}
 			
 			return true;
@@ -393,7 +393,7 @@ public class MediaService{
 				.toList();
 		
 		log.info("Deleting media request from Overseerr {} for group {}", media, userGroup);
-		overseerrService.deleteRequestForUserAndMedia(userIds, media);
+		overseerrApiService.deleteRequestForUserAndMedia(userIds, media);
 		return true;
 	}
 	
@@ -448,7 +448,7 @@ public class MediaService{
 	
 	@NonNull
 	private MediaEntity createMedia(int overseerrId, @NonNull MediaType mediaType, int season, @Nullable Integer episode) throws RequestFailedException{
-		var mediaDetails = overseerrService.getMediaDetails(overseerrId, mediaType.getOverseerrType());
+		var mediaDetails = overseerrApiService.getMediaDetails(overseerrId, mediaType.getOverseerrType());
 		var media = mediaRepository.save(MediaEntity.builder()
 				.type(mediaType)
 				.overseerrId(overseerrId)
@@ -558,8 +558,8 @@ public class MediaService{
 		mediaRepository.save(media);
 		if(Objects.nonNull(media.getServarrId())){
 			switch(media.getType()){
-				case MOVIE -> radarrService.unmonitor(media.getServarrId());
-				case SEASON -> sonarrService.unmonitor(media.getServarrId(), media.getIndex());
+				case MOVIE -> radarrApiService.unmonitor(media.getServarrId());
+				case SEASON -> sonarrApiService.unmonitor(media.getServarrId(), media.getIndex());
 			}
 		}
 		
@@ -587,7 +587,7 @@ public class MediaService{
 				.collect(Collectors.toSet());
 		
 		try{
-			var currentCollections = pmsApiService.getElementMetadata(ratingKey).getMediaContainer().getMetadata().stream()
+			var currentCollections = plexMediaServerApiService.getElementMetadata(ratingKey).getMediaContainer().getMetadata().stream()
 					.map(Metadata::getLabels)
 					.filter(Objects::nonNull)
 					.flatMap(Collection::stream)
@@ -603,7 +603,7 @@ public class MediaService{
 				return;
 			}
 			
-			pmsApiService.setElementLabels(ratingKey, collections);
+			plexMediaServerApiService.setElementLabels(ratingKey, collections);
 		}
 		catch(WebClientResponseException.NotFound e){
 			log.warn("Failed to label media, got 404, removing plex id from database");

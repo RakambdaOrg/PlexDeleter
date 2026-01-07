@@ -24,11 +24,11 @@ import java.util.Set;
 
 @Slf4j
 @Service
-public class SonarrService{
+public class SonarrApiService{
 	private final WebClient apiClient;
 	
 	@Autowired
-	public SonarrService(ApplicationConfiguration applicationConfiguration){
+	public SonarrApiService(ApplicationConfiguration applicationConfiguration){
 		apiClient = WebClient.builder()
 				.baseUrl(applicationConfiguration.getSonarr().getEndpoint())
 				.defaultHeader("X-Api-Key", applicationConfiguration.getSonarr().getApiKey())

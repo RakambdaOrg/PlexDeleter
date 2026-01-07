@@ -1,7 +1,7 @@
 package fr.rakambda.plexdeleter.service;
 
 import fr.rakambda.plexdeleter.api.RequestFailedException;
-import fr.rakambda.plexdeleter.api.plex.gql.PlexCommunityService;
+import fr.rakambda.plexdeleter.api.plex.gql.PlexCommunityApiService;
 import fr.rakambda.plexdeleter.api.plex.gql.data.response.ActivityWatchHistory;
 import fr.rakambda.plexdeleter.api.tautulli.TautulliApiService;
 import fr.rakambda.plexdeleter.api.tautulli.data.GetMetadataResponse;
@@ -34,14 +34,14 @@ import java.util.stream.Stream;
 @Service
 public class WatchService{
 	private final TautulliApiService tautulliApiService;
-	private final PlexCommunityService plexCommunityService;
+	private final PlexCommunityApiService plexCommunityApiService;
 	private final SupervisionService supervisionService;
 	private final MediaRequirementRepository mediaRequirementRepository;
 	
 	@Autowired
-	public WatchService(TautulliApiService tautulliApiService, PlexCommunityService plexCommunityService, SupervisionService supervisionService, MediaRequirementRepository mediaRequirementRepository){
+	public WatchService(TautulliApiService tautulliApiService, PlexCommunityApiService plexCommunityApiService, SupervisionService supervisionService, MediaRequirementRepository mediaRequirementRepository){
 		this.tautulliApiService = tautulliApiService;
-		this.plexCommunityService = plexCommunityService;
+		this.plexCommunityApiService = plexCommunityApiService;
 		this.supervisionService = supervisionService;
 		this.mediaRequirementRepository = mediaRequirementRepository;
 	}
@@ -89,7 +89,7 @@ public class WatchService{
 					.filter(Objects::nonNull)
 					.toList();
 			if(Objects.nonNull(metadataId) && !userIds.isEmpty()){
-				history.addAll(plexCommunityService.listActivityForItem(metadataId, historySince).stream()
+				history.addAll(plexCommunityApiService.listActivityForItem(metadataId, historySince).stream()
 						.filter(a -> userIds.contains(a.getUserV2().getId()))
 						.filter(ActivityWatchHistory.class::isInstance)
 						.map(ActivityWatchHistory.class::cast)

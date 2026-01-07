@@ -36,12 +36,12 @@ import java.util.stream.Collectors;
 
 @Slf4j
 @Service
-public class PlexCommunityService{
+public class PlexCommunityApiService{
 	private final GraphQlService graphQlService;
 	private final WebClient apiClient;
 	
 	@Autowired
-	public PlexCommunityService(GraphQlService graphQlService, ApplicationConfiguration applicationConfiguration){
+	public PlexCommunityApiService(GraphQlService graphQlService, ApplicationConfiguration applicationConfiguration){
 		this.graphQlService = graphQlService;
 		
 		apiClient = WebClient.builder()

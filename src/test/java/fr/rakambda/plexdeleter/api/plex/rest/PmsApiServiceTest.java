@@ -14,7 +14,7 @@ import static org.mockito.Mockito.when;
 
 @DisabledIfEnvironmentVariable(named = "CI", matches = "true", disabledReason = "Required service not available on CI")
 class PmsApiServiceTest{
-	private PmsApiService tested;
+	private PlexMediaServerApiService tested;
 	
 	@BeforeEach
 	void setUp(){
@@ -24,7 +24,7 @@ class PmsApiServiceTest{
 		when(plexConf.getPmsEndpoint()).thenReturn(SecretsUtils.getSecret("plex.pms.endpoint"));
 		when(plexConf.getPmsToken()).thenReturn(SecretsUtils.getSecret("plex.pms.token"));
 		
-		tested = new PmsApiService(conf);
+		tested = new PlexMediaServerApiService(conf);
 	}
 	
 	@Test

@@ -23,10 +23,10 @@ import java.util.Set;
 
 @Slf4j
 @Service
-public class RadarrService{
+public class RadarrApiService{
 	private final WebClient apiClient;
 	
-	public RadarrService(ApplicationConfiguration applicationConfiguration){
+	public RadarrApiService(ApplicationConfiguration applicationConfiguration){
 		apiClient = WebClient.builder()
 				.baseUrl(applicationConfiguration.getRadarr().getEndpoint())
 				.defaultHeader("X-Api-Key", applicationConfiguration.getRadarr().getApiKey())

@@ -26,12 +26,12 @@ import java.util.Optional;
 
 @Slf4j
 @Service
-public class TvdbService{
+public class TvdbApiService{
 	private final WebClient apiClient;
 	
 	private String bearerToken;
 	
-	public TvdbService(ApplicationConfiguration applicationConfiguration){
+	public TvdbApiService(ApplicationConfiguration applicationConfiguration){
 		var tvdbConfiguration = applicationConfiguration.getTvdb();
 		
 		apiClient = WebClient.builder()

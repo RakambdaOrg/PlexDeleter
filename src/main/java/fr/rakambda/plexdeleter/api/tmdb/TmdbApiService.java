@@ -16,10 +16,10 @@ import java.util.Locale;
 
 @Slf4j
 @Service
-public class TmdbService{
+public class TmdbApiService{
 	private final WebClient apiClient;
 	
-	public TmdbService(ApplicationConfiguration applicationConfiguration){
+	public TmdbApiService(ApplicationConfiguration applicationConfiguration){
 		var tmdbConfiguration = applicationConfiguration.getTmdb();
 		
 		apiClient = WebClient.builder()

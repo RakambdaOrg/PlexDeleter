@@ -14,10 +14,10 @@ import java.util.Collection;
 
 @Slf4j
 @Service
-public class PmsApiService{
+public class PlexMediaServerApiService{
 	private final WebClient apiClient;
 	
-	public PmsApiService(ApplicationConfiguration applicationConfiguration){
+	public PlexMediaServerApiService(ApplicationConfiguration applicationConfiguration){
 		apiClient = WebClient.builder()
 				.baseUrl(applicationConfiguration.getPlex().getPmsEndpoint())
 				.defaultHeader(HttpHeaders.ACCEPT, MimeTypeUtils.APPLICATION_JSON_VALUE)

@@ -18,14 +18,14 @@ import static org.mockito.Mockito.when;
 
 @DisabledIfEnvironmentVariable(named = "CI", matches = "true", disabledReason = "Required service not available on CI")
 class TvdbServiceTest{
-	private TvdbService tested;
+	private TvdbApiService tested;
 	
 	@BeforeEach
 	void setUp(){
 		var conf = mock(ApplicationConfiguration.class);
 		when(conf.getTvdb()).thenReturn(new TvdbConfiguration(SecretsUtils.getSecret("tvdb.endpoint"), SecretsUtils.getSecret("tvdb.api-key")));
 		
-		tested = new TvdbService(conf);
+		tested = new TvdbApiService(conf);
 	}
 	
 	@ParameterizedTest

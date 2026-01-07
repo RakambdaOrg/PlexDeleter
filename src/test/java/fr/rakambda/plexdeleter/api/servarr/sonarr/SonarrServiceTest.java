@@ -13,14 +13,14 @@ import static org.mockito.Mockito.when;
 
 @DisabledIfEnvironmentVariable(named = "CI", matches = "true", disabledReason = "Required service not available on CI")
 class SonarrServiceTest{
-	private SonarrService tested;
+	private SonarrApiService tested;
 	
 	@BeforeEach
 	void setUp(){
 		var conf = mock(ApplicationConfiguration.class);
 		when(conf.getSonarr()).thenReturn(new SonarrConfiguration(SecretsUtils.getSecret("sonarr.endpoint"), SecretsUtils.getSecret("sonarr.api-key")));
-		
-		tested = new SonarrService(conf);
+
+		tested = new SonarrApiService(conf);
 	}
 	
 	@Test

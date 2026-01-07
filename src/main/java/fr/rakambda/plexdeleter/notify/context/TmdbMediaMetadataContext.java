@@ -2,7 +2,7 @@ package fr.rakambda.plexdeleter.notify.context;
 
 import fr.rakambda.plexdeleter.api.tautulli.TautulliApiService;
 import fr.rakambda.plexdeleter.api.tautulli.data.GetMetadataResponse;
-import fr.rakambda.plexdeleter.api.tmdb.TmdbService;
+import fr.rakambda.plexdeleter.api.tmdb.TmdbApiService;
 import fr.rakambda.plexdeleter.api.tmdb.data.MediaData;
 import fr.rakambda.plexdeleter.api.tmdb.data.MovieData;
 import fr.rakambda.plexdeleter.api.tmdb.data.RootMediaData;
@@ -24,16 +24,16 @@ import java.util.Optional;
 @Slf4j
 public class TmdbMediaMetadataContext extends MediaMetadataContext{
 	@NonNull
-	private final TmdbService tmdbService;
+	private final TmdbApiService tmdbApiService;
 	
 	@NonNull
 	private final Map<Integer, Map<Locale, RootMediaData>> mediaTranslations = new HashMap<>();
 	@NonNull
 	private final Map<Integer, Map<Locale, MediaData>> seasonTranslations = new HashMap<>();
-	
-	public TmdbMediaMetadataContext(@NonNull TautulliApiService tautulliApiService, @NonNull GetMetadataResponse metadata, @NonNull TmdbService tmdbService){
+
+	public TmdbMediaMetadataContext(@NonNull TautulliApiService tautulliApiService, @NonNull GetMetadataResponse metadata, @NonNull TmdbApiService tmdbApiService){
 		super(tautulliApiService, metadata);
-		this.tmdbService = tmdbService;
+		this.tmdbApiService = tmdbApiService;
 	}
 	
 	@NonNull
@@ -103,8 +103,8 @@ public class TmdbMediaMetadataContext extends MediaMetadataContext{
 		
 		try{
 			var response = switch(getMetadata().getMediaType()){
-				case MOVIE -> tmdbService.getMovieData(tmdbId, locale);
-				case SHOW, SEASON, EPISODE -> tmdbService.getSeriesData(tmdbId, locale);
+				case MOVIE -> tmdbApiService.getMovieData(tmdbId, locale);
+				case SHOW, SEASON, EPISODE -> tmdbApiService.getSeriesData(tmdbId, locale);
 				case TRACK, ARTIST, PHOTO -> null;
 			};
 			
@@ -150,7 +150,7 @@ public class TmdbMediaMetadataContext extends MediaMetadataContext{
 		}
 		
 		try{
-			var response = tmdbService.getSeasonData(tmdbId, seasonNumber, locale);
+			var response = tmdbApiService.getSeasonData(tmdbId, seasonNumber, locale);
 			seasonTranslations.computeIfAbsent(tmdbId, k -> new HashMap<>()).put(locale, response);
 			return Optional.of(response);
 		}

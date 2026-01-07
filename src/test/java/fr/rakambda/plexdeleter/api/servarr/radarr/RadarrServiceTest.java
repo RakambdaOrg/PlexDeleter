@@ -13,14 +13,14 @@ import static org.mockito.Mockito.when;
 
 @DisabledIfEnvironmentVariable(named = "CI", matches = "true", disabledReason = "Required service not available on CI")
 class RadarrServiceTest{
-	private RadarrService tested;
+	private RadarrApiService tested;
 	
 	@BeforeEach
 	void setUp(){
 		var conf = mock(ApplicationConfiguration.class);
 		when(conf.getRadarr()).thenReturn(new RadarrConfiguration(SecretsUtils.getSecret("radarr.endpoint"), SecretsUtils.getSecret("radarr.api-key")));
-		
-		tested = new RadarrService(conf);
+
+		tested = new RadarrApiService(conf);
 	}
 	
 	@Test

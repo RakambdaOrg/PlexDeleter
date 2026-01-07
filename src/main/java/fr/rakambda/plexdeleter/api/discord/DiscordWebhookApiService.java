@@ -25,11 +25,11 @@ import java.util.concurrent.Semaphore;
 
 @Slf4j
 @Service
-public class DiscordWebhookService{
+public class DiscordWebhookApiService{
 	private final WebClient apiClient;
 	private final Map<String, Semaphore> locks;
 	
-	public DiscordWebhookService(){
+	public DiscordWebhookApiService(){
 		apiClient = WebClient.builder()
 				.filter(HttpUtils.logErrorFilter(Set.of(HttpStatus.TOO_MANY_REQUESTS)))
 				.filter(HttpUtils.retryOnStatus(Set.of(HttpStatus.TOO_MANY_REQUESTS), Integer.MAX_VALUE))

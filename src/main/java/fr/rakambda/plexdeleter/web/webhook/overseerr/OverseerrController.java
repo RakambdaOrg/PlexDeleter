@@ -1,10 +1,10 @@
 package fr.rakambda.plexdeleter.web.webhook.overseerr;
 
 import fr.rakambda.plexdeleter.api.RequestFailedException;
-import fr.rakambda.plexdeleter.api.overseerr.OverseerrService;
+import fr.rakambda.plexdeleter.api.overseerr.OverseerrApiService;
 import fr.rakambda.plexdeleter.api.servarr.data.Tag;
-import fr.rakambda.plexdeleter.api.servarr.radarr.RadarrService;
-import fr.rakambda.plexdeleter.api.servarr.sonarr.SonarrService;
+import fr.rakambda.plexdeleter.api.servarr.radarr.RadarrApiService;
+import fr.rakambda.plexdeleter.api.servarr.sonarr.SonarrApiService;
 import fr.rakambda.plexdeleter.config.ApplicationConfiguration;
 import fr.rakambda.plexdeleter.notify.NotifyException;
 import fr.rakambda.plexdeleter.service.MediaRequirementService;
@@ -43,19 +43,19 @@ public class OverseerrController{
 	private final MediaRepository mediaRepository;
 	private final MediaRequirementService mediaRequirementService;
 	private final MediaService mediaService;
-	private final OverseerrService overseerrService;
-	private final SonarrService sonarrService;
-	private final RadarrService radarrService;
+	private final OverseerrApiService overseerrApiService;
+	private final SonarrApiService sonarrApiService;
+	private final RadarrApiService radarrApiService;
 	private final UserGroupRepository userGroupRepository;
 	private final String excludeTag;
-	
-	public OverseerrController(MediaRepository mediaRepository, MediaRequirementService mediaRequirementService, MediaService mediaService, OverseerrService overseerrService, SonarrService sonarrService, RadarrService radarrService, UserGroupRepository userGroupRepository, ApplicationConfiguration applicationConfiguration){
+
+	public OverseerrController(MediaRepository mediaRepository, MediaRequirementService mediaRequirementService, MediaService mediaService, OverseerrApiService overseerrApiService, SonarrApiService sonarrApiService, RadarrApiService radarrApiService, UserGroupRepository userGroupRepository, ApplicationConfiguration applicationConfiguration){
 		this.mediaRepository = mediaRepository;
 		this.mediaRequirementService = mediaRequirementService;
 		this.mediaService = mediaService;
-		this.overseerrService = overseerrService;
-		this.sonarrService = sonarrService;
-		this.radarrService = radarrService;
+		this.overseerrApiService = overseerrApiService;
+		this.sonarrApiService = sonarrApiService;
+		this.radarrApiService = radarrApiService;
 		this.userGroupRepository = userGroupRepository;
 		this.excludeTag = applicationConfiguration.getExcludeTag();
 	}
@@ -89,15 +89,15 @@ public class OverseerrController{
 			log.warn("Not adding any media, could not determine request id from {}", data);
 			return;
 		}
-		
-		var requestDetails = overseerrService.getRequestDetails(requestId.get());
+
+		var requestDetails = overseerrApiService.getRequestDetails(requestId.get());
 		var requestDetailsMedia = Objects.requireNonNull(requestDetails.getMedia());
 		var overseerrId = requestDetailsMedia.getTmdbId();
 		var plexUserId = requestDetails.getRequestedBy().getPlexId();
 		
 		var tags = switch(requestDetailsMedia.getMediaType()){
-			case MOVIE -> radarrService.getTags();
-			case TV -> sonarrService.getTags();
+			case MOVIE -> radarrApiService.getTags();
+			case TV -> sonarrApiService.getTags();
 		};
 		var mappedTags = tags.stream().collect(Collectors.toMap(Tag::getId, Tag::getLabel));
 		

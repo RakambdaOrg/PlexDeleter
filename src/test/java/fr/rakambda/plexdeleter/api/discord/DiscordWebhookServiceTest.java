@@ -13,7 +13,7 @@ import static org.assertj.core.api.Assertions.assertThatCode;
 
 @DisabledIfEnvironmentVariable(named = "CI", matches = "true", disabledReason = "Required service not available on CI")
 class DiscordWebhookServiceTest{
-	private DiscordWebhookService tested = new DiscordWebhookService();
+	private DiscordWebhookApiService tested = new DiscordWebhookApiService();
 	
 	@Test
 	void itShouldSendAMessage(){

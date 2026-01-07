@@ -14,7 +14,7 @@ import static org.mockito.Mockito.when;
 
 @DisabledIfEnvironmentVariable(named = "CI", matches = "true", disabledReason = "Required service not available on CI")
 class PlexCommunityServiceTest{
-	private PlexCommunityService tested;
+	private PlexCommunityApiService tested;
 	
 	@BeforeEach
 	void setUp(){
@@ -25,7 +25,7 @@ class PlexCommunityServiceTest{
 		when(plexConf.getCommunityToken()).thenReturn(SecretsUtils.getSecret("plex.community.token"));
 		
 		var graphQlService = new GraphQlService();
-		tested = new PlexCommunityService(graphQlService, conf);
+		tested = new PlexCommunityApiService(graphQlService, conf);
 	}
 	
 	@Test

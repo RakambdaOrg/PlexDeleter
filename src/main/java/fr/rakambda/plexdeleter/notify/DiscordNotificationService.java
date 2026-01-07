@@ -1,7 +1,7 @@
 package fr.rakambda.plexdeleter.notify;
 
 import fr.rakambda.plexdeleter.api.RequestFailedException;
-import fr.rakambda.plexdeleter.api.discord.DiscordWebhookService;
+import fr.rakambda.plexdeleter.api.discord.DiscordWebhookApiService;
 import fr.rakambda.plexdeleter.api.discord.data.Attachment;
 import fr.rakambda.plexdeleter.api.discord.data.Embed;
 import fr.rakambda.plexdeleter.api.discord.data.Field;
@@ -41,15 +41,15 @@ import java.util.stream.Collectors;
 @Service
 public class DiscordNotificationService extends AbstractNotificationService{
 	private static final int FLAG_SUPPRESS_EMBEDS = 1 << 2;
-	
-	private final DiscordWebhookService discordWebhookService;
+
+	private final DiscordWebhookApiService discordWebhookApiService;
 	private final MessageSource messageSource;
 	private final ThymeleafService thymeleafService;
 	
 	@Autowired
-	public DiscordNotificationService(DiscordWebhookService discordWebhookService, MessageSource messageSource, WatchService watchService, ThymeleafService thymeleafService){
+	public DiscordNotificationService(DiscordWebhookApiService discordWebhookApiService, MessageSource messageSource, WatchService watchService, ThymeleafService thymeleafService){
 		super(watchService, messageSource);
-		this.discordWebhookService = discordWebhookService;
+		this.discordWebhookApiService = discordWebhookApiService;
 		this.messageSource = messageSource;
 		this.thymeleafService = thymeleafService;
 	}
@@ -83,14 +83,14 @@ public class DiscordNotificationService extends AbstractNotificationService{
 		
 		var header = messageSource.getMessage("discord.watchlist.subject", new Object[0], locale);
 		var threadId = switch(notification.getType()){
-			case DISCORD_THREAD -> Optional.ofNullable(discordWebhookService.sendWebhookMessage(discordUrl, WebhookMessage.builder()
+			case DISCORD_THREAD -> Optional.ofNullable(discordWebhookApiService.sendWebhookMessage(discordUrl, WebhookMessage.builder()
 									.threadName(header)
 									.content("<@%s>".formatted(discordUserId))
 									.build())
 							.getChannelId())
 					.orElseThrow(() -> new RequestFailedException("Couldn't get new thread channel id"));
 			default -> {
-				discordWebhookService.sendWebhookMessage(discordUrl, WebhookMessage.builder()
+				discordWebhookApiService.sendWebhookMessage(discordUrl, WebhookMessage.builder()
 						.content("<@%s>\n# %s".formatted(discordUserId, header))
 						.build());
 				yield null;
@@ -106,7 +106,7 @@ public class DiscordNotificationService extends AbstractNotificationService{
 		if(!notYetAvailableMedia.isEmpty()){
 			writeWatchlistSection(discordUrl, threadId, "discord.watchlist.body.header.not-yet-available", locale, userGroupEntity, notYetAvailableMedia);
 		}
-		discordWebhookService.sendWebhookMessage(discordUrl, threadId, WebhookMessage.builder()
+		discordWebhookApiService.sendWebhookMessage(discordUrl, threadId, WebhookMessage.builder()
 				.content(getFooterContent(locale))
 				.build());
 	}
@@ -285,8 +285,8 @@ public class DiscordNotificationService extends AbstractNotificationService{
 		else{
 			messageBuilder.content("# %s".formatted(header));
 		}
-		
-		discordWebhookService.sendWebhookMessage(discordUrl, messageBuilder.build());
+
+		discordWebhookApiService.sendWebhookMessage(discordUrl, messageBuilder.build());
 	}
 	
 	private void notifySimple(@NonNull NotificationEntity notification, @NonNull UserGroupEntity userGroupEntity, @NonNull MediaEntity media, @NonNull String subjectKey) throws RequestFailedException, InterruptedException{
@@ -316,8 +316,8 @@ public class DiscordNotificationService extends AbstractNotificationService{
 							getFooterContent(locale)
 					));
 		}
-		
-		discordWebhookService.sendWebhookMessage(discordUrl, messageBuilder.build());
+
+		discordWebhookApiService.sendWebhookMessage(discordUrl, messageBuilder.build());
 	}
 	
 	private String getFooterContent(Locale locale){
@@ -325,13 +325,13 @@ public class DiscordNotificationService extends AbstractNotificationService{
 	}
 	
 	private void writeWatchlistSection(@NonNull String discordUrl, @Nullable Long threadId, @NonNull String sectionHeaderCode, @NonNull Locale locale, @NonNull UserGroupEntity userGroupEntity, @NonNull Collection<MediaEntity> medias) throws RequestFailedException, InterruptedException{
-		discordWebhookService.sendWebhookMessage(discordUrl, threadId, WebhookMessage.builder().content("# %s\n".formatted(messageSource.getMessage(sectionHeaderCode, new Object[0], locale))).build());
+		discordWebhookApiService.sendWebhookMessage(discordUrl, threadId, WebhookMessage.builder().content("# %s\n".formatted(messageSource.getMessage(sectionHeaderCode, new Object[0], locale))).build());
 		var messages = medias.stream()
 				.sorted(MediaEntity.COMPARATOR_BY_TYPE_THEN_NAME_THEN_INDEX)
 				.map(media -> getWatchlistMediaText(userGroupEntity, media, locale))
 				.toList();
 		for(var message : messages){
-			discordWebhookService.sendWebhookMessage(discordUrl, threadId, WebhookMessage.builder()
+			discordWebhookApiService.sendWebhookMessage(discordUrl, threadId, WebhookMessage.builder()
 					.content("* %s".formatted(message))
 					.flags(FLAG_SUPPRESS_EMBEDS)
 					.build());

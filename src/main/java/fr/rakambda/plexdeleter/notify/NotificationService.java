@@ -3,8 +3,8 @@ package fr.rakambda.plexdeleter.notify;
 import fr.rakambda.plexdeleter.api.RequestFailedException;
 import fr.rakambda.plexdeleter.api.tautulli.TautulliApiService;
 import fr.rakambda.plexdeleter.api.tautulli.data.GetMetadataResponse;
-import fr.rakambda.plexdeleter.api.tmdb.TmdbService;
-import fr.rakambda.plexdeleter.api.tvdb.TvdbService;
+import fr.rakambda.plexdeleter.api.tmdb.TmdbApiService;
+import fr.rakambda.plexdeleter.api.tvdb.TvdbApiService;
 import fr.rakambda.plexdeleter.notify.context.CompositeMediaMetadataContext;
 import fr.rakambda.plexdeleter.notify.context.MediaMetadataContext;
 import fr.rakambda.plexdeleter.notify.context.TmdbMediaMetadataContext;
@@ -34,19 +34,19 @@ public class NotificationService{
 	private final MailNotificationService mailNotificationService;
 	private final DiscordNotificationService discordNotificationService;
 	private final UserGroupRepository userGroupRepository;
-	private final TvdbService tvdbService;
+	private final TvdbApiService tvdbApiService;
 	private final TautulliApiService tautulliApiService;
-	private final TmdbService tmdbService;
+	private final TmdbApiService tmdbApiService;
 	private final MediaRepository mediaRepository;
 	
 	@Autowired
-	public NotificationService(MailNotificationService mailNotificationService, DiscordNotificationService discordNotificationService, UserGroupRepository userGroupRepository, TvdbService tvdbService, TautulliApiService tautulliApiService, TmdbService tmdbService, MediaRepository mediaRepository){
+	public NotificationService(MailNotificationService mailNotificationService, DiscordNotificationService discordNotificationService, UserGroupRepository userGroupRepository, TvdbApiService tvdbApiService, TautulliApiService tautulliApiService, TmdbApiService tmdbApiService, MediaRepository mediaRepository){
 		this.mailNotificationService = mailNotificationService;
 		this.discordNotificationService = discordNotificationService;
 		this.userGroupRepository = userGroupRepository;
-		this.tvdbService = tvdbService;
+		this.tvdbApiService = tvdbApiService;
 		this.tautulliApiService = tautulliApiService;
-		this.tmdbService = tmdbService;
+		this.tmdbApiService = tmdbApiService;
 		this.mediaRepository = mediaRepository;
 	}
 	
@@ -198,9 +198,9 @@ public class NotificationService{
 			log.warn("Not notifying media file added, could not determine rating key from {}", metadata);
 			return;
 		}
-		
-		var tmdbMediaMetadataContext = new TmdbMediaMetadataContext(tautulliApiService, metadata, tmdbService);
-		var tvdbMediaMetadataContext = new TvdbMediaMetadataContext(tautulliApiService, metadata, tvdbService);
+
+		var tmdbMediaMetadataContext = new TmdbMediaMetadataContext(tautulliApiService, metadata, tmdbApiService);
+		var tvdbMediaMetadataContext = new TvdbMediaMetadataContext(tautulliApiService, metadata, tvdbApiService);
 		var traktMediaMetadataContext = new TraktMediaMetadataContext(tautulliApiService, metadata);
 		var mediaMetadataContext = new CompositeMediaMetadataContext(tautulliApiService, metadata, List.of(
 				tmdbMediaMetadataContext,

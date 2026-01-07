@@ -2,7 +2,7 @@ package fr.rakambda.plexdeleter.notify.context;
 
 import fr.rakambda.plexdeleter.api.tautulli.TautulliApiService;
 import fr.rakambda.plexdeleter.api.tautulli.data.GetMetadataResponse;
-import fr.rakambda.plexdeleter.api.tvdb.TvdbService;
+import fr.rakambda.plexdeleter.api.tvdb.TvdbApiService;
 import fr.rakambda.plexdeleter.api.tvdb.data.MediaData;
 import fr.rakambda.plexdeleter.api.tvdb.data.Translation;
 import fr.rakambda.plexdeleter.api.tvdb.data.TvdbResponseWrapper;
@@ -21,7 +21,7 @@ import java.util.Optional;
 @Slf4j
 public class TvdbMediaMetadataContext extends MediaMetadataContext{
 	@NonNull
-	private final TvdbService tvdbService;
+	private final TvdbApiService tvdbApiService;
 	
 	@NonNull
 	private final Map<Integer, MediaData> mediaDatas = new HashMap<>();
@@ -31,10 +31,10 @@ public class TvdbMediaMetadataContext extends MediaMetadataContext{
 	private final Map<Integer, Map<Locale, Translation>> seasonTranslations = new HashMap<>();
 	@NonNull
 	private final Map<Integer, Map<Locale, Translation>> episodeTranslations = new HashMap<>();
-	
-	public TvdbMediaMetadataContext(@NonNull TautulliApiService tautulliApiService, @NonNull GetMetadataResponse metadata, @NonNull TvdbService tvdbService){
+
+	public TvdbMediaMetadataContext(@NonNull TautulliApiService tautulliApiService, @NonNull GetMetadataResponse metadata, @NonNull TvdbApiService tvdbApiService){
 		super(tautulliApiService, metadata);
-		this.tvdbService = tvdbService;
+		this.tvdbApiService = tvdbApiService;
 	}
 	
 	@NonNull
@@ -101,8 +101,8 @@ public class TvdbMediaMetadataContext extends MediaMetadataContext{
 		
 		try{
 			var response = switch(getMetadata().getMediaType()){
-				case MOVIE -> tvdbService.getExtendedMovieData(tvdbId);
-				case SEASON, SHOW, EPISODE -> tvdbService.getExtendedSeriesData(tvdbId);
+				case MOVIE -> tvdbApiService.getExtendedMovieData(tvdbId);
+				case SEASON, SHOW, EPISODE -> tvdbApiService.getExtendedSeriesData(tvdbId);
 				case TRACK, ARTIST, PHOTO -> null;
 			};
 			
@@ -131,8 +131,8 @@ public class TvdbMediaMetadataContext extends MediaMetadataContext{
 		
 		try{
 			var response = switch(getMetadata().getMediaType()){
-				case MOVIE -> tvdbService.getMovieTranslations(tvdbId, locale);
-				case SEASON, SHOW, EPISODE -> tvdbService.getSeriesTranslations(tvdbId, locale);
+				case MOVIE -> tvdbApiService.getMovieTranslations(tvdbId, locale);
+				case SEASON, SHOW, EPISODE -> tvdbApiService.getSeriesTranslations(tvdbId, locale);
 				case TRACK, ARTIST, PHOTO -> null;
 			};
 			
@@ -177,7 +177,7 @@ public class TvdbMediaMetadataContext extends MediaMetadataContext{
 		}
 		
 		try{
-			var response = tvdbService.getSeasonTranslations(tvdbId, locale);
+			var response = tvdbApiService.getSeasonTranslations(tvdbId, locale);
 			var translation = Optional.of(response).map(TvdbResponseWrapper::getData);
 			translation.ifPresent(t -> seasonTranslations.computeIfAbsent(tvdbId, k -> new HashMap<>()).put(locale, t));
 			return translation;
@@ -205,7 +205,7 @@ public class TvdbMediaMetadataContext extends MediaMetadataContext{
 		}
 		
 		try{
-			var response = tvdbService.getEpisodeTranslations(tvdbId, locale);
+			var response = tvdbApiService.getEpisodeTranslations(tvdbId, locale);
 			var translation = Optional.of(response).map(TvdbResponseWrapper::getData);
 			translation.ifPresent(t -> episodeTranslations.computeIfAbsent(tvdbId, k -> new HashMap<>()).put(locale, t));
 			return translation;

@@ -17,14 +17,14 @@ import static org.mockito.Mockito.when;
 
 @DisabledIfEnvironmentVariable(named = "CI", matches = "true", disabledReason = "Required service not available on CI")
 class OverseerrServiceTest{
-	private OverseerrService tested;
+	private OverseerrApiService tested;
 	
 	@BeforeEach
 	void setUp(){
 		var conf = mock(ApplicationConfiguration.class);
 		when(conf.getOverseerr()).thenReturn(new OverseerrConfiguration(SecretsUtils.getSecret("overseerr.endpoint"), SecretsUtils.getSecret("overseerr.api-key")));
 		
-		tested = new OverseerrService(conf);
+		tested = new OverseerrApiService(conf);
 	}
 	
 	@Test
