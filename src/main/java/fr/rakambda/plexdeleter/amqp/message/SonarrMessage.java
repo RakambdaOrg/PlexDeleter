@@ -35,7 +35,7 @@ public final class SonarrMessage implements IAmqpMessage{
 	@Nullable
 	@JsonProperty("episodes_episodes")
 	@JsonDeserialize(using = CommaDelimitedStringToListDeserializer.class)
-	private List<Integer> episodeEpisodes;
+	private List<String> episodeEpisodes;
 	@Nullable
 	@JsonProperty("utc_time")
 	private Instant utcTime;

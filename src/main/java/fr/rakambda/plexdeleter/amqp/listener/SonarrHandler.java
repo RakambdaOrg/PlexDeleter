@@ -48,6 +48,7 @@ public class SonarrHandler extends RetryMessageHandler<SonarrMessage>{
 				message.getType(),
 				new Series(message.getSeriesId(), message.getSeriesTitle(), message.getSeriesTvdbId()),
 				Optional.ofNullable(message.getEpisodeEpisodes()).orElseGet(List::of).stream()
+						.map(Integer::parseInt)
 						.map(i -> new Episode(message.getEpisodeSeason(), i))
 						.toList()
 		);
