@@ -49,14 +49,18 @@ spring:
     resources:
       static-locations: "classpath:/static/"
   session:
-    timeout: 48h
+    store-type: jdbc
+    timeout: 12h
+    cookie:
+      max-age: 12h
+      http-only: true
+      same-site: lax
+    jdbc:
+      initialize-schema: never
 
 server:
   port: 8080
   forward-headers-strategy: native
-  servlet:
-    session:
-      timeout: 48h
 
 management:
   endpoint:
