@@ -41,7 +41,7 @@ public class TautulliService{
 		this.mediaRequirementService = mediaRequirementService;
 	}
 	
-	public void updateRequirement(@NonNull TautulliWebhook data) throws RequestFailedException, IOException{
+	public void updateRequirement(@NonNull TautulliWebhook data) throws RequestFailedException, IOException, NotifyException{
 		if(Objects.isNull(data.getUserId())){
 			log.warn("Not updating any requirement, could not determine user id from {}", data);
 			return;

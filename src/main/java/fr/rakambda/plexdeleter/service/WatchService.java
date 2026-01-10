@@ -6,6 +6,8 @@ import fr.rakambda.plexdeleter.api.plex.gql.data.response.ActivityWatchHistory;
 import fr.rakambda.plexdeleter.api.tautulli.TautulliApiService;
 import fr.rakambda.plexdeleter.api.tautulli.data.GetMetadataResponse;
 import fr.rakambda.plexdeleter.messaging.SupervisionService;
+import fr.rakambda.plexdeleter.notify.NotificationService;
+import fr.rakambda.plexdeleter.notify.NotifyException;
 import fr.rakambda.plexdeleter.service.data.WatchState;
 import fr.rakambda.plexdeleter.storage.entity.MediaEntity;
 import fr.rakambda.plexdeleter.storage.entity.MediaRequirementEntity;
@@ -37,13 +39,15 @@ public class WatchService{
 	private final PlexCommunityApiService plexCommunityApiService;
 	private final SupervisionService supervisionService;
 	private final MediaRequirementRepository mediaRequirementRepository;
+	private final NotificationService notificationService;
 	
 	@Autowired
-	public WatchService(TautulliApiService tautulliApiService, PlexCommunityApiService plexCommunityApiService, SupervisionService supervisionService, MediaRequirementRepository mediaRequirementRepository){
+	public WatchService(TautulliApiService tautulliApiService, PlexCommunityApiService plexCommunityApiService, SupervisionService supervisionService, MediaRequirementRepository mediaRequirementRepository, NotificationService notificationService){
 		this.tautulliApiService = tautulliApiService;
 		this.plexCommunityApiService = plexCommunityApiService;
 		this.supervisionService = supervisionService;
 		this.mediaRequirementRepository = mediaRequirementRepository;
+		this.notificationService = notificationService;
 	}
 	
 	@NonNull
@@ -104,7 +108,7 @@ public class WatchService{
 		return history;
 	}
 	
-	public void update(@NonNull MediaRequirementEntity mediaRequirementEntity) throws RequestFailedException, IOException{
+	public void update(@NonNull MediaRequirementEntity mediaRequirementEntity) throws RequestFailedException, IOException, NotifyException{
 		log.info("Updating media requirement {}", mediaRequirementEntity);
 		
 		var media = mediaRequirementEntity.getMedia();
@@ -129,6 +133,7 @@ public class WatchService{
 			mediaRequirementEntity.setStatus(MediaRequirementStatus.WATCHED);
 			mediaRequirementEntity.setLastCompletedTime(Instant.now());
 			supervisionService.send("\uD83D\uDC41\uFE0F %s watched %s", group.getName(), media);
+			notificationService.notifyMediaWatched(group, media);
 		}
 		
 		mediaRequirementRepository.save(mediaRequirementEntity);

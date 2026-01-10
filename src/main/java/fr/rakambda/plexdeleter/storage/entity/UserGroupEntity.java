@@ -74,6 +74,10 @@ public class UserGroupEntity{
 	@Basic
 	@Column(nullable = false)
 	@NonNull
+	private Boolean notifyMediaWatched;
+	@Basic
+	@Column(nullable = false)
+	@NonNull
 	private Boolean notifyRequirementManuallyWatched;
 	@Basic
 	@Column(nullable = false)

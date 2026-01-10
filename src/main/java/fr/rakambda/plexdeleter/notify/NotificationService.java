@@ -121,6 +121,26 @@ public class NotificationService{
 		}
 	}
 	
+	public void notifyMediaWatched(@NonNull UserGroupEntity userGroupEntity, @NonNull MediaEntity media) throws NotifyException{
+		try{
+			log.info("Notifying {} has been watched to {}", media, userGroupEntity);
+			if(!userGroupEntity.getNotifyMediaWatched()){
+				return;
+			}
+			var notification = userGroupEntity.getNotification();
+			if(Objects.isNull(notification)){
+				return;
+			}
+			switch(notification.getType()){
+				case MAIL -> mailNotificationService.notifyMediaWatched(notification, userGroupEntity, media);
+				case DISCORD, DISCORD_THREAD -> discordNotificationService.notifyMediaWatched(notification, userGroupEntity, media);
+			}
+		}
+		catch(MessagingException | UnsupportedEncodingException | InterruptedException | RequestFailedException e){
+			throw new NotifyException("Failed to notify media watched for group %s".formatted(userGroupEntity), e);
+		}
+	}
+	
 	public void notifyMediaDeleted(@NonNull UserGroupEntity userGroupEntity, @NonNull MediaEntity media) throws NotifyException{
 		try{
 			log.info("Notifying {} has been deleted to {}", media, userGroupEntity);

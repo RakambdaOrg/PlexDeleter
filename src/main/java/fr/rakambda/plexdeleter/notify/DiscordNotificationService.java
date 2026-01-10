@@ -41,7 +41,7 @@ import java.util.stream.Collectors;
 @Service
 public class DiscordNotificationService extends AbstractNotificationService{
 	private static final int FLAG_SUPPRESS_EMBEDS = 1 << 2;
-
+	
 	private final DiscordWebhookApiService discordWebhookApiService;
 	private final MessageSource messageSource;
 	private final ThymeleafService thymeleafService;
@@ -121,6 +121,10 @@ public class DiscordNotificationService extends AbstractNotificationService{
 	
 	public void notifyMediaDeleted(@NonNull NotificationEntity notification, @NonNull UserGroupEntity userGroupEntity, @NonNull MediaEntity media) throws RequestFailedException, InterruptedException{
 		notifySimple(notification, userGroupEntity, media, "discord.media.deleted.subject");
+	}
+	
+	public void notifyMediaWatched(@NonNull NotificationEntity notification, @NonNull UserGroupEntity userGroupEntity, @NonNull MediaEntity media) throws RequestFailedException, InterruptedException{
+		notifySimple(notification, userGroupEntity, media, "discord.media.watched.subject");
 	}
 	
 	public void notifyRequirementManuallyWatched(@NonNull NotificationEntity notification, @NonNull UserGroupEntity userGroupEntity, @NonNull MediaEntity media) throws MessagingException, UnsupportedEncodingException, RequestFailedException, InterruptedException{
@@ -285,7 +289,7 @@ public class DiscordNotificationService extends AbstractNotificationService{
 		else{
 			messageBuilder.content("# %s".formatted(header));
 		}
-
+		
 		discordWebhookApiService.sendWebhookMessage(discordUrl, messageBuilder.build());
 	}
 	
@@ -316,7 +320,7 @@ public class DiscordNotificationService extends AbstractNotificationService{
 							getFooterContent(locale)
 					));
 		}
-
+		
 		discordWebhookApiService.sendWebhookMessage(discordUrl, messageBuilder.build());
 	}
 	

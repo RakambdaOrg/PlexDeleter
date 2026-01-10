@@ -114,6 +114,10 @@ public class MailNotificationService extends AbstractNotificationService{
 		notifySimple(notification, userGroupEntity, media, "mail.media.deleted.subject");
 	}
 	
+	public void notifyMediaWatched(@NonNull NotificationEntity notification, @NonNull UserGroupEntity userGroupEntity, @NonNull MediaEntity media) throws MessagingException, UnsupportedEncodingException{
+		notifySimple(notification, userGroupEntity, media, "mail.media.watched.subject");
+	}
+	
 	public void notifyRequirementManuallyWatched(@NonNull NotificationEntity notification, @NonNull UserGroupEntity userGroupEntity, @NonNull MediaEntity media) throws MessagingException, UnsupportedEncodingException{
 		notifySimple(notification, userGroupEntity, media, "mail.requirement.manually-watched.subject");
 	}
