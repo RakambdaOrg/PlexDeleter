@@ -1,6 +1,7 @@
 package fr.rakambda.plexdeleter.aot;
 
 import fr.rakambda.plexdeleter.notify.AbstractNotificationService;
+import fr.rakambda.plexdeleter.notify.LanguageInfo;
 import fr.rakambda.plexdeleter.notify.context.MetadataProviderInfo;
 import fr.rakambda.plexdeleter.service.ThymeleafService;
 import fr.rakambda.plexdeleter.service.data.LibraryElement;
@@ -45,6 +46,7 @@ public class ThymeleafHints implements RuntimeHintsRegistrar{
 			
 			registerType(hints.reflection(), MetadataProviderInfo.class);
 			registerType(hints.reflection(), LibraryElement.class);
+			registerType(hints.reflection(), LanguageInfo.class);
 			
 			hints.reflection().registerMethod(Lists.class.getMethod("isEmpty", List.class), ExecutableMode.INVOKE);
 			hints.reflection().registerMethod(Strings.class.getMethod("isEmpty", Object.class), ExecutableMode.INVOKE);
