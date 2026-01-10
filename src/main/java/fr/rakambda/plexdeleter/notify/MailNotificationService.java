@@ -30,10 +30,14 @@ import org.thymeleaf.context.Context;
 import org.thymeleaf.spring6.SpringTemplateEngine;
 import java.io.UnsupportedEncodingException;
 import java.time.Duration;
+import java.util.Arrays;
 import java.util.Collection;
+import java.util.List;
 import java.util.Locale;
 import java.util.Objects;
 import java.util.Optional;
+import java.util.function.Function;
+import static fr.rakambda.plexdeleter.storage.entity.MediaEntity.COMPARATOR_BY_TYPE_THEN_NAME_THEN_INDEX;
 
 @Slf4j
 @Service
@@ -59,7 +63,7 @@ public class MailNotificationService extends AbstractNotificationService{
 		htmlCompressor = new HtmlCompressor();
 		htmlCompressor.setRemoveIntertagSpaces(true);
 		htmlCompressor.setRemoveQuotes(false);
-		htmlCompressor.setCompressCss(true);
+		htmlCompressor.setCompressCss(false);
 	}
 	
 	public void notifyWatchlist(@NonNull NotificationEntity notification, @NonNull UserGroupEntity userGroupEntity, @NonNull Collection<MediaRequirementEntity> requirements) throws MessagingException, UnsupportedEncodingException{
@@ -67,32 +71,20 @@ public class MailNotificationService extends AbstractNotificationService{
 		var context = new Context();
 		context.setLocale(userGroupEntity.getLocaleAsObject());
 		
-		var overseerrLogoData = getOverseerrLogoBytes();
-		var plexLogoData = getPlexLogoBytes();
-		var tmdbLogoData = getTmdbLogoBytes();
-		var tvdbLogoData = getTvdbLogoBytes();
-		var traktLogoData = getTraktLogoBytes();
-		
-		var overseerrLogoResourceName = "overseerrLogoResourceName";
-		var plexLogoResourceName = "plexLogoResourceName";
-		var tmdbLogoResourceName = "tmdbLogoResourceName";
-		var tvdbLogoResourceName = "tvdbLogoResourceName";
-		var traktLogoResourceName = "traktLogoResourceName";
-		
 		var availableMedia = requirements.stream()
 				.map(MediaRequirementEntity::getMedia)
 				.filter(m -> m.getStatus().isFullyDownloaded())
-				.sorted(MediaEntity.COMPARATOR_BY_TYPE_THEN_NAME_THEN_INDEX)
+				.sorted(COMPARATOR_BY_TYPE_THEN_NAME_THEN_INDEX)
 				.toList();
 		var downloadingMedia = requirements.stream()
 				.map(MediaRequirementEntity::getMedia)
 				.filter(m -> m.getStatus().isDownloadStarted() && !m.getStatus().isFullyDownloaded())
-				.sorted(MediaEntity.COMPARATOR_BY_TYPE_THEN_NAME_THEN_INDEX)
+				.sorted(COMPARATOR_BY_TYPE_THEN_NAME_THEN_INDEX)
 				.toList();
 		var notYetAvailableMedia = requirements.stream()
 				.map(MediaRequirementEntity::getMedia)
 				.filter(m -> !m.getStatus().isDownloadStarted())
-				.sorted(MediaEntity.COMPARATOR_BY_TYPE_THEN_NAME_THEN_INDEX)
+				.sorted(COMPARATOR_BY_TYPE_THEN_NAME_THEN_INDEX)
 				.toList();
 		
 		if(availableMedia.isEmpty() && downloadingMedia.isEmpty()){
@@ -106,31 +98,8 @@ public class MailNotificationService extends AbstractNotificationService{
 		context.setVariable("availableMedias", availableMedia);
 		context.setVariable("downloadingMedias", downloadingMedia);
 		context.setVariable("notYetAvailableMedias", notYetAvailableMedia);
-		context.setVariable("overseerrLogoResourceName", overseerrLogoData.isPresent() ? overseerrLogoResourceName : null);
-		context.setVariable("plexLogoResourceName", plexLogoData.isPresent() ? plexLogoResourceName : null);
-		context.setVariable("tmdbLogoResourceName", tmdbLogoData.isPresent() ? tmdbLogoResourceName : null);
-		context.setVariable("tvdbLogoResourceName", tvdbLogoData.isPresent() ? tvdbLogoResourceName : null);
-		context.setVariable("traktLogoResourceName", traktLogoData.isPresent() ? traktLogoResourceName : null);
 		
-		sendMail(notification, message -> {
-			message.setSubject(messageSource.getMessage("mail.watchlist.subject", new Object[0], locale));
-			message.setText(renderMail(templateEngine.process("mail/watchlist.html", context), locale), true);
-			if(overseerrLogoData.isPresent()){
-				message.addInline(overseerrLogoResourceName, new ByteArrayResource(overseerrLogoData.get(), "Overseerr logo"), "image/png");
-			}
-			if(plexLogoData.isPresent()){
-				message.addInline(plexLogoResourceName, new ByteArrayResource(plexLogoData.get(), "Plex logo"), "image/png");
-			}
-			if(tmdbLogoData.isPresent()){
-				message.addInline(tmdbLogoResourceName, new ByteArrayResource(tmdbLogoData.get(), "Tmdb logo"), "image/png");
-			}
-			if(tvdbLogoData.isPresent()){
-				message.addInline(tvdbLogoResourceName, new ByteArrayResource(tvdbLogoData.get(), "Tvdb logo"), "image/png");
-			}
-			if(traktLogoData.isPresent()){
-				message.addInline(traktLogoResourceName, new ByteArrayResource(traktLogoData.get(), "Trakt logo"), "image/png");
-			}
-		});
+		sendMail(notification, context, "mail.watchlist.subject", locale, "mail/watchlist.html", message -> {}, availableMedia, downloadingMedia, notYetAvailableMedia);
 	}
 	
 	public void notifyRequirementAdded(@NonNull NotificationEntity notification, @NonNull UserGroupEntity userGroupEntity, @NonNull MediaEntity media) throws MessagingException, UnsupportedEncodingException{
@@ -169,6 +138,7 @@ public class MailNotificationService extends AbstractNotificationService{
 				.filter(Objects::nonNull)
 				.distinct()
 				.map(s -> Objects.equals(s, "") ? "unknown" : s)
+				.sorted()
 				.map(s -> new LanguageInfo("locale.%s".formatted(s), languageFlagService.getFlagUrl(s)))
 				.toList();
 		var subtitleLanguages = getMediaStreams(metadata, SubtitlesMediaPartStream.class)
@@ -176,6 +146,7 @@ public class MailNotificationService extends AbstractNotificationService{
 				.filter(Objects::nonNull)
 				.distinct()
 				.map(s -> Objects.equals(s, "") ? "unknown" : s)
+				.sorted()
 				.map(s -> new LanguageInfo("locale.%s".formatted(s), languageFlagService.getFlagUrl(s)))
 				.toList();
 		var resolutions = metadata.getMediaInfo().stream()
@@ -205,7 +176,7 @@ public class MailNotificationService extends AbstractNotificationService{
 		context.setVariable("mediaSeason", mediaSeason);
 		context.setVariable("mediaSummary", mediaMetadataContext.getSummary(locale).orElseGet(metadata::getSummary));
 		context.setVariable("mediaReleaseDate", releaseDate);
-		context.setVariable("mediaActors", metadata.getActors());
+		context.setVariable("mediaActors", metadata.getActors().stream().limit(20).toList());
 		context.setVariable("mediaGenres", mediaMetadataContext.getGenres(messageSource, locale).orElseGet(metadata::getGenres));
 		context.setVariable("mediaDuration", getMediaDuration(Duration.ofMillis(metadata.getDuration())));
 		context.setVariable("mediaPosterResourceName", posterData.isPresent() ? mediaPosterResourceName : null);
@@ -216,13 +187,11 @@ public class MailNotificationService extends AbstractNotificationService{
 		context.setVariable("suggestAddRequirementId", suggestAddRequirementId);
 		context.setVariable("metadataProvidersInfo", mediaMetadataContext.getMetadataProviderInfo());
 		
-		sendMail(notification, message -> {
-			message.setSubject(messageSource.getMessage("mail.media.added.subject", new Object[0], locale));
-			message.setText(renderMail(templateEngine.process("mail/media-added.html", context), locale), true);
+		sendMail(notification, context, "mail.media.added.subject", locale, "mail/media-added.html", message -> {
 			if(posterData.isPresent()){
-				message.addInline(mediaPosterResourceName, new ByteArrayResource(posterData.get(), "Media poster"), "image/jpeg");
+				message.addInline(mediaPosterResourceName, new ByteArrayResource(posterData.get()), "image/jpeg");
 			}
-		});
+		}, Optional.ofNullable(media).stream().toList());
 	}
 	
 	private void notifySimple(@NonNull NotificationEntity notification, @NonNull UserGroupEntity userGroupEntity, @NonNull MediaEntity media, @NonNull String subjectKey) throws MessagingException, UnsupportedEncodingException{
@@ -230,50 +199,24 @@ public class MailNotificationService extends AbstractNotificationService{
 		var context = new Context();
 		context.setLocale(userGroupEntity.getLocaleAsObject());
 		
-		var overseerrLogoData = getOverseerrLogoBytes();
-		var plexLogoData = getPlexLogoBytes();
-		var tmdbLogoData = getTmdbLogoBytes();
-		var tvdbLogoData = getTvdbLogoBytes();
-		var traktLogoData = getTraktLogoBytes();
-		
-		var overseerrLogoResourceName = "overseerrLogoResourceName";
-		var plexLogoResourceName = "plexLogoResourceName";
-		var tmdbLogoResourceName = "tmdbLogoResourceName";
-		var tvdbLogoResourceName = "tvdbLogoResourceName";
-		var traktLogoResourceName = "traktLogoResourceName";
-		
 		context.setVariable("service", this);
-		context.setVariable("media", media);
+		context.setVariable("medias", List.of(media));
 		context.setVariable("thymeleafService", thymeleafService);
 		context.setVariable("userGroup", userGroupEntity);
-		context.setVariable("overseerrLogoResourceName", overseerrLogoData.isPresent() ? overseerrLogoResourceName : null);
-		context.setVariable("plexLogoResourceName", plexLogoData.isPresent() ? plexLogoResourceName : null);
-		context.setVariable("tmdbLogoResourceName", tmdbLogoData.isPresent() ? tmdbLogoResourceName : null);
-		context.setVariable("tvdbLogoResourceName", tvdbLogoData.isPresent() ? tvdbLogoResourceName : null);
-		context.setVariable("traktLogoResourceName", traktLogoData.isPresent() ? traktLogoResourceName : null);
 		
-		sendMail(notification, message -> {
-			message.setSubject(messageSource.getMessage(subjectKey, new Object[0], locale));
-			message.setText(renderMail(templateEngine.process("mail/single-media.html", context), locale), true);
-			if(overseerrLogoData.isPresent()){
-				message.addInline(overseerrLogoResourceName, new ByteArrayResource(overseerrLogoData.get(), "Overseerr logo"), "image/png");
-			}
-			if(plexLogoData.isPresent()){
-				message.addInline(plexLogoResourceName, new ByteArrayResource(plexLogoData.get(), "Plex logo"), "image/png");
-			}
-			if(tmdbLogoData.isPresent()){
-				message.addInline(tmdbLogoResourceName, new ByteArrayResource(tmdbLogoData.get(), "Tmdb logo"), "image/png");
-			}
-			if(tvdbLogoData.isPresent()){
-				message.addInline(tvdbLogoResourceName, new ByteArrayResource(tvdbLogoData.get(), "Tvdb logo"), "image/png");
-			}
-			if(traktLogoData.isPresent()){
-				message.addInline(traktLogoResourceName, new ByteArrayResource(traktLogoData.get(), "Trakt logo"), "image/png");
-			}
-		});
+		sendMail(notification, context, subjectKey, locale, "mail/single-media.html", message -> {}, List.of(media));
 	}
 	
-	private void sendMail(@NonNull NotificationEntity notification, @NonNull MessageFiller messageFiller) throws MessagingException, UnsupportedEncodingException{
+	@SafeVarargs
+	private void sendMail(
+			@NonNull NotificationEntity notification,
+			@NonNull Context context,
+			@NonNull String subjectKey,
+			@NonNull Locale locale,
+			@NonNull String template,
+			@NonNull MessageFiller messageFiller,
+			@NonNull List<MediaEntity>... medias
+	) throws MessagingException, UnsupportedEncodingException{
 		var mimeMessage = emailSender.createMimeMessage();
 		var mailHelper = new MimeMessageHelper(mimeMessage, true, "utf-8");
 		
@@ -281,6 +224,49 @@ public class MailNotificationService extends AbstractNotificationService{
 		mailHelper.setTo(notification.getValue().split(","));
 		if(Objects.nonNull(mailConfiguration.getBccAddresses()) && !mailConfiguration.getBccAddresses().isEmpty()){
 			mailHelper.setBcc(mailConfiguration.getBccAddresses().toArray(new String[0]));
+		}
+		
+		var overseerrLogoResourceName = "overseerrLogoResourceName";
+		var plexLogoResourceName = "plexLogoResourceName";
+		var tmdbLogoResourceName = "tmdbLogoResourceName";
+		var tvdbLogoResourceName = "tvdbLogoResourceName";
+		var traktLogoResourceName = "traktLogoResourceName";
+		
+		var hasOverseerrLink = hasAnyMediaValueNotNull(MediaEntity::getOverseerrId, medias);
+		var hasPlexLink = hasAnyMediaValueNotNull(MediaEntity::getPlexId, medias);
+		var hasTmdbLink = hasAnyMediaValueNotNull(MediaEntity::getTmdbId, medias);
+		var hasTvdbLink = hasAnyMediaValueNotNull(MediaEntity::getTvdbId, medias);
+		var hasTraktLink = hasAnyMediaValueNotNull(MediaEntity::getTmdbId, medias);
+		
+		var overseerrLogoData = hasOverseerrLink ? getOverseerrLogoBytes() : Optional.<byte[]> empty();
+		var plexLogoData = hasPlexLink ? getPlexLogoBytes() : Optional.<byte[]> empty();
+		var tmdbLogoData = hasTmdbLink ? getTmdbLogoBytes() : Optional.<byte[]> empty();
+		var tvdbLogoData = hasTvdbLink ? getTvdbLogoBytes() : Optional.<byte[]> empty();
+		var traktLogoData = hasTraktLink ? getTraktLogoBytes() : Optional.<byte[]> empty();
+		
+		context.setVariable("overseerrLogoResourceName", overseerrLogoData.isPresent() ? overseerrLogoResourceName : null);
+		context.setVariable("plexLogoResourceName", plexLogoData.isPresent() ? plexLogoResourceName : null);
+		context.setVariable("tmdbLogoResourceName", tmdbLogoData.isPresent() ? tmdbLogoResourceName : null);
+		context.setVariable("tvdbLogoResourceName", tvdbLogoData.isPresent() ? tvdbLogoResourceName : null);
+		context.setVariable("traktLogoResourceName", traktLogoData.isPresent() ? traktLogoResourceName : null);
+		
+		mailHelper.setSubject(messageSource.getMessage(subjectKey, new Object[0], locale));
+		mailHelper.setText(renderMail(templateEngine.process(template, context), locale), true);
+		
+		if(overseerrLogoData.isPresent()){
+			mailHelper.addInline(overseerrLogoResourceName, new ByteArrayResource(overseerrLogoData.get()), "image/png");
+		}
+		if(plexLogoData.isPresent()){
+			mailHelper.addInline(plexLogoResourceName, new ByteArrayResource(plexLogoData.get()), "image/png");
+		}
+		if(tmdbLogoData.isPresent()){
+			mailHelper.addInline(tmdbLogoResourceName, new ByteArrayResource(tmdbLogoData.get()), "image/png");
+		}
+		if(tvdbLogoData.isPresent()){
+			mailHelper.addInline(tvdbLogoResourceName, new ByteArrayResource(tvdbLogoData.get()), "image/png");
+		}
+		if(traktLogoData.isPresent()){
+			mailHelper.addInline(traktLogoResourceName, new ByteArrayResource(traktLogoData.get()), "image/png");
 		}
 		
 		messageFiller.accept(mailHelper);
@@ -333,6 +319,14 @@ public class MailNotificationService extends AbstractNotificationService{
 			log.error("Failed to get resource {}", path, e);
 			return Optional.empty();
 		}
+	}
+	
+	@SafeVarargs
+	private boolean hasAnyMediaValueNotNull(Function<MediaEntity, Object> propertyExtractor, List<MediaEntity>... medias){
+		return Arrays.stream(medias)
+				.flatMap(Collection::stream)
+				.map(propertyExtractor)
+				.anyMatch(Objects::nonNull);
 	}
 	
 	private interface MessageFiller{

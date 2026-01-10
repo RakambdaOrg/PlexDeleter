@@ -1,0 +1,220 @@
+<!--suppress CheckEmptyScriptTag -->
+<mj-head th:fragment="header">
+    <mj-raw>
+        <meta name="color-scheme" content="light dark">
+        <meta name="supported-color-schemes" content="light dark">
+    </mj-raw>
+    <mj-attributes>
+        <mj-all font-family="Helvetica, Arial, sans-serif"/>
+        <mj-body background-color="#F4F4F4"/>
+        <mj-text font-size="14px" line-height="20px" color="#333333"/>
+        <mj-section padding="10px 20px" background-color="#F4F4F4"/>
+        <mj-divider border-color="#333333" border-width="1px"/>
+        <mj-column width="100%" padding-bottom="10px"/>
+        <mj-button border-radius="4px"/>
+    </mj-attributes>
+    <mj-style>
+        :root {
+        color-scheme: light dark;
+        supported-color-schemes: light dark;
+        }
+
+        .status-header {
+        text-transform: uppercase;
+        letter-spacing: 2px;
+        font-weight: bold;
+        font-size: 16px;
+        }
+
+        .media-item {
+        border-left: 3px solid #E50914;
+        margin-bottom: 10px;
+        }
+
+        .inline-logo {
+        display: inline-block;
+        vertical-align: middle;
+        padding: 0 4px;
+        }
+
+        .provider-logo {
+        display: inline-block;
+        vertical-align: middle;
+        width: 16px;
+        height: 16px;
+        }
+
+        .section-text {
+        color: #E50914;
+        }
+
+        .mj-section-secondary {
+        background-color: #E8E8E8;
+        border-radius: 8px;
+        margin-bottom: 10px;
+        }
+
+        /* DARK MODE STYLES */
+        @media (prefers-color-scheme: dark) {
+        .mj-body {
+        background-color: #000000 !important;
+        }
+
+        .mj-section {
+        background-color: #141414 !important;
+        }
+
+        .mj-text, .text-main div, .text-main span, .text-main b {
+        color: #FFFFFF !important;
+        }
+
+        .mj-divider, .mj-divider p {
+        border-color: #FFFFFF !important;
+        }
+
+        .mj-section-secondary {
+        background-color: #2D2D2D !important;
+        }
+        }
+    </mj-style>
+</mj-head>
+
+<mj-body th:fragment="media-list" th:with="hasHeader=${hasHeader ?: false}">
+    <mj-section th:unless="${#lists.isEmpty(medias)}" css-class="mj-section">
+        <mj-column th:if="${hasHeader}">
+            <mj-text th:text="#{${headerKey}}" th:color="${headerColor}" css-class="mj-text status-header"/>
+            <mj-divider css-class="mj-divider"/>
+        </mj-column>
+
+        <mj-column th:each="media : ${medias}">
+            <mj-text css-class="mj-text media-item">
+                <b th:text="#{${service.getTypeKey(media)}(${media.getName()}, ${media.getIndex()})}"/>
+
+                <th:block th:with="episodes = ${service.getEpisodes(media, userGroup)}" th:unless="${#lists.isEmpty(episodes)}">
+                    <span style="font-size: 13px;">
+                        <span style="padding: 0 5px;">|</span>
+                        <span th:with="episodesStr = ${#strings.listJoin(episodes, ', ')}" th:text="#{mail.watchlist.body.media.series.episodes(${episodesStr})}"></span>
+                    </span>
+                </th:block>
+
+                <span style="padding: 0 5px;">|</span>
+                <a th:if="${media.getOverseerrId()}" th:href="${thymeleafService.getMediaOverseerrUrl(media)}" class="inline-logo">
+                    <img th:src="|cid:${overseerrLogoResourceName}|" alt="Logo" class="provider-logo"/>
+                </a>
+                <a th:if="${media.getPlexId()}" th:href="${thymeleafService.getMediaPlexUrl(media)}" class="inline-logo">
+                    <img th:src="|cid:${plexLogoResourceName}|" alt="Logo" class="provider-logo"/>
+                </a>
+                <a th:if="${media.getTmdbId()}" th:href="${thymeleafService.getMediaTmdbUrl(media)}" class="inline-logo">
+                    <img th:src="|cid:${tmdbLogoResourceName}|" alt="Logo" class="provider-logo"/>
+                </a>
+                <a th:if="${media.getTvdbId()}" th:href="${thymeleafService.getMediaTvdbUrl(media)}" class="inline-logo">
+                    <img th:src="|cid:${tvdbLogoResourceName}|" alt="Logo" class="provider-logo"/>
+                </a>
+                <a th:if="${media.getTmdbId()}" th:href="${thymeleafService.getMediaTraktUrl(media)}" class="inline-logo">
+                    <img th:src="|cid:${traktLogoResourceName}|" alt="Logo" class="provider-logo"/>
+                </a>
+            </mj-text>
+        </mj-column>
+    </mj-section>
+</mj-body>
+
+<mj-body th:fragment="media-detailed">
+    <mj-section th:if="${suggestAddRequirementId}" css-class="mj-section">
+        <mj-column>
+            <mj-button th:text="#{mail.media.available.body.actions.requirement.add}" th:href="${thymeleafService.getAddWatchMediaUrl(suggestAddRequirementId)}" background-color="#28A745" color="#FFFFFF" font-weight="bold"/>
+        </mj-column>
+    </mj-section>
+
+    <mj-section css-class="mj-section">
+        <mj-column>
+            <mj-text align="center" css-class="mj-text">
+                <h1 th:text="${mediaTitle}" class="section-text" style="font-size: 28px; line-height: 40px;"/>
+                <h2 th:if="${mediaSeason}" th:text="${mediaSeason}" style="font-size: 18px; font-weight: 300;"/>
+            </mj-text>
+        </mj-column>
+    </mj-section>
+
+    <mj-section th:if="${mediaPosterResourceName}" css-class="mj-section">
+        <mj-column>
+            <mj-image th:src="|cid:${mediaPosterResourceName}|" alt="Media Poster" border-radius="8px" padding="0px"/>
+        </mj-column>
+    </mj-section>
+
+    <mj-section css-class="mj-section">
+        <mj-column>
+            <mj-text th:text="${mediaSummary}" align="center" font-size="16px" css-class="mj-text"/>
+        </mj-column>
+    </mj-section>
+
+    <mj-section css-class="mj-section mj-section-secondary">
+        <mj-column width="50%">
+            <mj-text th:unless="${#strings.isEmpty(mediaReleaseDate)}" css-class="mj-text">
+                <b th:text="#{mail.media.available.body.release-date}" class="section-text"/><br/>
+                <span th:text="${mediaReleaseDate}"/>
+            </mj-text>
+            <mj-text th:unless="${#lists.isEmpty(mediaGenres)}" css-class="mj-text">
+                <b th:text="#{mail.media.available.body.genres}" class="section-text"/><br/>
+                <span th:each="genre, iter : ${mediaGenres}" th:text="${genre} + (${iter.last} ? '' : ', ')"/>
+            </mj-text>
+        </mj-column>
+        <mj-column width="50%">
+            <mj-text th:unless="${#strings.isEmpty(mediaDuration)}" css-class="mj-text">
+                <b th:text="#{mail.media.available.body.length}" class="section-text"/><br/>
+                <span th:text="${mediaDuration}"/>
+            </mj-text>
+            <mj-text th:unless="${#lists.isEmpty(mediaResolutions)}" css-class="mj-text">
+                <b th:text="#{mail.media.available.body.resolutions}" class="section-text"/><br/>
+                <span th:each="res : ${mediaResolutions}" th:text="${res}"/>
+            </mj-text>
+        </mj-column>
+    </mj-section>
+
+    <mj-section css-class="mj-section mj-section-secondary">
+        <mj-column width="50%">
+            <mj-text th:unless="${#lists.isEmpty(mediaAudios)}" css-class="mjs-text">
+                <b th:text="#{mail.media.available.body.audios}" class="section-text"/>
+                <div th:each="audio : ${mediaAudios}" style="padding-top: 5px;">
+                    <img th:if="${audio.flagUrl() != null}" th:src="${audio.flagUrl()}" width="20" class="inline-logo"/>
+                    <span th:text="#{${audio.translationKey()}}" style="font-size: 12px;"/>
+                </div>
+            </mj-text>
+        </mj-column>
+        <mj-column width="50%">
+            <mj-text th:unless="${#lists.isEmpty(mediaSubtitles)}" css-class="mjs-text">
+                <b th:text="#{mail.media.available.body.subtitles}" class="section-text"/>
+                <div th:each="sub : ${mediaSubtitles}" style="padding-top: 5px;">
+                    <img th:if="${sub.flagUrl() != null}" th:src="${sub.flagUrl()}" width="20" class="inline-logo"/>
+                    <span th:text="#{${sub.translationKey()}}" style="font-size: 12px;"/>
+                </div>
+            </mj-text>
+        </mj-column>
+    </mj-section>
+
+    <mj-section th:unless="${#lists.isEmpty(mediaActors)}" css-class="mj-section">
+        <mj-column>
+            <mj-text align="center" css-class="mjs-text">
+                <b th:text="#{mail.media.available.body.actors}" class="section-text"/><br/>
+                <span th:each="actor, iter : ${mediaActors}" th:text="${actor} + (${iter.last} ? '' : ' • ')" style="font-size: 12px;"/>
+            </mj-text>
+        </mj-column>
+    </mj-section>
+
+    <mj-section css-class="mj-section">
+        <mj-column width="100%">
+            <mj-text align="center" css-class="mjs-text">
+                <b th:text="#{mail.media.available.body.external.links}" class="section-text"/><br/>
+                <span th:each="provider : ${metadataProvidersInfo}" style="padding: 0 10px;">
+                    <a th:href="${provider.url()}" th:text="${provider.name()}" class="link-style"/>
+                </span>
+            </mj-text>
+        </mj-column>
+    </mj-section>
+</mj-body>
+
+<mj-body th:fragment="manage-website">
+    <mj-section>
+        <mj-column>
+            <mj-button th:text="#{mail.footer.app-link}" th:href="${thymeleafService.getOwnUrl()}" background-color="#E50914" color="#FFFFFF" font-weight="bold"/>
+        </mj-column>
+    </mj-section>
+</mj-body>
