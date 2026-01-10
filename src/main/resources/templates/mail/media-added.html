@@ -1,70 +1,111 @@
-<!DOCTYPE html>
-<html th:lang="${#locale.language}" xmlns:th="http://www.thymeleaf.org" data-bs-theme="auto">
-<head>
-    <title></title>
-    <th:block th:replace="~{fragment/common-head::common-head}"></th:block>
-</head>
-<body>
-<div class="container text-center">
-    <div class="d-flex flex-column justify-content-center">
-        <div th:if="${suggestAddRequirementId}" class="d-flex flex-row justify-content-center align-items-center mb-2">
-            <div class="m-1">
-                <form th:action="${thymeleafService.getAddWatchMediaUrl(suggestAddRequirementId)}" method="get">
-                    <input type="hidden" name="media" class="form-control" th:value="${suggestAddRequirementId}"/>
-                    <input type="submit" th:value="#{mail.media.available.body.actions.requirement.add}" class="btn btn-success btn-sm media-action-button"/>
-                </form>
-            </div>
-        </div>
-        <div th:if="${mediaPosterResourceName}">
-            <img th:src="|cid:${mediaPosterResourceName}|" class="img-fluid rounded" alt="Media poster">
-        </div>
-        <div>
-            <h2 class="text-primary" th:text="${mediaTitle}"></h2>
-            <h3 class="text-primary" th:if="${mediaSeason}" th:text="${mediaSeason}"></h3>
-        </div>
-        <div>
-            <p th:text="${mediaSummary}"></p>
-        </div>
-        <div class="mb-2" th:unless="${#strings.isEmpty(mediaReleaseDate)}">
-            <h4 class="text-primary" th:text="#{mail.media.available.body.release-date}"/>
-            <div th:text="${mediaReleaseDate}"/>
-        </div>
-        <div class="mb-2" th:unless="${#lists.isEmpty(mediaGenres)}">
-            <h4 class="text-primary" th:text="#{mail.media.available.body.genres}"></h4>
-            <div th:each="mediaGenre : ${mediaGenres}" th:text="${mediaGenre}"/>
-        </div>
-        <div class="mb-2" th:unless="${#strings.isEmpty(mediaDuration)}">
-            <h4 class="text-primary" th:text="#{mail.media.available.body.length}"/>
-            <div th:text="${mediaDuration}"/>
-        </div>
-        <div class="mb-2" th:unless="${#lists.isEmpty(mediaAudios)}">
-            <h4 class="text-primary" th:text="#{mail.media.available.body.audios}"></h4>
-            <div th:each="mediaAudio : ${mediaAudios}" th:text="#{${mediaAudio}}"/>
-        </div>
-        <div class="mb-2" th:unless="${#lists.isEmpty(mediaSubtitles)}">
-            <h4 class="text-primary" th:text="#{mail.media.available.body.subtitles}"></h4>
-            <div th:each="mediaSubtitle : ${mediaSubtitles}" th:text="#{${mediaSubtitle}}"/>
-        </div>
-        <div class="mb-2" th:unless="${#lists.isEmpty(mediaResolutions)}">
-            <h4 class="text-primary" th:text="#{mail.media.available.body.resolutions}"></h4>
-            <div th:each="mediaResolution : ${mediaResolutions}" th:text="${mediaResolution}"/>
-        </div>
-        <div class="mb-2" th:unless="${#lists.isEmpty(mediaBitrates)}">
-            <h4 class="text-primary" th:text="#{mail.media.available.body.bitrates}"></h4>
-            <div th:each="mediaBitrate : ${mediaBitrates}" th:text="${mediaBitrate}"/>
-        </div>
-        <div class="mb-2" th:unless="${#lists.isEmpty(mediaActors)}">
-            <h4 class="text-primary" th:text="#{mail.media.available.body.actors}"></h4>
-            <div th:each="mediaActor : ${mediaActors}" th:text="${mediaActor}"/>
-        </div>
-        <div class="mb-2" th:unless="${#lists.isEmpty(metadataProvidersInfo)}">
-            <h4 class="text-primary" th:text="#{mail.media.available.body.external.links}"></h4>
-            <div th:each="metadataProviderInfo : ${metadataProvidersInfo}">
-                <a th:href="${metadataProviderInfo.url()}" th:text="${metadataProviderInfo.name()}"/>
-            </div>
-        </div>
-    </div>
-</div>
-<th:block th:replace="~{fragment/mail::footer(thymeleafService=${thymeleafService})}"></th:block>
-</body>
-</html>
+<mjml xmlns:th="http://www.thymeleaf.org">
+    <mj-head>
+        <mj-title th:text="${mediaTitle}"/>
+        <mj-attributes>
+            <mj-all font-family="Helvetica, Arial, sans-serif"/>
+            <mj-text font-size="14px" color="#ffffff" line-height="20px"/>
+            <mj-section background-color="#141414" padding="20px"/>
+        </mj-attributes>
+        <mj-style>
+            .link-style { color: #007bff; text-decoration: none; font-weight: bold; }
+            .flag-icon { vertical-align: middle; margin-right: 8px; }
+        </mj-style>
+    </mj-head>
+    <mj-body background-color="#000000">
+
+        <mj-section th:if="${suggestAddRequirementId}" padding-bottom="10px">
+            <mj-column width="100%">
+                <mj-button th:href="${thymeleafService.getAddWatchMediaUrl(suggestAddRequirementId)}" background-color="#28a745" color="white" border-radius="4px">
+                    <span th:text="#{mail.media.available.body.actions.requirement.add}"/>
+                </mj-button>
+            </mj-column>
+        </mj-section>
+
+        <mj-section th:if="${mediaPosterResourceName}" padding-bottom="0px">
+            <mj-column width="100%">
+                <mj-image th:src="|cid:${mediaPosterResourceName}|" alt="Media Poster" border-radius="8px" padding="0px"/>
+            </mj-column>
+        </mj-section>
+
+        <mj-section>
+            <mj-column width="100%">
+                <mj-text align="center" padding-bottom="0px">
+                    <h1 style="margin: 10px 0; color: #E50914; font-size: 28px;" th:text="${mediaTitle}"/>
+                    <h2 style="margin: 0; color: #ffffff; font-size: 18px; font-weight: 300;" th:if="${mediaSeason}" th:text="${mediaSeason}"/>
+                </mj-text>
+                <mj-divider border-width="1px" border-color="#333" padding="20px 0"/>
+                <mj-text align="center" font-size="16px" color="#ccc" th:text="${mediaSummary}"/>
+            </mj-column>
+        </mj-section>
+
+        <mj-section padding-top="0px">
+            <mj-column width="50%">
+                <mj-text th:unless="${#strings.isEmpty(mediaReleaseDate)}">
+                    <b style="color: #E50914;" th:text="#{mail.media.available.body.release-date}"/><br/>
+                    <span th:text="${mediaReleaseDate}"/>
+                </mj-text>
+                <mj-text th:unless="${#lists.isEmpty(mediaGenres)}">
+                    <b style="color: #E50914;" th:text="#{mail.media.available.body.genres}"/><br/>
+                    <span th:each="genre, iter : ${mediaGenres}" th:text="${genre} + (${iter.last} ? '' : ', ')"/>
+                </mj-text>
+            </mj-column>
+            <mj-column width="50%">
+                <mj-text th:unless="${#strings.isEmpty(mediaDuration)}">
+                    <b style="color: #E50914;" th:text="#{mail.media.available.body.length}"/><br/>
+                    <span th:text="${mediaDuration}"/>
+                </mj-text>
+                <mj-text th:unless="${#lists.isEmpty(mediaResolutions)}">
+                    <b style="color: #E50914;" th:text="#{mail.media.available.body.resolutions}"/><br/>
+                    <span th:each="res : ${mediaResolutions}" th:text="${res}"/>
+                </mj-text>
+            </mj-column>
+        </mj-section>
+
+        <mj-section background-color="#1f1f1f" border-radius="8px">
+            <mj-column width="50%">
+                <mj-text th:unless="${#lists.isEmpty(mediaAudios)}">
+                    <b style="color: #ffffff;" th:text="#{mail.media.available.body.audios}"/>
+                    <div th:each="audio : ${mediaAudios}" style="padding-top: 5px;">
+                        <img th:if="${audio.flagUrl() != null}" th:src="${audio.flagUrl()}" width="20" class="flag-icon"/>
+                        <span th:text="#{${audio.translationKey()}}" style="font-size: 12px; color: #aaa;"/>
+                    </div>
+                </mj-text>
+            </mj-column>
+            <mj-column width="50%">
+                <mj-text th:unless="${#lists.isEmpty(mediaSubtitles)}">
+                    <b style="color: #ffffff;" th:text="#{mail.media.available.body.subtitles}"/>
+                    <div th:each="sub : ${mediaSubtitles}" style="padding-top: 5px;">
+                        <img th:if="${sub.flagUrl() != null}" th:src="${sub.flagUrl()}" width="20" class="flag-icon"/>
+                        <span th:text="#{${sub.translationKey()}}" style="font-size: 12px; color: #aaa;"/>
+                    </div>
+                </mj-text>
+            </mj-column>
+        </mj-section>
+
+        <mj-section th:unless="${#lists.isEmpty(mediaActors)}">
+            <mj-column width="100%">
+                <mj-text align="center">
+                    <b style="color: #E50914;" th:text="#{mail.media.available.body.actors}"/><br/>
+                    <span th:each="actor, iter : ${mediaActors}" th:text="${actor} + (${iter.last} ? '' : ' • ')" style="color: #aaa; font-size: 12px;"/>
+                </mj-text>
+            </mj-column>
+        </mj-section>
+
+        <mj-section padding-top="0px">
+            <mj-column width="100%">
+                <mj-text align="center">
+                    <span th:each="provider : ${metadataProvidersInfo}" style="padding: 0 10px;">
+                        <a th:href="${provider.url()}" th:text="${provider.name()}" class="link-style"/>
+                    </span>
+                </mj-text>
+            </mj-column>
+        </mj-section>
+
+        <mj-section background-color="transparent">
+            <mj-column width="100%">
+                <mj-button background-color="#E50914" color="white" th:href="${thymeleafService.getOwnUrl()}" th:text="#{mail.footer.app-link}" border-radius="4px"/>
+            </mj-column>
+        </mj-section>
+
+    </mj-body>
+</mjml>

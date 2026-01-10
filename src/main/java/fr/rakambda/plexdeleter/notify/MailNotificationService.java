@@ -1,11 +1,13 @@
 package fr.rakambda.plexdeleter.notify;
 
+import ch.digitalfondue.mjml4j.Mjml4j;
 import fr.rakambda.plexdeleter.api.tautulli.data.AudioMediaPartStream;
 import fr.rakambda.plexdeleter.api.tautulli.data.MediaInfo;
 import fr.rakambda.plexdeleter.api.tautulli.data.SubtitlesMediaPartStream;
 import fr.rakambda.plexdeleter.config.ApplicationConfiguration;
 import fr.rakambda.plexdeleter.config.MailConfiguration;
 import fr.rakambda.plexdeleter.notify.context.MediaMetadataContext;
+import fr.rakambda.plexdeleter.service.LanguageFlagService;
 import fr.rakambda.plexdeleter.service.ThymeleafService;
 import fr.rakambda.plexdeleter.service.WatchService;
 import fr.rakambda.plexdeleter.storage.entity.MediaEntity;
@@ -28,6 +30,7 @@ import org.thymeleaf.spring6.SpringTemplateEngine;
 import java.io.UnsupportedEncodingException;
 import java.time.Duration;
 import java.util.Collection;
+import java.util.Locale;
 import java.util.Objects;
 import java.util.Optional;
 
@@ -39,15 +42,17 @@ public class MailNotificationService extends AbstractNotificationService{
 	private final MessageSource messageSource;
 	private final SpringTemplateEngine templateEngine;
 	private final ThymeleafService thymeleafService;
+	private final LanguageFlagService languageFlagService;
 	
 	@Autowired
-	public MailNotificationService(JavaMailSender emailSender, ApplicationConfiguration applicationConfiguration, MessageSource messageSource, WatchService watchService, SpringTemplateEngine templateEngine, ThymeleafService thymeleafService){
+	public MailNotificationService(JavaMailSender emailSender, ApplicationConfiguration applicationConfiguration, MessageSource messageSource, WatchService watchService, SpringTemplateEngine templateEngine, ThymeleafService thymeleafService, LanguageFlagService languageFlagService){
 		super(watchService, messageSource);
 		this.emailSender = emailSender;
 		this.messageSource = messageSource;
 		this.mailConfiguration = applicationConfiguration.getMail();
 		this.templateEngine = templateEngine;
 		this.thymeleafService = thymeleafService;
+		this.languageFlagService = languageFlagService;
 	}
 	
 	public void notifyWatchlist(@NonNull NotificationEntity notification, @NonNull UserGroupEntity userGroupEntity, @NonNull Collection<MediaRequirementEntity> requirements) throws MessagingException, UnsupportedEncodingException{
@@ -102,7 +107,7 @@ public class MailNotificationService extends AbstractNotificationService{
 		
 		sendMail(notification, message -> {
 			message.setSubject(messageSource.getMessage("mail.watchlist.subject", new Object[0], locale));
-			message.setText(templateEngine.process("mail/watchlist.html", context), true);
+			message.setText(renderMail(templateEngine.process("mail/watchlist.html", context), locale), true);
 			if(overseerrLogoData.isPresent()){
 				message.addInline(overseerrLogoResourceName, new ByteArrayResource(overseerrLogoData.get(), "Overseerr logo"), "image/png");
 			}
@@ -156,13 +161,13 @@ public class MailNotificationService extends AbstractNotificationService{
 				.map(AudioMediaPartStream::getAudioLanguageCode)
 				.distinct()
 				.map(s -> Objects.equals(s, "") ? "unknown" : s)
-				.map("locale.%s"::formatted)
+				.map(s -> new LanguageInfo("locale.%s".formatted(s), languageFlagService.getFlagUrl(s)))
 				.toList();
 		var subtitleLanguages = getMediaStreams(metadata, SubtitlesMediaPartStream.class)
 				.map(SubtitlesMediaPartStream::getSubtitleLanguageCode)
 				.distinct()
 				.map(s -> Objects.equals(s, "") ? "unknown" : s)
-				.map("locale.%s"::formatted)
+				.map(s -> new LanguageInfo("locale.%s".formatted(s), languageFlagService.getFlagUrl(s)))
 				.toList();
 		var resolutions = metadata.getMediaInfo().stream()
 				.map(MediaInfo::getVideoFullResolution)
@@ -204,7 +209,7 @@ public class MailNotificationService extends AbstractNotificationService{
 		
 		sendMail(notification, message -> {
 			message.setSubject(messageSource.getMessage("mail.media.added.subject", new Object[0], locale));
-			message.setText(templateEngine.process("mail/media-added.html", context), true);
+			message.setText(renderMail(templateEngine.process("mail/media-added.html", context), locale), true);
 			if(posterData.isPresent()){
 				message.addInline(mediaPosterResourceName, new ByteArrayResource(posterData.get(), "Media poster"), "image/jpeg");
 			}
@@ -240,7 +245,7 @@ public class MailNotificationService extends AbstractNotificationService{
 		
 		sendMail(notification, message -> {
 			message.setSubject(messageSource.getMessage(subjectKey, new Object[0], locale));
-			message.setText(templateEngine.process("mail/single-media.html", context), true);
+			message.setText(renderMail(templateEngine.process("mail/single-media.html", context), locale), true);
 			if(overseerrLogoData.isPresent()){
 				message.addInline(overseerrLogoResourceName, new ByteArrayResource(overseerrLogoData.get(), "Overseerr logo"), "image/png");
 			}
@@ -272,6 +277,11 @@ public class MailNotificationService extends AbstractNotificationService{
 		messageFiller.accept(mailHelper);
 		
 		emailSender.send(mimeMessage);
+	}
+	
+	private String renderMail(String mjml, Locale locale){
+		var configuration = new Mjml4j.Configuration(locale.getLanguage());
+		return Mjml4j.render(mjml, configuration);
 	}
 	
 	@NonNull
