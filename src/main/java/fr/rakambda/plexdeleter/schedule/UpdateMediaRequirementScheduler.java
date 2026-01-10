@@ -2,7 +2,7 @@ package fr.rakambda.plexdeleter.schedule;
 
 import fr.rakambda.plexdeleter.api.RequestFailedException;
 import fr.rakambda.plexdeleter.notify.NotifyException;
-import fr.rakambda.plexdeleter.service.WatchService;
+import fr.rakambda.plexdeleter.service.MediaRequirementService;
 import fr.rakambda.plexdeleter.storage.entity.MediaRequirementStatus;
 import fr.rakambda.plexdeleter.storage.repository.MediaRequirementRepository;
 import lombok.extern.slf4j.Slf4j;
@@ -17,12 +17,12 @@ import java.io.IOException;
 @Component
 public class UpdateMediaRequirementScheduler implements IScheduler{
 	private final MediaRequirementRepository mediaRequirementRepository;
-	private final WatchService watchService;
+	private final MediaRequirementService mediaRequirementService;
 	
 	@Autowired
-	public UpdateMediaRequirementScheduler(MediaRequirementRepository mediaRequirementRepository, WatchService watchService){
+	public UpdateMediaRequirementScheduler(MediaRequirementRepository mediaRequirementRepository, MediaRequirementService mediaRequirementService){
 		this.mediaRequirementRepository = mediaRequirementRepository;
-		this.watchService = watchService;
+		this.mediaRequirementService = mediaRequirementService;
 	}
 	
 	@Override
@@ -39,7 +39,7 @@ public class UpdateMediaRequirementScheduler implements IScheduler{
 		var requirements = mediaRequirementRepository.findAllByStatusIs(MediaRequirementStatus.WAITING);
 		for(var requirement : requirements){
 			try{
-				watchService.update(requirement);
+				mediaRequirementService.update(requirement);
 			}
 			catch(RequestFailedException | IOException | NotifyException e){
 				log.error("Failed to update media requirement {}", requirement, e);

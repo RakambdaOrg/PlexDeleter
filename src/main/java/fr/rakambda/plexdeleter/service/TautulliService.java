@@ -21,7 +21,6 @@ import java.util.Optional;
 @Slf4j
 @Service
 public class TautulliService{
-	private final WatchService watchService;
 	private final MediaService mediaService;
 	private final UserPersonRepository userPersonRepository;
 	private final MediaRepository mediaRepository;
@@ -30,8 +29,7 @@ public class TautulliService{
 	private final NotificationService notificationService;
 	private final MediaRequirementService mediaRequirementService;
 	
-	public TautulliService(WatchService watchService, MediaService mediaService, UserPersonRepository userPersonRepository, MediaRepository mediaRepository, MediaRequirementRepository mediaRequirementRepository, TautulliApiService tautulliApiService, NotificationService notificationService, MediaRequirementService mediaRequirementService){
-		this.watchService = watchService;
+	public TautulliService(MediaService mediaService, UserPersonRepository userPersonRepository, MediaRepository mediaRepository, MediaRequirementRepository mediaRequirementRepository, TautulliApiService tautulliApiService, NotificationService notificationService, MediaRequirementService mediaRequirementService){
 		this.mediaService = mediaService;
 		this.userPersonRepository = userPersonRepository;
 		this.mediaRepository = mediaRepository;
@@ -75,7 +73,7 @@ public class TautulliService{
 			return;
 		}
 		
-		watchService.update(mediaRequirementEntity.get());
+		mediaRequirementService.update(mediaRequirementEntity.get());
 	}
 	
 	public void updateMedia(@NonNull TautulliWebhook data) throws RequestFailedException, UpdateException, NotifyException{

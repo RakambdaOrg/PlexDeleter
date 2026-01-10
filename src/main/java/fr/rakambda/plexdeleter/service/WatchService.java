@@ -5,49 +5,33 @@ import fr.rakambda.plexdeleter.api.plex.gql.PlexCommunityApiService;
 import fr.rakambda.plexdeleter.api.plex.gql.data.response.ActivityWatchHistory;
 import fr.rakambda.plexdeleter.api.tautulli.TautulliApiService;
 import fr.rakambda.plexdeleter.api.tautulli.data.GetMetadataResponse;
-import fr.rakambda.plexdeleter.messaging.SupervisionService;
-import fr.rakambda.plexdeleter.notify.NotificationService;
-import fr.rakambda.plexdeleter.notify.NotifyException;
 import fr.rakambda.plexdeleter.service.data.WatchState;
 import fr.rakambda.plexdeleter.storage.entity.MediaEntity;
-import fr.rakambda.plexdeleter.storage.entity.MediaRequirementEntity;
-import fr.rakambda.plexdeleter.storage.entity.MediaRequirementStatus;
 import fr.rakambda.plexdeleter.storage.entity.UserGroupEntity;
 import fr.rakambda.plexdeleter.storage.entity.UserPersonEntity;
-import fr.rakambda.plexdeleter.storage.repository.MediaRequirementRepository;
 import lombok.extern.slf4j.Slf4j;
 import org.jspecify.annotations.NonNull;
 import org.jspecify.annotations.Nullable;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
-import java.io.IOException;
 import java.time.Instant;
-import java.util.Comparator;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 import java.util.Optional;
-import java.util.function.Function;
 import java.util.stream.Collectors;
-import java.util.stream.Stream;
 
 @Slf4j
 @Service
 public class WatchService{
 	private final TautulliApiService tautulliApiService;
 	private final PlexCommunityApiService plexCommunityApiService;
-	private final SupervisionService supervisionService;
-	private final MediaRequirementRepository mediaRequirementRepository;
-	private final NotificationService notificationService;
 	
 	@Autowired
-	public WatchService(TautulliApiService tautulliApiService, PlexCommunityApiService plexCommunityApiService, SupervisionService supervisionService, MediaRequirementRepository mediaRequirementRepository, NotificationService notificationService){
+	public WatchService(TautulliApiService tautulliApiService, PlexCommunityApiService plexCommunityApiService){
 		this.tautulliApiService = tautulliApiService;
 		this.plexCommunityApiService = plexCommunityApiService;
-		this.supervisionService = supervisionService;
-		this.mediaRequirementRepository = mediaRequirementRepository;
-		this.notificationService = notificationService;
 	}
 	
 	@NonNull
@@ -106,36 +90,5 @@ public class WatchService{
 			log.error("Failed to get watch history from Plex Community", e);
 		}
 		return history;
-	}
-	
-	public void update(@NonNull MediaRequirementEntity mediaRequirementEntity) throws RequestFailedException, IOException, NotifyException{
-		log.info("Updating media requirement {}", mediaRequirementEntity);
-		
-		var media = mediaRequirementEntity.getMedia();
-		var group = mediaRequirementEntity.getGroup();
-		if(Objects.isNull(media.getPlexId())){
-			log.warn("Cannot update media requirement {} as media does not seem to be in Plex/Tautulli", mediaRequirementEntity);
-			return;
-		}
-		
-		var historySince = Stream.of(mediaRequirementEntity.getLastCompletedTime(), media.getLastRequestedTime())
-				.filter(Objects::nonNull)
-				.min(Comparator.comparing(Function.identity()))
-				.orElse(null);
-		var historyPerPart = getGroupWatchHistory(group, media, historySince);
-		var watchedFullyCount = historyPerPart.values().stream()
-				.filter(watched -> watched)
-				.count();
-		
-		mediaRequirementEntity.setWatchedCount(watchedFullyCount);
-		if(media.getStatus().isFullyDownloaded() && watchedFullyCount >= media.getAvailablePartsCount()){
-			log.info("Setting {} as watched", mediaRequirementEntity);
-			mediaRequirementEntity.setStatus(MediaRequirementStatus.WATCHED);
-			mediaRequirementEntity.setLastCompletedTime(Instant.now());
-			supervisionService.send("\uD83D\uDC41\uFE0F %s watched %s", group.getName(), media);
-			notificationService.notifyMediaWatched(group, media);
-		}
-		
-		mediaRequirementRepository.save(mediaRequirementEntity);
 	}
 }

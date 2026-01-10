@@ -18,11 +18,15 @@ import org.jspecify.annotations.NonNull;
 import org.jspecify.annotations.Nullable;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import java.io.IOException;
 import java.time.Instant;
+import java.util.Comparator;
 import java.util.Objects;
 import java.util.Set;
 import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReentrantLock;
+import java.util.function.Function;
+import java.util.stream.Stream;
 
 @Slf4j
 @Service
@@ -35,14 +39,16 @@ public class MediaRequirementService{
 	private final Lock requirementOperationLock;
 	private final RadarrApiService radarrApiService;
 	private final SonarrApiService sonarrApiService;
+	private final WatchService watchService;
 	
 	@Autowired
-	public MediaRequirementService(MediaRequirementRepository mediaRequirementRepository, NotificationService notificationService, SupervisionService supervisionService, MediaService mediaService, UserGroupRepository userGroupRepository, RadarrApiService radarrApiService, SonarrApiService sonarrApiService){
+	public MediaRequirementService(MediaRequirementRepository mediaRequirementRepository, NotificationService notificationService, SupervisionService supervisionService, MediaService mediaService, UserGroupRepository userGroupRepository, RadarrApiService radarrApiService, SonarrApiService sonarrApiService, WatchService watchService){
 		this.mediaRequirementRepository = mediaRequirementRepository;
 		this.notificationService = notificationService;
 		this.supervisionService = supervisionService;
 		this.mediaService = mediaService;
 		this.userGroupRepository = userGroupRepository;
+		this.watchService = watchService;
 		this.requirementOperationLock = new ReentrantLock();
 		this.radarrApiService = radarrApiService;
 		this.sonarrApiService = sonarrApiService;
@@ -201,5 +207,36 @@ public class MediaRequirementService{
 				log.error("Failed to update tags", e);
 			}
 		}
+	}
+	
+	public void update(@NonNull MediaRequirementEntity mediaRequirementEntity) throws RequestFailedException, IOException, NotifyException{
+		log.info("Updating media requirement {}", mediaRequirementEntity);
+		
+		var media = mediaRequirementEntity.getMedia();
+		var group = mediaRequirementEntity.getGroup();
+		if(Objects.isNull(media.getPlexId())){
+			log.warn("Cannot update media requirement {} as media does not seem to be in Plex/Tautulli", mediaRequirementEntity);
+			return;
+		}
+		
+		var historySince = Stream.of(mediaRequirementEntity.getLastCompletedTime(), media.getLastRequestedTime())
+				.filter(Objects::nonNull)
+				.min(Comparator.comparing(Function.identity()))
+				.orElse(null);
+		var historyPerPart = watchService.getGroupWatchHistory(group, media, historySince);
+		var watchedFullyCount = historyPerPart.values().stream()
+				.filter(watched -> watched)
+				.count();
+		
+		mediaRequirementEntity.setWatchedCount(watchedFullyCount);
+		if(media.getStatus().isFullyDownloaded() && watchedFullyCount >= media.getAvailablePartsCount()){
+			log.info("Setting {} as watched", mediaRequirementEntity);
+			mediaRequirementEntity.setStatus(MediaRequirementStatus.WATCHED);
+			mediaRequirementEntity.setLastCompletedTime(Instant.now());
+			supervisionService.send("\uD83D\uDC41\uFE0F %s watched %s", group.getName(), media);
+			notificationService.notifyMediaWatched(group, media);
+		}
+		
+		mediaRequirementRepository.save(mediaRequirementEntity);
 	}
 }
