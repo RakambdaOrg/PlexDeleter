@@ -1,6 +1,7 @@
 package fr.rakambda.plexdeleter.notify;
 
 import ch.digitalfondue.mjml4j.Mjml4j;
+import com.googlecode.htmlcompressor.compressor.HtmlCompressor;
 import fr.rakambda.plexdeleter.api.tautulli.data.AudioMediaPartStream;
 import fr.rakambda.plexdeleter.api.tautulli.data.MediaInfo;
 import fr.rakambda.plexdeleter.api.tautulli.data.SubtitlesMediaPartStream;
@@ -43,16 +44,22 @@ public class MailNotificationService extends AbstractNotificationService{
 	private final SpringTemplateEngine templateEngine;
 	private final ThymeleafService thymeleafService;
 	private final LanguageFlagService languageFlagService;
+	private final HtmlCompressor htmlCompressor;
 	
 	@Autowired
 	public MailNotificationService(JavaMailSender emailSender, ApplicationConfiguration applicationConfiguration, MessageSource messageSource, WatchService watchService, SpringTemplateEngine templateEngine, ThymeleafService thymeleafService, LanguageFlagService languageFlagService){
 		super(watchService, messageSource);
 		this.emailSender = emailSender;
 		this.messageSource = messageSource;
-		this.mailConfiguration = applicationConfiguration.getMail();
+		mailConfiguration = applicationConfiguration.getMail();
 		this.templateEngine = templateEngine;
 		this.thymeleafService = thymeleafService;
 		this.languageFlagService = languageFlagService;
+		
+		htmlCompressor = new HtmlCompressor();
+		htmlCompressor.setRemoveIntertagSpaces(true);
+		htmlCompressor.setRemoveQuotes(false);
+		htmlCompressor.setCompressCss(true);
 	}
 	
 	public void notifyWatchlist(@NonNull NotificationEntity notification, @NonNull UserGroupEntity userGroupEntity, @NonNull Collection<MediaRequirementEntity> requirements) throws MessagingException, UnsupportedEncodingException{
@@ -283,7 +290,8 @@ public class MailNotificationService extends AbstractNotificationService{
 	
 	private String renderMail(String mjml, Locale locale){
 		var configuration = new Mjml4j.Configuration(locale.getLanguage());
-		return Mjml4j.render(mjml, configuration);
+		var rendered = Mjml4j.render(mjml, configuration);
+		return htmlCompressor.compress(rendered);
 	}
 	
 	@NonNull

@@ -46,6 +46,7 @@ dependencies {
     implementation(libs.thymeleafSpringSecurity)
     implementation(libs.webauthn4j)
     implementation(libs.mjml4j)
+    implementation(libs.htmlcompressor)
 
     testImplementation("org.springframework.boot:spring-boot-starter-test")
     testImplementation("org.springframework.security:spring-security-test")
