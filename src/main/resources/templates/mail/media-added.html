@@ -21,6 +21,15 @@
             </mj-column>
         </mj-section>
 
+        <mj-section>
+            <mj-column width="100%">
+                <mj-text align="center" padding-bottom="0px">
+                    <h1 style="margin: 10px 0; color: #E50914; font-size: 28px;" th:text="${mediaTitle}"/>
+                    <h2 style="margin: 0; color: #ffffff; font-size: 18px; font-weight: 300;" th:if="${mediaSeason}" th:text="${mediaSeason}"/>
+                </mj-text>
+            </mj-column>
+        </mj-section>
+
         <mj-section th:if="${mediaPosterResourceName}" padding-bottom="0px">
             <mj-column width="100%">
                 <mj-image th:src="|cid:${mediaPosterResourceName}|" alt="Media Poster" border-radius="8px" padding="0px"/>
@@ -29,11 +38,6 @@
 
         <mj-section>
             <mj-column width="100%">
-                <mj-text align="center" padding-bottom="0px">
-                    <h1 style="margin: 10px 0; color: #E50914; font-size: 28px;" th:text="${mediaTitle}"/>
-                    <h2 style="margin: 0; color: #ffffff; font-size: 18px; font-weight: 300;" th:if="${mediaSeason}" th:text="${mediaSeason}"/>
-                </mj-text>
-                <mj-divider border-width="1px" border-color="#333" padding="20px 0"/>
                 <mj-text align="center" font-size="16px" color="#ccc" th:text="${mediaSummary}"/>
             </mj-column>
         </mj-section>
