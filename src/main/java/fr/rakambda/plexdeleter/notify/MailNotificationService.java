@@ -191,7 +191,7 @@ public class MailNotificationService extends AbstractNotificationService{
 			if(posterData.isPresent()){
 				message.addInline(mediaPosterResourceName, new ByteArrayResource(posterData.get()), "image/jpeg");
 			}
-		}, Optional.ofNullable(media).stream().toList());
+		}, List.of());
 	}
 	
 	private void notifySimple(@NonNull NotificationEntity notification, @NonNull UserGroupEntity userGroupEntity, @NonNull MediaEntity media, @NonNull String subjectKey) throws MessagingException, UnsupportedEncodingException{
@@ -215,7 +215,7 @@ public class MailNotificationService extends AbstractNotificationService{
 			@NonNull Locale locale,
 			@NonNull String template,
 			@NonNull MessageFiller messageFiller,
-			@NonNull List<MediaEntity>... medias
+			@NonNull List<MediaEntity>... mediasForResources
 	) throws MessagingException, UnsupportedEncodingException{
 		var mimeMessage = emailSender.createMimeMessage();
 		var mailHelper = new MimeMessageHelper(mimeMessage, true, "utf-8");
@@ -232,11 +232,11 @@ public class MailNotificationService extends AbstractNotificationService{
 		var tvdbLogoResourceName = "tvdbLogoResourceName";
 		var traktLogoResourceName = "traktLogoResourceName";
 		
-		var hasOverseerrLink = hasAnyMediaValueNotNull(MediaEntity::getOverseerrId, medias);
-		var hasPlexLink = hasAnyMediaValueNotNull(MediaEntity::getPlexId, medias);
-		var hasTmdbLink = hasAnyMediaValueNotNull(MediaEntity::getTmdbId, medias);
-		var hasTvdbLink = hasAnyMediaValueNotNull(MediaEntity::getTvdbId, medias);
-		var hasTraktLink = hasAnyMediaValueNotNull(MediaEntity::getTmdbId, medias);
+		var hasOverseerrLink = hasAnyMediaValueNotNull(MediaEntity::getOverseerrId, mediasForResources);
+		var hasPlexLink = hasAnyMediaValueNotNull(MediaEntity::getPlexId, mediasForResources);
+		var hasTmdbLink = hasAnyMediaValueNotNull(MediaEntity::getTmdbId, mediasForResources);
+		var hasTvdbLink = hasAnyMediaValueNotNull(MediaEntity::getTvdbId, mediasForResources);
+		var hasTraktLink = hasAnyMediaValueNotNull(MediaEntity::getTmdbId, mediasForResources);
 		
 		var overseerrLogoData = hasOverseerrLink ? getOverseerrLogoBytes() : Optional.<byte[]> empty();
 		var plexLogoData = hasPlexLink ? getPlexLogoBytes() : Optional.<byte[]> empty();
