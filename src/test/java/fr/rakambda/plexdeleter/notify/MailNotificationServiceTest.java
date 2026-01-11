@@ -56,9 +56,9 @@ class MailNotificationServiceTest{
 	@Transactional
 	void sendTestMediaAddedMail() throws MessagingException, UnsupportedEncodingException, RequestFailedException{
 		var userGroup = userGroupRepository.findById(2).orElseThrow();
-		var media = mediaRepository.findByOverseerrIdAndIndex(510, 1).get();
+		var media = mediaRepository.findByOverseerrIdAndIndex(95480, 4).get();
 		
-		var metadata = tautulliApiService.getMetadata(media.getPlexId()).getResponse().getData();
+		var metadata = tautulliApiService.getMetadata(834236).getResponse().getData();
 		
 		var tmdbMediaMetadataContext = new TmdbMediaMetadataContext(tautulliApiService, metadata, tmdbApiService);
 		var tvdbMediaMetadataContext = new TvdbMediaMetadataContext(tautulliApiService, metadata, tvdbApiService);
