@@ -68,8 +68,6 @@ public class MailNotificationService extends AbstractNotificationService{
 	
 	public void notifyWatchlist(@NonNull NotificationEntity notification, @NonNull UserGroupEntity userGroupEntity, @NonNull Collection<MediaRequirementEntity> requirements) throws MessagingException, UnsupportedEncodingException{
 		var locale = userGroupEntity.getLocaleAsObject();
-		var context = new Context();
-		context.setLocale(userGroupEntity.getLocaleAsObject());
 		
 		var availableMedia = requirements.stream()
 				.map(MediaRequirementEntity::getMedia)
@@ -92,14 +90,15 @@ public class MailNotificationService extends AbstractNotificationService{
 			return;
 		}
 		
-		context.setVariable("service", this);
-		context.setVariable("thymeleafService", thymeleafService);
-		context.setVariable("userGroup", userGroupEntity);
-		context.setVariable("availableMedias", availableMedia);
-		context.setVariable("downloadingMedias", downloadingMedia);
-		context.setVariable("notYetAvailableMedias", notYetAvailableMedia);
-		
-		sendMail(notification, context, "mail.watchlist.subject", locale, "mail/watchlist.html", message -> {}, availableMedia, downloadingMedia, notYetAvailableMedia);
+		sendMail(notification, "mail.watchlist.subject", locale, "mail/watchlist.html", context -> {
+			context.setLocale(userGroupEntity.getLocaleAsObject());
+			context.setVariable("service", this);
+			context.setVariable("thymeleafService", thymeleafService);
+			context.setVariable("userGroup", userGroupEntity);
+			context.setVariable("availableMedias", availableMedia);
+			context.setVariable("downloadingMedias", downloadingMedia);
+			context.setVariable("notYetAvailableMedias", notYetAvailableMedia);
+		}, message -> {}, availableMedia, downloadingMedia, notYetAvailableMedia);
 	}
 	
 	public void notifyRequirementAdded(@NonNull NotificationEntity notification, @NonNull UserGroupEntity userGroupEntity, @NonNull MediaEntity media) throws MessagingException, UnsupportedEncodingException{
@@ -129,9 +128,6 @@ public class MailNotificationService extends AbstractNotificationService{
 	public void notifyMediaAdded(@NonNull NotificationEntity notification, @NonNull UserGroupEntity userGroupEntity, @Nullable MediaEntity media, @NonNull MediaMetadataContext mediaMetadataContext) throws MessagingException, UnsupportedEncodingException{
 		var locale = userGroupEntity.getLocaleAsObject();
 		var metadata = mediaMetadataContext.getMetadata();
-		
-		var context = new Context();
-		context.setLocale(userGroupEntity.getLocaleAsObject());
 		
 		var mediaSeason = getMediaSeason(metadata, locale);
 		var releaseDate = Optional.ofNullable(metadata.getOriginallyAvailableAt())
@@ -175,23 +171,24 @@ public class MailNotificationService extends AbstractNotificationService{
 				.map(MediaEntity::getId)
 				.orElse(null);
 		
-		context.setVariable("thymeleafService", thymeleafService);
-		context.setVariable("mediaTitle", mediaMetadataContext.getTitle(locale).orElseGet(metadata::getFullTitle));
-		context.setVariable("mediaSeason", mediaSeason);
-		context.setVariable("mediaSummary", mediaMetadataContext.getSummary(locale).orElseGet(metadata::getSummary));
-		context.setVariable("mediaReleaseDate", releaseDate);
-		context.setVariable("mediaActors", metadata.getActors().stream().limit(20).toList());
-		context.setVariable("mediaGenres", mediaMetadataContext.getGenres(messageSource, locale).orElseGet(metadata::getGenres));
-		context.setVariable("mediaDuration", getMediaDuration(Duration.ofMillis(metadata.getDuration())));
-		context.setVariable("mediaPosterResourceName", posterData.isPresent() ? mediaPosterResourceName : null);
-		context.setVariable("mediaAudios", audioLanguages);
-		context.setVariable("mediaSubtitles", subtitleLanguages);
-		context.setVariable("mediaResolutions", resolutions);
-		context.setVariable("mediaBitrates", bitrates);
-		context.setVariable("suggestAddRequirementId", suggestAddRequirementId);
-		context.setVariable("metadataProvidersInfo", mediaMetadataContext.getMetadataProviderInfo());
-		
-		sendMail(notification, context, "mail.media.added.subject", locale, "mail/media-added.html", message -> {
+		sendMail(notification, "mail.media.added.subject", locale, "mail/media-added.html", context -> {
+			context.setLocale(userGroupEntity.getLocaleAsObject());
+			context.setVariable("thymeleafService", thymeleafService);
+			context.setVariable("mediaTitle", mediaMetadataContext.getTitle(locale).orElseGet(metadata::getFullTitle));
+			context.setVariable("mediaSeason", mediaSeason);
+			context.setVariable("mediaSummary", mediaMetadataContext.getSummary(locale).orElseGet(metadata::getSummary));
+			context.setVariable("mediaReleaseDate", releaseDate);
+			context.setVariable("mediaActors", metadata.getActors().stream().limit(20).toList());
+			context.setVariable("mediaGenres", mediaMetadataContext.getGenres(messageSource, locale).orElseGet(metadata::getGenres));
+			context.setVariable("mediaDuration", getMediaDuration(Duration.ofMillis(metadata.getDuration())));
+			context.setVariable("mediaPosterResourceName", posterData.isPresent() ? mediaPosterResourceName : null);
+			context.setVariable("mediaAudios", audioLanguages);
+			context.setVariable("mediaSubtitles", subtitleLanguages);
+			context.setVariable("mediaResolutions", resolutions);
+			context.setVariable("mediaBitrates", bitrates);
+			context.setVariable("suggestAddRequirementId", suggestAddRequirementId);
+			context.setVariable("metadataProvidersInfo", mediaMetadataContext.getMetadataProviderInfo());
+		}, message -> {
 			if(posterData.isPresent()){
 				message.addInline(mediaPosterResourceName, new ByteArrayResource(posterData.get()), "image/jpeg");
 			}
@@ -200,24 +197,23 @@ public class MailNotificationService extends AbstractNotificationService{
 	
 	private void notifySimple(@NonNull NotificationEntity notification, @NonNull UserGroupEntity userGroupEntity, @NonNull MediaEntity media, @NonNull String subjectKey) throws MessagingException, UnsupportedEncodingException{
 		var locale = userGroupEntity.getLocaleAsObject();
-		var context = new Context();
-		context.setLocale(userGroupEntity.getLocaleAsObject());
 		
-		context.setVariable("service", this);
-		context.setVariable("medias", List.of(media));
-		context.setVariable("thymeleafService", thymeleafService);
-		context.setVariable("userGroup", userGroupEntity);
-		
-		sendMail(notification, context, subjectKey, locale, "mail/single-media.html", message -> {}, List.of(media));
+		sendMail(notification, subjectKey, locale, "mail/single-media.html", context -> {
+			context.setLocale(userGroupEntity.getLocaleAsObject());
+			context.setVariable("service", this);
+			context.setVariable("medias", List.of(media));
+			context.setVariable("thymeleafService", thymeleafService);
+			context.setVariable("userGroup", userGroupEntity);
+		}, mailHelper -> {}, List.of(media));
 	}
 	
 	@SafeVarargs
 	private void sendMail(
 			@NonNull NotificationEntity notification,
-			@NonNull Context context,
 			@NonNull String subjectKey,
 			@NonNull Locale locale,
 			@NonNull String template,
+			@NonNull ContextFiller contextFiller,
 			@NonNull MessageFiller messageFiller,
 			@NonNull List<MediaEntity>... mediasForResources
 	) throws MessagingException, UnsupportedEncodingException{
@@ -248,11 +244,14 @@ public class MailNotificationService extends AbstractNotificationService{
 		var tvdbLogoData = hasTvdbLink ? getTvdbLogoBytes() : Optional.<byte[]> empty();
 		var traktLogoData = hasTraktLink ? getTraktLogoBytes() : Optional.<byte[]> empty();
 		
+		var context = new Context();
 		context.setVariable("overseerrLogoResourceName", overseerrLogoData.isPresent() ? overseerrLogoResourceName : null);
 		context.setVariable("plexLogoResourceName", plexLogoData.isPresent() ? plexLogoResourceName : null);
 		context.setVariable("tmdbLogoResourceName", tmdbLogoData.isPresent() ? tmdbLogoResourceName : null);
 		context.setVariable("tvdbLogoResourceName", tvdbLogoData.isPresent() ? tvdbLogoResourceName : null);
 		context.setVariable("traktLogoResourceName", traktLogoData.isPresent() ? traktLogoResourceName : null);
+		
+		contextFiller.accept(context);
 		
 		mailHelper.setSubject(messageSource.getMessage(subjectKey, new Object[0], locale));
 		mailHelper.setText(renderMail(templateEngine.process(template, context), locale), true);
@@ -310,7 +309,10 @@ public class MailNotificationService extends AbstractNotificationService{
 	}
 	
 	@NonNull
-	private Optional<byte[]> getResourceBytes(@NonNull String path){
+	private Optional<byte[]> getResourceBytes(@Nullable String path){
+		if(Objects.isNull(path)){
+			return Optional.empty();
+		}
 		try{
 			var classPathResource = new ClassPathResource(path);
 			if(!classPathResource.exists()){
@@ -335,5 +337,9 @@ public class MailNotificationService extends AbstractNotificationService{
 	
 	private interface MessageFiller{
 		void accept(MimeMessageHelper mimeMessageHelper) throws MessagingException, UnsupportedEncodingException;
+	}
+	
+	private interface ContextFiller{
+		void accept(Context context) throws MessagingException, UnsupportedEncodingException;
 	}
 }
