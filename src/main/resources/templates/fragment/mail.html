@@ -119,6 +119,15 @@
 </th:block>
 
 <th:block th:fragment="media-detailed">
+
+    <mj-section th:unless="${#strings.isEmpty(mailTitleKey)}" css-class="mj-section">
+        <mj-column>
+            <mj-text align="center" css-class="mj-text">
+                <h1 th:text="#{${mailTitleKey}}" class="section-text" style="font-size: 26px; line-height: 30px;"/>
+            </mj-text>
+        </mj-column>
+    </mj-section>
+
     <mj-section css-class="mj-section">
         <mj-column th:if="${mediaPosterResourceName != null}" width="35%">
             <mj-image th:src="|cid:${mediaPosterResourceName}|" alt="Media Poster" border-radius="8px" padding="10px 0px" width="180px"/>
