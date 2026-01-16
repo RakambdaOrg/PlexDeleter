@@ -12,12 +12,15 @@ import org.springframework.security.config.Customizer;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.annotation.web.configurers.LogoutConfigurer;
+import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.provisioning.JdbcUserDetailsManager;
 import org.springframework.security.provisioning.UserDetailsManager;
 import org.springframework.security.web.SecurityFilterChain;
+import org.springframework.security.web.context.HttpSessionSecurityContextRepository;
+import org.springframework.security.web.context.SecurityContextRepository;
 import org.springframework.security.web.webauthn.management.JdbcPublicKeyCredentialUserEntityRepository;
 import org.springframework.security.web.webauthn.management.JdbcUserCredentialRepository;
 import javax.sql.DataSource;
@@ -33,8 +36,9 @@ public class WebSecurityConfig{
 	}
 	
 	@Bean
-	public SecurityFilterChain basicFilterChain(HttpSecurity http, AuthenticationManager authenticationManager) throws Exception{
+	public SecurityFilterChain basicFilterChain(HttpSecurity http, AuthenticationManager authenticationManager, SecurityContextRepository securityContextRepository) throws Exception{
 		return http
+				.securityContext(context -> context.securityContextRepository(securityContextRepository))
 				.authorizeHttpRequests(auth -> auth
 						.requestMatchers("/").authenticated()
 						.requestMatchers("/actuator/health").permitAll()
@@ -63,6 +67,7 @@ public class WebSecurityConfig{
 				.authenticationManager(authenticationManager)
 				.with(new PlexFormLoginConfigurer<>(), c -> c
 						.authenticationFilter(new PlexAuthenticationFilter())
+						.securityContextRepository(securityContextRepository)
 						.defaultSuccessUrl("/auth/success", false)
 						.loginPage("/auth")
 						.failureForwardUrl("/auth/error")
@@ -73,8 +78,14 @@ public class WebSecurityConfig{
 						.rpName(configuration.getServer().getWebAuthN().getRelayingPartyName())
 						.rpId(configuration.getServer().getWebAuthN().getRelayingPartyId())
 						.allowedOrigins(configuration.getServer().getWebAuthN().getAllowedOrigins()))
+				.sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.ALWAYS))
 				.logout(LogoutConfigurer::permitAll)
 				.build();
+	}
+	
+	@Bean
+	public SecurityContextRepository securityContextRepository(){
+		return new HttpSessionSecurityContextRepository();
 	}
 	
 	@Bean
