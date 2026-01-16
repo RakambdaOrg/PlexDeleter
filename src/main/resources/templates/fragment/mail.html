@@ -79,7 +79,7 @@
     </mj-style>
 </mj-head>
 
-<mj-body th:fragment="media-list" th:with="hasHeader=${hasHeader ?: false}">
+<th:block th:fragment="media-list" th:with="hasHeader=${hasHeader ?: false}">
     <mj-section th:unless="${#lists.isEmpty(medias)}" css-class="mj-section">
         <mj-column th:if="${hasHeader}">
             <mj-text th:text="#{${headerKey}}" th:color="${headerColor}" css-class="mj-text status-header"/>
@@ -116,49 +116,50 @@
             </mj-text>
         </mj-column>
     </mj-section>
-</mj-body>
+</th:block>
 
-<mj-body th:fragment="media-detailed">
+<th:block th:fragment="media-detailed">
     <mj-section css-class="mj-section">
-        <mj-column width="35%">
+        <mj-column th:if="${mediaPosterResourceName != null}" width="35%">
             <mj-image th:src="|cid:${mediaPosterResourceName}|" alt="Media Poster" border-radius="8px" padding="10px 0px" width="180px"/>
         </mj-column>
         <mj-column width="65%">
-            <mj-text align="center" css-class="mj-text">
+            <mj-text th:unless="${#strings.isEmpty(mediaTitle)}" align="center" css-class="mj-text">
                 <h1 th:text="${mediaTitle}" class="section-text" style="font-size: 22px; line-height: 28px;"/>
                 <h2 th:if="${mediaSeason}" th:text="${mediaSeason}" style="font-size: 16px; font-weight: 300;"/>
             </mj-text>
-            <mj-text th:text="${mediaSummary}" align="center" css-class="mj-text"/>
+            <mj-text th:unless="${#strings.isEmpty(mediaSummary)}" th:text="${mediaSummary}" align="center" css-class="mj-text"/>
             <mj-button th:if="${suggestAddRequirementId}" th:text="#{mail.media.available.body.actions.requirement.add}" th:href="${thymeleafService.getAddWatchMediaUrl(suggestAddRequirementId)}" align="center" background-color="#28A745" color="#FFFFFF" font-weight="bold"/>
         </mj-column>
     </mj-section>
 
     <mj-section css-class="mj-section mj-section-secondary">
-        <mj-column width="50%">
-            <mj-text th:unless="${#strings.isEmpty(mediaReleaseDate)}" align="center" css-class="mj-text">
+        <mj-column th:unless="${#strings.isEmpty(mediaReleaseDate)}" width="50%">
+            <mj-text align="center" css-class="mj-text">
                 <b th:text="#{mail.media.available.body.release-date}" class="section-text"/><br/>
                 <span th:text="${mediaReleaseDate}"/>
             </mj-text>
-            <mj-text th:unless="${#lists.isEmpty(mediaGenres)}" align="center" css-class="mj-text">
+        </mj-column>
+        <mj-column th:unless="${#strings.isEmpty(mediaDuration)}" width="50%">
+            <mj-text align="center" css-class="mj-text">
+                <b th:text="#{mail.media.available.body.length}" class="section-text"/><br/>
+                <span th:text="${mediaDuration}"/>
+            </mj-text>
+        </mj-column>
+        <mj-column th:unless="${#lists.isEmpty(mediaGenres)}" width="50%">
+            <mj-text align="center" css-class="mj-text">
                 <b th:text="#{mail.media.available.body.genres}" class="section-text"/><br/>
                 <span th:each="genre, iter : ${mediaGenres}" th:text="${genre} + (${iter.last} ? '' : ', ')"/>
             </mj-text>
         </mj-column>
-        <mj-column width="50%">
-            <mj-text th:unless="${#strings.isEmpty(mediaDuration)}" align="center" css-class="mj-text">
-                <b th:text="#{mail.media.available.body.length}" class="section-text"/><br/>
-                <span th:text="${mediaDuration}"/>
-            </mj-text>
-            <mj-text th:unless="${#lists.isEmpty(mediaResolutions)}" align="center" css-class="mj-text">
+        <mj-column th:unless="${#lists.isEmpty(mediaResolutions)}" width="50%">
+            <mj-text align="center" css-class="mj-text">
                 <b th:text="#{mail.media.available.body.resolutions}" class="section-text"/><br/>
                 <span th:each="res : ${mediaResolutions}" th:text="${res}"/>
             </mj-text>
         </mj-column>
-    </mj-section>
-
-    <mj-section css-class="mj-section mj-section-secondary">
-        <mj-column width="50%">
-            <mj-text th:unless="${#lists.isEmpty(mediaAudios)}" align="center" css-class="mjs-text">
+        <mj-column th:unless="${#lists.isEmpty(mediaAudios)}" width="50%">
+            <mj-text align="center" css-class="mjs-text">
                 <b th:text="#{mail.media.available.body.audios}" class="section-text"/>
                 <div th:each="audio : ${mediaAudios}" style="padding-top: 5px;">
                     <img th:if="${audio.flagUrl() != null}" th:src="${audio.flagUrl()}" width="20" class="inline-logo"/>
@@ -166,8 +167,8 @@
                 </div>
             </mj-text>
         </mj-column>
-        <mj-column width="50%">
-            <mj-text th:unless="${#lists.isEmpty(mediaSubtitles)}" align="center" css-class="mjs-text">
+        <mj-column th:unless="${#lists.isEmpty(mediaSubtitles)}" width="50%">
+            <mj-text align="center" css-class="mjs-text">
                 <b th:text="#{mail.media.available.body.subtitles}" class="section-text"/>
                 <div th:each="sub : ${mediaSubtitles}" style="padding-top: 5px;">
                     <img th:if="${sub.flagUrl() != null}" th:src="${sub.flagUrl()}" width="20" class="inline-logo"/>
@@ -186,7 +187,7 @@
         </mj-column>
     </mj-section>
 
-    <mj-section css-class="mj-section">
+    <mj-section th:unless="${#lists.isEmpty(metadataProvidersInfo)}" css-class="mj-section">
         <mj-column width="100%">
             <mj-text align="center" css-class="mjs-text">
                 <b th:text="#{mail.media.available.body.external.links}" class="section-text"/><br/>
@@ -196,12 +197,12 @@
             </mj-text>
         </mj-column>
     </mj-section>
-</mj-body>
+</th:block>
 
-<mj-body th:fragment="manage-website">
+<th:block th:fragment="manage-website">
     <mj-section>
         <mj-column>
             <mj-button th:text="#{mail.footer.app-link}" th:href="${thymeleafService.getOwnUrl()}" background-color="#E50914" color="#FFFFFF" font-weight="bold"/>
         </mj-column>
     </mj-section>
-</mj-body>
+</th:block>

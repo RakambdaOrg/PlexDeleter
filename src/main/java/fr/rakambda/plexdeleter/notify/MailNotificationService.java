@@ -3,11 +3,13 @@ package fr.rakambda.plexdeleter.notify;
 import ch.digitalfondue.mjml4j.Mjml4j;
 import com.googlecode.htmlcompressor.compressor.HtmlCompressor;
 import fr.rakambda.plexdeleter.api.tautulli.data.AudioMediaPartStream;
+import fr.rakambda.plexdeleter.api.tautulli.data.GetMetadataResponse;
 import fr.rakambda.plexdeleter.api.tautulli.data.MediaInfo;
 import fr.rakambda.plexdeleter.api.tautulli.data.SubtitlesMediaPartStream;
 import fr.rakambda.plexdeleter.config.ApplicationConfiguration;
 import fr.rakambda.plexdeleter.config.MailConfiguration;
 import fr.rakambda.plexdeleter.notify.context.MediaMetadataContext;
+import fr.rakambda.plexdeleter.notify.context.MetadataProviderInfo;
 import fr.rakambda.plexdeleter.service.LanguageFlagService;
 import fr.rakambda.plexdeleter.service.ThymeleafService;
 import fr.rakambda.plexdeleter.service.WatchService;
@@ -37,6 +39,7 @@ import java.util.Locale;
 import java.util.Objects;
 import java.util.Optional;
 import java.util.function.Function;
+import java.util.stream.Stream;
 import static fr.rakambda.plexdeleter.storage.entity.MediaEntity.COMPARATOR_BY_TYPE_THEN_NAME_THEN_INDEX;
 
 @Slf4j
@@ -101,39 +104,45 @@ public class MailNotificationService extends AbstractNotificationService{
 		}, message -> {}, availableMedia, downloadingMedia, notYetAvailableMedia);
 	}
 	
-	public void notifyRequirementAdded(@NonNull NotificationEntity notification, @NonNull UserGroupEntity userGroupEntity, @NonNull MediaEntity media) throws MessagingException, UnsupportedEncodingException{
-		notifySimple(notification, userGroupEntity, media, "mail.requirement.added.subject");
+	public void notifyRequirementAdded(@NonNull NotificationEntity notification, @NonNull UserGroupEntity userGroupEntity, @NonNull MediaEntity media, @Nullable MediaMetadataContext mediaMetadataContext) throws MessagingException, UnsupportedEncodingException{
+		notifyMediaDetailed(notification, userGroupEntity, media, mediaMetadataContext, "mail.requirement.added.subject");
 	}
 	
-	public void notifyMediaAvailable(@NonNull NotificationEntity notification, @NonNull UserGroupEntity userGroupEntity, @NonNull MediaEntity media) throws MessagingException, UnsupportedEncodingException{
-		notifySimple(notification, userGroupEntity, media, "mail.media.available.subject");
+	public void notifyMediaAvailable(@NonNull NotificationEntity notification, @NonNull UserGroupEntity userGroupEntity, @NonNull MediaEntity media, @Nullable MediaMetadataContext mediaMetadataContext) throws MessagingException, UnsupportedEncodingException{
+		notifyMediaDetailed(notification, userGroupEntity, media, mediaMetadataContext, "mail.media.available.subject");
 	}
 	
-	public void notifyMediaDeleted(@NonNull NotificationEntity notification, @NonNull UserGroupEntity userGroupEntity, @NonNull MediaEntity media) throws MessagingException, UnsupportedEncodingException{
-		notifySimple(notification, userGroupEntity, media, "mail.media.deleted.subject");
+	public void notifyMediaDeleted(@NonNull NotificationEntity notification, @NonNull UserGroupEntity userGroupEntity, @NonNull MediaEntity media, @Nullable MediaMetadataContext mediaMetadataContext) throws MessagingException, UnsupportedEncodingException{
+		notifyMediaDetailed(notification, userGroupEntity, media, mediaMetadataContext, "mail.media.deleted.subject");
 	}
 	
-	public void notifyMediaWatched(@NonNull NotificationEntity notification, @NonNull UserGroupEntity userGroupEntity, @NonNull MediaEntity media) throws MessagingException, UnsupportedEncodingException{
-		notifySimple(notification, userGroupEntity, media, "mail.media.watched.subject");
+	public void notifyMediaWatched(@NonNull NotificationEntity notification, @NonNull UserGroupEntity userGroupEntity, @NonNull MediaEntity media, @Nullable MediaMetadataContext mediaMetadataContext) throws MessagingException, UnsupportedEncodingException{
+		notifyMediaDetailed(notification, userGroupEntity, media, mediaMetadataContext, "mail.media.watched.subject");
 	}
 	
-	public void notifyRequirementManuallyWatched(@NonNull NotificationEntity notification, @NonNull UserGroupEntity userGroupEntity, @NonNull MediaEntity media) throws MessagingException, UnsupportedEncodingException{
-		notifySimple(notification, userGroupEntity, media, "mail.requirement.manually-watched.subject");
+	public void notifyRequirementManuallyWatched(@NonNull NotificationEntity notification, @NonNull UserGroupEntity userGroupEntity, @NonNull MediaEntity media, @Nullable MediaMetadataContext mediaMetadataContext) throws MessagingException, UnsupportedEncodingException{
+		notifyMediaDetailed(notification, userGroupEntity, media, mediaMetadataContext, "mail.requirement.manually-watched.subject");
 	}
 	
-	public void notifyRequirementManuallyAbandoned(@NonNull NotificationEntity notification, @NonNull UserGroupEntity userGroupEntity, @NonNull MediaEntity media) throws MessagingException, UnsupportedEncodingException{
-		notifySimple(notification, userGroupEntity, media, "mail.requirement.manually-abandoned.subject");
+	public void notifyRequirementManuallyAbandoned(@NonNull NotificationEntity notification, @NonNull UserGroupEntity userGroupEntity, @NonNull MediaEntity media, @Nullable MediaMetadataContext mediaMetadataContext) throws MessagingException, UnsupportedEncodingException{
+		notifyMediaDetailed(notification, userGroupEntity, media, mediaMetadataContext, "mail.requirement.manually-abandoned.subject");
 	}
 	
-	public void notifyMediaAdded(@NonNull NotificationEntity notification, @NonNull UserGroupEntity userGroupEntity, @Nullable MediaEntity media, @NonNull MediaMetadataContext mediaMetadataContext) throws MessagingException, UnsupportedEncodingException{
+	public void notifyMediaAdded(@NonNull NotificationEntity notification, @NonNull UserGroupEntity userGroupEntity, @Nullable MediaEntity media, @Nullable MediaMetadataContext mediaMetadataContext) throws MessagingException, UnsupportedEncodingException{
+		notifyMediaDetailed(notification, userGroupEntity, media, mediaMetadataContext, "mail.media.added.subject");
+	}
+	
+	private void notifyMediaDetailed(@NonNull NotificationEntity notification, @NonNull UserGroupEntity userGroupEntity, @Nullable MediaEntity media, @Nullable MediaMetadataContext mediaMetadataContext, @NonNull String subjectKey) throws MessagingException, UnsupportedEncodingException{
 		var locale = userGroupEntity.getLocaleAsObject();
-		var metadata = mediaMetadataContext.getMetadata();
+		var metadata = Optional.ofNullable(mediaMetadataContext).map(MediaMetadataContext::getMetadata);
 		
-		var mediaSeason = getMediaSeason(metadata, locale);
-		var releaseDate = Optional.ofNullable(metadata.getOriginallyAvailableAt())
+		var mediaSeason = metadata.map(m -> getMediaSeason(m, locale)).orElse(null);
+		var releaseDate = metadata
+				.map(GetMetadataResponse::getOriginallyAvailableAt)
 				.map(DATE_FORMATTER::format)
 				.orElse(null);
-		var audioLanguages = getMediaStreams(metadata, AudioMediaPartStream.class)
+		var audioLanguages = metadata.stream()
+				.flatMap(m -> getMediaStreams(m, AudioMediaPartStream.class))
 				.map(AudioMediaPartStream::getAudioLanguageCode)
 				.filter(Objects::nonNull)
 				.distinct()
@@ -141,7 +150,8 @@ public class MailNotificationService extends AbstractNotificationService{
 				.sorted()
 				.map(s -> new LanguageInfo("locale.%s".formatted(s), languageFlagService.getFlagUrl(s)))
 				.toList();
-		var subtitleLanguages = getMediaStreams(metadata, SubtitlesMediaPartStream.class)
+		var subtitleLanguages = metadata.stream()
+				.flatMap(m -> getMediaStreams(m, SubtitlesMediaPartStream.class))
 				.map(SubtitlesMediaPartStream::getSubtitleLanguageCode)
 				.filter(Objects::nonNull)
 				.distinct()
@@ -149,18 +159,50 @@ public class MailNotificationService extends AbstractNotificationService{
 				.sorted()
 				.map(s -> new LanguageInfo("locale.%s".formatted(s), languageFlagService.getFlagUrl(s)))
 				.toList();
-		var resolutions = metadata.getMediaInfo().stream()
+		var resolutions = metadata.stream()
+				.map(GetMetadataResponse::getMediaInfo)
+				.flatMap(Collection::stream)
 				.map(MediaInfo::getVideoFullResolution)
 				.filter(Objects::nonNull)
 				.distinct()
 				.toList();
-		var bitrates = metadata.getMediaInfo().stream()
+		var bitrates = metadata.stream()
+				.map(GetMetadataResponse::getMediaInfo)
+				.flatMap(Collection::stream)
 				.map(MediaInfo::getBitrate)
 				.filter(Objects::nonNull)
 				.distinct()
 				.toList();
+		var title = Optional.ofNullable(mediaMetadataContext)
+				.flatMap(m -> m.getTitle(locale))
+				.or(() -> metadata.map(GetMetadataResponse::getFullTitle))
+				.or(() -> Optional.ofNullable(media).map(MediaEntity::getName))
+				.orElse(null);
+		var summary = Optional.ofNullable(mediaMetadataContext)
+				.flatMap(m -> m.getSummary(locale))
+				.or(() -> metadata.map(GetMetadataResponse::getSummary))
+				.orElse(null);
+		var genres = Optional.ofNullable(mediaMetadataContext)
+				.flatMap(m -> m.getGenres(messageSource, locale))
+				.or(() -> metadata.map(GetMetadataResponse::getGenres))
+				.orElseGet(List::of);
+		var metadataProviderInfos = Stream.concat(Optional.ofNullable(mediaMetadataContext)
+						.stream()
+						.map(MediaMetadataContext::getMetadataProviderInfo)
+						.flatMap(Collection::stream),
+				Stream.of(
+						Optional.ofNullable(media).stream()
+								.map(thymeleafService::getMediaPlexUrl)
+								.filter(Objects::nonNull)
+								.map(url -> new MetadataProviderInfo("Plex", url)),
+						Optional.ofNullable(media).stream()
+								.map(thymeleafService::getMediaOverseerrUrl)
+								.filter(Objects::nonNull)
+								.map(url -> new MetadataProviderInfo("Overseerr", url))
+				).flatMap(Function.identity())
+		).toList();
 		
-		var posterData = mediaMetadataContext.getPosterData();
+		var posterData = Optional.ofNullable(mediaMetadataContext).flatMap(MediaMetadataContext::getPosterData);
 		var mediaPosterResourceName = "mediaPosterResourceName";
 		
 		var suggestAddRequirementId = Optional.ofNullable(media)
@@ -171,40 +213,28 @@ public class MailNotificationService extends AbstractNotificationService{
 				.map(MediaEntity::getId)
 				.orElse(null);
 		
-		sendMail(notification, "mail.media.added.subject", locale, "mail/media-added.html", context -> {
+		sendMail(notification, subjectKey, locale, "mail/media-detailed.html", context -> {
 			context.setLocale(userGroupEntity.getLocaleAsObject());
 			context.setVariable("thymeleafService", thymeleafService);
-			context.setVariable("mediaTitle", mediaMetadataContext.getTitle(locale).orElseGet(metadata::getFullTitle));
+			context.setVariable("mediaTitle", title);
 			context.setVariable("mediaSeason", mediaSeason);
-			context.setVariable("mediaSummary", mediaMetadataContext.getSummary(locale).orElseGet(metadata::getSummary));
+			context.setVariable("mediaSummary", summary);
 			context.setVariable("mediaReleaseDate", releaseDate);
-			context.setVariable("mediaActors", metadata.getActors().stream().limit(20).toList());
-			context.setVariable("mediaGenres", mediaMetadataContext.getGenres(messageSource, locale).orElseGet(metadata::getGenres));
-			context.setVariable("mediaDuration", getMediaDuration(Duration.ofMillis(metadata.getDuration())));
+			context.setVariable("mediaActors", metadata.stream().map(GetMetadataResponse::getActors).flatMap(Collection::stream).limit(20).toList());
+			context.setVariable("mediaGenres", genres);
+			context.setVariable("mediaDuration", metadata.map(m -> getMediaDuration(Duration.ofMillis(m.getDuration()))).orElse(null));
 			context.setVariable("mediaPosterResourceName", posterData.isPresent() ? mediaPosterResourceName : null);
 			context.setVariable("mediaAudios", audioLanguages);
 			context.setVariable("mediaSubtitles", subtitleLanguages);
 			context.setVariable("mediaResolutions", resolutions);
 			context.setVariable("mediaBitrates", bitrates);
 			context.setVariable("suggestAddRequirementId", suggestAddRequirementId);
-			context.setVariable("metadataProvidersInfo", mediaMetadataContext.getMetadataProviderInfo());
+			context.setVariable("metadataProvidersInfo", metadataProviderInfos);
 		}, message -> {
 			if(posterData.isPresent()){
 				message.addInline(mediaPosterResourceName, new ByteArrayResource(posterData.get()), "image/jpeg");
 			}
 		}, List.of());
-	}
-	
-	private void notifySimple(@NonNull NotificationEntity notification, @NonNull UserGroupEntity userGroupEntity, @NonNull MediaEntity media, @NonNull String subjectKey) throws MessagingException, UnsupportedEncodingException{
-		var locale = userGroupEntity.getLocaleAsObject();
-		
-		sendMail(notification, subjectKey, locale, "mail/single-media.html", context -> {
-			context.setLocale(userGroupEntity.getLocaleAsObject());
-			context.setVariable("service", this);
-			context.setVariable("medias", List.of(media));
-			context.setVariable("thymeleafService", thymeleafService);
-			context.setVariable("userGroup", userGroupEntity);
-		}, mailHelper -> {}, List.of(media));
 	}
 	
 	@SafeVarargs

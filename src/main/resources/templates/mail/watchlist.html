@@ -1,5 +1,5 @@
 <mjml xmlns:th="http://www.thymeleaf.org">
-    <mj-head th:insert="~{fragment/mail::header}"/>
+    <mj-head th:replace="~{fragment/mail::header}"/>
     <mj-body css-class="mj-body">
         <th:block th:replace="~{fragment/mail::media-list(hasHeader=true,medias=${availableMedias},headerKey='mail.watchlist.body.header.available',headerColor='#28a745')}"/>
         <th:block th:replace="~{fragment/mail::media-list(hasHeader=true,medias=${downloadingMedias},headerKey='mail.watchlist.body.header.downloading',headerColor='#ffc107')}"/>

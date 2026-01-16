@@ -84,13 +84,32 @@ public class NotificationService{
 				return;
 			}
 			switch(notification.getType()){
-				case MAIL -> mailNotificationService.notifyRequirementAdded(notification, userGroupEntity, media);
+				case MAIL -> mailNotificationService.notifyRequirementAdded(notification, userGroupEntity, media, getMetadata(media));
 				case DISCORD, DISCORD_THREAD -> discordNotificationService.notifyRequirementAdded(notification, userGroupEntity, media);
 			}
 		}
 		catch(MessagingException | UnsupportedEncodingException | InterruptedException | RequestFailedException e){
 			throw new NotifyException("Failed to notify media requirement added for group %s".formatted(userGroupEntity), e);
 		}
+	}
+	
+	@Nullable
+	private MediaMetadataContext getMetadata(@NonNull MediaEntity media) throws RequestFailedException{
+		if(Objects.isNull(media.getPlexId())){
+			return null;
+		}
+		var metadata = tautulliApiService.getMetadata(media.getPlexId()).getResponse().getData();
+		if(Objects.isNull(metadata)){
+			return null;
+		}
+		var tmdbMediaMetadataContext = new TmdbMediaMetadataContext(tautulliApiService, metadata, tmdbApiService);
+		var tvdbMediaMetadataContext = new TvdbMediaMetadataContext(tautulliApiService, metadata, tvdbApiService);
+		var traktMediaMetadataContext = new TraktMediaMetadataContext(tautulliApiService, metadata);
+		return new CompositeMediaMetadataContext(tautulliApiService, metadata, List.of(
+				tmdbMediaMetadataContext,
+				tvdbMediaMetadataContext,
+				traktMediaMetadataContext
+		));
 	}
 	
 	@Transactional
@@ -112,7 +131,7 @@ public class NotificationService{
 				return;
 			}
 			switch(notification.getType()){
-				case MAIL -> mailNotificationService.notifyMediaAvailable(notification, userGroupEntity, media);
+				case MAIL -> mailNotificationService.notifyMediaAvailable(notification, userGroupEntity, media, getMetadata(media));
 				case DISCORD, DISCORD_THREAD -> discordNotificationService.notifyMediaAvailable(notification, userGroupEntity, media);
 			}
 		}
@@ -132,7 +151,7 @@ public class NotificationService{
 				return;
 			}
 			switch(notification.getType()){
-				case MAIL -> mailNotificationService.notifyMediaWatched(notification, userGroupEntity, media);
+				case MAIL -> mailNotificationService.notifyMediaWatched(notification, userGroupEntity, media, getMetadata(media));
 				case DISCORD, DISCORD_THREAD -> discordNotificationService.notifyMediaWatched(notification, userGroupEntity, media);
 			}
 		}
@@ -152,7 +171,7 @@ public class NotificationService{
 				return;
 			}
 			switch(notification.getType()){
-				case MAIL -> mailNotificationService.notifyMediaDeleted(notification, userGroupEntity, media);
+				case MAIL -> mailNotificationService.notifyMediaDeleted(notification, userGroupEntity, media, getMetadata(media));
 				case DISCORD, DISCORD_THREAD -> discordNotificationService.notifyMediaDeleted(notification, userGroupEntity, media);
 			}
 		}
@@ -172,7 +191,7 @@ public class NotificationService{
 				return;
 			}
 			switch(notification.getType()){
-				case MAIL -> mailNotificationService.notifyRequirementManuallyWatched(notification, userGroupEntity, media);
+				case MAIL -> mailNotificationService.notifyRequirementManuallyWatched(notification, userGroupEntity, media, getMetadata(media));
 				case DISCORD, DISCORD_THREAD -> discordNotificationService.notifyRequirementManuallyWatched(notification, userGroupEntity, media);
 			}
 		}
@@ -192,7 +211,7 @@ public class NotificationService{
 				return;
 			}
 			switch(notification.getType()){
-				case MAIL -> mailNotificationService.notifyRequirementManuallyAbandoned(notification, userGroupEntity, media);
+				case MAIL -> mailNotificationService.notifyRequirementManuallyAbandoned(notification, userGroupEntity, media, getMetadata(media));
 				case DISCORD, DISCORD_THREAD -> discordNotificationService.notifyRequirementManuallyAbandoned(notification, userGroupEntity, media);
 			}
 		}
@@ -218,7 +237,9 @@ public class NotificationService{
 			log.warn("Not notifying media file added, could not determine rating key from {}", metadata);
 			return;
 		}
-
+		
+		var media = mediaRepository.findByPlexId(ratingKey).orElse(null);
+		
 		var tmdbMediaMetadataContext = new TmdbMediaMetadataContext(tautulliApiService, metadata, tmdbApiService);
 		var tvdbMediaMetadataContext = new TvdbMediaMetadataContext(tautulliApiService, metadata, tvdbApiService);
 		var traktMediaMetadataContext = new TraktMediaMetadataContext(tautulliApiService, metadata);
@@ -227,8 +248,6 @@ public class NotificationService{
 				tvdbMediaMetadataContext,
 				traktMediaMetadataContext
 		));
-		
-		var media = mediaRepository.findByPlexId(ratingKey).orElse(null);
 		
 		if(Objects.isNull(media)){
 			var mediaOther = tmdbMediaMetadataContext.getTmdbId().flatMap(id -> mediaRepository.findByTmdbIdAndIndex(id, mediaIndex))

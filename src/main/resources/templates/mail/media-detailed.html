@@ -1,7 +1,7 @@
 <mjml xmlns:th="http://www.thymeleaf.org">
-    <mj-head th:insert="~{fragment/mail::header}"/>
+    <mj-head th:replace="~{fragment/mail::header}"/>
     <mj-body css-class="mj-body">
-        <th:block th:replace="~{fragment/mail::media-list}"/>
+        <th:block th:replace="~{fragment/mail::media-detailed}"/>
         <th:block th:replace="~{fragment/mail::manage-website}"/>
     </mj-body>
 </mjml>

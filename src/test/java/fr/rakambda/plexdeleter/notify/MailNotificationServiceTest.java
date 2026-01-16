@@ -5,6 +5,7 @@ import fr.rakambda.plexdeleter.api.tautulli.TautulliApiService;
 import fr.rakambda.plexdeleter.api.tmdb.TmdbApiService;
 import fr.rakambda.plexdeleter.api.tvdb.TvdbApiService;
 import fr.rakambda.plexdeleter.notify.context.CompositeMediaMetadataContext;
+import fr.rakambda.plexdeleter.notify.context.MediaMetadataContext;
 import fr.rakambda.plexdeleter.notify.context.TmdbMediaMetadataContext;
 import fr.rakambda.plexdeleter.notify.context.TraktMediaMetadataContext;
 import fr.rakambda.plexdeleter.notify.context.TvdbMediaMetadataContext;
@@ -19,6 +20,7 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.condition.DisabledIfEnvironmentVariable;
 import java.io.UnsupportedEncodingException;
 import java.util.List;
+import java.util.Objects;
 
 @ActiveProfiles("local")
 @SpringBootTest
@@ -46,18 +48,18 @@ class MailNotificationServiceTest{
 	
 	@Test
 	@Transactional
-	void sendTestRequirementAddedMail() throws MessagingException, UnsupportedEncodingException{
+	void sendTestRequirementAddedMail() throws MessagingException, UnsupportedEncodingException, RequestFailedException{
 		var userGroup = userGroupRepository.findById(2).orElseThrow();
 		var media = userGroup.getRequirements().get(0).getMedia();
-		mailNotificationService.notifyRequirementAdded(userGroup.getNotification(), userGroup, media);
+		mailNotificationService.notifyRequirementAdded(userGroup.getNotification(), userGroup, media, getMetadata());
 	}
 	
 	@Test
 	@Transactional
-	void sendTestMediaDeletedMail() throws MessagingException, UnsupportedEncodingException{
+	void sendTestMediaDeletedMail() throws MessagingException, UnsupportedEncodingException, RequestFailedException{
 		var userGroup = userGroupRepository.findById(2).orElseThrow();
 		var media = userGroup.getRequirements().get(0).getMedia();
-		mailNotificationService.notifyMediaDeleted(userGroup.getNotification(), userGroup, media);
+		mailNotificationService.notifyMediaDeleted(userGroup.getNotification(), userGroup, media, getMetadata());
 	}
 	
 	@Test
@@ -66,16 +68,22 @@ class MailNotificationServiceTest{
 		var userGroup = userGroupRepository.findById(2).orElseThrow();
 		var media = mediaRepository.findByOverseerrIdAndIndex(95480, 4).get();
 		
-		var metadata = tautulliApiService.getMetadata(834236).getResponse().getData();
+		mailNotificationService.notifyMediaAdded(userGroup.getNotification(), userGroup, media, getMetadata());
+	}
+	
+	private MediaMetadataContext getMetadata() throws RequestFailedException{
+		var metadata = tautulliApiService.getMetadata(834213).getResponse().getData();
+		if(Objects.isNull(metadata)){
+			return null;
+		}
 		
 		var tmdbMediaMetadataContext = new TmdbMediaMetadataContext(tautulliApiService, metadata, tmdbApiService);
 		var tvdbMediaMetadataContext = new TvdbMediaMetadataContext(tautulliApiService, metadata, tvdbApiService);
 		var traktMediaMetadataContext = new TraktMediaMetadataContext(tautulliApiService, metadata);
-		var mediaMetadataContext = new CompositeMediaMetadataContext(tautulliApiService, metadata, List.of(
+		return new CompositeMediaMetadataContext(tautulliApiService, metadata, List.of(
 				tmdbMediaMetadataContext,
 				tvdbMediaMetadataContext,
 				traktMediaMetadataContext
 		));
-		mailNotificationService.notifyMediaAdded(userGroup.getNotification(), userGroup, media, mediaMetadataContext);
 	}
 }
