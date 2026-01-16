@@ -46,7 +46,15 @@ class MailNotificationServiceTest{
 	
 	@Test
 	@Transactional
-	void sendTestSimpleMail() throws MessagingException, UnsupportedEncodingException{
+	void sendTestRequirementAddedMail() throws MessagingException, UnsupportedEncodingException{
+		var userGroup = userGroupRepository.findById(2).orElseThrow();
+		var media = userGroup.getRequirements().get(0).getMedia();
+		mailNotificationService.notifyRequirementAdded(userGroup.getNotification(), userGroup, media);
+	}
+	
+	@Test
+	@Transactional
+	void sendTestMediaDeletedMail() throws MessagingException, UnsupportedEncodingException{
 		var userGroup = userGroupRepository.findById(2).orElseThrow();
 		var media = userGroup.getRequirements().get(0).getMedia();
 		mailNotificationService.notifyMediaDeleted(userGroup.getNotification(), userGroup, media);
