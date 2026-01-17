@@ -63,13 +63,13 @@ public class TautulliHandler extends RetryMessageHandler<TautulliMessage>{
 		
 		switch(message.getType()){
 			case "watched" -> {
-				tautulliService.updateRequirement(webhookData);
 				tautulliService.addNewMediaIfPreviousExist(webhookData);
+				tautulliService.updateRequirement(webhookData);
 			}
 			case "added" -> {
+				tautulliService.addNewMediaIfPreviousExist(webhookData);
 				tautulliService.updateMedia(webhookData);
 				tautulliService.notifyMedia(webhookData);
-				tautulliService.addNewMediaIfPreviousExist(webhookData);
 			}
 		}
 	}
