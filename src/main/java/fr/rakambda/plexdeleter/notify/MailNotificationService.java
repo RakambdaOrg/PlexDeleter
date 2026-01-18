@@ -206,7 +206,8 @@ public class MailNotificationService extends AbstractNotificationService{
 		var mediaPosterResourceName = "mediaPosterResourceName";
 		
 		var suggestAddRequirementId = Optional.ofNullable(media)
-				.filter(m -> m.getRequirements().stream()
+				.filter(m -> Optional.ofNullable(m.getRequirements()).stream()
+						.flatMap(Collection::stream)
 						.map(MediaRequirementEntity::getGroup)
 						.map(UserGroupEntity::getId)
 						.noneMatch(group -> Objects.equals(group, userGroupEntity.getId())))
