@@ -73,7 +73,7 @@ public class DeleteMediaScheduler implements IScheduler{
 	}
 	
 	@Override
-	@Scheduled(cron = "0 0 1 * * *")
+	@Scheduled(cron = "0 15 0 * * *")
 	public void run(){
 		log.info("Staring to delete old media");
 		var medias = mediaRepository.findAllByStatusIn(Set.of(MediaStatus.PENDING_DELETION));

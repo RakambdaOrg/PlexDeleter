@@ -39,7 +39,7 @@ public class NotifyWatchlistScheduler implements IScheduler{
 	}
 	
 	@Override
-	@Scheduled(cron = "0 30 1 * * *")
+	@Scheduled(cron = "0 0 7 * * *")
 	@Transactional
 	public void run(){
 		log.info("Notifying user groups");
