@@ -41,19 +41,14 @@ public class PlexCommunityApiService{
 	private final WebClient apiClient;
 	
 	@Autowired
-	public PlexCommunityApiService(GraphQlService graphQlService, ApplicationConfiguration applicationConfiguration){
+	public PlexCommunityApiService(GraphQlService graphQlService, ApplicationConfiguration applicationConfiguration, WebClient.Builder webClientBuilder){
 		this.graphQlService = graphQlService;
 		
-		apiClient = WebClient.builder()
+		apiClient = webClientBuilder.clone()
 				.baseUrl(applicationConfiguration.getPlex().getCommunityEndpoint())
 				.defaultHeader(HttpHeaders.ACCEPT, MimeTypeUtils.APPLICATION_JSON_VALUE)
 				.defaultHeader("X-Plex-Token", applicationConfiguration.getPlex().getCommunityToken())
-				.filter(HttpUtils.logErrorFilter())
 				.filter(HttpUtils.retryOnStatus(Set.of(HttpStatus.TOO_MANY_REQUESTS), ChronoUnit.SECONDS, 60))
-				.codecs(codec -> codec
-						.defaultCodecs()
-						.maxInMemorySize(1024 * 1024)
-				)
 				.build();
 	}
 	

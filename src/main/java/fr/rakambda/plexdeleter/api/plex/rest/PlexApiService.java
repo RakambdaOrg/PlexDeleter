@@ -16,11 +16,10 @@ import org.springframework.web.reactive.function.client.WebClient;
 public class PlexApiService{
 	private final WebClient apiClient;
 	
-	public PlexApiService(ApplicationConfiguration applicationConfiguration){
-		apiClient = WebClient.builder()
+	public PlexApiService(ApplicationConfiguration applicationConfiguration, WebClient.Builder webClientBuilder){
+		apiClient = webClientBuilder.clone()
 				.baseUrl(applicationConfiguration.getPlex().getEndpoint())
 				.defaultHeader(HttpHeaders.ACCEPT, MimeTypeUtils.APPLICATION_JSON_VALUE)
-				.filter(HttpUtils.logErrorFilter())
 				.build();
 	}
 	

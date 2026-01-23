@@ -26,16 +26,11 @@ import java.util.Set;
 public class RadarrApiService{
 	private final WebClient apiClient;
 	
-	public RadarrApiService(ApplicationConfiguration applicationConfiguration){
-		apiClient = WebClient.builder()
+	public RadarrApiService(ApplicationConfiguration applicationConfiguration, WebClient.Builder webClientBuilder){
+		apiClient = webClientBuilder.clone()
 				.baseUrl(applicationConfiguration.getRadarr().getEndpoint())
 				.defaultHeader("X-Api-Key", applicationConfiguration.getRadarr().getApiKey())
-				.filter(HttpUtils.logErrorFilter())
 				.filter(HttpUtils.retryOnStatus(Set.of(HttpStatus.BAD_GATEWAY)))
-				.codecs(codec -> codec
-						.defaultCodecs()
-						.maxInMemorySize(1024 * 1024)
-				)
 				.build();
 	}
 	

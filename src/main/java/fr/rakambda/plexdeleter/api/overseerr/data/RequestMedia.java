@@ -12,9 +12,9 @@ import org.springframework.aot.hint.annotation.RegisterReflectionForBinding;
 @RegisterReflectionForBinding(RequestMedia.class)
 public class RequestMedia{
 	private int id;
-	private int tmdbId;
-	private int tvdbId;
-	private int ratingKey;
+	private Integer tmdbId;
+	private Integer tvdbId;
+	private Integer ratingKey;
 	@NonNull
 	private MediaType mediaType;
 }

@@ -30,16 +30,11 @@ import java.util.Set;
 public class OverseerrApiService{
 	private final WebClient apiClient;
 	
-	public OverseerrApiService(ApplicationConfiguration applicationConfiguration){
-		apiClient = WebClient.builder()
+	public OverseerrApiService(ApplicationConfiguration applicationConfiguration, WebClient.Builder webClientBuilder){
+		apiClient = webClientBuilder.clone()
 				.baseUrl(applicationConfiguration.getOverseerr().getEndpoint())
 				.defaultHeader("X-Api-Key", applicationConfiguration.getOverseerr().getApiKey())
-				.filter(HttpUtils.logErrorFilter())
 				.filter(HttpUtils.retryOnStatus(Set.of(HttpStatus.BAD_GATEWAY)))
-				.codecs(codec -> codec
-						.defaultCodecs()
-						.maxInMemorySize(10 * 1024 * 1024)
-				)
 				.build();
 	}
 	

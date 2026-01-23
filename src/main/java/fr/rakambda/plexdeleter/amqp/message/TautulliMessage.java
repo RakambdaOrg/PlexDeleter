@@ -1,7 +1,6 @@
 package fr.rakambda.plexdeleter.amqp.message;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
-import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import fr.rakambda.plexdeleter.api.tautulli.data.MediaType;
 import fr.rakambda.plexdeleter.json.EmptyStringAsNullDeserializer;
 import lombok.AllArgsConstructor;
@@ -10,6 +9,7 @@ import lombok.NoArgsConstructor;
 import org.jspecify.annotations.NonNull;
 import org.jspecify.annotations.Nullable;
 import org.springframework.aot.hint.annotation.RegisterReflectionForBinding;
+import tools.jackson.databind.annotation.JsonDeserialize;
 import java.time.Instant;
 
 @Data

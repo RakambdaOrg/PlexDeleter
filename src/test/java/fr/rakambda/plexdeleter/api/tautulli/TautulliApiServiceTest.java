@@ -10,6 +10,7 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.condition.DisabledIfEnvironmentVariable;
 import java.time.Instant;
 import java.util.concurrent.TimeUnit;
+import static fr.rakambda.plexdeleter.WebClientUtils.getWebClientBuilder;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
@@ -23,7 +24,7 @@ class TautulliApiServiceTest{
 		var conf = mock(ApplicationConfiguration.class);
 		when(conf.getTautulli()).thenReturn(new TautulliConfiguration(SecretsUtils.getSecret("tautulli.endpoint"), SecretsUtils.getSecret("tautulli.api-key")));
 		
-		tested = new TautulliApiService(conf);
+		tested = new TautulliApiService(conf, getWebClientBuilder());
 	}
 	
 	@Test

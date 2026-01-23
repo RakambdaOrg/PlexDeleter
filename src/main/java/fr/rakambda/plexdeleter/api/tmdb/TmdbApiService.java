@@ -19,16 +19,12 @@ import java.util.Locale;
 public class TmdbApiService{
 	private final WebClient apiClient;
 	
-	public TmdbApiService(ApplicationConfiguration applicationConfiguration){
+	public TmdbApiService(ApplicationConfiguration applicationConfiguration, WebClient.Builder webClientBuilder){
 		var tmdbConfiguration = applicationConfiguration.getTmdb();
 		
-		apiClient = WebClient.builder()
+		apiClient = webClientBuilder.clone()
 				.baseUrl(tmdbConfiguration.getEndpoint())
 				.defaultHeader(HttpHeaders.AUTHORIZATION, "Bearer " + tmdbConfiguration.getToken())
-				.codecs(codec -> codec
-						.defaultCodecs()
-						.maxInMemorySize(1024 * 1024)
-				)
 				.build();
 	}
 	

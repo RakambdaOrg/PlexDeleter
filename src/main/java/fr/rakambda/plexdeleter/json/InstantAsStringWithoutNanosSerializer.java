@@ -1,33 +1,23 @@
 package fr.rakambda.plexdeleter.json;
 
-import com.fasterxml.jackson.core.JsonGenerator;
-import com.fasterxml.jackson.databind.SerializerProvider;
-import com.fasterxml.jackson.databind.ser.std.StdSerializer;
-import org.jspecify.annotations.NonNull;
-import java.io.IOException;
-import java.io.Serial;
+import tools.jackson.core.JacksonException;
+import tools.jackson.databind.SerializationContext;
+import tools.jackson.databind.ser.std.StdSerializer;
 import java.time.Instant;
 import java.time.format.DateTimeFormatter;
 import java.time.format.DateTimeFormatterBuilder;
 
 public class InstantAsStringWithoutNanosSerializer extends StdSerializer<Instant>{
-	@Serial
-	private static final long serialVersionUID = -5671874800786469735L;
-	
 	private static final DateTimeFormatter FORMATTER = new DateTimeFormatterBuilder()
 			.appendInstant(0)
 			.toFormatter();
 	
 	public InstantAsStringWithoutNanosSerializer(){
-		this(null);
-	}
-	
-	public InstantAsStringWithoutNanosSerializer(Class<Instant> t){
-		super(t);
+		super(Instant.class);
 	}
 	
 	@Override
-	public void serialize(@NonNull Instant instant, @NonNull JsonGenerator jsonGenerator, @NonNull SerializerProvider serializerProvider) throws IOException{
-		jsonGenerator.writeString(FORMATTER.format(instant));
+	public void serialize(Instant value, tools.jackson.core.JsonGenerator gen, SerializationContext provider) throws JacksonException{
+		gen.writeString(FORMATTER.format(value));
 	}
 }

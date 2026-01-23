@@ -39,8 +39,8 @@ public class TautulliApiService{
 	
 	private final WebClient apiClient;
 	
-	public TautulliApiService(ApplicationConfiguration applicationConfiguration){
-		apiClient = WebClient.builder()
+	public TautulliApiService(ApplicationConfiguration applicationConfiguration, WebClient.Builder webClientBuilder){
+		apiClient = webClientBuilder.clone()
 				.baseUrl(applicationConfiguration.getTautulli().getEndpoint())
 				.filter(ExchangeFilterFunction.ofRequestProcessor(req -> Mono.just(ClientRequest.from(req)
 						.url(UriComponentsBuilder.fromUri(req.url())
@@ -50,11 +50,6 @@ public class TautulliApiService{
 						.build())
 				))
 				.filter(HttpUtils.retryOnStatus(Set.of(HttpStatus.BAD_GATEWAY)))
-				// .filter(HttpUtils.logErrorFilter())
-				.codecs(codec -> codec
-						.defaultCodecs()
-						.maxInMemorySize(1024 * 1024)
-				)
 				.build();
 	}
 	

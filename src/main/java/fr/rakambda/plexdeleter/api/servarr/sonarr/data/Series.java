@@ -1,6 +1,5 @@
 package fr.rakambda.plexdeleter.api.servarr.sonarr.data;
 
-import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 import fr.rakambda.plexdeleter.api.servarr.data.Image;
 import fr.rakambda.plexdeleter.api.servarr.data.OriginalLanguage;
 import fr.rakambda.plexdeleter.json.InstantAsStringWithoutNanosSerializer;
@@ -10,6 +9,7 @@ import lombok.NoArgsConstructor;
 import org.jspecify.annotations.NonNull;
 import org.jspecify.annotations.Nullable;
 import org.springframework.aot.hint.annotation.RegisterReflectionForBinding;
+import tools.jackson.databind.annotation.JsonSerialize;
 import java.time.Instant;
 import java.util.LinkedList;
 import java.util.List;

@@ -7,6 +7,7 @@ import fr.rakambda.plexdeleter.config.RadarrConfiguration;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.condition.DisabledIfEnvironmentVariable;
+import static fr.rakambda.plexdeleter.WebClientUtils.getWebClientBuilder;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
@@ -19,8 +20,8 @@ class RadarrServiceTest{
 	void setUp(){
 		var conf = mock(ApplicationConfiguration.class);
 		when(conf.getRadarr()).thenReturn(new RadarrConfiguration(SecretsUtils.getSecret("radarr.endpoint"), SecretsUtils.getSecret("radarr.api-key")));
-
-		tested = new RadarrApiService(conf);
+		
+		tested = new RadarrApiService(conf, getWebClientBuilder());
 	}
 	
 	@Test

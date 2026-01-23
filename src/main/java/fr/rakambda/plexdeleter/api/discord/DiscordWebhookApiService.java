@@ -29,9 +29,8 @@ public class DiscordWebhookApiService{
 	private final WebClient apiClient;
 	private final Map<String, Semaphore> locks;
 	
-	public DiscordWebhookApiService(){
-		apiClient = WebClient.builder()
-				.filter(HttpUtils.logErrorFilter(Set.of(HttpStatus.TOO_MANY_REQUESTS)))
+	public DiscordWebhookApiService(WebClient.Builder webClientBuilder){
+		apiClient = webClientBuilder.clone()
 				.filter(HttpUtils.retryOnStatus(Set.of(HttpStatus.TOO_MANY_REQUESTS), Integer.MAX_VALUE))
 				.build();
 		locks = new ConcurrentHashMap<>();

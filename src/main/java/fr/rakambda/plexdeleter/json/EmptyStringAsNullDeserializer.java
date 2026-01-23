@@ -1,27 +1,18 @@
 package fr.rakambda.plexdeleter.json;
 
-import com.fasterxml.jackson.core.JsonParser;
-import com.fasterxml.jackson.databind.DeserializationContext;
-import com.fasterxml.jackson.databind.deser.std.StdDeserializer;
 import org.springframework.util.StringUtils;
-import java.io.IOException;
-import java.io.Serial;
+import tools.jackson.core.JsonParser;
+import tools.jackson.databind.DeserializationContext;
+import tools.jackson.databind.deser.std.StdDeserializer;
 
 public class EmptyStringAsNullDeserializer extends StdDeserializer<String>{
-	@Serial
-	private static final long serialVersionUID = 1762330827704440476L;
-	
 	public EmptyStringAsNullDeserializer(){
-		this(null);
-	}
-	
-	protected EmptyStringAsNullDeserializer(Class<String> t){
-		super(t);
+		super(String.class);
 	}
 	
 	@Override
-	public String deserialize(JsonParser p, DeserializationContext ctxt) throws IOException{
+	public String deserialize(JsonParser p, DeserializationContext ctxt){
 		var value = p.getValueAsString();
-		return StringUtils.hasText(value) ? value : getNullValue(ctxt);
+		return StringUtils.hasText(value) ? value : (String) getNullValue(ctxt);
 	}
 }

@@ -31,10 +31,10 @@ public class TvdbApiService{
 	
 	private String bearerToken;
 	
-	public TvdbApiService(ApplicationConfiguration applicationConfiguration){
+	public TvdbApiService(ApplicationConfiguration applicationConfiguration, WebClient.Builder webClientBuilder){
 		var tvdbConfiguration = applicationConfiguration.getTvdb();
 		
-		apiClient = WebClient.builder()
+		apiClient = webClientBuilder.clone()
 				.baseUrl(tvdbConfiguration.getEndpoint())
 				.filter(ExchangeFilterFunction.ofRequestProcessor(req -> {
 					if(Objects.equals(req.url().getPath(), "/v4/login")){
@@ -44,10 +44,6 @@ public class TvdbApiService{
 							.header(HttpHeaders.AUTHORIZATION, "Bearer " + getBearer(tvdbConfiguration.getApiKey()))
 							.build());
 				}))
-				.codecs(codec -> codec
-						.defaultCodecs()
-						.maxInMemorySize(1024 * 1024)
-				)
 				.build();
 	}
 	

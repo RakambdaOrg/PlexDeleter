@@ -8,6 +8,7 @@ import fr.rakambda.plexdeleter.service.GraphQlService;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.condition.DisabledIfEnvironmentVariable;
+import static fr.rakambda.plexdeleter.WebClientUtils.getWebClientBuilder;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
@@ -25,11 +26,11 @@ class PlexCommunityServiceTest{
 		when(plexConf.getCommunityToken()).thenReturn(SecretsUtils.getSecret("plex.community.token"));
 		
 		var graphQlService = new GraphQlService();
-		tested = new PlexCommunityApiService(graphQlService, conf);
+		tested = new PlexCommunityApiService(graphQlService, conf, getWebClientBuilder());
 	}
 	
 	@Test
-	void itShouldGetHistoryForItem() throws RequestFailedException, InterruptedException{
+	void itShouldGetHistoryForItem() throws RequestFailedException{
 		var result = tested.listActivityForItem("602e58f59b7e9c002d6feda0", null);
 		
 		assertThat(result).isNotEmpty();

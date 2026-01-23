@@ -5,6 +5,7 @@ import org.jspecify.annotations.Nullable;
 import org.springframework.aot.hint.annotation.RegisterReflectionForBinding;
 import org.springframework.security.authentication.AbstractAuthenticationToken;
 import java.io.Serial;
+import static org.springframework.security.core.authority.AuthorityUtils.NO_AUTHORITIES;
 
 @Getter
 @RegisterReflectionForBinding(PlexAuthenticationToken.class)
@@ -19,7 +20,7 @@ public class PlexAuthenticationToken extends AbstractAuthenticationToken{
 	}
 	
 	private PlexAuthenticationToken(@Nullable String authToken){
-		super(null);
+		super(NO_AUTHORITIES);
 		this.authToken = authToken;
 	}
 	

@@ -1,6 +1,5 @@
 package fr.rakambda.plexdeleter.api.servarr.radarr.data;
 
-import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 import fr.rakambda.plexdeleter.json.InstantAsStringWithoutNanosSerializer;
 import lombok.AllArgsConstructor;
 import lombok.Data;
@@ -8,6 +7,7 @@ import lombok.NoArgsConstructor;
 import org.jspecify.annotations.NonNull;
 import org.jspecify.annotations.Nullable;
 import org.springframework.aot.hint.annotation.RegisterReflectionForBinding;
+import tools.jackson.databind.annotation.JsonSerialize;
 import java.time.Instant;
 import java.util.HashSet;
 import java.util.Set;
@@ -27,7 +27,7 @@ public final class MovieFile{
 	@JsonSerialize(using = InstantAsStringWithoutNanosSerializer.class)
 	private Instant dateAdded;
 	private int indexerFlags;
-	private int customFormatScore;
+	private Integer customFormatScore;
 	private boolean qualityCutoffNotMet;
 	private Quality quality;
 	private MediaInfo mediaInfo;

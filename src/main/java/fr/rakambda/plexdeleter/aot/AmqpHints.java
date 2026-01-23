@@ -12,7 +12,8 @@ public class AmqpHints implements RuntimeHintsRegistrar{
 	public void registerHints(@NonNull RuntimeHints hints, @Nullable ClassLoader classLoader){
 		hints.reflection()
 				.registerType(AmqpConstants.class,
-						MemberCategory.DECLARED_FIELDS,
+						MemberCategory.ACCESS_DECLARED_FIELDS,
+						MemberCategory.ACCESS_PUBLIC_FIELDS,
 						MemberCategory.INVOKE_DECLARED_CONSTRUCTORS,
 						MemberCategory.INVOKE_DECLARED_METHODS,
 						MemberCategory.INVOKE_PUBLIC_CONSTRUCTORS,

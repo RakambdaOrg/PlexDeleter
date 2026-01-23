@@ -17,12 +17,11 @@ import java.util.Collection;
 public class PlexMediaServerApiService{
 	private final WebClient apiClient;
 	
-	public PlexMediaServerApiService(ApplicationConfiguration applicationConfiguration){
-		apiClient = WebClient.builder()
+	public PlexMediaServerApiService(ApplicationConfiguration applicationConfiguration, WebClient.Builder webClientBuilder){
+		apiClient = webClientBuilder.clone()
 				.baseUrl(applicationConfiguration.getPlex().getPmsEndpoint())
 				.defaultHeader(HttpHeaders.ACCEPT, MimeTypeUtils.APPLICATION_JSON_VALUE)
 				.defaultHeader("X-Plex-Token", applicationConfiguration.getPlex().getPmsToken())
-				.filter(HttpUtils.logErrorFilter())
 				.build();
 	}
 	

@@ -28,16 +28,11 @@ public class SonarrApiService{
 	private final WebClient apiClient;
 	
 	@Autowired
-	public SonarrApiService(ApplicationConfiguration applicationConfiguration){
-		apiClient = WebClient.builder()
+	public SonarrApiService(ApplicationConfiguration applicationConfiguration, WebClient.Builder webClientBuilder){
+		apiClient = webClientBuilder.clone()
 				.baseUrl(applicationConfiguration.getSonarr().getEndpoint())
 				.defaultHeader("X-Api-Key", applicationConfiguration.getSonarr().getApiKey())
-				.filter(HttpUtils.logErrorFilter())
 				.filter(HttpUtils.retryOnStatus(Set.of(HttpStatus.BAD_GATEWAY)))
-				.codecs(codec -> codec
-						.defaultCodecs()
-						.maxInMemorySize(1024 * 1024)
-				)
 				.build();
 	}
 	

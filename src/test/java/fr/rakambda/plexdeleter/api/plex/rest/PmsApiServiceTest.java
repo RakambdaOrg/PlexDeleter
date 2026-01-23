@@ -8,6 +8,7 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.condition.DisabledIfEnvironmentVariable;
 import java.util.List;
+import static fr.rakambda.plexdeleter.WebClientUtils.getWebClientBuilder;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
@@ -24,7 +25,7 @@ class PmsApiServiceTest{
 		when(plexConf.getPmsEndpoint()).thenReturn(SecretsUtils.getSecret("plex.pms.endpoint"));
 		when(plexConf.getPmsToken()).thenReturn(SecretsUtils.getSecret("plex.pms.token"));
 		
-		tested = new PlexMediaServerApiService(conf);
+		tested = new PlexMediaServerApiService(conf, getWebClientBuilder());
 	}
 	
 	@Test

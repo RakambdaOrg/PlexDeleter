@@ -7,6 +7,7 @@ import fr.rakambda.plexdeleter.config.SonarrConfiguration;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.condition.DisabledIfEnvironmentVariable;
+import static fr.rakambda.plexdeleter.WebClientUtils.getWebClientBuilder;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
@@ -19,8 +20,8 @@ class SonarrServiceTest{
 	void setUp(){
 		var conf = mock(ApplicationConfiguration.class);
 		when(conf.getSonarr()).thenReturn(new SonarrConfiguration(SecretsUtils.getSecret("sonarr.endpoint"), SecretsUtils.getSecret("sonarr.api-key")));
-
-		tested = new SonarrApiService(conf);
+		
+		tested = new SonarrApiService(conf, getWebClientBuilder());
 	}
 	
 	@Test

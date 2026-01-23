@@ -10,7 +10,7 @@ import org.springframework.aot.hint.annotation.RegisterReflectionForBinding;
 @AllArgsConstructor
 @RegisterReflectionForBinding(Cast.class)
 public class Cast{
-	private int castId;
+	private Integer castId;
 	private String character;
 	private String creditId;
 	private int id;

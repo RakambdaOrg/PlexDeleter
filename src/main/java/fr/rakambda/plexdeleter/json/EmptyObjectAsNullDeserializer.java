@@ -1,27 +1,19 @@
 package fr.rakambda.plexdeleter.json;
 
-import com.fasterxml.jackson.core.JsonParser;
-import com.fasterxml.jackson.databind.BeanProperty;
-import com.fasterxml.jackson.databind.DeserializationContext;
-import com.fasterxml.jackson.databind.DeserializationFeature;
-import com.fasterxml.jackson.databind.JsonDeserializer;
-import com.fasterxml.jackson.databind.MapperFeature;
-import com.fasterxml.jackson.databind.ObjectMapper;
-import com.fasterxml.jackson.databind.deser.ContextualDeserializer;
-import com.fasterxml.jackson.databind.deser.std.StdDeserializer;
-import com.fasterxml.jackson.databind.json.JsonMapper;
-import java.io.IOException;
-import java.io.Serial;
+import tools.jackson.core.JacksonException;
+import tools.jackson.core.JsonParser;
+import tools.jackson.databind.DeserializationFeature;
+import tools.jackson.databind.MapperFeature;
+import tools.jackson.databind.ValueDeserializer;
+import tools.jackson.databind.deser.std.StdDeserializer;
+import tools.jackson.databind.json.JsonMapper;
 
-public class EmptyObjectAsNullDeserializer<T> extends StdDeserializer<T> implements ContextualDeserializer{
-	@Serial
-	private static final long serialVersionUID = -931343925587134946L;
-	
+public class EmptyObjectAsNullDeserializer<T> extends StdDeserializer<T>{
 	private final Class<T> valueClass;
-	private final ObjectMapper defaultMapper;
+	private final JsonMapper defaultMapper;
 	
 	public EmptyObjectAsNullDeserializer(){
-		this(null);
+		this((Class<T>) Object.class);
 	}
 	
 	protected EmptyObjectAsNullDeserializer(Class<T> t){
@@ -30,25 +22,25 @@ public class EmptyObjectAsNullDeserializer<T> extends StdDeserializer<T> impleme
 		defaultMapper = JsonMapper.builder()
 				.disable(MapperFeature.DEFAULT_VIEW_INCLUSION)
 				.disable(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES)
-				.build()
-				.findAndRegisterModules();
+				.findAndAddModules()
+				.build();
 	}
 	
 	@Override
-	public JsonDeserializer<?> createContextual(DeserializationContext ctxt, BeanProperty property){
+	public ValueDeserializer<?> createContextual(tools.jackson.databind.DeserializationContext ctxt, tools.jackson.databind.BeanProperty property){
 		return new EmptyObjectAsNullDeserializer<>(property.getType().getRawClass());
 	}
 	
 	@Override
-	public T deserialize(JsonParser p, DeserializationContext ctxt) throws IOException{
+	public T deserialize(JsonParser p, tools.jackson.databind.DeserializationContext ctxt) throws JacksonException{
 		var tree = p.readValueAsTree();
 		if(!tree.isObject()){
-			return getNullValue(ctxt);
+			return (T) getNullValue(ctxt);
 		}
 		
-		var hasFields = tree.fieldNames().hasNext();
-		if(!hasFields){
-			return getNullValue(ctxt);
+		var hasNoFields = tree.propertyNames().isEmpty();
+		if(hasNoFields){
+			return (T) getNullValue(ctxt);
 		}
 		
 		return defaultMapper.treeToValue(tree, valueClass);

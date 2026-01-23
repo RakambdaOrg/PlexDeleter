@@ -8,12 +8,13 @@ import fr.rakambda.plexdeleter.api.discord.data.WebhookMessage;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.condition.DisabledIfEnvironmentVariable;
 import java.util.List;
+import static fr.rakambda.plexdeleter.WebClientUtils.getWebClientBuilder;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatCode;
 
 @DisabledIfEnvironmentVariable(named = "CI", matches = "true", disabledReason = "Required service not available on CI")
 class DiscordWebhookServiceTest{
-	private DiscordWebhookApiService tested = new DiscordWebhookApiService();
+	private DiscordWebhookApiService tested = new DiscordWebhookApiService(getWebClientBuilder());
 	
 	@Test
 	void itShouldSendAMessage(){
