@@ -44,9 +44,9 @@ public class HistoryRecord{
 	@JsonProperty("parent_rating_key")
 	private Integer parentRatingKey;
 	@JsonProperty("media_index")
-	private int mediaIndex;
+	private Integer mediaIndex;
 	@JsonProperty("parent_media_index")
-	private int parentMediaIndex;
+	private Integer parentMediaIndex;
 	@JsonProperty("percent_complete")
 	private int percentComplete;
 	@JsonProperty("watched_status")

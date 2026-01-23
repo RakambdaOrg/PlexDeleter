@@ -56,7 +56,7 @@ public class WatchService{
 				var data = tautulliApiService.getHistory(mediaPlexId, mediaEntity.getType(), person.getPlexId(), historySince).getResponse().getData();
 				if(Objects.nonNull(data)){
 					history.addAll(data.getData().stream()
-							.map(h -> new WatchState(h.getMediaIndex(), h.getWatchedStatus() == 1))
+							.map(h -> new WatchState(Optional.ofNullable(h.getMediaIndex()).orElse(1), h.getWatchedStatus() == 1))
 							.toList());
 				}
 			}
