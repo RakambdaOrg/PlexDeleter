@@ -24,6 +24,7 @@ jobs:
       docker-tag: latest
       timeout: 30
       environment: DockerSelfHosted
+      runs-on: ubuntu-latest-8-cores
     secrets:
       docker-repo: ${{ secrets.DOCKER_REPO }}
       docker-username: ${{ secrets.DOCKER_USERNAME }}
