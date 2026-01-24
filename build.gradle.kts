@@ -82,7 +82,7 @@ tasks.withType<BootBuildImage> {
     builder = "paketobuildpacks/builder-jammy-full:latest"
     environment = mapOf(
         // 1. Force GraalVM to initialize the image with UTF-8
-        "BP_NATIVE_IMAGE_BUILD_ARGUMENTS" to "-H:+AddAllCharsets -march=compatibility -Dfile.encoding=UTF-8 -Dsun.jnu.encoding=UTF-8",
+        "BP_NATIVE_IMAGE_BUILD_ARGUMENTS" to "-H:+AddAllCharsets -march=compatibility -Dfile.encoding=UTF-8 -Dsun.jnu.encoding=UTF-8 -Ob",
 
         // 2. These variables tell the Paketo builder to use UTF-8 during the build process
         "LC_ALL" to "en_US.UTF-8",
