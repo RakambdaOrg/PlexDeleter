@@ -43,8 +43,12 @@ public class LanguageFlagService{
 		FLAG_MAP.put("ara", "sa"); // Arabic -> Saudi Arabia
 		FLAG_MAP.put("heb", "il"); // Hebrew -> Israel
 		FLAG_MAP.put("tur", "tr"); // Turkish -> Turkey (not 'cy')
-		FLAG_MAP.put("hin", "in"); // Hindi -> India
 		FLAG_MAP.put("hye", "am"); // Armenian -> Armenia
+		FLAG_MAP.put("hin", "in"); // Hindi -> India
+		FLAG_MAP.put("kan", "in"); // Kannada -> India
+		FLAG_MAP.put("mal", "in"); // Malayalam -> India
+		FLAG_MAP.put("tam", "in"); // Tamil -> India
+		FLAG_MAP.put("tel", "in"); // Telugu -> India
 		
 		// English & Others
 		FLAG_MAP.put("eng", "gb"); // English -> UK (standard for "English")
