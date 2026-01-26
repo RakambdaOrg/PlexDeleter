@@ -21,6 +21,7 @@ import org.springframework.core.retry.RetryPolicy;
 import org.springframework.core.retry.RetryTemplate;
 import org.springframework.util.backoff.ExponentialBackOff;
 import tools.jackson.databind.json.JsonMapper;
+import java.time.Duration;
 import java.util.Map;
 
 @Configuration
@@ -92,6 +93,7 @@ public class AmqpConfiguration{
 		return QueueBuilder.durable(prefixed(amqpConstants.QUEUE_PROCESS_TAUTULLI))
 				.withArgument(amqpConstants.HEADER_X_DEAD_LETTER_EXCHANGE, prefixed(amqpConstants.EXCHANGE_DEAD_LETTER))
 				.withArgument(amqpConstants.HEADER_X_DEAD_LETTER_ROUTING_KEY, amqpConstants.ROUTING_KEY_DEAD_LETTER_TAUTULLI)
+				.withArgument(amqpConstants.HEADER_X_MESSAGE_TTL, Duration.ofMinutes(1).toMillis())
 				.build();
 	}
 	

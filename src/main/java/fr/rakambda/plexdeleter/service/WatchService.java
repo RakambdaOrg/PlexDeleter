@@ -62,7 +62,7 @@ public class WatchService{
 			}
 		}
 		catch(Exception e){
-			log.error("Failed to get watch history from Tautulli");
+			log.error("Failed to get watch history from Tautulli", e);
 		}
 		return history;
 	}
