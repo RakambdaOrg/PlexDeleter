@@ -127,6 +127,20 @@ class TautulliApiServiceTest{
 	}
 	
 	@Test
+	void itShouldGetSeriesHistory2() throws RequestFailedException{
+		var result = tested.getHistory(834271, MediaType.SEASON, 17746770, Instant.EPOCH);
+		
+		assertThat(result.getResponse().getData()).satisfies(data -> {
+			assertThat(data.getRecordsFiltered()).isGreaterThanOrEqualTo(9);
+			assertThat(data.getData()).hasSizeGreaterThanOrEqualTo(9)
+					.allSatisfy(watch -> {
+						assertThat(watch.getPercentComplete()).isGreaterThan(80);
+						assertThat(watch.getWatchedStatus()).isEqualTo(1);
+					});
+		});
+	}
+	
+	@Test
 	void itShouldGetSeriesHistoryAfterToday() throws RequestFailedException{
 		var result = tested.getHistory(791642, MediaType.SEASON, 17746770, Instant.now().plusSeconds(TimeUnit.DAYS.toSeconds(1)));
 		
