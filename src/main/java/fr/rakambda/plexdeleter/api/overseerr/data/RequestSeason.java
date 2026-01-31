@@ -10,6 +10,5 @@ import org.springframework.aot.hint.annotation.RegisterReflectionForBinding;
 @AllArgsConstructor
 @RegisterReflectionForBinding(RequestSeason.class)
 public class RequestSeason{
-	private int id;
 	private int seasonNumber;
 }

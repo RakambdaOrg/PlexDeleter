@@ -11,7 +11,6 @@ import org.springframework.aot.hint.annotation.RegisterReflectionForBinding;
 @AllArgsConstructor
 @RegisterReflectionForBinding(RequestMedia.class)
 public class RequestMedia{
-	private int id;
 	private Integer tmdbId;
 	private Integer tvdbId;
 	private Integer ratingKey;

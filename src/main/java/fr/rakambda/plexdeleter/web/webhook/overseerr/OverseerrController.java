@@ -71,7 +71,7 @@ public class OverseerrController{
 		}
 	}
 	
-	private void onMediaAdded(@org.jspecify.annotations.NonNull OverseerrWebhook data) throws RequestFailedException, UpdateException, NotifyException{
+	private void onMediaAdded(@NonNull OverseerrWebhook data) throws RequestFailedException, UpdateException, NotifyException{
 		var overseerrId = Optional.ofNullable(data.getMedia()).map(Media::getTmdbId);
 		
 		var medias = overseerrId
@@ -83,7 +83,7 @@ public class OverseerrController{
 		}
 	}
 	
-	private void onMediaApproved(@org.jspecify.annotations.NonNull OverseerrWebhook data) throws RequestFailedException, UpdateException, NotifyException, ThymeleafMessageException{
+	private void onMediaApproved(@NonNull OverseerrWebhook data) throws RequestFailedException, UpdateException, NotifyException, ThymeleafMessageException{
 		var requestId = Optional.ofNullable(data.getRequest()).map(Request::getRequestId);
 		if(requestId.isEmpty()){
 			log.warn("Not adding any media, could not determine request id from {}", data);
