@@ -10,6 +10,6 @@ public class WebClientConfiguration{
 	public WebClientCustomizer globalCustomizer(){
 		return builder -> builder
 				.filter(HttpUtils.logErrorFilter())
-				.codecs(codec -> codec.defaultCodecs().maxInMemorySize(1024 * 1024));
+				.codecs(codec -> codec.defaultCodecs().maxInMemorySize(25 * 1024 * 1024));
 	}
 }
