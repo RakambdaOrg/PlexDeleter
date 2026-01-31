@@ -3,9 +3,9 @@ package fr.rakambda.plexdeleter.json;
 import com.fasterxml.jackson.annotation.JsonInclude.Include;
 import com.fasterxml.jackson.annotation.JsonSetter.Value;
 import com.fasterxml.jackson.annotation.PropertyAccessor;
+import org.springframework.boot.jackson.autoconfigure.JsonMapperBuilderCustomizer;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
-import tools.jackson.databind.json.JsonMapper;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -22,8 +22,8 @@ import static tools.jackson.databind.cfg.EnumFeature.READ_UNKNOWN_ENUM_VALUES_US
 @Configuration
 public class JacksonConfiguration{
 	@Bean
-	public static JsonMapper getMapper(){
-		return JsonMapper.builder()
+	public JsonMapperBuilderCustomizer jsonMapperBuilderCustomizer(){
+		return builder -> builder
 				.enable(ORDER_MAP_ENTRIES_BY_KEYS)
 				.enable(SORT_PROPERTIES_ALPHABETICALLY)
 				.enable(READ_UNKNOWN_ENUM_VALUES_USING_DEFAULT_VALUE)
@@ -39,7 +39,6 @@ public class JacksonConfiguration{
 				.changeDefaultPropertyInclusion(ic -> ic.withValueInclusion(Include.NON_NULL))
 				.withConfigOverride(List.class, c -> c.setNullHandling(Value.forValueNulls(AS_EMPTY)))
 				.withConfigOverride(Set.class, c -> c.setNullHandling(Value.forValueNulls(AS_EMPTY)))
-				.withConfigOverride(Map.class, c -> c.setNullHandling(Value.forValueNulls(AS_EMPTY)))
-				.build();
+				.withConfigOverride(Map.class, c -> c.setNullHandling(Value.forValueNulls(AS_EMPTY)));
 	}
 }
