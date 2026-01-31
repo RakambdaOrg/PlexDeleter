@@ -3,16 +3,14 @@ package fr.rakambda.plexdeleter.config;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
-import org.springframework.lang.NonNull;
+import org.jspecify.annotations.NonNull;
 
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
 public class TautulliConfiguration{
 	@NonNull
-	@org.jspecify.annotations.NonNull
 	private String endpoint;
 	@NonNull
-	@org.jspecify.annotations.NonNull
 	private String apiKey;
 }

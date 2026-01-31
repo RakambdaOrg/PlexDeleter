@@ -3,7 +3,7 @@ package fr.rakambda.plexdeleter.config;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
-import org.springframework.lang.NonNull;
+import org.jspecify.annotations.NonNull;
 import java.time.Duration;
 
 @Data
@@ -11,9 +11,7 @@ import java.time.Duration;
 @AllArgsConstructor
 public class AmqpConfiguration{
 	@NonNull
-	@org.jspecify.annotations.NonNull
 	private String prefix;
 	@NonNull
-	@org.jspecify.annotations.NonNull
 	private Duration requeueDelay;
 }

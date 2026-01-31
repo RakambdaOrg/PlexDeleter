@@ -5,8 +5,8 @@ import fr.rakambda.plexdeleter.api.tautulli.data.MediaType;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+import org.jspecify.annotations.NonNull;
 import org.jspecify.annotations.Nullable;
-import org.springframework.lang.NonNull;
 import java.time.Instant;
 
 @Data
@@ -14,7 +14,6 @@ import java.time.Instant;
 @AllArgsConstructor
 public class TautulliWebhook{
 	@NonNull
-	@org.jspecify.annotations.NonNull
 	private String type;
 	@NonNull
 	@JsonProperty("media_type")
