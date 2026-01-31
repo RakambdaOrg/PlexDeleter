@@ -146,7 +146,7 @@ public class TautulliApiService{
 							.queryParam("user_id", userId)
 							.queryParam("media_type", mediaType)
 							.queryParam("length", 10000)
-							.queryParam("grouping ", 1);
+							.queryParam("grouping", 1);
 					if(Objects.nonNull(after)){
 						b = b.queryParam("after", DATE_FORMAT.format(ZonedDateTime.ofInstant(after, ZoneId.systemDefault())));
 					}
