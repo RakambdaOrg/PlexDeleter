@@ -295,6 +295,11 @@ public class MediaService{
 					.filter(v -> mediaEntity.getAvailablePartsCount() < v)
 					.ifPresent(mediaEntity::setAvailablePartsCount);
 		}
+		catch(WebClientResponseException.NotFound e){
+			log.warn("Failed to update media from Servarr, missing", e);
+			mediaEntity.setServarrId(null);
+			supervisionService.send("❓ Media disappeared from Servarr: %s", mediaEntity);
+		}
 		catch(Exception e){
 			log.error("Failed to update media from Servarr", e);
 		}
