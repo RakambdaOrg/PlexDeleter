@@ -81,7 +81,7 @@ public final class HttpUtils{
 			if(response.statusCode().isError() && !ignoreStatuses.contains(response.statusCode())){
 				return response.bodyToMono(String.class)
 						.flatMap(body -> {
-							log.error("Request {} {} failed with status code {} and body {}",
+							log.warn("Request {} {} failed with status code {} and body {}",
 									response.request().getMethod(),
 									response.request().getURI(),
 									response.statusCode(),
