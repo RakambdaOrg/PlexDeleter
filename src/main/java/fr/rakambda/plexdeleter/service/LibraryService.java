@@ -7,6 +7,8 @@ import fr.rakambda.plexdeleter.api.tautulli.data.GetMetadataResponse;
 import fr.rakambda.plexdeleter.api.tautulli.data.TautulliResponse;
 import fr.rakambda.plexdeleter.config.ApplicationConfiguration;
 import fr.rakambda.plexdeleter.service.data.LibraryElement;
+import fr.rakambda.plexdeleter.storage.entity.MediaEntity;
+import fr.rakambda.plexdeleter.storage.entity.MediaStatus;
 import fr.rakambda.plexdeleter.storage.entity.MediaType;
 import fr.rakambda.plexdeleter.storage.repository.MediaRepository;
 import lombok.extern.slf4j.Slf4j;
@@ -61,7 +63,9 @@ public class LibraryService{
 	}
 	
 	private boolean isRecordMissing(@NonNull GetMetadataResponse element){
-		return !mediaRepository.existsByPlexGuid(element.getGuid());
+		return mediaRepository.findAllByPlexGuid(element.getGuid()).stream()
+				.map(MediaEntity::getStatus)
+				.noneMatch(MediaStatus::isOnDisk);
 	}
 	
 	@NonNull

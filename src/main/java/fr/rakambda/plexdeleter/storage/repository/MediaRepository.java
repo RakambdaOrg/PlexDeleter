@@ -44,5 +44,6 @@ public interface MediaRepository extends JpaRepository<MediaEntity, Integer>{
 	
 	long countByServarrIdAndType(int servarrId, @NonNull MediaType type);
 	
-	boolean existsByPlexGuid(String guid);
+	@NonNull
+	List<MediaEntity> findAllByPlexGuid(String guid);
 }
