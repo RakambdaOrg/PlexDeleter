@@ -346,6 +346,9 @@ public class MediaService{
 			
 			if(deleteFromServarr){
 				deletedServarr = deleteMediaFromServarr(media);
+				
+				media.setStatus(MediaStatus.PENDING_DELETION);
+				mediaRepository.save(media);
 			}
 			
 			supervisionService.send("\uD83D\uDCDB Media marked ready to delete %s", media);
