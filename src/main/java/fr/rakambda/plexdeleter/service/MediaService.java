@@ -215,6 +215,16 @@ public class MediaService{
 			// 	mediaEntity.setPartsCount(partsCount);
 			// }
 		}
+		catch(WebClientResponseException.InternalServerError e){
+			var body = e.getResponseBodyAsString();
+			if(body.contains("Unable to retrieve movie.")){
+				log.warn("Failed to update media from Overseerr");
+				mediaEntity.setOverseerrId(null);
+				supervisionService.send("❓ Media disappeared from Overseerr %s", mediaEntity);
+				return;
+			}
+			log.error("Failed to update media from Overseerr", e);
+		}
 		catch(Exception e){
 			log.error("Failed to update media from Overseerr", e);
 		}
@@ -298,7 +308,7 @@ public class MediaService{
 		catch(WebClientResponseException.NotFound e){
 			log.warn("Failed to update media from Servarr, missing", e);
 			mediaEntity.setServarrId(null);
-			supervisionService.send("❓ Media disappeared from Servarr: %s", mediaEntity);
+			supervisionService.send("❓ Media disappeared from Servarr %s", mediaEntity);
 		}
 		catch(Exception e){
 			log.error("Failed to update media from Servarr", e);
