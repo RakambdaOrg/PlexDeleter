@@ -223,7 +223,7 @@ public class MediaService{
 				supervisionService.send("❓ Media disappeared from Overseerr %s", mediaEntity);
 				return;
 			}
-			log.error("Failed to update media from Overseerr", e);
+			log.error("Failed to update media from Overseerr, body was {}", body, e);
 		}
 		catch(Exception e){
 			log.error("Failed to update media from Overseerr", e);

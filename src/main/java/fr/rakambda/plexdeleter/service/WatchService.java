@@ -86,6 +86,14 @@ public class WatchService{
 						.toList());
 			}
 		}
+		catch(RequestFailedException e){
+			if(Objects.equals(e.getMessage(), "An internal server error occurred.")){
+				log.warn("Failed to get watch history from Plex Community", e);
+			}
+			else{
+				log.error("Failed to get watch history from Plex Community", e);
+			}
+		}
 		catch(Exception e){
 			log.error("Failed to get watch history from Plex Community", e);
 		}
