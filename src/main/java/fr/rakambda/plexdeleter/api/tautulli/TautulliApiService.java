@@ -73,18 +73,6 @@ public class TautulliApiService{
 					.map(GetNewRatingKeysData::getRatingKey)
 					.distinct()
 					.toList();
-			case EPISODE -> getNewRatingKeys(ratingKey, "episode").getResponse().getDataOptional()
-					.map(GetNewRatingKeysResponse::getData)
-					.map(GetNewRatingKeysData::getChildren)
-					.orElseGet(Map::of)
-					.values().stream()
-					.map(GetNewRatingKeysData::getChildren)
-					.map(Map::values)
-					.flatMap(Collection::stream)
-					.map(GetNewRatingKeysData::getRatingKey)
-					.filter(key -> Objects.equals(key, ratingKey))
-					.distinct()
-					.toList();
 		};
 	}
 	
@@ -131,7 +119,6 @@ public class TautulliApiService{
 		return switch(mediaType){
 			case MOVIE -> getHistory(ratingKey, "rating_key", userId, "movie", after);
 			case SEASON -> getHistory(ratingKey, "parent_rating_key", userId, "episode", after);
-			case EPISODE -> getHistory(ratingKey, "rating_key", userId, "episode", after);
 		};
 	}
 	

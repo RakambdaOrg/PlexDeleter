@@ -71,7 +71,7 @@ public class ThymeleafService{
 	public String getMediaTmdbUrl(@NonNull MediaEntity media){
 		var type = switch(media.getType()){
 			case MOVIE -> "movie";
-			case SEASON, EPISODE -> "tv";
+			case SEASON -> "tv";
 		};
 		
 		return Optional.ofNullable(media.getTmdbId())
@@ -83,7 +83,7 @@ public class ThymeleafService{
 	public String getMediaTvdbUrl(@NonNull MediaEntity media){
 		var type = switch(media.getType()){
 			case MOVIE -> "movie";
-			case SEASON, EPISODE -> "series";
+			case SEASON -> "series";
 		};
 		
 		return Optional.ofNullable(media.getTvdbId())

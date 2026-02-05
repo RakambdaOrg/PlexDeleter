@@ -1,6 +1,5 @@
 package fr.rakambda.plexdeleter.notify.context;
 
-import fr.rakambda.plexdeleter.api.tautulli.TautulliApiService;
 import fr.rakambda.plexdeleter.api.tautulli.data.GetMetadataResponse;
 import fr.rakambda.plexdeleter.api.tmdb.TmdbApiService;
 import fr.rakambda.plexdeleter.api.tmdb.data.MediaData;
@@ -8,6 +7,7 @@ import fr.rakambda.plexdeleter.api.tmdb.data.MovieData;
 import fr.rakambda.plexdeleter.api.tmdb.data.RootMediaData;
 import fr.rakambda.plexdeleter.api.tmdb.data.SeasonData;
 import fr.rakambda.plexdeleter.api.tmdb.data.SeriesData;
+import fr.rakambda.plexdeleter.storage.entity.MediaEntity;
 import lombok.extern.slf4j.Slf4j;
 import org.jspecify.annotations.NonNull;
 import org.jspecify.annotations.Nullable;
@@ -30,9 +30,9 @@ public class TmdbMediaMetadataContext extends MediaMetadataContext{
 	private final Map<Integer, Map<Locale, RootMediaData>> mediaTranslations = new HashMap<>();
 	@NonNull
 	private final Map<Integer, Map<Locale, MediaData>> seasonTranslations = new HashMap<>();
-
-	public TmdbMediaMetadataContext(@NonNull TautulliApiService tautulliApiService, @NonNull GetMetadataResponse metadata, @NonNull TmdbApiService tmdbApiService){
-		super(tautulliApiService, metadata);
+	
+	public TmdbMediaMetadataContext(@NonNull GetMetadataResponse metadata, @NonNull TmdbApiService tmdbApiService){
+		super(metadata);
 		this.tmdbApiService = tmdbApiService;
 	}
 	
@@ -58,6 +58,18 @@ public class TmdbMediaMetadataContext extends MediaMetadataContext{
 						.map(g -> translateId(messageSource, "genre", g.getId(), locale)
 								.orElseGet(() -> "%s (%d)".formatted(g.getName(), g.getId())))
 						.toList());
+	}
+	
+	@Override
+	@NonNull
+	public Optional<Collection<String>> getServerTags(@Nullable MediaEntity media){
+		return Optional.empty();
+	}
+	
+	@Override
+	@NonNull
+	public Optional<byte[]> getPosterData(){
+		return Optional.empty();
 	}
 	
 	@NonNull

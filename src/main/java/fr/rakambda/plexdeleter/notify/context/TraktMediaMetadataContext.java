@@ -1,28 +1,20 @@
 package fr.rakambda.plexdeleter.notify.context;
 
-import fr.rakambda.plexdeleter.api.tautulli.TautulliApiService;
 import fr.rakambda.plexdeleter.api.tautulli.data.GetMetadataResponse;
-import fr.rakambda.plexdeleter.api.tmdb.data.MediaData;
-import fr.rakambda.plexdeleter.api.tmdb.data.RootMediaData;
+import fr.rakambda.plexdeleter.storage.entity.MediaEntity;
 import lombok.extern.slf4j.Slf4j;
 import org.jspecify.annotations.NonNull;
+import org.jspecify.annotations.Nullable;
 import org.springframework.context.MessageSource;
 import java.util.Collection;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Locale;
-import java.util.Map;
 import java.util.Optional;
 
 @Slf4j
 public class TraktMediaMetadataContext extends MediaMetadataContext{
-	@NonNull
-	private final Map<Integer, Map<Locale, RootMediaData>> mediaTranslations = new HashMap<>();
-	@NonNull
-	private final Map<Integer, Map<Locale, MediaData>> seasonTranslations = new HashMap<>();
-	
-	public TraktMediaMetadataContext(@NonNull TautulliApiService tautulliApiService, @NonNull GetMetadataResponse metadata){
-		super(tautulliApiService, metadata);
+	public TraktMediaMetadataContext(@NonNull GetMetadataResponse metadata){
+		super(metadata);
 	}
 	
 	@NonNull
@@ -37,6 +29,18 @@ public class TraktMediaMetadataContext extends MediaMetadataContext{
 	
 	@NonNull
 	public Optional<Collection<String>> getGenres(@NonNull MessageSource messageSource, @NonNull Locale locale){
+		return Optional.empty();
+	}
+	
+	@Override
+	@NonNull
+	public Optional<Collection<String>> getServerTags(@Nullable MediaEntity media){
+		return Optional.empty();
+	}
+	
+	@Override
+	@NonNull
+	public Optional<byte[]> getPosterData(){
 		return Optional.empty();
 	}
 	

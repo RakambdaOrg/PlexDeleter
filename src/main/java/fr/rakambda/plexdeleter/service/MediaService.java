@@ -198,7 +198,7 @@ public class MediaService{
 					.ifPresent(slug -> {
 						switch(mediaEntity.getType()){
 							case MOVIE -> mediaEntity.setRadarrSlug(slug);
-							case SEASON, EPISODE -> mediaEntity.setSonarrSlug(slug);
+							case SEASON -> mediaEntity.setSonarrSlug(slug);
 						}
 					});
 			
@@ -282,17 +282,6 @@ public class MediaService{
 					partsCount = stats.map(Statistics::getTotalEpisodeCount);
 					availablePartsCount = stats.map(Statistics::getEpisodeFileCount);
 				}
-				case EPISODE -> {
-					partsCount = Optional.of(1);
-					var series = sonarrApiService.getSeries(mediaEntity.getServarrId());
-					var stats = series.getSeasons().stream()
-							.filter(f -> Objects.equals(f.getSeasonNumber(), mediaEntity.getIndex()))
-							.findFirst()
-							.map(Season::getStatistics);
-					Optional.ofNullable(series.getTvdbId()).ifPresent(mediaEntity::setTvdbId);
-					Optional.ofNullable(series.getTitleSlug()).ifPresent(mediaEntity::setSonarrSlug);
-					availablePartsCount = stats.map(Statistics::getEpisodeFileCount).map(v -> Math.min(1, v));
-				}
 			}
 			
 			Predicate<Integer> partPredicate = forceMediaCount
@@ -320,7 +309,7 @@ public class MediaService{
 		try{
 			return switch(mediaEntity.getType()){
 				case SEASON -> tautulliApiService.getSeasonRatingKey(ratingKey, mediaEntity.getIndex());
-				case EPISODE, MOVIE -> Optional.of(ratingKey);
+				case MOVIE -> Optional.of(ratingKey);
 			};
 		}
 		catch(RequestFailedException e){

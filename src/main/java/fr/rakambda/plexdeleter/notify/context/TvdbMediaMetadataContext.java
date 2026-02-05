@@ -1,13 +1,14 @@
 package fr.rakambda.plexdeleter.notify.context;
 
-import fr.rakambda.plexdeleter.api.tautulli.TautulliApiService;
 import fr.rakambda.plexdeleter.api.tautulli.data.GetMetadataResponse;
 import fr.rakambda.plexdeleter.api.tvdb.TvdbApiService;
 import fr.rakambda.plexdeleter.api.tvdb.data.MediaData;
 import fr.rakambda.plexdeleter.api.tvdb.data.Translation;
 import fr.rakambda.plexdeleter.api.tvdb.data.TvdbResponseWrapper;
+import fr.rakambda.plexdeleter.storage.entity.MediaEntity;
 import lombok.extern.slf4j.Slf4j;
 import org.jspecify.annotations.NonNull;
+import org.jspecify.annotations.Nullable;
 import org.springframework.context.MessageSource;
 import org.springframework.context.NoSuchMessageException;
 import java.util.Collection;
@@ -31,9 +32,9 @@ public class TvdbMediaMetadataContext extends MediaMetadataContext{
 	private final Map<Integer, Map<Locale, Translation>> seasonTranslations = new HashMap<>();
 	@NonNull
 	private final Map<Integer, Map<Locale, Translation>> episodeTranslations = new HashMap<>();
-
-	public TvdbMediaMetadataContext(@NonNull TautulliApiService tautulliApiService, @NonNull GetMetadataResponse metadata, @NonNull TvdbApiService tvdbApiService){
-		super(tautulliApiService, metadata);
+	
+	public TvdbMediaMetadataContext(@NonNull GetMetadataResponse metadata, @NonNull TvdbApiService tvdbApiService){
+		super(metadata);
 		this.tvdbApiService = tvdbApiService;
 	}
 	
@@ -56,6 +57,18 @@ public class TvdbMediaMetadataContext extends MediaMetadataContext{
 						.map(g -> translateSlug(messageSource, "genre", g.getSlug(), locale)
 								.orElseGet(() -> "%s (%s)".formatted(g.getName(), g.getSlug())))
 						.toList());
+	}
+	
+	@Override
+	@NonNull
+	public Optional<Collection<String>> getServerTags(@Nullable MediaEntity media){
+		return Optional.empty();
+	}
+	
+	@Override
+	@NonNull
+	public Optional<byte[]> getPosterData(){
+		return Optional.empty();
 	}
 	
 	@NonNull

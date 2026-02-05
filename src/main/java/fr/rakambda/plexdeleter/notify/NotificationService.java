@@ -1,12 +1,16 @@
 package fr.rakambda.plexdeleter.notify;
 
 import fr.rakambda.plexdeleter.api.RequestFailedException;
+import fr.rakambda.plexdeleter.api.servarr.radarr.RadarrApiService;
+import fr.rakambda.plexdeleter.api.servarr.sonarr.SonarrApiService;
 import fr.rakambda.plexdeleter.api.tautulli.TautulliApiService;
 import fr.rakambda.plexdeleter.api.tautulli.data.GetMetadataResponse;
 import fr.rakambda.plexdeleter.api.tmdb.TmdbApiService;
 import fr.rakambda.plexdeleter.api.tvdb.TvdbApiService;
 import fr.rakambda.plexdeleter.notify.context.CompositeMediaMetadataContext;
 import fr.rakambda.plexdeleter.notify.context.MediaMetadataContext;
+import fr.rakambda.plexdeleter.notify.context.ServarrMediaMetadataContext;
+import fr.rakambda.plexdeleter.notify.context.TautulliMediaMetadataContext;
 import fr.rakambda.plexdeleter.notify.context.TmdbMediaMetadataContext;
 import fr.rakambda.plexdeleter.notify.context.TraktMediaMetadataContext;
 import fr.rakambda.plexdeleter.notify.context.TvdbMediaMetadataContext;
@@ -38,9 +42,11 @@ public class NotificationService{
 	private final TautulliApiService tautulliApiService;
 	private final TmdbApiService tmdbApiService;
 	private final MediaRepository mediaRepository;
+	private final RadarrApiService radarrApiService;
+	private final SonarrApiService sonarrApiService;
 	
 	@Autowired
-	public NotificationService(MailNotificationService mailNotificationService, DiscordNotificationService discordNotificationService, UserGroupRepository userGroupRepository, TvdbApiService tvdbApiService, TautulliApiService tautulliApiService, TmdbApiService tmdbApiService, MediaRepository mediaRepository){
+	public NotificationService(MailNotificationService mailNotificationService, DiscordNotificationService discordNotificationService, UserGroupRepository userGroupRepository, TvdbApiService tvdbApiService, TautulliApiService tautulliApiService, TmdbApiService tmdbApiService, MediaRepository mediaRepository, RadarrApiService radarrApiService, SonarrApiService sonarrApiService){
 		this.mailNotificationService = mailNotificationService;
 		this.discordNotificationService = discordNotificationService;
 		this.userGroupRepository = userGroupRepository;
@@ -48,6 +54,8 @@ public class NotificationService{
 		this.tautulliApiService = tautulliApiService;
 		this.tmdbApiService = tmdbApiService;
 		this.mediaRepository = mediaRepository;
+		this.radarrApiService = radarrApiService;
+		this.sonarrApiService = sonarrApiService;
 	}
 	
 	public void notifyWatchlist(@NonNull UserGroupEntity userGroupEntity, @NonNull Collection<MediaRequirementEntity> requirements) throws NotifyException{
@@ -102,14 +110,7 @@ public class NotificationService{
 		if(Objects.isNull(metadata)){
 			return null;
 		}
-		var tmdbMediaMetadataContext = new TmdbMediaMetadataContext(tautulliApiService, metadata, tmdbApiService);
-		var tvdbMediaMetadataContext = new TvdbMediaMetadataContext(tautulliApiService, metadata, tvdbApiService);
-		var traktMediaMetadataContext = new TraktMediaMetadataContext(tautulliApiService, metadata);
-		return new CompositeMediaMetadataContext(tautulliApiService, metadata, List.of(
-				tmdbMediaMetadataContext,
-				tvdbMediaMetadataContext,
-				traktMediaMetadataContext
-		));
+		return buildMediaMetadataContext(metadata);
 	}
 	
 	@Transactional
@@ -239,19 +240,14 @@ public class NotificationService{
 		}
 		
 		var media = mediaRepository.findByPlexId(ratingKey).orElse(null);
+		var mediaMetadataContext = buildMediaMetadataContext(metadata);
 		
-		var tmdbMediaMetadataContext = new TmdbMediaMetadataContext(tautulliApiService, metadata, tmdbApiService);
-		var tvdbMediaMetadataContext = new TvdbMediaMetadataContext(tautulliApiService, metadata, tvdbApiService);
-		var traktMediaMetadataContext = new TraktMediaMetadataContext(tautulliApiService, metadata);
-		var mediaMetadataContext = new CompositeMediaMetadataContext(tautulliApiService, metadata, List.of(
-				tmdbMediaMetadataContext,
-				tvdbMediaMetadataContext,
-				traktMediaMetadataContext
-		));
+		var tmdbId = mediaMetadataContext.find(TmdbMediaMetadataContext.class).flatMap(TmdbMediaMetadataContext::getTmdbId);
+		var tvdbId = mediaMetadataContext.find(TvdbMediaMetadataContext.class).flatMap(TvdbMediaMetadataContext::getTvdbId);
 		
 		if(Objects.isNull(media)){
-			var mediaOther = tmdbMediaMetadataContext.getTmdbId().flatMap(id -> mediaRepository.findByTmdbIdAndIndex(id, mediaIndex))
-					.or(() -> tvdbMediaMetadataContext.getTvdbId().flatMap(id -> mediaRepository.findByTvdbIdAndIndex(id, mediaIndex)));
+			var mediaOther = tmdbId.flatMap(id -> mediaRepository.findByTmdbIdAndIndex(id, mediaIndex))
+					.or(() -> tvdbId.flatMap(id -> mediaRepository.findByTvdbIdAndIndex(id, mediaIndex)));
 			
 			var ratingKeyToSet = switch(metadata.getMediaType()){
 				case MOVIE, SEASON -> metadata.getRatingKey();
@@ -269,14 +265,30 @@ public class NotificationService{
 				ratingKey,
 				MediaRequirementStatus.WAITING,
 				metadata.getLibraryName(),
-				tmdbMediaMetadataContext.getTmdbId().orElse(null),
-				tvdbMediaMetadataContext.getTvdbId().orElse(null),
+				tmdbId.orElse(null),
+				tvdbId.orElse(null),
 				mediaIndex
 		);
 		
 		for(var userGroup : userGroupsRequirement){
 			notifyMediaAdded(userGroup, mediaMetadataContext, media);
 		}
+	}
+	
+	@NonNull
+	private CompositeMediaMetadataContext buildMediaMetadataContext(@NonNull GetMetadataResponse metadata){
+		var tautulliMediaMetadataContext = new TautulliMediaMetadataContext(metadata, tautulliApiService);
+		var tmdbMediaMetadataContext = new TmdbMediaMetadataContext(metadata, tmdbApiService);
+		var tvdbMediaMetadataContext = new TvdbMediaMetadataContext(metadata, tvdbApiService);
+		var traktMediaMetadataContext = new TraktMediaMetadataContext(metadata);
+		var servarrMediaMetadataContext = new ServarrMediaMetadataContext(metadata, radarrApiService, sonarrApiService);
+		return new CompositeMediaMetadataContext(metadata, List.of(
+				tautulliMediaMetadataContext,
+				tmdbMediaMetadataContext,
+				tvdbMediaMetadataContext,
+				traktMediaMetadataContext,
+				servarrMediaMetadataContext
+		));
 	}
 	
 	private void notifyMediaAdded(@NonNull UserGroupEntity userGroupEntity, @NonNull MediaMetadataContext metadata, @Nullable MediaEntity media) throws NotifyException{

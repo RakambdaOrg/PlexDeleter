@@ -230,6 +230,7 @@ public class MailNotificationService extends AbstractNotificationService{
 			context.setVariable("mediaSubtitles", subtitleLanguages);
 			context.setVariable("mediaResolutions", resolutions);
 			context.setVariable("mediaBitrates", bitrates);
+			context.setVariable("mediaServerTags", Optional.ofNullable(mediaMetadataContext).flatMap(c -> c.getServerTags(media)).orElseGet(List::of));
 			context.setVariable("suggestAddRequirementId", suggestAddRequirementId);
 			context.setVariable("metadataProvidersInfo", metadataProviderInfos);
 		}, message -> {

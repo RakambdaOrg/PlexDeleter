@@ -1,0 +1,5 @@
+DELETE
+FROM `media`
+WHERE `type` = 'EPISODE';
+ALTER TABLE `media`
+    MODIFY COLUMN `type` ENUM ('MOVIE', 'SEASON') NOT NULL AFTER `id`;

@@ -1,11 +1,15 @@
 package fr.rakambda.plexdeleter.notify;
 
 import fr.rakambda.plexdeleter.api.RequestFailedException;
+import fr.rakambda.plexdeleter.api.servarr.radarr.RadarrApiService;
+import fr.rakambda.plexdeleter.api.servarr.sonarr.SonarrApiService;
 import fr.rakambda.plexdeleter.api.tautulli.TautulliApiService;
 import fr.rakambda.plexdeleter.api.tmdb.TmdbApiService;
 import fr.rakambda.plexdeleter.api.tvdb.TvdbApiService;
 import fr.rakambda.plexdeleter.notify.context.CompositeMediaMetadataContext;
 import fr.rakambda.plexdeleter.notify.context.MediaMetadataContext;
+import fr.rakambda.plexdeleter.notify.context.ServarrMediaMetadataContext;
+import fr.rakambda.plexdeleter.notify.context.TautulliMediaMetadataContext;
 import fr.rakambda.plexdeleter.notify.context.TmdbMediaMetadataContext;
 import fr.rakambda.plexdeleter.notify.context.TraktMediaMetadataContext;
 import fr.rakambda.plexdeleter.notify.context.TvdbMediaMetadataContext;
@@ -38,6 +42,10 @@ class MailNotificationServiceTest{
 	private TmdbApiService tmdbApiService;
 	@Autowired
 	private TvdbApiService tvdbApiService;
+	@Autowired
+	private SonarrApiService sonarrApiService;
+	@Autowired
+	private RadarrApiService radarrApiService;
 	
 	@Test
 	@Transactional
@@ -77,13 +85,17 @@ class MailNotificationServiceTest{
 			return null;
 		}
 		
-		var tmdbMediaMetadataContext = new TmdbMediaMetadataContext(tautulliApiService, metadata, tmdbApiService);
-		var tvdbMediaMetadataContext = new TvdbMediaMetadataContext(tautulliApiService, metadata, tvdbApiService);
-		var traktMediaMetadataContext = new TraktMediaMetadataContext(tautulliApiService, metadata);
-		return new CompositeMediaMetadataContext(tautulliApiService, metadata, List.of(
+		var tautulliMediaMetadataContext = new TautulliMediaMetadataContext(metadata, tautulliApiService);
+		var tmdbMediaMetadataContext = new TmdbMediaMetadataContext(metadata, tmdbApiService);
+		var tvdbMediaMetadataContext = new TvdbMediaMetadataContext(metadata, tvdbApiService);
+		var traktMediaMetadataContext = new TraktMediaMetadataContext(metadata);
+		var servarrMediaMetadataContext = new ServarrMediaMetadataContext(metadata, radarrApiService, sonarrApiService);
+		return new CompositeMediaMetadataContext(metadata, List.of(
+				tautulliMediaMetadataContext,
 				tmdbMediaMetadataContext,
 				tvdbMediaMetadataContext,
-				traktMediaMetadataContext
+				traktMediaMetadataContext,
+				servarrMediaMetadataContext
 		));
 	}
 }

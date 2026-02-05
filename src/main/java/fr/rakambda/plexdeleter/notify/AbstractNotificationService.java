@@ -52,9 +52,6 @@ public abstract class AbstractNotificationService{
 	public Collection<String> getEpisodes(@NonNull MediaEntity media, @NonNull UserGroupEntity userGroupEntity) throws RequestFailedException{				
 		return switch(media.getType()){
 			case MOVIE -> List.of();
-			case EPISODE -> Optional.ofNullable(media.getSubIndex())
-					.map(String::valueOf)
-					.stream().toList();
 			case SEASON -> {
 				if(Objects.isNull(media.getPlexId())){
 					yield List.of();
@@ -85,7 +82,6 @@ public abstract class AbstractNotificationService{
 		return switch(media.getType()){
 			case MOVIE -> "mail.watchlist.body.media.movie";
 			case SEASON -> "mail.watchlist.body.media.series";
-			case EPISODE -> "mail.watchlist.body.media.episode";
 		};
 	}
 	
