@@ -112,27 +112,27 @@ public class DiscordNotificationService extends AbstractNotificationService{
 	}
 	
 	public void notifyRequirementAdded(@NonNull NotificationEntity notification, @NonNull UserGroupEntity userGroupEntity, @NonNull MediaEntity media) throws MessagingException, UnsupportedEncodingException, RequestFailedException, InterruptedException{
-		notifySimple(notification, userGroupEntity, media, "discord.requirement.added.subject");
+		notifySimple(notification, userGroupEntity, media, "discord.requirement.added.subject", true);
 	}
 	
 	public void notifyMediaAvailable(@NonNull NotificationEntity notification, @NonNull UserGroupEntity userGroupEntity, @NonNull MediaEntity media) throws RequestFailedException, InterruptedException{
-		notifySimple(notification, userGroupEntity, media, "discord.media.available.subject");
+		notifySimple(notification, userGroupEntity, media, "discord.media.available.subject", true);
 	}
 	
 	public void notifyMediaDeleted(@NonNull NotificationEntity notification, @NonNull UserGroupEntity userGroupEntity, @NonNull MediaEntity media) throws RequestFailedException, InterruptedException{
-		notifySimple(notification, userGroupEntity, media, "discord.media.deleted.subject");
+		notifySimple(notification, userGroupEntity, media, "discord.media.deleted.subject", false);
 	}
 	
 	public void notifyMediaWatched(@NonNull NotificationEntity notification, @NonNull UserGroupEntity userGroupEntity, @NonNull MediaEntity media) throws RequestFailedException, InterruptedException{
-		notifySimple(notification, userGroupEntity, media, "discord.media.watched.subject");
+		notifySimple(notification, userGroupEntity, media, "discord.media.watched.subject", false);
 	}
 	
 	public void notifyRequirementManuallyWatched(@NonNull NotificationEntity notification, @NonNull UserGroupEntity userGroupEntity, @NonNull MediaEntity media) throws MessagingException, UnsupportedEncodingException, RequestFailedException, InterruptedException{
-		notifySimple(notification, userGroupEntity, media, "discord.requirement.manually-watched.subject");
+		notifySimple(notification, userGroupEntity, media, "discord.requirement.manually-watched.subject", false);
 	}
 	
 	public void notifyRequirementManuallyAbandoned(@NonNull NotificationEntity notification, @NonNull UserGroupEntity userGroupEntity, @NonNull MediaEntity media) throws RequestFailedException, InterruptedException{
-		notifySimple(notification, userGroupEntity, media, "discord.requirement.manually-abandoned.subject");
+		notifySimple(notification, userGroupEntity, media, "discord.requirement.manually-abandoned.subject", false);
 	}
 	
 	public void notifyMediaAdded(@NonNull NotificationEntity notification, @NonNull UserGroupEntity userGroupEntity, @NonNull MediaMetadataContext mediaMetadataContext, @Nullable MediaEntity media) throws RequestFailedException, InterruptedException{
@@ -293,7 +293,7 @@ public class DiscordNotificationService extends AbstractNotificationService{
 		discordWebhookApiService.sendWebhookMessage(discordUrl, messageBuilder.build());
 	}
 	
-	private void notifySimple(@NonNull NotificationEntity notification, @NonNull UserGroupEntity userGroupEntity, @NonNull MediaEntity media, @NonNull String subjectKey) throws RequestFailedException, InterruptedException{
+	private void notifySimple(@NonNull NotificationEntity notification, @NonNull UserGroupEntity userGroupEntity, @NonNull MediaEntity media, @NonNull String subjectKey, boolean includeEpisodes) throws RequestFailedException, InterruptedException{
 		var locale = userGroupEntity.getLocaleAsObject();
 		var params = notification.getValue().split(",");
 		var discordUserId = params[0];
@@ -307,7 +307,7 @@ public class DiscordNotificationService extends AbstractNotificationService{
 					.threadName(header)
 					.content("<@%s>\n%s\n\n%s".formatted(
 							discordUserId,
-							getWatchlistMediaText(userGroupEntity, media, locale),
+							getWatchlistMediaText(userGroupEntity, media, locale, includeEpisodes),
 							getFooterContent(locale)
 					));
 		}
@@ -316,7 +316,7 @@ public class DiscordNotificationService extends AbstractNotificationService{
 					.content("<@%s>\n# %s\n%s\n\n%s".formatted(
 							discordUserId,
 							header,
-							getWatchlistMediaText(userGroupEntity, media, locale),
+							getWatchlistMediaText(userGroupEntity, media, locale, includeEpisodes),
 							getFooterContent(locale)
 					));
 		}
@@ -332,7 +332,7 @@ public class DiscordNotificationService extends AbstractNotificationService{
 		discordWebhookApiService.sendWebhookMessage(discordUrl, threadId, WebhookMessage.builder().content("# %s\n".formatted(messageSource.getMessage(sectionHeaderCode, new Object[0], locale))).build());
 		var messages = medias.stream()
 				.sorted(MediaEntity.COMPARATOR_BY_TYPE_THEN_NAME_THEN_INDEX)
-				.map(media -> getWatchlistMediaText(userGroupEntity, media, locale))
+				.map(media -> getWatchlistMediaText(userGroupEntity, media, locale, true))
 				.toList();
 		for(var message : messages){
 			discordWebhookApiService.sendWebhookMessage(discordUrl, threadId, WebhookMessage.builder()
@@ -343,17 +343,19 @@ public class DiscordNotificationService extends AbstractNotificationService{
 	}
 	
 	@SneakyThrows(RequestFailedException.class)
-	private String getWatchlistMediaText(@NonNull UserGroupEntity userGroupEntity, @NonNull MediaEntity media, @NonNull Locale locale){
+	private String getWatchlistMediaText(@NonNull UserGroupEntity userGroupEntity, @NonNull MediaEntity media, @NonNull Locale locale, boolean includeEpisodes){
 		var sb = new StringBuilder();
 		sb.append(messageSource.getMessage(getTypeKey(media), new Object[]{
 				media.getName(),
 				media.getIndex(),
 				}, locale));
 		
-		var episodes = getEpisodes(media, userGroupEntity);
-		if(!episodes.isEmpty()){
-			sb.append(" | ");
-			sb.append(messageSource.getMessage("discord.watchlist.body.media.series.episodes", new Object[]{String.join(", ", episodes)}, locale));
+		if(includeEpisodes){
+			var episodes = getEpisodes(media, userGroupEntity);
+			if(!episodes.isEmpty()){
+				sb.append(" | ");
+				sb.append(messageSource.getMessage("discord.watchlist.body.media.series.episodes", new Object[]{String.join(", ", episodes)}, locale));
+			}
 		}
 		
 		var overseerrUrl = thymeleafService.getMediaOverseerrUrl(media);
