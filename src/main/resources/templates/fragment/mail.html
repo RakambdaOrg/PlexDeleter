@@ -187,8 +187,8 @@
         </mj-column>
         <mj-column th:unless="${#lists.isEmpty(mediaServerTags)}" width="50%">
             <mj-text align="center" css-class="mjs-text">
-                <b th:text="#{mail.media.available.body.server-tags}" class="section-text"/>
-                <span th:each="tag : ${mediaServerTags}" th:text="${tag}"/>
+                <b th:text="#{mail.media.available.body.server-tags}" class="section-text"/><br/>
+                <span th:each="tag, iter : ${mediaServerTags}" th:text="${tag} + (${iter.last} ? '' : ' • ')" style="font-size: 12px;"/>
             </mj-text>
         </mj-column>
     </mj-section>
