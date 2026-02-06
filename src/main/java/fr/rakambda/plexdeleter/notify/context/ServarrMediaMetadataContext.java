@@ -16,6 +16,7 @@ import java.util.List;
 import java.util.Locale;
 import java.util.Objects;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 @Slf4j
 public class ServarrMediaMetadataContext extends MediaMetadataContext{
@@ -53,10 +54,22 @@ public class ServarrMediaMetadataContext extends MediaMetadataContext{
 			return Optional.empty();
 		}
 		try{
-			return Optional.of(switch(media.getType()){
-				case SEASON -> sonarrApiService.getTags().stream().map(Tag::getLabel).toList();
-				case MOVIE -> radarrApiService.getTags().stream().map(Tag::getLabel).toList();
-			});
+			var appliedTags = switch(media.getType()){
+				case SEASON -> sonarrApiService.getSeries(media.getServarrId()).getTags();
+				case MOVIE -> radarrApiService.getMovie(media.getServarrId()).getTags();
+			};
+			if(appliedTags.isEmpty()){
+				return Optional.empty();
+			}
+			
+			var tags = (switch(media.getType()){
+				case SEASON -> sonarrApiService.getTags();
+				case MOVIE -> radarrApiService.getTags();
+			}).stream().collect(Collectors.toMap(Tag::getId, Tag::getLabel));
+			
+			return Optional.of(appliedTags.stream()
+					.map(id -> tags.getOrDefault(id, "unknown"))
+					.toList());
 		}
 		catch(RequestFailedException | WebClientRequestException e){
 			log.error("Failed to get Servarr tags", e);
