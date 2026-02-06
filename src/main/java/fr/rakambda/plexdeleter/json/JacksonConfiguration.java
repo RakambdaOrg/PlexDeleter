@@ -12,6 +12,7 @@ import java.util.Set;
 import static com.fasterxml.jackson.annotation.JsonAutoDetect.Visibility.ANY;
 import static com.fasterxml.jackson.annotation.JsonAutoDetect.Visibility.NONE;
 import static com.fasterxml.jackson.annotation.Nulls.AS_EMPTY;
+import static tools.jackson.core.StreamReadFeature.INCLUDE_SOURCE_IN_LOCATION;
 import static tools.jackson.core.json.JsonReadFeature.ALLOW_JAVA_COMMENTS;
 import static tools.jackson.core.json.JsonReadFeature.ALLOW_TRAILING_COMMA;
 import static tools.jackson.databind.MapperFeature.ACCEPT_CASE_INSENSITIVE_ENUMS;
@@ -30,6 +31,7 @@ public class JacksonConfiguration{
 				.enable(ALLOW_JAVA_COMMENTS)
 				.enable(ACCEPT_CASE_INSENSITIVE_ENUMS)
 				.enable(ALLOW_TRAILING_COMMA)
+				.enable(INCLUDE_SOURCE_IN_LOCATION)
 				.changeDefaultVisibility(vc -> vc
 						.withVisibility(PropertyAccessor.FIELD, ANY)
 						.withVisibility(PropertyAccessor.GETTER, NONE)
