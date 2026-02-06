@@ -1,5 +1,6 @@
 package fr.rakambda.plexdeleter.service;
 
+import fr.rakambda.plexdeleter.storage.entity.MediaType;
 import fr.rakambda.plexdeleter.storage.repository.MediaRepository;
 import fr.rakambda.plexdeleter.web.webhook.radarr.data.RadarrWebhook;
 import lombok.extern.slf4j.Slf4j;
@@ -25,7 +26,7 @@ public class RadarrService{
 			return;
 		}
 		
-		var mediaEntity = mediaRepository.findByServarrIdAndIndex(movie.getId(), 1);
+		var mediaEntity = mediaRepository.findByServarrIdAndIndexAndType(movie.getId(), 1, MediaType.MOVIE);
 		if(mediaEntity.isEmpty()){
 			mediaService.updateAll();
 			return;

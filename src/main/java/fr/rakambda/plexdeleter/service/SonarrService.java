@@ -1,5 +1,6 @@
 package fr.rakambda.plexdeleter.service;
 
+import fr.rakambda.plexdeleter.storage.entity.MediaType;
 import fr.rakambda.plexdeleter.storage.repository.MediaRepository;
 import fr.rakambda.plexdeleter.web.webhook.sonarr.data.Episode;
 import fr.rakambda.plexdeleter.web.webhook.sonarr.data.SonarrWebhook;
@@ -31,7 +32,7 @@ public class SonarrService{
 				.collect(Collectors.toMap(Episode::getSeasonNumber, Episode::getEpisodeNumber, Math::max));
 		
 		for(var entry : maxEpisodePerSeason.entrySet()){
-			var mediaEntity = mediaRepository.findByServarrIdAndIndex(series.getId(), entry.getKey());
+			var mediaEntity = mediaRepository.findByServarrIdAndIndexAndType(series.getId(), entry.getKey(), MediaType.SEASON);
 			if(mediaEntity.isEmpty()){
 				mediaService.updateAll();
 				return;

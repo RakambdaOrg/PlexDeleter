@@ -34,7 +34,7 @@ public interface MediaRepository extends JpaRepository<MediaEntity, Integer>{
 	Optional<MediaEntity> findByTvdbIdAndIndex(int tvdbId, int index);
 	
 	@NonNull
-	Optional<MediaEntity> findByServarrIdAndIndex(int servarrId, int index);
+	Optional<MediaEntity> findByServarrIdAndIndexAndType(int servarrId, int index, @NonNull MediaType type);
 	
 	@NonNull
 	List<MediaEntity> findAllByServarrIdAndType(int servarrId, @NonNull MediaType type);
