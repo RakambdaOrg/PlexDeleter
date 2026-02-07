@@ -105,34 +105,34 @@ public class MailNotificationService extends AbstractNotificationService{
 	}
 	
 	public void notifyRequirementAdded(@NonNull NotificationEntity notification, @NonNull UserGroupEntity userGroupEntity, @NonNull MediaEntity media, @Nullable MediaMetadataContext mediaMetadataContext) throws MessagingException, UnsupportedEncodingException{
-		notifyMediaDetailed(notification, userGroupEntity, media, mediaMetadataContext, "mail.requirement.added.title", "mail.requirement.added.subject");
+		notifyMediaDetailed(notification, userGroupEntity, media, mediaMetadataContext, "mail.requirement.added.title", "mail.requirement.added.subject", false);
 	}
 	
 	public void notifyMediaAvailable(@NonNull NotificationEntity notification, @NonNull UserGroupEntity userGroupEntity, @NonNull MediaEntity media, @Nullable MediaMetadataContext mediaMetadataContext) throws MessagingException, UnsupportedEncodingException{
-		notifyMediaDetailed(notification, userGroupEntity, media, mediaMetadataContext, "mail.media.available.title", "mail.media.available.subject");
+		notifyMediaDetailed(notification, userGroupEntity, media, mediaMetadataContext, "mail.media.available.title", "mail.media.available.subject", true);
 	}
 	
 	public void notifyMediaDeleted(@NonNull NotificationEntity notification, @NonNull UserGroupEntity userGroupEntity, @NonNull MediaEntity media, @Nullable MediaMetadataContext mediaMetadataContext) throws MessagingException, UnsupportedEncodingException{
-		notifyMediaDetailed(notification, userGroupEntity, media, mediaMetadataContext, "mail.media.deleted.title", "mail.media.deleted.subject");
+		notifyMediaDetailed(notification, userGroupEntity, media, mediaMetadataContext, "mail.media.deleted.title", "mail.media.deleted.subject", false);
 	}
 	
 	public void notifyMediaWatched(@NonNull NotificationEntity notification, @NonNull UserGroupEntity userGroupEntity, @NonNull MediaEntity media, @Nullable MediaMetadataContext mediaMetadataContext) throws MessagingException, UnsupportedEncodingException{
-		notifyMediaDetailed(notification, userGroupEntity, media, mediaMetadataContext, "mail.media.watched.title", "mail.media.watched.subject");
+		notifyMediaDetailed(notification, userGroupEntity, media, mediaMetadataContext, "mail.media.watched.title", "mail.media.watched.subject", false);
 	}
 	
 	public void notifyRequirementManuallyWatched(@NonNull NotificationEntity notification, @NonNull UserGroupEntity userGroupEntity, @NonNull MediaEntity media, @Nullable MediaMetadataContext mediaMetadataContext) throws MessagingException, UnsupportedEncodingException{
-		notifyMediaDetailed(notification, userGroupEntity, media, mediaMetadataContext, "mail.requirement.manually-watched.title", "mail.requirement.manually-watched.subject");
+		notifyMediaDetailed(notification, userGroupEntity, media, mediaMetadataContext, "mail.requirement.manually-watched.title", "mail.requirement.manually-watched.subject", false);
 	}
 	
 	public void notifyRequirementManuallyAbandoned(@NonNull NotificationEntity notification, @NonNull UserGroupEntity userGroupEntity, @NonNull MediaEntity media, @Nullable MediaMetadataContext mediaMetadataContext) throws MessagingException, UnsupportedEncodingException{
-		notifyMediaDetailed(notification, userGroupEntity, media, mediaMetadataContext, "mail.requirement.manually-abandoned.title", "mail.requirement.manually-abandoned.subject");
+		notifyMediaDetailed(notification, userGroupEntity, media, mediaMetadataContext, "mail.requirement.manually-abandoned.title", "mail.requirement.manually-abandoned.subject", false);
 	}
 	
 	public void notifyMediaAdded(@NonNull NotificationEntity notification, @NonNull UserGroupEntity userGroupEntity, @Nullable MediaEntity media, @Nullable MediaMetadataContext mediaMetadataContext) throws MessagingException, UnsupportedEncodingException{
-		notifyMediaDetailed(notification, userGroupEntity, media, mediaMetadataContext, "mail.media.added.title", "mail.media.added.subject");
+		notifyMediaDetailed(notification, userGroupEntity, media, mediaMetadataContext, "mail.media.added.title", "mail.media.added.subject", true);
 	}
 	
-	private void notifyMediaDetailed(@NonNull NotificationEntity notification, @NonNull UserGroupEntity userGroupEntity, @Nullable MediaEntity media, @Nullable MediaMetadataContext mediaMetadataContext, @Nullable String mailTitleKey, @NonNull String subjectKey) throws MessagingException, UnsupportedEncodingException{
+	private void notifyMediaDetailed(@NonNull NotificationEntity notification, @NonNull UserGroupEntity userGroupEntity, @Nullable MediaEntity media, @Nullable MediaMetadataContext mediaMetadataContext, @Nullable String mailTitleKey, @NonNull String subjectKey, boolean canAddToWhitelist) throws MessagingException, UnsupportedEncodingException{
 		var locale = userGroupEntity.getLocaleAsObject();
 		var metadata = Optional.ofNullable(mediaMetadataContext).map(MediaMetadataContext::getMetadata);
 		
@@ -231,7 +231,7 @@ public class MailNotificationService extends AbstractNotificationService{
 			context.setVariable("mediaResolutions", resolutions);
 			context.setVariable("mediaBitrates", bitrates);
 			context.setVariable("mediaServerTags", Optional.ofNullable(mediaMetadataContext).flatMap(c -> c.getServerTags(media)).orElseGet(List::of));
-			context.setVariable("suggestAddRequirementId", suggestAddRequirementId);
+			context.setVariable("suggestAddRequirementId", canAddToWhitelist ? suggestAddRequirementId : null);
 			context.setVariable("metadataProvidersInfo", metadataProviderInfos);
 		}, message -> {
 			if(posterData.isPresent()){
