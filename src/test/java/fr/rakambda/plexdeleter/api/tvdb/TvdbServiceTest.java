@@ -1,33 +1,36 @@
 package fr.rakambda.plexdeleter.api.tvdb;
 
-import fr.rakambda.plexdeleter.SecretsUtils;
+import fr.rakambda.plexdeleter.api.ClientLoggerRequestInterceptor;
 import fr.rakambda.plexdeleter.api.RequestFailedException;
-import fr.rakambda.plexdeleter.config.ApplicationConfiguration;
 import fr.rakambda.plexdeleter.config.TvdbConfiguration;
-import org.junit.jupiter.api.BeforeEach;
+import fr.rakambda.plexdeleter.json.JacksonConfiguration;
+import org.mockito.junit.jupiter.MockitoExtension;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.context.properties.EnableConfigurationProperties;
+import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.test.context.ActiveProfiles;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.condition.DisabledIfEnvironmentVariable;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.Arguments;
 import org.junit.jupiter.params.provider.MethodSource;
 import java.util.Locale;
 import java.util.stream.Stream;
-import static fr.rakambda.plexdeleter.WebClientUtils.getWebClientBuilder;
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.when;
 
+@ActiveProfiles("test")
+@SpringBootTest(classes = {
+		TvdbApiService.class,
+		ClientLoggerRequestInterceptor.class,
+		JacksonConfiguration.class
+})
 @DisabledIfEnvironmentVariable(named = "CI", matches = "true", disabledReason = "Required service not available on CI")
+@EnableConfigurationProperties(TvdbConfiguration.class)
+@ExtendWith(MockitoExtension.class)
 class TvdbServiceTest{
+	@Autowired
 	private TvdbApiService tested;
-	
-	@BeforeEach
-	void setUp(){
-		var conf = mock(ApplicationConfiguration.class);
-		when(conf.getTvdb()).thenReturn(new TvdbConfiguration(SecretsUtils.getSecret("tvdb.endpoint"), SecretsUtils.getSecret("tvdb.api-key")));
-		
-		tested = new TvdbApiService(conf, getWebClientBuilder());
-	}
 	
 	@ParameterizedTest
 	@MethodSource("generateMovieTranslationsCases")

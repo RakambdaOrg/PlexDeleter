@@ -1,14 +1,16 @@
 package fr.rakambda.plexdeleter.api.plex.gql;
 
+import fr.rakambda.plexdeleter.api.ClientLoggerRequestInterceptor;
 import fr.rakambda.plexdeleter.api.HttpUtils;
 import fr.rakambda.plexdeleter.api.RequestFailedException;
+import fr.rakambda.plexdeleter.api.RetryInterceptor;
 import fr.rakambda.plexdeleter.api.plex.gql.data.request.GraphQlRequest;
 import fr.rakambda.plexdeleter.api.plex.gql.data.response.ActivityData;
 import fr.rakambda.plexdeleter.api.plex.gql.data.response.ActivityWatchHistory;
 import fr.rakambda.plexdeleter.api.plex.gql.data.response.GqlError;
 import fr.rakambda.plexdeleter.api.plex.gql.data.response.GqlResponse;
 import fr.rakambda.plexdeleter.api.plex.gql.data.response.PagedData;
-import fr.rakambda.plexdeleter.config.ApplicationConfiguration;
+import fr.rakambda.plexdeleter.config.PlexConfiguration;
 import fr.rakambda.plexdeleter.service.GraphQlService;
 import fr.rakambda.plexdeleter.service.ParseException;
 import lombok.extern.slf4j.Slf4j;
@@ -17,12 +19,10 @@ import org.jspecify.annotations.Nullable;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.ParameterizedTypeReference;
 import org.springframework.http.HttpHeaders;
-import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.stereotype.Service;
 import org.springframework.util.MimeTypeUtils;
-import org.springframework.web.reactive.function.BodyInserters;
-import org.springframework.web.reactive.function.client.WebClient;
+import org.springframework.web.client.RestClient;
 import java.time.Instant;
 import java.time.temporal.ChronoUnit;
 import java.util.HashMap;
@@ -30,25 +30,27 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
-import java.util.Set;
+import java.util.Optional;
 import java.util.function.Predicate;
 import java.util.stream.Collectors;
+import static org.springframework.http.HttpStatus.TOO_MANY_REQUESTS;
 
 @Slf4j
 @Service
 public class PlexCommunityApiService{
 	private final GraphQlService graphQlService;
-	private final WebClient apiClient;
+	private final RestClient apiClient;
 	
 	@Autowired
-	public PlexCommunityApiService(GraphQlService graphQlService, ApplicationConfiguration applicationConfiguration, WebClient.Builder webClientBuilder){
+	public PlexCommunityApiService(GraphQlService graphQlService, PlexConfiguration plexConfiguration, ClientLoggerRequestInterceptor clientLoggerRequestInterceptor){
 		this.graphQlService = graphQlService;
 		
-		apiClient = webClientBuilder.clone()
-				.baseUrl(applicationConfiguration.getPlex().getCommunityEndpoint())
+		apiClient = RestClient.builder()
+				.baseUrl(plexConfiguration.communityEndpoint())
 				.defaultHeader(HttpHeaders.ACCEPT, MimeTypeUtils.APPLICATION_JSON_VALUE)
-				.defaultHeader("X-Plex-Token", applicationConfiguration.getPlex().getCommunityToken())
-				.filter(HttpUtils.retryOnStatus(Set.of(HttpStatus.TOO_MANY_REQUESTS), ChronoUnit.SECONDS, 60))
+				.defaultHeader("X-Plex-Token", plexConfiguration.communityToken())
+				.requestInterceptor(new RetryInterceptor(10, 60_000, ChronoUnit.SECONDS, TOO_MANY_REQUESTS))
+				.requestInterceptor(clientLoggerRequestInterceptor)
 				.build();
 	}
 	
@@ -119,17 +121,16 @@ public class PlexCommunityApiService{
 			
 			var response = HttpUtils.unwrapIfStatusOkAndNotNullBody(apiClient.post()
 					.contentType(MediaType.APPLICATION_JSON)
-					.body(BodyInserters.fromValue(gqlQuery))
+					.body(gqlQuery)
 					.retrieve()
-					.toEntity(type)
-					.blockOptional()
-					.orElseThrow(RequestFailedException::new));
+					.toEntity(type));
 			
-			if(response.getErrors().isEmpty() && Objects.nonNull(response.getData())){
+			var errors = Optional.ofNullable(response.getErrors()).orElseGet(List::of);
+			if(errors.isEmpty() && Objects.nonNull(response.getData())){
 				return response.getData();
 			}
 			
-			throw new RequestFailedException(response.getErrors().stream().map(GqlError::getMessage).collect(Collectors.joining(" | ")));
+			throw new RequestFailedException(errors.stream().map(GqlError::getMessage).collect(Collectors.joining(" | ")));
 		}
 		catch(ParseException e){
 			throw new RequestFailedException("Failed to construct request", e);

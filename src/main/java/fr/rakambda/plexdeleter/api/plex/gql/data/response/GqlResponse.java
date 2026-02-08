@@ -13,5 +13,6 @@ import java.util.List;
 public final class GqlResponse<T>{
 	@Nullable
 	private T data;
+	@Nullable
 	private List<GqlError> errors = new ArrayList<>();
 }

@@ -1,37 +1,38 @@
 package fr.rakambda.plexdeleter.api.discord;
 
+import fr.rakambda.plexdeleter.api.ClientLoggerRequestInterceptor;
 import fr.rakambda.plexdeleter.api.HttpUtils;
 import fr.rakambda.plexdeleter.api.RequestFailedException;
+import fr.rakambda.plexdeleter.api.RetryInterceptor;
 import fr.rakambda.plexdeleter.api.discord.data.DiscordResponse;
 import fr.rakambda.plexdeleter.api.discord.data.WebhookMessage;
 import lombok.extern.slf4j.Slf4j;
 import org.jspecify.annotations.NonNull;
 import org.jspecify.annotations.Nullable;
 import org.springframework.core.io.ByteArrayResource;
-import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.client.MultipartBodyBuilder;
-import org.springframework.http.client.reactive.ClientHttpRequest;
 import org.springframework.stereotype.Service;
-import org.springframework.web.reactive.function.BodyInserter;
-import org.springframework.web.reactive.function.BodyInserters;
+import org.springframework.web.client.RestClient;
 import org.springframework.web.reactive.function.UnsupportedMediaTypeException;
-import org.springframework.web.reactive.function.client.WebClient;
 import java.util.Map;
 import java.util.Objects;
-import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.Semaphore;
+import static java.lang.Integer.MAX_VALUE;
+import static java.time.temporal.ChronoUnit.MILLIS;
+import static org.springframework.http.HttpStatus.TOO_MANY_REQUESTS;
 
 @Slf4j
 @Service
 public class DiscordWebhookApiService{
-	private final WebClient apiClient;
+	private final RestClient apiClient;
 	private final Map<String, Semaphore> locks;
 	
-	public DiscordWebhookApiService(WebClient.Builder webClientBuilder){
-		apiClient = webClientBuilder.clone()
-				.filter(HttpUtils.retryOnStatus(Set.of(HttpStatus.TOO_MANY_REQUESTS), Integer.MAX_VALUE))
+	public DiscordWebhookApiService(ClientLoggerRequestInterceptor clientLoggerRequestInterceptor){
+		apiClient = RestClient.builder()
+				.requestInterceptor(new RetryInterceptor(MAX_VALUE, 60_000, MILLIS, TOO_MANY_REQUESTS))
+				.requestInterceptor(clientLoggerRequestInterceptor)
 				.build();
 		locks = new ConcurrentHashMap<>();
 	}
@@ -55,11 +56,11 @@ public class DiscordWebhookApiService{
 						.part("files[%d]".formatted(attachment.getId()), new ByteArrayResource(attachment.getData()), attachment.getMediaType())
 						.filename(attachment.getFilename()));
 				
-				return sendWebhookMessageAs(url, threadId, message, MediaType.MULTIPART_FORM_DATA, BodyInserters.fromMultipartData(multipart.build()));
+				return sendWebhookMessageAs(url, threadId, multipart.build(), MediaType.MULTIPART_FORM_DATA);
 			}
 			
 			log.info("Sending webhook message to discord as JSON payload");
-			return sendWebhookMessageAs(url, threadId, message, MediaType.APPLICATION_JSON, BodyInserters.fromValue(message));
+			return sendWebhookMessageAs(url, threadId, message, MediaType.APPLICATION_JSON);
 		}
 		catch(UnsupportedMediaTypeException e){
 			log.info("Supported media types: {}", e.getSupportedMediaTypes());
@@ -71,7 +72,7 @@ public class DiscordWebhookApiService{
 	}
 	
 	@NonNull
-	private DiscordResponse sendWebhookMessageAs(@NonNull String url, @Nullable Long threadId, @NonNull WebhookMessage message, @NonNull MediaType mediaType, @NonNull BodyInserter<?, ? super ClientHttpRequest> bodyInserter) throws RequestFailedException{
+	private DiscordResponse sendWebhookMessageAs(@NonNull String url, @Nullable Long threadId, @NonNull Object message, @NonNull MediaType mediaType) throws RequestFailedException{
 		return HttpUtils.unwrapIfStatusOkAndNotNullBody(apiClient.post()
 				.uri(url, b -> {
 					b = b.queryParam("wait", true);
@@ -81,10 +82,8 @@ public class DiscordWebhookApiService{
 					return b.build();
 				})
 				.contentType(mediaType)
-				.body(bodyInserter)
+				.body(message)
 				.retrieve()
-				.toEntity(DiscordResponse.class)
-				.blockOptional()
-				.orElseThrow(() -> new RequestFailedException("Failed to send discord webhook message %s".formatted(message))));
+				.toEntity(DiscordResponse.class));
 	}
 }

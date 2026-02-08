@@ -1,27 +1,26 @@
 package fr.rakambda.plexdeleter.api.tautulli;
 
+import fr.rakambda.plexdeleter.api.ClientLoggerRequestInterceptor;
 import fr.rakambda.plexdeleter.api.HttpUtils;
 import fr.rakambda.plexdeleter.api.RequestFailedException;
+import fr.rakambda.plexdeleter.api.RetryInterceptor;
 import fr.rakambda.plexdeleter.api.tautulli.data.GetHistoryResponse;
 import fr.rakambda.plexdeleter.api.tautulli.data.GetLibraryMediaInfo;
 import fr.rakambda.plexdeleter.api.tautulli.data.GetMetadataResponse;
 import fr.rakambda.plexdeleter.api.tautulli.data.GetNewRatingKeysData;
 import fr.rakambda.plexdeleter.api.tautulli.data.GetNewRatingKeysResponse;
 import fr.rakambda.plexdeleter.api.tautulli.data.TautulliResponseWrapper;
-import fr.rakambda.plexdeleter.config.ApplicationConfiguration;
+import fr.rakambda.plexdeleter.config.TautulliConfiguration;
 import fr.rakambda.plexdeleter.storage.entity.MediaType;
 import lombok.extern.slf4j.Slf4j;
 import org.jspecify.annotations.NonNull;
 import org.jspecify.annotations.Nullable;
 import org.springframework.core.ParameterizedTypeReference;
-import org.springframework.http.HttpStatus;
-import org.springframework.http.ResponseEntity;
+import org.springframework.http.client.support.HttpRequestWrapper;
 import org.springframework.stereotype.Service;
-import org.springframework.web.reactive.function.client.ClientRequest;
-import org.springframework.web.reactive.function.client.ExchangeFilterFunction;
-import org.springframework.web.reactive.function.client.WebClient;
+import org.springframework.web.client.RestClient;
 import org.springframework.web.util.UriComponentsBuilder;
-import reactor.core.publisher.Mono;
+import java.net.URI;
 import java.time.Instant;
 import java.time.ZoneId;
 import java.time.ZonedDateTime;
@@ -31,25 +30,36 @@ import java.util.Map;
 import java.util.Objects;
 import java.util.Optional;
 import java.util.Set;
+import static java.time.temporal.ChronoUnit.MILLIS;
+import static org.springframework.http.HttpStatus.BAD_GATEWAY;
 
 @Slf4j
 @Service
 public class TautulliApiService{
 	private static final DateTimeFormatter DATE_FORMAT = DateTimeFormatter.ofPattern("yyyy-MM-dd");
 	
-	private final WebClient apiClient;
+	private final RestClient apiClient;
 	
-	public TautulliApiService(ApplicationConfiguration applicationConfiguration, WebClient.Builder webClientBuilder){
-		apiClient = webClientBuilder.clone()
-				.baseUrl(applicationConfiguration.getTautulli().getEndpoint())
-				.filter(ExchangeFilterFunction.ofRequestProcessor(req -> Mono.just(ClientRequest.from(req)
-						.url(UriComponentsBuilder.fromUri(req.url())
-								.queryParam("apikey", applicationConfiguration.getTautulli().getApiKey())
-								.build(true)
-								.toUri())
-						.build())
-				))
-				.filter(HttpUtils.retryOnStatus(Set.of(HttpStatus.BAD_GATEWAY)))
+	public TautulliApiService(TautulliConfiguration tautulliConfiguration, ClientLoggerRequestInterceptor clientLoggerRequestInterceptor){
+		apiClient = RestClient.builder()
+				.baseUrl(tautulliConfiguration.endpoint())
+				.requestInterceptor((request, body, execution) -> {
+					var uri = UriComponentsBuilder.fromUri(request.getURI())
+							.queryParam("apikey", tautulliConfiguration.apiKey())
+							.build().toUri();
+					
+					var modifiedRequest = new HttpRequestWrapper(request){
+						@Override
+						@NonNull
+						public URI getURI(){
+							return uri;
+						}
+					};
+					
+					return execution.execute(modifiedRequest, body);
+				})
+				.requestInterceptor(new RetryInterceptor(100, 60_000, MILLIS, BAD_GATEWAY))
+				.requestInterceptor(clientLoggerRequestInterceptor)
 				.build();
 	}
 	
@@ -68,6 +78,7 @@ public class TautulliApiService{
 					.values().stream()
 					.filter(data -> Objects.equals(data.getRatingKey(), ratingKey))
 					.map(GetNewRatingKeysData::getChildren)
+					.filter(Objects::nonNull)
 					.map(Map::values)
 					.flatMap(Collection::stream)
 					.map(GetNewRatingKeysData::getRatingKey)
@@ -95,9 +106,7 @@ public class TautulliApiService{
 						.queryParam("media_type", mediaType)
 						.build())
 				.retrieve()
-				.toEntity(new ParameterizedTypeReference<TautulliResponseWrapper<GetNewRatingKeysResponse>>(){})
-				.blockOptional()
-				.orElseThrow(() -> new RequestFailedException("Failed to new rating key %s with type %s".formatted(ratingKey, mediaType))));
+				.toEntity(new ParameterizedTypeReference<>(){}));
 	}
 	
 	@NonNull
@@ -109,9 +118,7 @@ public class TautulliApiService{
 						.queryParam("rating_key", ratingKey)
 						.build())
 				.retrieve()
-				.toEntity(new ParameterizedTypeReference<TautulliResponseWrapper<GetMetadataResponse>>(){})
-				.blockOptional()
-				.orElseThrow(() -> new RequestFailedException("Failed to get metadata with rating key %d".formatted(ratingKey))));
+				.toEntity(new ParameterizedTypeReference<>(){}));
 	}
 	
 	@NonNull
@@ -140,9 +147,7 @@ public class TautulliApiService{
 					return b.build();
 				})
 				.retrieve()
-				.toEntity(new ParameterizedTypeReference<TautulliResponseWrapper<GetHistoryResponse>>(){})
-				.blockOptional()
-				.orElseThrow(() -> new RequestFailedException("Failed to get metadata with rating key %d".formatted(ratingKey))));
+				.toEntity(new ParameterizedTypeReference<>(){}));
 	}
 	
 	@NonNull
@@ -156,15 +161,13 @@ public class TautulliApiService{
 						.queryParam("length", 10000)
 						.build())
 				.retrieve()
-				.toEntity(new ParameterizedTypeReference<TautulliResponseWrapper<GetLibraryMediaInfo>>(){})
-				.blockOptional()
-				.orElseThrow(() -> new RequestFailedException("Failed to get library media info with section id %d ".formatted(sectionId))));
+				.toEntity(new ParameterizedTypeReference<>(){}));
 	}
 	
 	@NonNull
 	public Optional<byte[]> getPosterBytes(int ratingKey, int width, int height){
 		log.info("Getting poster bytes for Plex id {}", ratingKey);
-		return apiClient.get()
+		return Optional.ofNullable(apiClient.get()
 				.uri(b -> b.pathSegment("pms_image_proxy")
 						.queryParam("width", width)
 						.queryParam("height", height)
@@ -172,8 +175,6 @@ public class TautulliApiService{
 						.build())
 				.accept(org.springframework.http.MediaType.APPLICATION_OCTET_STREAM)
 				.retrieve()
-				.toEntity(byte[].class)
-				.blockOptional()
-				.map(ResponseEntity::getBody);
+				.body(byte[].class));
 	}
 }

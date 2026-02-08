@@ -1,33 +1,34 @@
 package fr.rakambda.plexdeleter.api.overseerr;
 
-import fr.rakambda.plexdeleter.SecretsUtils;
+import fr.rakambda.plexdeleter.api.ClientLoggerRequestInterceptor;
 import fr.rakambda.plexdeleter.api.RequestFailedException;
 import fr.rakambda.plexdeleter.api.overseerr.data.MediaType;
 import fr.rakambda.plexdeleter.api.overseerr.data.MovieMedia;
 import fr.rakambda.plexdeleter.api.overseerr.data.RequestMedia;
 import fr.rakambda.plexdeleter.api.overseerr.data.SeriesMedia;
-import fr.rakambda.plexdeleter.config.ApplicationConfiguration;
 import fr.rakambda.plexdeleter.config.OverseerrConfiguration;
-import org.junit.jupiter.api.BeforeEach;
+import fr.rakambda.plexdeleter.json.JacksonConfiguration;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.context.properties.EnableConfigurationProperties;
+import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.test.context.ActiveProfiles;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.condition.DisabledIfEnvironmentVariable;
-import static fr.rakambda.plexdeleter.WebClientUtils.getWebClientBuilder;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatCode;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.when;
 
+@ActiveProfiles("test")
+@SpringBootTest(classes = {
+		OverseerrApiService.class,
+		ClientLoggerRequestInterceptor.class,
+		JacksonConfiguration.class,
+})
+@EnableConfigurationProperties(OverseerrConfiguration.class)
 @DisabledIfEnvironmentVariable(named = "CI", matches = "true", disabledReason = "Required service not available on CI")
 class OverseerrServiceTest{
-	private OverseerrApiService tested;
 	
-	@BeforeEach
-	void setUp(){
-		var conf = mock(ApplicationConfiguration.class);
-		when(conf.getOverseerr()).thenReturn(new OverseerrConfiguration(SecretsUtils.getSecret("overseerr.endpoint"), SecretsUtils.getSecret("overseerr.api-key")));
-		
-		tested = new OverseerrApiService(conf, getWebClientBuilder());
-	}
+	@Autowired
+	private OverseerrApiService tested;
 	
 	@Test
 	void itShouldGetMediaDetailsForMovieNotOnPlex() throws RequestFailedException{

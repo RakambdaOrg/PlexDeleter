@@ -1,6 +1,10 @@
 package fr.rakambda.plexdeleter.service;
 
 import fr.rakambda.plexdeleter.config.ApplicationConfiguration;
+import fr.rakambda.plexdeleter.config.OverseerrConfiguration;
+import fr.rakambda.plexdeleter.config.PlexConfiguration;
+import fr.rakambda.plexdeleter.config.RadarrConfiguration;
+import fr.rakambda.plexdeleter.config.SonarrConfiguration;
 import fr.rakambda.plexdeleter.storage.entity.MediaEntity;
 import org.jspecify.annotations.NonNull;
 import org.jspecify.annotations.Nullable;
@@ -18,12 +22,12 @@ public class ThymeleafService{
 	private final String applicationEndpoint;
 	
 	@Autowired
-	public ThymeleafService(ApplicationConfiguration applicationConfiguration){
-		this.overseerrEndpoint = applicationConfiguration.getOverseerr().getEndpoint();
-		this.radarrEndpoint = applicationConfiguration.getRadarr().getEndpoint();
-		this.sonarrEndpoint = applicationConfiguration.getSonarr().getEndpoint();
-		this.plexEndpoint = applicationConfiguration.getPlex().getAppEndpoint();
-		this.plexServerId = applicationConfiguration.getPlex().getServerId();
+	public ThymeleafService(ApplicationConfiguration applicationConfiguration, OverseerrConfiguration overseerrConfiguration, PlexConfiguration plexConfiguration, RadarrConfiguration radarrConfiguration, SonarrConfiguration sonarrConfiguration){
+		this.overseerrEndpoint = overseerrConfiguration.endpoint();
+		this.radarrEndpoint = radarrConfiguration.endpoint();
+		this.sonarrEndpoint = sonarrConfiguration.endpoint();
+		this.plexEndpoint = plexConfiguration.appEndpoint();
+		this.plexServerId = plexConfiguration.serverId();
 		this.applicationEndpoint = applicationConfiguration.getServer().getApplicationUrl();
 	}
 	

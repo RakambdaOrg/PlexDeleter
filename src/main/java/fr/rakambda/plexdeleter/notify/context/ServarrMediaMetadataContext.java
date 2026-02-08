@@ -10,7 +10,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.jspecify.annotations.NonNull;
 import org.jspecify.annotations.Nullable;
 import org.springframework.context.MessageSource;
-import org.springframework.web.reactive.function.client.WebClientRequestException;
+import org.springframework.web.client.RestClientException;
 import java.util.Collection;
 import java.util.List;
 import java.util.Locale;
@@ -71,7 +71,7 @@ public class ServarrMediaMetadataContext extends MediaMetadataContext{
 					.map(id -> tags.getOrDefault(id, "unknown"))
 					.toList());
 		}
-		catch(RequestFailedException | WebClientRequestException e){
+		catch(RequestFailedException | RestClientException e){
 			log.error("Failed to get Servarr tags", e);
 			return Optional.empty();
 		}

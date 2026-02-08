@@ -1,27 +1,31 @@
 package fr.rakambda.plexdeleter.api.plex.rest;
 
+import fr.rakambda.plexdeleter.api.ClientLoggerRequestInterceptor;
 import fr.rakambda.plexdeleter.api.HttpUtils;
 import fr.rakambda.plexdeleter.api.RequestFailedException;
 import fr.rakambda.plexdeleter.api.plex.rest.data.PmsMetadata;
-import fr.rakambda.plexdeleter.config.ApplicationConfiguration;
+import fr.rakambda.plexdeleter.config.PlexConfiguration;
 import lombok.extern.slf4j.Slf4j;
 import org.jspecify.annotations.NonNull;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpHeaders;
 import org.springframework.stereotype.Service;
 import org.springframework.util.MimeTypeUtils;
-import org.springframework.web.reactive.function.client.WebClient;
+import org.springframework.web.client.RestClient;
 import java.util.Collection;
 
 @Slf4j
 @Service
 public class PlexMediaServerApiService{
-	private final WebClient apiClient;
+	private final RestClient apiClient;
 	
-	public PlexMediaServerApiService(ApplicationConfiguration applicationConfiguration, WebClient.Builder webClientBuilder){
-		apiClient = webClientBuilder.clone()
-				.baseUrl(applicationConfiguration.getPlex().getPmsEndpoint())
+	@Autowired
+	public PlexMediaServerApiService(PlexConfiguration plexConfiguration, ClientLoggerRequestInterceptor clientLoggerRequestInterceptor){
+		apiClient = RestClient.builder()
+				.baseUrl(plexConfiguration.pmsEndpoint())
 				.defaultHeader(HttpHeaders.ACCEPT, MimeTypeUtils.APPLICATION_JSON_VALUE)
-				.defaultHeader("X-Plex-Token", applicationConfiguration.getPlex().getPmsToken())
+				.defaultHeader("X-Plex-Token", plexConfiguration.pmsToken())
+				.requestInterceptor(clientLoggerRequestInterceptor)
 				.build();
 	}
 	
@@ -31,9 +35,7 @@ public class PlexMediaServerApiService{
 		return HttpUtils.unwrapIfStatusOkAndNotNullBody(apiClient.get()
 				.uri(b -> b.pathSegment("library", "metadata", Integer.toString(ratingKey)).build())
 				.retrieve()
-				.toEntity(PmsMetadata.class)
-				.blockOptional()
-				.orElseThrow(() -> new RequestFailedException("Failed to get Plex element metadata")));
+				.toEntity(PmsMetadata.class));
 	}
 	
 	public void setElementCollections(int ratingKey, @NonNull Collection<String> collections) throws RequestFailedException{
@@ -51,9 +53,7 @@ public class PlexMediaServerApiService{
 					return b.build();
 				})
 				.retrieve()
-				.toBodilessEntity()
-				.blockOptional()
-				.orElseThrow(() -> new RequestFailedException("Failed to set Plex element collections")));
+				.toBodilessEntity());
 	}
 	
 	public void setElementLabels(int ratingKey, @NonNull Collection<String> labels) throws RequestFailedException{
@@ -71,8 +71,6 @@ public class PlexMediaServerApiService{
 					return b.build();
 				})
 				.retrieve()
-				.toBodilessEntity()
-				.blockOptional()
-				.orElseThrow(() -> new RequestFailedException("Failed to set Plex element labels")));
+				.toBodilessEntity());
 	}
 }

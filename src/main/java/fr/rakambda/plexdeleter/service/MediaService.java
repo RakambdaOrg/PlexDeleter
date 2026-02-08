@@ -30,7 +30,8 @@ import org.jspecify.annotations.NonNull;
 import org.jspecify.annotations.Nullable;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
-import org.springframework.web.reactive.function.client.WebClientResponseException;
+import org.springframework.web.client.HttpClientErrorException;
+import org.springframework.web.client.HttpServerErrorException;
 import java.time.Instant;
 import java.util.Collection;
 import java.util.Comparator;
@@ -215,7 +216,7 @@ public class MediaService{
 			// 	mediaEntity.setPartsCount(partsCount);
 			// }
 		}
-		catch(WebClientResponseException.InternalServerError e){
+		catch(HttpServerErrorException.InternalServerError e){
 			var body = e.getResponseBodyAsString();
 			if(body.contains("Unable to retrieve movie.")){
 				log.warn("Failed to update media from Overseerr");
@@ -294,7 +295,7 @@ public class MediaService{
 					.filter(v -> mediaEntity.getAvailablePartsCount() < v)
 					.ifPresent(mediaEntity::setAvailablePartsCount);
 		}
-		catch(WebClientResponseException.NotFound e){
+		catch(HttpClientErrorException.NotFound e){
 			log.warn("Failed to update media from Servarr, missing", e);
 			mediaEntity.setServarrId(null);
 			supervisionService.send("❓ Media disappeared from Servarr %s", mediaEntity);
@@ -612,7 +613,7 @@ public class MediaService{
 			
 			plexMediaServerApiService.setElementLabels(ratingKey, collections);
 		}
-		catch(WebClientResponseException.NotFound e){
+		catch(HttpClientErrorException.NotFound e){
 			log.warn("Failed to label media, got 404, removing plex id from database");
 			media.setPlexId(null);
 			mediaRepository.save(media);
