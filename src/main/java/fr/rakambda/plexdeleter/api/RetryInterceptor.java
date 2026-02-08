@@ -13,7 +13,6 @@ import org.springframework.http.client.ClientHttpRequestInterceptor;
 import org.springframework.http.client.ClientHttpResponse;
 import org.springframework.util.backoff.BackOff;
 import org.springframework.util.backoff.BackOffExecution;
-import org.springframework.web.client.HttpStatusCodeException;
 import org.springframework.web.client.RestClientResponseException;
 import java.nio.charset.StandardCharsets;
 import java.time.Duration;
@@ -40,7 +39,7 @@ public class RetryInterceptor implements ClientHttpRequestInterceptor{
 		
 		var policy = RetryPolicy.builder()
 				.backOff(new DynamicRetryAfterBackOff(maxRetries, backoffMs, retryAfterHeader))
-				.predicate(err -> err instanceof HttpStatusCodeException ex && this.statuses.contains(ex.getStatusCode()))
+				.predicate(err -> err instanceof RestClientResponseException ex && this.statuses.contains(ex.getStatusCode()))
 				.build();
 		this.retryTemplate = new RetryTemplate(policy);
 	}
@@ -54,7 +53,9 @@ public class RetryInterceptor implements ClientHttpRequestInterceptor{
 					var response = execution.execute(request, body);
 					
 					if(statuses.contains(response.getStatusCode())){
-						throw new RestClientResponseException("Retryable error code", response.getStatusCode(), response.getStatusText(), response.getHeaders(), response.getBody().readAllBytes(), StandardCharsets.UTF_8);
+						var error = new RestClientResponseException("Retryable error code", response.getStatusCode(), response.getStatusText(), response.getHeaders(), response.getBody().readAllBytes(), StandardCharsets.UTF_8);
+						response.close();
+						throw error;
 					}
 					return response;
 				}

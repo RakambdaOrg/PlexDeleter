@@ -8,5 +8,5 @@
 
 *.iml
 /config.json
-/src/main/resources/application-*.yml
+/src/*/resources/application-*.yml
 .env

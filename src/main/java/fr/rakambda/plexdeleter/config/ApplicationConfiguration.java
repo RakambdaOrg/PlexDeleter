@@ -17,17 +17,7 @@ public class ApplicationConfiguration{
 	@NonNull
 	private String excludeTag;
 	@NestedConfigurationProperty
-	private PlexConfiguration plex;
-	@NestedConfigurationProperty
-	private TvdbConfiguration tvdb;
-	@NestedConfigurationProperty
 	private TmdbConfiguration tmdb;
-	@NestedConfigurationProperty
-	private OverseerrConfiguration overseerr;
-	@NestedConfigurationProperty
-	private TautulliConfiguration tautulli;
-	@NestedConfigurationProperty
-	private SonarrConfiguration sonarr;
 	@NestedConfigurationProperty
 	private RadarrConfiguration radarr;
 	@NestedConfigurationProperty

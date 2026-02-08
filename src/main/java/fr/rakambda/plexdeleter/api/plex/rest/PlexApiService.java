@@ -1,11 +1,13 @@
 package fr.rakambda.plexdeleter.api.plex.rest;
 
+import fr.rakambda.plexdeleter.api.ClientLoggerRequestInterceptor;
 import fr.rakambda.plexdeleter.api.HttpUtils;
 import fr.rakambda.plexdeleter.api.RequestFailedException;
 import fr.rakambda.plexdeleter.api.plex.rest.data.User;
-import fr.rakambda.plexdeleter.config.ApplicationConfiguration;
+import fr.rakambda.plexdeleter.config.PlexConfiguration;
 import lombok.extern.slf4j.Slf4j;
 import org.jspecify.annotations.NonNull;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpHeaders;
 import org.springframework.stereotype.Service;
 import org.springframework.util.MimeTypeUtils;
@@ -16,10 +18,12 @@ import org.springframework.web.client.RestClient;
 public class PlexApiService{
 	private final RestClient apiClient;
 	
-	public PlexApiService(ApplicationConfiguration applicationConfiguration){
+	@Autowired
+	public PlexApiService(PlexConfiguration plexConfiguration, ClientLoggerRequestInterceptor clientLoggerRequestInterceptor){
 		apiClient = RestClient.builder()
-				.baseUrl(applicationConfiguration.getPlex().getEndpoint())
+				.baseUrl(plexConfiguration.endpoint())
 				.defaultHeader(HttpHeaders.ACCEPT, MimeTypeUtils.APPLICATION_JSON_VALUE)
+				.requestInterceptor(clientLoggerRequestInterceptor)
 				.build();
 	}
 	

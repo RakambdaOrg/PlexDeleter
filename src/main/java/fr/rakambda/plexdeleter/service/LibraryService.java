@@ -5,7 +5,7 @@ import fr.rakambda.plexdeleter.api.tautulli.TautulliApiService;
 import fr.rakambda.plexdeleter.api.tautulli.data.GetLibraryMediaInfo;
 import fr.rakambda.plexdeleter.api.tautulli.data.GetMetadataResponse;
 import fr.rakambda.plexdeleter.api.tautulli.data.TautulliResponse;
-import fr.rakambda.plexdeleter.config.ApplicationConfiguration;
+import fr.rakambda.plexdeleter.config.PlexConfiguration;
 import fr.rakambda.plexdeleter.service.data.LibraryElement;
 import fr.rakambda.plexdeleter.storage.entity.MediaEntity;
 import fr.rakambda.plexdeleter.storage.entity.MediaStatus;
@@ -24,20 +24,20 @@ import java.util.stream.Stream;
 @Slf4j
 @Service
 public class LibraryService{
-	private final ApplicationConfiguration applicationConfiguration;
+	private final PlexConfiguration plexConfiguration;
 	private final TautulliApiService tautulliApiService;
 	private final MediaRepository mediaRepository;
 	
 	@Autowired
-	public LibraryService(ApplicationConfiguration applicationConfiguration, TautulliApiService tautulliApiService, MediaRepository mediaRepository){
-		this.applicationConfiguration = applicationConfiguration;
+	public LibraryService(PlexConfiguration plexConfiguration, TautulliApiService tautulliApiService, MediaRepository mediaRepository){
+		this.plexConfiguration = plexConfiguration;
 		this.tautulliApiService = tautulliApiService;
 		this.mediaRepository = mediaRepository;
 	}
 	
 	@NonNull
 	public Collection<GetMetadataResponse> getAllLibraryContentWithoutMedia(){
-		var libraryElements = Optional.ofNullable(applicationConfiguration.getPlex().getTemporaryLibraries())
+		var libraryElements = Optional.ofNullable(plexConfiguration.temporaryLibraries())
 				.stream()
 				.flatMap(Collection::stream)
 				.flatMap(this::getLibraryContent)

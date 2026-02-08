@@ -1,5 +1,6 @@
 package fr.rakambda.plexdeleter.api.overseerr;
 
+import fr.rakambda.plexdeleter.api.ClientLoggerRequestInterceptor;
 import fr.rakambda.plexdeleter.api.HttpUtils;
 import fr.rakambda.plexdeleter.api.RequestFailedException;
 import fr.rakambda.plexdeleter.api.RetryInterceptor;
@@ -12,14 +13,13 @@ import fr.rakambda.plexdeleter.api.overseerr.data.PlexSyncResponse;
 import fr.rakambda.plexdeleter.api.overseerr.data.Request;
 import fr.rakambda.plexdeleter.api.overseerr.data.RequestSeason;
 import fr.rakambda.plexdeleter.api.overseerr.data.SeriesMedia;
-import fr.rakambda.plexdeleter.config.ApplicationConfiguration;
+import fr.rakambda.plexdeleter.config.OverseerrConfiguration;
 import fr.rakambda.plexdeleter.storage.entity.MediaEntity;
 import lombok.extern.slf4j.Slf4j;
 import org.jspecify.annotations.NonNull;
 import org.springframework.core.ParameterizedTypeReference;
 import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestClient;
-import org.springframework.web.reactive.function.BodyInserters;
 import java.time.temporal.ChronoUnit;
 import java.util.Collection;
 import java.util.HashSet;
@@ -31,11 +31,12 @@ import static org.springframework.http.HttpStatus.BAD_GATEWAY;
 public class OverseerrApiService{
 	private final RestClient apiClient;
 	
-	public OverseerrApiService(ApplicationConfiguration applicationConfiguration){
+	public OverseerrApiService(OverseerrConfiguration overseerrConfiguration, ClientLoggerRequestInterceptor clientLoggerRequestInterceptor){
 		apiClient = RestClient.builder()
-				.baseUrl(applicationConfiguration.getOverseerr().getEndpoint())
-				.defaultHeader("X-Api-Key", applicationConfiguration.getOverseerr().getApiKey())
+				.baseUrl(overseerrConfiguration.endpoint())
+				.defaultHeader("X-Api-Key", overseerrConfiguration.apiKey())
 				.requestInterceptor(new RetryInterceptor(10, 60_000, ChronoUnit.MILLIS, BAD_GATEWAY))
+				.requestInterceptor(clientLoggerRequestInterceptor)
 				.build();
 	}
 	
@@ -51,8 +52,7 @@ public class OverseerrApiService{
 	private MovieMedia getMovieDetails(int mediaId) throws RequestFailedException{
 		log.info("Getting movie details for media id {}", mediaId);
 		return HttpUtils.unwrapIfStatusOkAndNotNullBody(apiClient.get()
-				.uri(b -> b.pathSegment("api", "v1", "movie", "{mediaId}")
-						.build(mediaId))
+				.uri("/api/v1/movie/{mediaId}", mediaId)
 				.retrieve()
 				.toEntity(MovieMedia.class));
 	}
@@ -61,8 +61,7 @@ public class OverseerrApiService{
 	private SeriesMedia getTvDetails(int mediaId) throws RequestFailedException{
 		log.info("Getting tv details for media id {}", mediaId);
 		return HttpUtils.unwrapIfStatusOkAndNotNullBody(apiClient.get()
-				.uri(b -> b.pathSegment("api", "v1", "tv", "{mediaId}")
-						.build(mediaId))
+				.uri("/api/v1/tv/{mediaId}", mediaId)
 				.retrieve()
 				.toEntity(SeriesMedia.class));
 	}
@@ -71,8 +70,7 @@ public class OverseerrApiService{
 	public Request getRequestDetails(int requestId) throws RequestFailedException{
 		log.info("Getting request details for request id {}", requestId);
 		return HttpUtils.unwrapIfStatusOkAndNotNullBody(apiClient.get()
-				.uri(b -> b.pathSegment("api", "v1", "request", "{requestId}")
-						.build(requestId))
+				.uri("/api/v1/request/{requestId}", requestId)
 				.retrieve()
 				.toEntity(Request.class));
 	}
@@ -121,9 +119,7 @@ public class OverseerrApiService{
 	public PagedResponse<Request> getUserRequests(int userId) throws RequestFailedException{
 		log.info("Getting user requests for user id {}", userId);
 		return HttpUtils.unwrapIfStatusOkAndNotNullBody(apiClient.get()
-				.uri(b -> b.pathSegment("api", "v1", "user", "{userId}", "requests")
-						.queryParam("take", 1000)
-						.build(userId))
+				.uri("/api/v1/user/{userId}/requests?take=1000", builder -> builder.queryParam("take", 1000).build(userId))
 				.retrieve()
 				.toEntity(new ParameterizedTypeReference<>(){}));
 	}
@@ -133,9 +129,9 @@ public class OverseerrApiService{
 		var data = new PlexSyncRequest(cancel, start);
 		log.info("Modifying plex sync with params {}", data);
 		return HttpUtils.unwrapIfStatusOkAndNotNullBody(apiClient.post()
-				.uri(b -> b.pathSegment("api", "v1", "settings", "plex", "sync").build())
+				.uri("/api/v1/settings/plex/sync")
 				.contentType(org.springframework.http.MediaType.APPLICATION_JSON)
-				.body(BodyInserters.fromValue(data))
+				.body(data)
 				.retrieve()
 				.toEntity(new ParameterizedTypeReference<>(){}));
 	}
@@ -143,8 +139,7 @@ public class OverseerrApiService{
 	public void deleteRequest(int requestId) throws RequestFailedException{
 		log.info("Deleting request with id {}", requestId);
 		HttpUtils.requireStatusOk(apiClient.delete()
-				.uri(b -> b.pathSegment("api", "v1", "request", "{requestId}")
-						.build(requestId))
+				.uri("/api/v1/request/{requestId}", requestId)
 				.retrieve()
 				.toBodilessEntity());
 	}
@@ -152,8 +147,7 @@ public class OverseerrApiService{
 	public void deleteMedia(int mediaId) throws RequestFailedException{
 		log.info("Deleting media with id {}", mediaId);
 		HttpUtils.requireStatusOk(apiClient.delete()
-				.uri(b -> b.pathSegment("api", "v1", "media", "{mediaId}")
-						.build(mediaId))
+				.uri("/api/v1/media/{mediaId}", mediaId)
 				.retrieve()
 				.toBodilessEntity());
 	}

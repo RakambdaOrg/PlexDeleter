@@ -1,11 +1,13 @@
 package fr.rakambda.plexdeleter.api.plex.rest;
 
+import fr.rakambda.plexdeleter.api.ClientLoggerRequestInterceptor;
 import fr.rakambda.plexdeleter.api.HttpUtils;
 import fr.rakambda.plexdeleter.api.RequestFailedException;
 import fr.rakambda.plexdeleter.api.plex.rest.data.PmsMetadata;
-import fr.rakambda.plexdeleter.config.ApplicationConfiguration;
+import fr.rakambda.plexdeleter.config.PlexConfiguration;
 import lombok.extern.slf4j.Slf4j;
 import org.jspecify.annotations.NonNull;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpHeaders;
 import org.springframework.stereotype.Service;
 import org.springframework.util.MimeTypeUtils;
@@ -17,11 +19,13 @@ import java.util.Collection;
 public class PlexMediaServerApiService{
 	private final RestClient apiClient;
 	
-	public PlexMediaServerApiService(ApplicationConfiguration applicationConfiguration){
+	@Autowired
+	public PlexMediaServerApiService(PlexConfiguration plexConfiguration, ClientLoggerRequestInterceptor clientLoggerRequestInterceptor){
 		apiClient = RestClient.builder()
-				.baseUrl(applicationConfiguration.getPlex().getPmsEndpoint())
+				.baseUrl(plexConfiguration.pmsEndpoint())
 				.defaultHeader(HttpHeaders.ACCEPT, MimeTypeUtils.APPLICATION_JSON_VALUE)
-				.defaultHeader("X-Plex-Token", applicationConfiguration.getPlex().getPmsToken())
+				.defaultHeader("X-Plex-Token", plexConfiguration.pmsToken())
+				.requestInterceptor(clientLoggerRequestInterceptor)
 				.build();
 	}
 	

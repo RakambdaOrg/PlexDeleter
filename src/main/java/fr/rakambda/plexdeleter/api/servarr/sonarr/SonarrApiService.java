@@ -1,5 +1,6 @@
 package fr.rakambda.plexdeleter.api.servarr.sonarr;
 
+import fr.rakambda.plexdeleter.api.ClientLoggerRequestInterceptor;
 import fr.rakambda.plexdeleter.api.HttpUtils;
 import fr.rakambda.plexdeleter.api.RequestFailedException;
 import fr.rakambda.plexdeleter.api.RetryInterceptor;
@@ -7,7 +8,7 @@ import fr.rakambda.plexdeleter.api.servarr.data.PagedResponse;
 import fr.rakambda.plexdeleter.api.servarr.data.Tag;
 import fr.rakambda.plexdeleter.api.servarr.sonarr.data.Queue;
 import fr.rakambda.plexdeleter.api.servarr.sonarr.data.Series;
-import fr.rakambda.plexdeleter.config.ApplicationConfiguration;
+import fr.rakambda.plexdeleter.config.SonarrConfiguration;
 import lombok.extern.slf4j.Slf4j;
 import org.jspecify.annotations.NonNull;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -16,7 +17,6 @@ import org.springframework.http.HttpStatusCode;
 import org.springframework.http.MediaType;
 import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestClient;
-import org.springframework.web.reactive.function.BodyInserters;
 import java.time.temporal.ChronoUnit;
 import java.util.Collection;
 import java.util.Objects;
@@ -29,11 +29,12 @@ public class SonarrApiService{
 	private final RestClient apiClient;
 	
 	@Autowired
-	public SonarrApiService(ApplicationConfiguration applicationConfiguration){
+	public SonarrApiService(SonarrConfiguration sonarrConfiguration, ClientLoggerRequestInterceptor clientLoggerRequestInterceptor){
 		apiClient = RestClient.builder()
-				.baseUrl(applicationConfiguration.getSonarr().getEndpoint())
-				.defaultHeader("X-Api-Key", applicationConfiguration.getSonarr().getApiKey())
+				.baseUrl(sonarrConfiguration.endpoint())
+				.defaultHeader("X-Api-Key", sonarrConfiguration.apiKey())
 				.requestInterceptor(new RetryInterceptor(10, 60_000, ChronoUnit.MILLIS, BAD_GATEWAY))
+				.requestInterceptor(clientLoggerRequestInterceptor)
 				.build();
 	}
 	
@@ -142,7 +143,7 @@ public class SonarrApiService{
 				.uri(b -> b.pathSegment("api", "v3", "series", "{mediaId}")
 						.build(mediaId))
 				.contentType(MediaType.APPLICATION_JSON)
-				.body(BodyInserters.fromValue(media))
+				.body(media)
 				.retrieve()
 				.toBodilessEntity());
 	}

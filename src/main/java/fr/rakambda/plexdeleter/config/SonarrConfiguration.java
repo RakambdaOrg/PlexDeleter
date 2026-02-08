@@ -1,16 +1,14 @@
 package fr.rakambda.plexdeleter.config;
 
-import lombok.AllArgsConstructor;
-import lombok.Data;
-import lombok.NoArgsConstructor;
+import jakarta.validation.constraints.NotBlank;
 import org.jspecify.annotations.NonNull;
+import org.springframework.boot.context.properties.ConfigurationProperties;
+import org.springframework.validation.annotation.Validated;
 
-@Data
-@NoArgsConstructor
-@AllArgsConstructor
-public class SonarrConfiguration{
-	@NonNull
-	private String endpoint;
-	@NonNull
-	private String apiKey;
+@Validated
+@ConfigurationProperties("app.sonarr")
+public record SonarrConfiguration(
+		@NonNull @NotBlank String endpoint,
+		@NonNull @NotBlank String apiKey
+){
 }

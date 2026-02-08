@@ -1,5 +1,6 @@
 package fr.rakambda.plexdeleter.api.tautulli;
 
+import fr.rakambda.plexdeleter.api.ClientLoggerRequestInterceptor;
 import fr.rakambda.plexdeleter.api.HttpUtils;
 import fr.rakambda.plexdeleter.api.RequestFailedException;
 import fr.rakambda.plexdeleter.api.RetryInterceptor;
@@ -9,14 +10,17 @@ import fr.rakambda.plexdeleter.api.tautulli.data.GetMetadataResponse;
 import fr.rakambda.plexdeleter.api.tautulli.data.GetNewRatingKeysData;
 import fr.rakambda.plexdeleter.api.tautulli.data.GetNewRatingKeysResponse;
 import fr.rakambda.plexdeleter.api.tautulli.data.TautulliResponseWrapper;
-import fr.rakambda.plexdeleter.config.ApplicationConfiguration;
+import fr.rakambda.plexdeleter.config.TautulliConfiguration;
 import fr.rakambda.plexdeleter.storage.entity.MediaType;
 import lombok.extern.slf4j.Slf4j;
 import org.jspecify.annotations.NonNull;
 import org.jspecify.annotations.Nullable;
 import org.springframework.core.ParameterizedTypeReference;
+import org.springframework.http.client.support.HttpRequestWrapper;
 import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestClient;
+import org.springframework.web.util.UriComponentsBuilder;
+import java.net.URI;
 import java.time.Instant;
 import java.time.ZoneId;
 import java.time.ZonedDateTime;
@@ -36,10 +40,26 @@ public class TautulliApiService{
 	
 	private final RestClient apiClient;
 	
-	public TautulliApiService(ApplicationConfiguration applicationConfiguration){
+	public TautulliApiService(TautulliConfiguration tautulliConfiguration, ClientLoggerRequestInterceptor clientLoggerRequestInterceptor){
 		apiClient = RestClient.builder()
-				.baseUrl(applicationConfiguration.getTautulli().getEndpoint())
+				.baseUrl(tautulliConfiguration.endpoint())
+				.requestInterceptor((request, body, execution) -> {
+					var uri = UriComponentsBuilder.fromUri(request.getURI())
+							.queryParam("apikey", tautulliConfiguration.apiKey())
+							.build().toUri();
+					
+					var modifiedRequest = new HttpRequestWrapper(request){
+						@Override
+						@NonNull
+						public URI getURI(){
+							return uri;
+						}
+					};
+					
+					return execution.execute(modifiedRequest, body);
+				})
 				.requestInterceptor(new RetryInterceptor(100, 60_000, MILLIS, BAD_GATEWAY))
+				.requestInterceptor(clientLoggerRequestInterceptor)
 				.build();
 	}
 	

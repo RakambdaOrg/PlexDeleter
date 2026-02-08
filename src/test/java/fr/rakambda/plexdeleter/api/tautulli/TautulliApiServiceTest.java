@@ -1,48 +1,34 @@
 package fr.rakambda.plexdeleter.api.tautulli;
 
-import fr.rakambda.plexdeleter.SecretsUtils;
 import fr.rakambda.plexdeleter.api.ClientLoggerRequestInterceptor;
 import fr.rakambda.plexdeleter.api.RequestFailedException;
-import fr.rakambda.plexdeleter.config.ApplicationConfiguration;
 import fr.rakambda.plexdeleter.config.TautulliConfiguration;
 import fr.rakambda.plexdeleter.json.JacksonConfiguration;
 import fr.rakambda.plexdeleter.storage.entity.MediaType;
-import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.context.properties.EnableConfigurationProperties;
 import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.test.context.bean.override.mockito.MockitoBean;
-import org.junit.jupiter.api.BeforeEach;
+import org.springframework.test.context.ActiveProfiles;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.condition.DisabledIfEnvironmentVariable;
 import org.junit.jupiter.api.extension.ExtendWith;
 import java.time.Instant;
 import java.util.concurrent.TimeUnit;
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.mockito.Mockito.lenient;
 
+@ActiveProfiles("test")
 @SpringBootTest(classes = {
-		TautulliApiServiceTest.class,
+		TautulliApiService.class,
 		ClientLoggerRequestInterceptor.class,
 		JacksonConfiguration.class
 })
 @DisabledIfEnvironmentVariable(named = "CI", matches = "true", disabledReason = "Required service not available on CI")
+@EnableConfigurationProperties(TautulliConfiguration.class)
 @ExtendWith(MockitoExtension.class)
 class TautulliApiServiceTest{
-	@MockitoBean
-	private ApplicationConfiguration applicationConfiguration;
-	@Mock
-	private TautulliConfiguration tautulliConfiguration;
-	
 	@Autowired
 	private TautulliApiService tested;
-	
-	@BeforeEach
-	void setUp(){
-		lenient().when(applicationConfiguration.getTautulli()).thenReturn(tautulliConfiguration);
-		lenient().when(tautulliConfiguration.getEndpoint()).thenReturn(SecretsUtils.getSecret("tautulli.endpoint"));
-		lenient().when(tautulliConfiguration.getApiKey()).thenReturn(SecretsUtils.getSecret("tautulli.api-key"));
-	}
 	
 	@Test
 	void itShouldGetMovieRatingKeys() throws RequestFailedException{
