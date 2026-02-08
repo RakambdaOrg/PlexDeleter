@@ -9,16 +9,16 @@ import org.jspecify.annotations.NonNull;
 import org.springframework.http.HttpHeaders;
 import org.springframework.stereotype.Service;
 import org.springframework.util.MimeTypeUtils;
-import org.springframework.web.reactive.function.client.WebClient;
+import org.springframework.web.client.RestClient;
 import java.util.Collection;
 
 @Slf4j
 @Service
 public class PlexMediaServerApiService{
-	private final WebClient apiClient;
+	private final RestClient apiClient;
 	
-	public PlexMediaServerApiService(ApplicationConfiguration applicationConfiguration, WebClient.Builder webClientBuilder){
-		apiClient = webClientBuilder.clone()
+	public PlexMediaServerApiService(ApplicationConfiguration applicationConfiguration){
+		apiClient = RestClient.builder()
 				.baseUrl(applicationConfiguration.getPlex().getPmsEndpoint())
 				.defaultHeader(HttpHeaders.ACCEPT, MimeTypeUtils.APPLICATION_JSON_VALUE)
 				.defaultHeader("X-Plex-Token", applicationConfiguration.getPlex().getPmsToken())
@@ -31,9 +31,7 @@ public class PlexMediaServerApiService{
 		return HttpUtils.unwrapIfStatusOkAndNotNullBody(apiClient.get()
 				.uri(b -> b.pathSegment("library", "metadata", Integer.toString(ratingKey)).build())
 				.retrieve()
-				.toEntity(PmsMetadata.class)
-				.blockOptional()
-				.orElseThrow(() -> new RequestFailedException("Failed to get Plex element metadata")));
+				.toEntity(PmsMetadata.class));
 	}
 	
 	public void setElementCollections(int ratingKey, @NonNull Collection<String> collections) throws RequestFailedException{
@@ -51,9 +49,7 @@ public class PlexMediaServerApiService{
 					return b.build();
 				})
 				.retrieve()
-				.toBodilessEntity()
-				.blockOptional()
-				.orElseThrow(() -> new RequestFailedException("Failed to set Plex element collections")));
+				.toBodilessEntity());
 	}
 	
 	public void setElementLabels(int ratingKey, @NonNull Collection<String> labels) throws RequestFailedException{
@@ -71,8 +67,6 @@ public class PlexMediaServerApiService{
 					return b.build();
 				})
 				.retrieve()
-				.toBodilessEntity()
-				.blockOptional()
-				.orElseThrow(() -> new RequestFailedException("Failed to set Plex element labels")));
+				.toBodilessEntity());
 	}
 }

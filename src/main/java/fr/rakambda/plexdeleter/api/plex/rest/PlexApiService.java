@@ -9,15 +9,15 @@ import org.jspecify.annotations.NonNull;
 import org.springframework.http.HttpHeaders;
 import org.springframework.stereotype.Service;
 import org.springframework.util.MimeTypeUtils;
-import org.springframework.web.reactive.function.client.WebClient;
+import org.springframework.web.client.RestClient;
 
 @Slf4j
 @Service
 public class PlexApiService{
-	private final WebClient apiClient;
+	private final RestClient apiClient;
 	
-	public PlexApiService(ApplicationConfiguration applicationConfiguration, WebClient.Builder webClientBuilder){
-		apiClient = webClientBuilder.clone()
+	public PlexApiService(ApplicationConfiguration applicationConfiguration){
+		apiClient = RestClient.builder()
 				.baseUrl(applicationConfiguration.getPlex().getEndpoint())
 				.defaultHeader(HttpHeaders.ACCEPT, MimeTypeUtils.APPLICATION_JSON_VALUE)
 				.build();
@@ -27,12 +27,9 @@ public class PlexApiService{
 	public User getUserInfo(@NonNull String authToken) throws RequestFailedException{
 		log.info("Getting user info from auth token");
 		return HttpUtils.unwrapIfStatusOkAndNotNullBody(apiClient.get()
-				.uri(b -> b.pathSegment("api", "v2", "user")
-						.build())
+				.uri(b -> b.pathSegment("api", "v2", "user").build())
 				.header("X-Plex-Token", authToken)
 				.retrieve()
-				.toEntity(User.class)
-				.blockOptional()
-				.orElseThrow(() -> new RequestFailedException("Failed to get Plex user info")));
+				.toEntity(User.class));
 	}
 }
