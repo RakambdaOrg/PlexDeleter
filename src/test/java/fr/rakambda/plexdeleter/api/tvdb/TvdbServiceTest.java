@@ -1,32 +1,49 @@
 package fr.rakambda.plexdeleter.api.tvdb;
 
 import fr.rakambda.plexdeleter.SecretsUtils;
+import fr.rakambda.plexdeleter.api.ClientLoggerRequestInterceptor;
 import fr.rakambda.plexdeleter.api.RequestFailedException;
 import fr.rakambda.plexdeleter.config.ApplicationConfiguration;
 import fr.rakambda.plexdeleter.config.TvdbConfiguration;
+import fr.rakambda.plexdeleter.json.JacksonConfiguration;
+import org.mockito.Mock;
+import org.mockito.junit.jupiter.MockitoExtension;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.condition.DisabledIfEnvironmentVariable;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.Arguments;
 import org.junit.jupiter.params.provider.MethodSource;
 import java.util.Locale;
 import java.util.stream.Stream;
-import static fr.rakambda.plexdeleter.WebClientUtils.getWebClientBuilder;
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.when;
+import static org.mockito.Mockito.lenient;
 
+@SpringBootTest(classes = {
+		TvdbApiService.class,
+		ClientLoggerRequestInterceptor.class,
+		JacksonConfiguration.class
+})
 @DisabledIfEnvironmentVariable(named = "CI", matches = "true", disabledReason = "Required service not available on CI")
+@ExtendWith(MockitoExtension.class)
 class TvdbServiceTest{
+	@MockitoBean
+	private ApplicationConfiguration applicationConfiguration;
+	@Mock
+	private TvdbConfiguration tvdbConfiguration;
+	
+	@Autowired
 	private TvdbApiService tested;
 	
 	@BeforeEach
 	void setUp(){
-		var conf = mock(ApplicationConfiguration.class);
-		when(conf.getTvdb()).thenReturn(new TvdbConfiguration(SecretsUtils.getSecret("tvdb.endpoint"), SecretsUtils.getSecret("tvdb.api-key")));
-		
-		tested = new TvdbApiService(conf, getWebClientBuilder());
+		lenient().when(applicationConfiguration.getTvdb()).thenReturn(tvdbConfiguration);
+		lenient().when(tvdbConfiguration.getEndpoint()).thenReturn(SecretsUtils.getSecret("tvdb.endpoint"));
+		lenient().when(tvdbConfiguration.getApiKey()).thenReturn(SecretsUtils.getSecret("tvdb.api-key"));
 	}
 	
 	@ParameterizedTest

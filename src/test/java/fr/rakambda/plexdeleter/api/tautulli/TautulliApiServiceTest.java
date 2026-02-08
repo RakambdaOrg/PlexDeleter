@@ -1,30 +1,47 @@
 package fr.rakambda.plexdeleter.api.tautulli;
 
 import fr.rakambda.plexdeleter.SecretsUtils;
+import fr.rakambda.plexdeleter.api.ClientLoggerRequestInterceptor;
 import fr.rakambda.plexdeleter.api.RequestFailedException;
 import fr.rakambda.plexdeleter.config.ApplicationConfiguration;
 import fr.rakambda.plexdeleter.config.TautulliConfiguration;
+import fr.rakambda.plexdeleter.json.JacksonConfiguration;
 import fr.rakambda.plexdeleter.storage.entity.MediaType;
+import org.mockito.Mock;
+import org.mockito.junit.jupiter.MockitoExtension;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.condition.DisabledIfEnvironmentVariable;
+import org.junit.jupiter.api.extension.ExtendWith;
 import java.time.Instant;
 import java.util.concurrent.TimeUnit;
-import static fr.rakambda.plexdeleter.WebClientUtils.getWebClientBuilder;
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.when;
+import static org.mockito.Mockito.lenient;
 
+@SpringBootTest(classes = {
+		TautulliApiServiceTest.class,
+		ClientLoggerRequestInterceptor.class,
+		JacksonConfiguration.class
+})
 @DisabledIfEnvironmentVariable(named = "CI", matches = "true", disabledReason = "Required service not available on CI")
+@ExtendWith(MockitoExtension.class)
 class TautulliApiServiceTest{
+	@MockitoBean
+	private ApplicationConfiguration applicationConfiguration;
+	@Mock
+	private TautulliConfiguration tautulliConfiguration;
+	
+	@Autowired
 	private TautulliApiService tested;
 	
 	@BeforeEach
 	void setUp(){
-		var conf = mock(ApplicationConfiguration.class);
-		when(conf.getTautulli()).thenReturn(new TautulliConfiguration(SecretsUtils.getSecret("tautulli.endpoint"), SecretsUtils.getSecret("tautulli.api-key")));
-		
-		tested = new TautulliApiService(conf, getWebClientBuilder());
+		lenient().when(applicationConfiguration.getTautulli()).thenReturn(tautulliConfiguration);
+		lenient().when(tautulliConfiguration.getEndpoint()).thenReturn(SecretsUtils.getSecret("tautulli.endpoint"));
+		lenient().when(tautulliConfiguration.getApiKey()).thenReturn(SecretsUtils.getSecret("tautulli.api-key"));
 	}
 	
 	@Test

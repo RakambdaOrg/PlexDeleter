@@ -13,10 +13,9 @@ import org.springframework.http.client.ClientHttpRequestInterceptor;
 import org.springframework.http.client.ClientHttpResponse;
 import org.springframework.util.backoff.BackOff;
 import org.springframework.util.backoff.BackOffExecution;
-import org.springframework.web.client.HttpServerErrorException;
 import org.springframework.web.client.HttpStatusCodeException;
-import org.springframework.web.reactive.function.client.WebClientResponseException;
-import java.io.IOException;
+import org.springframework.web.client.RestClientResponseException;
+import java.nio.charset.StandardCharsets;
 import java.time.Duration;
 import java.time.temporal.TemporalUnit;
 import java.util.List;
@@ -48,21 +47,20 @@ public class RetryInterceptor implements ClientHttpRequestInterceptor{
 	
 	@NonNull
 	@Override
-	public ClientHttpResponse intercept(@NonNull HttpRequest request, byte @NonNull [] body, @NonNull ClientHttpRequestExecution execution) throws IOException{
+	public ClientHttpResponse intercept(@NonNull HttpRequest request, byte @NonNull [] body, @NonNull ClientHttpRequestExecution execution){
 		try{
 			return retryTemplate.execute(() -> {
 				try{
 					var response = execution.execute(request, body);
 					
 					if(statuses.contains(response.getStatusCode())){
-						calculateDelay(request, response).ifPresent(d -> retryAfterHeader.set(d.toMillis()));
-						throw new HttpServerErrorException(response.getStatusCode(), "Retryable error code");
+						throw new RestClientResponseException("Retryable error code", response.getStatusCode(), response.getStatusText(), response.getHeaders(), response.getBody().readAllBytes(), StandardCharsets.UTF_8);
 					}
 					return response;
 				}
-				catch(WebClientResponseException e){
+				catch(RestClientResponseException e){
 					if(statuses.contains(e.getStatusCode())){
-						calculateDelay(e).ifPresent(d -> retryAfterHeader.set(d.toMillis()));
+						calculateDelay(e, request).ifPresent(d -> retryAfterHeader.set(d.toMillis()));
 					}
 					throw e;
 				}
@@ -74,21 +72,9 @@ public class RetryInterceptor implements ClientHttpRequestInterceptor{
 	}
 	
 	@NonNull
-	private Optional<Duration> calculateDelay(@NonNull WebClientResponseException failure){
-		var retryAfterHeader = failure.getHeaders().getFirst("Retry-After");
-		var retryAfter = Optional.ofNullable(retryAfterHeader)
-				.filter(s -> !s.isBlank())
-				.map(Integer::parseInt)
-				.map(v -> Duration.of(v, retryHeaderUnit));
-		
-		log.debug("Retry later for request on {}: {}", Optional.ofNullable(failure.getRequest()).map(HttpRequest::getURI).orElse(null), retryAfter);
-		return retryAfter;
-	}
-	
-	@NonNull
-	private Optional<Duration> calculateDelay(@NonNull HttpRequest request, @NonNull ClientHttpResponse response){
-		var retryAfterHeader = response.getHeaders().getFirst("Retry-After");
-		var retryAfter = Optional.ofNullable(retryAfterHeader)
+	private Optional<Duration> calculateDelay(@NonNull RestClientResponseException failure, @NonNull HttpRequest request){
+		var retryAfter = Optional.ofNullable(failure.getResponseHeaders())
+				.map(h -> h.getFirst("Retry-After"))
 				.filter(s -> !s.isBlank())
 				.map(Integer::parseInt)
 				.map(v -> Duration.of(v, retryHeaderUnit));

@@ -1,6 +1,7 @@
 package fr.rakambda.plexdeleter.api.overseerr;
 
 import fr.rakambda.plexdeleter.SecretsUtils;
+import fr.rakambda.plexdeleter.api.ClientLoggerRequestInterceptor;
 import fr.rakambda.plexdeleter.api.RequestFailedException;
 import fr.rakambda.plexdeleter.api.overseerr.data.MediaType;
 import fr.rakambda.plexdeleter.api.overseerr.data.MovieMedia;
@@ -8,25 +9,42 @@ import fr.rakambda.plexdeleter.api.overseerr.data.RequestMedia;
 import fr.rakambda.plexdeleter.api.overseerr.data.SeriesMedia;
 import fr.rakambda.plexdeleter.config.ApplicationConfiguration;
 import fr.rakambda.plexdeleter.config.OverseerrConfiguration;
+import fr.rakambda.plexdeleter.json.JacksonConfiguration;
+import org.mockito.Mock;
+import org.mockito.junit.jupiter.MockitoExtension;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.condition.DisabledIfEnvironmentVariable;
-import static fr.rakambda.plexdeleter.WebClientUtils.getWebClientBuilder;
+import org.junit.jupiter.api.extension.ExtendWith;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatCode;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.when;
+import static org.mockito.Mockito.lenient;
 
+@SpringBootTest(classes = {
+		OverseerrApiService.class,
+		ClientLoggerRequestInterceptor.class,
+		JacksonConfiguration.class
+})
 @DisabledIfEnvironmentVariable(named = "CI", matches = "true", disabledReason = "Required service not available on CI")
+@ExtendWith(MockitoExtension.class)
 class OverseerrServiceTest{
+	
+	@MockitoBean
+	private ApplicationConfiguration applicationConfiguration;
+	@Mock
+	private OverseerrConfiguration overseerrConfiguration;
+	
+	@Autowired
 	private OverseerrApiService tested;
 	
 	@BeforeEach
 	void setUp(){
-		var conf = mock(ApplicationConfiguration.class);
-		when(conf.getOverseerr()).thenReturn(new OverseerrConfiguration(SecretsUtils.getSecret("overseerr.endpoint"), SecretsUtils.getSecret("overseerr.api-key")));
-		
-		tested = new OverseerrApiService(conf, getWebClientBuilder());
+		lenient().when(applicationConfiguration.getOverseerr()).thenReturn(overseerrConfiguration);
+		lenient().when(overseerrConfiguration.getEndpoint()).thenReturn(SecretsUtils.getSecret("overseerr.endpoint"));
+		lenient().when(overseerrConfiguration.getApiKey()).thenReturn(SecretsUtils.getSecret("overseerr.api-key"));
 	}
 	
 	@Test

@@ -1,20 +1,29 @@
 package fr.rakambda.plexdeleter.api.discord;
 
 import fr.rakambda.plexdeleter.SecretsUtils;
+import fr.rakambda.plexdeleter.api.ClientLoggerRequestInterceptor;
 import fr.rakambda.plexdeleter.api.RequestFailedException;
 import fr.rakambda.plexdeleter.api.discord.data.Embed;
 import fr.rakambda.plexdeleter.api.discord.data.Field;
 import fr.rakambda.plexdeleter.api.discord.data.WebhookMessage;
+import fr.rakambda.plexdeleter.json.JacksonConfiguration;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.test.context.SpringBootTest;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.condition.DisabledIfEnvironmentVariable;
 import java.util.List;
-import static fr.rakambda.plexdeleter.WebClientUtils.getWebClientBuilder;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatCode;
 
+@SpringBootTest(classes = {
+		DiscordWebhookApiService.class,
+		ClientLoggerRequestInterceptor.class,
+		JacksonConfiguration.class
+})
 @DisabledIfEnvironmentVariable(named = "CI", matches = "true", disabledReason = "Required service not available on CI")
 class DiscordWebhookServiceTest{
-	private DiscordWebhookApiService tested = new DiscordWebhookApiService(getWebClientBuilder());
+	@Autowired
+	private DiscordWebhookApiService tested;
 	
 	@Test
 	void itShouldSendAMessage(){
