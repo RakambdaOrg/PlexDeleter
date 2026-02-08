@@ -13,37 +13,33 @@ import lombok.extern.slf4j.Slf4j;
 import org.jspecify.annotations.NonNull;
 import org.jspecify.annotations.Nullable;
 import org.springframework.core.ParameterizedTypeReference;
-import org.springframework.http.HttpHeaders;
 import org.springframework.stereotype.Service;
+import org.springframework.web.client.RestClient;
 import org.springframework.web.reactive.function.BodyInserters;
-import org.springframework.web.reactive.function.client.ClientRequest;
-import org.springframework.web.reactive.function.client.ExchangeFilterFunction;
-import org.springframework.web.reactive.function.client.WebClient;
-import reactor.core.publisher.Mono;
 import java.util.Locale;
 import java.util.Objects;
 import java.util.Optional;
+import static org.springframework.http.HttpHeaders.AUTHORIZATION;
 
 @Slf4j
 @Service
 public class TvdbApiService{
-	private final WebClient apiClient;
+	private final RestClient apiClient;
 	
 	private String bearerToken;
 	
-	public TvdbApiService(ApplicationConfiguration applicationConfiguration, WebClient.Builder webClientBuilder){
+	public TvdbApiService(ApplicationConfiguration applicationConfiguration){
 		var tvdbConfiguration = applicationConfiguration.getTvdb();
 		
-		apiClient = webClientBuilder.clone()
+		apiClient = RestClient.builder()
 				.baseUrl(tvdbConfiguration.getEndpoint())
-				.filter(ExchangeFilterFunction.ofRequestProcessor(req -> {
-					if(Objects.equals(req.url().getPath(), "/v4/login")){
-						return Mono.just(req);
+				.requestInterceptor((request, body, execution) -> {
+					if(Objects.equals(request.getURI().getPath(), "/v4/login")){
+						return execution.execute(request, body);
 					}
-					return Mono.just(ClientRequest.from(req)
-							.header(HttpHeaders.AUTHORIZATION, "Bearer " + getBearer(tvdbConfiguration.getApiKey()))
-							.build());
-				}))
+					request.getHeaders().add(AUTHORIZATION, "Bearer " + getBearer(tvdbConfiguration.getApiKey()));
+					return execution.execute(request, body);
+				})
 				.build();
 	}
 	
@@ -77,9 +73,7 @@ public class TvdbApiService{
 				.contentType(org.springframework.http.MediaType.APPLICATION_JSON)
 				.body(BodyInserters.fromValue(data))
 				.retrieve()
-				.toEntity(new ParameterizedTypeReference<TvdbResponseWrapper<LoginResponse>>(){})
-				.blockOptional()
-				.orElseThrow(() -> new RequestFailedException("Failed to log in on Tvdb")));
+				.toEntity(new ParameterizedTypeReference<>(){}));
 	}
 	
 	@NonNull
@@ -89,9 +83,7 @@ public class TvdbApiService{
 				.uri(b -> b.pathSegment("v4", "movies", "{movieId}", "extended")
 						.build(movieId))
 				.retrieve()
-				.toEntity(new ParameterizedTypeReference<TvdbResponseWrapper<MovieData>>(){})
-				.blockOptional()
-				.orElseThrow(() -> new RequestFailedException("Failed to get extended movie data from Tvdb with id %d".formatted(movieId))));
+				.toEntity(new ParameterizedTypeReference<>(){}));
 	}
 	
 	@NonNull
@@ -101,9 +93,7 @@ public class TvdbApiService{
 				.uri(b -> b.pathSegment("v4", "series", "{seriesId}", "extended")
 						.build(seriesId))
 				.retrieve()
-				.toEntity(new ParameterizedTypeReference<TvdbResponseWrapper<SeriesData>>(){})
-				.blockOptional()
-				.orElseThrow(() -> new RequestFailedException("Failed to get extended series data from Tvdb with id %d".formatted(seriesId))));
+				.toEntity(new ParameterizedTypeReference<>(){}));
 	}
 	
 	@NonNull
@@ -113,9 +103,7 @@ public class TvdbApiService{
 				.uri(b -> b.pathSegment("v4", "movies", "{movieId}", "translations", "{lang}")
 						.build(movieId, locale.getISO3Language()))
 				.retrieve()
-				.toEntity(new ParameterizedTypeReference<TvdbResponseWrapper<Translation>>(){})
-				.blockOptional()
-				.orElseThrow(() -> new RequestFailedException("Failed to get movie translations from Tvdb with id %d and locale %s".formatted(movieId, locale))));
+				.toEntity(new ParameterizedTypeReference<>(){}));
 	}
 	
 	@NonNull
@@ -125,9 +113,7 @@ public class TvdbApiService{
 				.uri(b -> b.pathSegment("v4", "series", "{seriesId}", "translations", "{lang}")
 						.build(seriesId, locale.getISO3Language()))
 				.retrieve()
-				.toEntity(new ParameterizedTypeReference<TvdbResponseWrapper<Translation>>(){})
-				.blockOptional()
-				.orElseThrow(() -> new RequestFailedException("Failed to get series translations from Tvdb with id %d and locale %s".formatted(seriesId, locale))));
+				.toEntity(new ParameterizedTypeReference<>(){}));
 	}
 	
 	@NonNull
@@ -137,9 +123,7 @@ public class TvdbApiService{
 				.uri(b -> b.pathSegment("v4", "series", "{seriesId}", "episodes", "{type}")
 						.build(seriesId, "default"))
 				.retrieve()
-				.toEntity(new ParameterizedTypeReference<TvdbResponseWrapper<SeriesData>>(){})
-				.blockOptional()
-				.orElseThrow(() -> new RequestFailedException("Failed to get episodes from Tvdb for series with id %d".formatted(seriesId))));
+				.toEntity(new ParameterizedTypeReference<>(){}));
 	}
 	
 	@NonNull
@@ -149,9 +133,7 @@ public class TvdbApiService{
 				.uri(b -> b.pathSegment("v4", "episodes", "{episodeId}", "translations", "{lang}")
 						.build(episodeId, locale.getISO3Language()))
 				.retrieve()
-				.toEntity(new ParameterizedTypeReference<TvdbResponseWrapper<Translation>>(){})
-				.blockOptional()
-				.orElseThrow(() -> new RequestFailedException("Failed to get episode translations from Tvdb with id %d and locale %s".formatted(episodeId, locale))));
+				.toEntity(new ParameterizedTypeReference<>(){}));
 	}
 	
 	@NonNull
@@ -161,8 +143,6 @@ public class TvdbApiService{
 				.uri(b -> b.pathSegment("v4", "seasons", "{episodeId}", "translations", "{lang}")
 						.build(episodeId, locale.getISO3Language()))
 				.retrieve()
-				.toEntity(new ParameterizedTypeReference<TvdbResponseWrapper<Translation>>(){})
-				.blockOptional()
-				.orElseThrow(() -> new RequestFailedException("Failed to get season translations from Tvdb with id %d and locale %s".formatted(episodeId, locale))));
+				.toEntity(new ParameterizedTypeReference<>(){}));
 	}
 }

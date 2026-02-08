@@ -2,6 +2,7 @@ package fr.rakambda.plexdeleter.api.overseerr;
 
 import fr.rakambda.plexdeleter.api.HttpUtils;
 import fr.rakambda.plexdeleter.api.RequestFailedException;
+import fr.rakambda.plexdeleter.api.RetryInterceptor;
 import fr.rakambda.plexdeleter.api.overseerr.data.Media;
 import fr.rakambda.plexdeleter.api.overseerr.data.MediaType;
 import fr.rakambda.plexdeleter.api.overseerr.data.MovieMedia;
@@ -16,25 +17,25 @@ import fr.rakambda.plexdeleter.storage.entity.MediaEntity;
 import lombok.extern.slf4j.Slf4j;
 import org.jspecify.annotations.NonNull;
 import org.springframework.core.ParameterizedTypeReference;
-import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
+import org.springframework.web.client.RestClient;
 import org.springframework.web.reactive.function.BodyInserters;
-import org.springframework.web.reactive.function.client.WebClient;
+import java.time.temporal.ChronoUnit;
 import java.util.Collection;
 import java.util.HashSet;
 import java.util.Objects;
-import java.util.Set;
+import static org.springframework.http.HttpStatus.BAD_GATEWAY;
 
 @Slf4j
 @Service
 public class OverseerrApiService{
-	private final WebClient apiClient;
+	private final RestClient apiClient;
 	
-	public OverseerrApiService(ApplicationConfiguration applicationConfiguration, WebClient.Builder webClientBuilder){
-		apiClient = webClientBuilder.clone()
+	public OverseerrApiService(ApplicationConfiguration applicationConfiguration){
+		apiClient = RestClient.builder()
 				.baseUrl(applicationConfiguration.getOverseerr().getEndpoint())
 				.defaultHeader("X-Api-Key", applicationConfiguration.getOverseerr().getApiKey())
-				.filter(HttpUtils.retryOnStatus(Set.of(HttpStatus.BAD_GATEWAY)))
+				.requestInterceptor(new RetryInterceptor(10, 60_000, ChronoUnit.MILLIS, BAD_GATEWAY))
 				.build();
 	}
 	
@@ -53,9 +54,7 @@ public class OverseerrApiService{
 				.uri(b -> b.pathSegment("api", "v1", "movie", "{mediaId}")
 						.build(mediaId))
 				.retrieve()
-				.toEntity(MovieMedia.class)
-				.blockOptional()
-				.orElseThrow(() -> new RequestFailedException("Failed to get movie details with id %d".formatted(mediaId))));
+				.toEntity(MovieMedia.class));
 	}
 	
 	@NonNull
@@ -65,9 +64,7 @@ public class OverseerrApiService{
 				.uri(b -> b.pathSegment("api", "v1", "tv", "{mediaId}")
 						.build(mediaId))
 				.retrieve()
-				.toEntity(SeriesMedia.class)
-				.blockOptional()
-				.orElseThrow(() -> new RequestFailedException("Failed to get series details with id %d".formatted(mediaId))));
+				.toEntity(SeriesMedia.class));
 	}
 	
 	@NonNull
@@ -77,9 +74,7 @@ public class OverseerrApiService{
 				.uri(b -> b.pathSegment("api", "v1", "request", "{requestId}")
 						.build(requestId))
 				.retrieve()
-				.toEntity(Request.class)
-				.blockOptional()
-				.orElseThrow(() -> new RequestFailedException("Failed to get request details with id %d".formatted(requestId))));
+				.toEntity(Request.class));
 	}
 	
 	public void deleteRequestForUserAndMedia(@NonNull Collection<Integer> userIds, @NonNull MediaEntity media) throws RequestFailedException{
@@ -130,9 +125,7 @@ public class OverseerrApiService{
 						.queryParam("take", 1000)
 						.build(userId))
 				.retrieve()
-				.toEntity(new ParameterizedTypeReference<PagedResponse<Request>>(){})
-				.blockOptional()
-				.orElseThrow(() -> new RequestFailedException("Failed to get request details with id %d".formatted(userId))));
+				.toEntity(new ParameterizedTypeReference<>(){}));
 	}
 	
 	@NonNull
@@ -144,9 +137,7 @@ public class OverseerrApiService{
 				.contentType(org.springframework.http.MediaType.APPLICATION_JSON)
 				.body(BodyInserters.fromValue(data))
 				.retrieve()
-				.toEntity(new ParameterizedTypeReference<PlexSyncResponse>(){})
-				.blockOptional()
-				.orElseThrow(() -> new RequestFailedException("Failed to start plex sync")));
+				.toEntity(new ParameterizedTypeReference<>(){}));
 	}
 	
 	public void deleteRequest(int requestId) throws RequestFailedException{
@@ -155,9 +146,7 @@ public class OverseerrApiService{
 				.uri(b -> b.pathSegment("api", "v1", "request", "{requestId}")
 						.build(requestId))
 				.retrieve()
-				.toBodilessEntity()
-				.blockOptional()
-				.orElseThrow(() -> new RequestFailedException("Failed to delete request with id %d".formatted(requestId))));
+				.toBodilessEntity());
 	}
 	
 	public void deleteMedia(int mediaId) throws RequestFailedException{
@@ -166,8 +155,6 @@ public class OverseerrApiService{
 				.uri(b -> b.pathSegment("api", "v1", "media", "{mediaId}")
 						.build(mediaId))
 				.retrieve()
-				.toBodilessEntity()
-				.blockOptional()
-				.orElseThrow(() -> new RequestFailedException("Failed to delete media with id %d".formatted(mediaId))));
+				.toBodilessEntity());
 	}
 }

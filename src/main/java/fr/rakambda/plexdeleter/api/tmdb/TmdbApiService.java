@@ -11,18 +11,18 @@ import org.jspecify.annotations.NonNull;
 import org.springframework.core.ParameterizedTypeReference;
 import org.springframework.http.HttpHeaders;
 import org.springframework.stereotype.Service;
-import org.springframework.web.reactive.function.client.WebClient;
+import org.springframework.web.client.RestClient;
 import java.util.Locale;
 
 @Slf4j
 @Service
 public class TmdbApiService{
-	private final WebClient apiClient;
+	private final RestClient apiClient;
 	
-	public TmdbApiService(ApplicationConfiguration applicationConfiguration, WebClient.Builder webClientBuilder){
+	public TmdbApiService(ApplicationConfiguration applicationConfiguration){
 		var tmdbConfiguration = applicationConfiguration.getTmdb();
 		
-		apiClient = webClientBuilder.clone()
+		apiClient = RestClient.builder()
 				.baseUrl(tmdbConfiguration.getEndpoint())
 				.defaultHeader(HttpHeaders.AUTHORIZATION, "Bearer " + tmdbConfiguration.getToken())
 				.build();
@@ -36,9 +36,7 @@ public class TmdbApiService{
 						.queryParam("language", locale.getLanguage())
 						.build(movieId))
 				.retrieve()
-				.toEntity(new ParameterizedTypeReference<MovieData>(){})
-				.blockOptional()
-				.orElseThrow(() -> new RequestFailedException("Failed to get movie data from Tmdb with id %d".formatted(movieId))));
+				.toEntity(new ParameterizedTypeReference<>(){}));
 	}
 	
 	@NonNull
@@ -49,9 +47,7 @@ public class TmdbApiService{
 						.queryParam("language", locale.getLanguage())
 						.build(seriesId))
 				.retrieve()
-				.toEntity(new ParameterizedTypeReference<SeriesData>(){})
-				.blockOptional()
-				.orElseThrow(() -> new RequestFailedException("Failed to get series data from Tmdb with id %d".formatted(seriesId))));
+				.toEntity(new ParameterizedTypeReference<>(){}));
 	}
 	
 	@NonNull
@@ -62,8 +58,6 @@ public class TmdbApiService{
 						.queryParam("language", locale.getLanguage())
 						.build(seriesId, season))
 				.retrieve()
-				.toEntity(new ParameterizedTypeReference<SeasonData>(){})
-				.blockOptional()
-				.orElseThrow(() -> new RequestFailedException("Failed to get season data from Tmdb with id %d and index %d".formatted(seriesId, season))));
+				.toEntity(new ParameterizedTypeReference<>(){}));
 	}
 }

@@ -17,7 +17,6 @@ import org.springframework.web.client.RestClient;
 import org.springframework.web.reactive.function.BodyInserter;
 import org.springframework.web.reactive.function.BodyInserters;
 import org.springframework.web.reactive.function.UnsupportedMediaTypeException;
-import org.springframework.web.reactive.function.client.WebClient;
 import java.util.Map;
 import java.util.Objects;
 import java.util.concurrent.ConcurrentHashMap;
@@ -32,7 +31,7 @@ public class DiscordWebhookApiService{
 	private final RestClient apiClient;
 	private final Map<String, Semaphore> locks;
 	
-	public DiscordWebhookApiService(WebClient.Builder webClientBuilder){
+	public DiscordWebhookApiService(){
 		apiClient = RestClient.builder()
 				.requestInterceptor(new RetryInterceptor(MAX_VALUE, 60_000, MILLIS, TOO_MANY_REQUESTS))
 				.build();

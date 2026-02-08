@@ -2,6 +2,7 @@ package fr.rakambda.plexdeleter.api.servarr.sonarr;
 
 import fr.rakambda.plexdeleter.api.HttpUtils;
 import fr.rakambda.plexdeleter.api.RequestFailedException;
+import fr.rakambda.plexdeleter.api.RetryInterceptor;
 import fr.rakambda.plexdeleter.api.servarr.data.PagedResponse;
 import fr.rakambda.plexdeleter.api.servarr.data.Tag;
 import fr.rakambda.plexdeleter.api.servarr.sonarr.data.Queue;
@@ -11,28 +12,28 @@ import lombok.extern.slf4j.Slf4j;
 import org.jspecify.annotations.NonNull;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.ParameterizedTypeReference;
-import org.springframework.http.HttpStatus;
 import org.springframework.http.HttpStatusCode;
 import org.springframework.http.MediaType;
 import org.springframework.stereotype.Service;
+import org.springframework.web.client.RestClient;
 import org.springframework.web.reactive.function.BodyInserters;
-import org.springframework.web.reactive.function.client.WebClient;
-import reactor.core.publisher.Mono;
+import java.time.temporal.ChronoUnit;
 import java.util.Collection;
 import java.util.Objects;
 import java.util.Set;
+import static org.springframework.http.HttpStatus.BAD_GATEWAY;
 
 @Slf4j
 @Service
 public class SonarrApiService{
-	private final WebClient apiClient;
+	private final RestClient apiClient;
 	
 	@Autowired
-	public SonarrApiService(ApplicationConfiguration applicationConfiguration, WebClient.Builder webClientBuilder){
-		apiClient = webClientBuilder.clone()
+	public SonarrApiService(ApplicationConfiguration applicationConfiguration){
+		apiClient = RestClient.builder()
 				.baseUrl(applicationConfiguration.getSonarr().getEndpoint())
 				.defaultHeader("X-Api-Key", applicationConfiguration.getSonarr().getApiKey())
-				.filter(HttpUtils.retryOnStatus(Set.of(HttpStatus.BAD_GATEWAY)))
+				.requestInterceptor(new RetryInterceptor(10, 60_000, ChronoUnit.MILLIS, BAD_GATEWAY))
 				.build();
 	}
 	
@@ -43,9 +44,7 @@ public class SonarrApiService{
 				.uri(b -> b.pathSegment("api", "v3", "series", "{id}")
 						.build(id))
 				.retrieve()
-				.toEntity(Series.class)
-				.blockOptional()
-				.orElseThrow(() -> new RequestFailedException("Failed to get series details with id %d".formatted(id))));
+				.toEntity(Series.class));
 	}
 	
 	@NonNull
@@ -55,9 +54,7 @@ public class SonarrApiService{
 				.uri(b -> b.pathSegment("api", "v3", "tag")
 						.build())
 				.retrieve()
-				.toEntity(new ParameterizedTypeReference<Set<Tag>>(){})
-				.blockOptional()
-				.orElseThrow(() -> new RequestFailedException("Failed to get tags")));
+				.toEntity(new ParameterizedTypeReference<Set<Tag>>(){}));
 	}
 	
 	public void delete(int mediaId) throws RequestFailedException{
@@ -77,9 +74,7 @@ public class SonarrApiService{
 						.queryParam("seriesIds", mediaId)
 						.build())
 				.retrieve()
-				.toEntity(new ParameterizedTypeReference<PagedResponse<Queue>>(){})
-				.blockOptional()
-				.orElseThrow(() -> new RequestFailedException("Failed to get queue for mediaId %d".formatted(mediaId))));
+				.toEntity(new ParameterizedTypeReference<>(){}));
 	}
 	
 	public void deleteQueue(int queueId, boolean removeFromClient) throws RequestFailedException{
@@ -89,9 +84,7 @@ public class SonarrApiService{
 						.queryParam("removeFromClient", removeFromClient)
 						.build(queueId))
 				.retrieve()
-				.toBodilessEntity()
-				.blockOptional()
-				.orElseThrow(() -> new RequestFailedException("Failed to delete queue with id %d".formatted(queueId))));
+				.toBodilessEntity());
 	}
 	
 	public void deleteSeries(int mediaId, boolean deleteFiles) throws RequestFailedException{
@@ -101,10 +94,8 @@ public class SonarrApiService{
 						.queryParam("deleteFiles", deleteFiles)
 						.build(mediaId))
 				.retrieve()
-				.onStatus(HttpStatusCode::is4xxClientError, err -> Mono.empty())
-				.toBodilessEntity()
-				.blockOptional()
-				.orElseThrow(() -> new RequestFailedException("Failed to delete media with id %d".formatted(mediaId))));
+				.onStatus(HttpStatusCode::is4xxClientError, (req, res) -> {})
+				.toBodilessEntity());
 	}
 	
 	public void addTag(int mediaId, @NonNull String tagName) throws RequestFailedException{
@@ -153,9 +144,7 @@ public class SonarrApiService{
 				.contentType(MediaType.APPLICATION_JSON)
 				.body(BodyInserters.fromValue(media))
 				.retrieve()
-				.toBodilessEntity()
-				.blockOptional()
-				.orElseThrow(() -> new RequestFailedException("Failed to update media with id %d".formatted(mediaId))));
+				.toBodilessEntity());
 	}
 	
 	public void unmonitor(int id, int index) throws RequestFailedException{
