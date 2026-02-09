@@ -214,6 +214,10 @@ public class MailNotificationService extends AbstractNotificationService{
 				.map(MediaEntity::getId)
 				.orElse(null);
 		
+		var serverTags = Optional.ofNullable(mediaMetadataContext)
+				.flatMap(c -> c.getServerTags(media))
+				.orElseGet(List::of);
+		
 		sendMail(notification, subjectKey, locale, "mail/media-detailed.html", context -> {
 			context.setLocale(userGroupEntity.getLocaleAsObject());
 			context.setVariable("thymeleafService", thymeleafService);
@@ -230,7 +234,7 @@ public class MailNotificationService extends AbstractNotificationService{
 			context.setVariable("mediaSubtitles", subtitleLanguages);
 			context.setVariable("mediaResolutions", resolutions);
 			context.setVariable("mediaBitrates", bitrates);
-			context.setVariable("mediaServerTags", Optional.ofNullable(mediaMetadataContext).flatMap(c -> c.getServerTags(media)).orElseGet(List::of));
+			context.setVariable("mediaServerTags", userGroupEntity.getCanViewServerTags() ? serverTags : List.of());
 			context.setVariable("suggestAddRequirementId", canAddToWhitelist ? suggestAddRequirementId : null);
 			context.setVariable("metadataProvidersInfo", metadataProviderInfos);
 		}, message -> {

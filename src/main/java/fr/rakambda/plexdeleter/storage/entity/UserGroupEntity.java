@@ -87,6 +87,10 @@ public class UserGroupEntity{
 	@Column(nullable = false)
 	@NonNull
 	private Boolean appearInCollections;
+	@Basic
+	@Column(nullable = false)
+	@NonNull
+	private Boolean canViewServerTags;
 	
 	@OneToMany(targetEntity = UserPersonEntity.class)
 	@JoinColumn(name = "groupId", referencedColumnName = "id")
