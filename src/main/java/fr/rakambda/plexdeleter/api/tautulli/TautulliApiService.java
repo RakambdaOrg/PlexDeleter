@@ -20,6 +20,8 @@ import org.springframework.http.client.support.HttpRequestWrapper;
 import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestClient;
 import org.springframework.web.util.UriComponentsBuilder;
+import tools.jackson.core.type.TypeReference;
+import tools.jackson.databind.json.JsonMapper;
 import java.net.URI;
 import java.time.Instant;
 import java.time.ZoneId;
@@ -39,8 +41,10 @@ public class TautulliApiService{
 	private static final DateTimeFormatter DATE_FORMAT = DateTimeFormatter.ofPattern("yyyy-MM-dd");
 	
 	private final RestClient apiClient;
+	private final JsonMapper jsonMapper;
 	
-	public TautulliApiService(TautulliConfiguration tautulliConfiguration, ClientLoggerRequestInterceptor clientLoggerRequestInterceptor){
+	public TautulliApiService(TautulliConfiguration tautulliConfiguration, ClientLoggerRequestInterceptor clientLoggerRequestInterceptor, JsonMapper jsonMapper){
+		this.jsonMapper = jsonMapper;
 		apiClient = RestClient.builder()
 				.baseUrl(tautulliConfiguration.endpoint())
 				.requestInterceptor((request, body, execution) -> {
@@ -132,7 +136,7 @@ public class TautulliApiService{
 	@NonNull
 	private TautulliResponseWrapper<GetHistoryResponse> getHistory(int ratingKey, @NonNull String ratingKeyParamName, int userId, @NonNull String mediaType, @Nullable Instant after) throws RequestFailedException{
 		log.info("Getting history for Plex id {} of type {} and user id {}", ratingKey, mediaType, userId);
-		return HttpUtils.unwrapIfStatusOkAndNotNullBody(apiClient.get()
+		var res = HttpUtils.unwrapIfStatusOkAndNotNullBody(apiClient.get()
 				.uri(b -> {
 					b = b.pathSegment("api", "v2")
 							.queryParam("cmd", "get_history")
@@ -147,7 +151,9 @@ public class TautulliApiService{
 					return b.build();
 				})
 				.retrieve()
-				.toEntity(new ParameterizedTypeReference<>(){}));
+				.toEntity(String.class));
+		log.info("history response is {}", res);
+		return jsonMapper.readValue(res, new TypeReference<>(){});
 	}
 	
 	@NonNull
