@@ -13,7 +13,11 @@ import lombok.extern.slf4j.Slf4j;
 import org.jspecify.annotations.NonNull;
 import org.jspecify.annotations.Nullable;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.converter.HttpMessageNotReadableException;
 import org.springframework.stereotype.Service;
+import org.springframework.web.client.RestClientException;
+import java.io.IOException;
+import java.nio.charset.StandardCharsets;
 import java.time.Instant;
 import java.util.LinkedList;
 import java.util.List;
@@ -59,6 +63,35 @@ public class WatchService{
 							.map(h -> new WatchState(Optional.ofNullable(h.getMediaIndex()).orElse(1), h.getWatchedStatus() == 1))
 							.toList());
 				}
+			}
+		}
+		catch(RestClientException e){
+			if(e.getCause() instanceof HttpMessageNotReadableException e2){
+				var body = Optional.of(e2.getHttpInputMessage())
+						.map(a -> {
+							try{
+								return a.getBody();
+							}
+							catch(IOException ex){
+								log.error("Failed to process message", e);
+								return null;
+							}
+						})
+						.map(a -> {
+							try{
+								return a.readAllBytes();
+							}
+							catch(IOException ex){
+								log.error("Failed to process message", e);
+								return null;
+							}
+						})
+						.map(a -> new String(a, StandardCharsets.UTF_8))
+						.orElse("<<unknown>>");
+				log.error("Cause {}", body, e2);
+			}
+			else{
+				log.error("Other cause");
 			}
 		}
 		catch(Exception e){
