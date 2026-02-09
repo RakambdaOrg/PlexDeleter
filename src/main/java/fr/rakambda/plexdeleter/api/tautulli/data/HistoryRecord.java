@@ -4,7 +4,6 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
-import org.jspecify.annotations.NonNull;
 import org.jspecify.annotations.Nullable;
 import org.springframework.aot.hint.annotation.RegisterReflectionForBinding;
 
@@ -13,40 +12,11 @@ import org.springframework.aot.hint.annotation.RegisterReflectionForBinding;
 @AllArgsConstructor
 @RegisterReflectionForBinding(HistoryRecord.class)
 public class HistoryRecord{
-	private int id;
 	@JsonProperty("user_id")
 	private int userId;
-	private String user;
-	@JsonProperty("friendly_name")
-	@NonNull
-	private String friendlyName;
-	@JsonProperty("full_title")
-	@NonNull
-	private String fullTitle;
-	@JsonProperty("parent_title")
 	@Nullable
-	private String parentTitle;
-	@JsonProperty("grandparent_title")
-	@Nullable
-	private String grandparentTitle;
-	@NonNull
-	private String title;
-	@JsonProperty("media_type")
-	@NonNull
-	private MediaType mediaType;
-	@JsonProperty("rating_key")
-	@NonNull
-	private Integer ratingKey;
-	@Nullable
-	@JsonProperty("grandparent_rating_key")
-	private Integer grandparentRatingKey;
-	@Nullable
-	@JsonProperty("parent_rating_key")
-	private Integer parentRatingKey;
 	@JsonProperty("media_index")
 	private Integer mediaIndex;
-	@JsonProperty("parent_media_index")
-	private Integer parentMediaIndex;
 	@JsonProperty("percent_complete")
 	private int percentComplete;
 	@JsonProperty("watched_status")
