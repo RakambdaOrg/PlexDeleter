@@ -13,5 +13,5 @@ import org.springframework.aot.hint.annotation.RegisterReflectionForBinding;
 public final class AlternativeTitle{
 	@NonNull
 	private String title;
-	private int seasonNumber;
+	private int sceneSeasonNumber;
 }

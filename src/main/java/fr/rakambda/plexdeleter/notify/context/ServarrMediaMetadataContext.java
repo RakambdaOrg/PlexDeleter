@@ -65,7 +65,9 @@ public class ServarrMediaMetadataContext extends MediaMetadataContext{
 			var tags = (switch(media.getType()){
 				case SEASON -> sonarrApiService.getTags();
 				case MOVIE -> radarrApiService.getTags();
-			}).stream().collect(Collectors.toMap(Tag::getId, Tag::getLabel));
+			}).stream()
+					.filter(t -> Objects.nonNull(t.getLabel()))
+					.collect(Collectors.toMap(Tag::getId, Tag::getLabel));
 			
 			return Optional.of(appliedTags.stream()
 					.map(id -> tags.getOrDefault(id, "unknown"))

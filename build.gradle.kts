@@ -6,6 +6,7 @@ plugins {
     alias(libs.plugins.sptringbootDependencyManagement)
     alias(libs.plugins.sptringboot)
     alias(libs.plugins.graalvm)
+    alias(libs.plugins.openapi)
 }
 
 group = "fr.rakambda"
@@ -105,4 +106,22 @@ java {
 
 tasks.withType<JavaCompile> {
     options.compilerArgs.addAll(listOf("-Xlint:deprecation"))
+    dependsOn(tasks.openApiGenerate)
+}
+
+sourceSets.main {
+    java.srcDirs("${layout.buildDirectory.get()}/generate-resources/main/src/main/java")
+}
+
+openApiGenerate {
+    generatorName.set("java")
+    configOptions.set(
+        mapOf(
+            "library" to "restclient",
+            "openApiNullable" to "false",
+        )
+    )
+    ignoreFileOverride.set(".openapi-generator-java-sources.ignore")
+
+    remoteInputSpec.set("https://raw.githubusercontent.com/Sonarr/Sonarr/v5-develop/src/Sonarr.Api.V5/openapi.json")
 }

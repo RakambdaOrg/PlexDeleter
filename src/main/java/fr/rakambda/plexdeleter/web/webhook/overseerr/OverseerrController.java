@@ -48,7 +48,7 @@ public class OverseerrController{
 	private final RadarrApiService radarrApiService;
 	private final UserGroupRepository userGroupRepository;
 	private final String excludeTag;
-
+	
 	public OverseerrController(MediaRepository mediaRepository, MediaRequirementService mediaRequirementService, MediaService mediaService, OverseerrApiService overseerrApiService, SonarrApiService sonarrApiService, RadarrApiService radarrApiService, UserGroupRepository userGroupRepository, ApplicationConfiguration applicationConfiguration){
 		this.mediaRepository = mediaRepository;
 		this.mediaRequirementService = mediaRequirementService;
@@ -89,7 +89,7 @@ public class OverseerrController{
 			log.warn("Not adding any media, could not determine request id from {}", data);
 			return;
 		}
-
+		
 		var requestDetails = overseerrApiService.getRequestDetails(requestId.get());
 		var requestDetailsMedia = Objects.requireNonNull(requestDetails.getMedia());
 		var overseerrId = requestDetailsMedia.getTmdbId();
@@ -99,7 +99,9 @@ public class OverseerrController{
 			case MOVIE -> radarrApiService.getTags();
 			case TV -> sonarrApiService.getTags();
 		};
-		var mappedTags = tags.stream().collect(Collectors.toMap(Tag::getId, Tag::getLabel));
+		var mappedTags = tags.stream()
+				.filter(t -> Objects.nonNull(t.getLabel()))
+				.collect(Collectors.toMap(Tag::getId, Tag::getLabel));
 		
 		if(Optional.ofNullable(requestDetails.getTags()).orElse(Set.of()).stream()
 				.map(mappedTags::get)

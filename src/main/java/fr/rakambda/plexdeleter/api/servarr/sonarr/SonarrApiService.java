@@ -42,8 +42,7 @@ public class SonarrApiService{
 	public Series getSeries(int id) throws RequestFailedException{
 		log.info("Getting series info with id {}", id);
 		return HttpUtils.unwrapIfStatusOkAndNotNullBody(apiClient.get()
-				.uri(b -> b.pathSegment("api", "v3", "series", "{id}")
-						.build(id))
+				.uri(b -> b.pathSegment("api", "v5", "series", "{id}").build(id))
 				.retrieve()
 				.toEntity(Series.class));
 	}
@@ -52,8 +51,7 @@ public class SonarrApiService{
 	public Collection<Tag> getTags() throws RequestFailedException{
 		log.info("Getting Sonarr tags");
 		return HttpUtils.unwrapIfStatusOkAndNotNullBody(apiClient.get()
-				.uri(b -> b.pathSegment("api", "v3", "tag")
-						.build())
+				.uri(b -> b.pathSegment("api", "v5", "tag").build())
 				.retrieve()
 				.toEntity(new ParameterizedTypeReference<Set<Tag>>(){}));
 	}
@@ -69,9 +67,9 @@ public class SonarrApiService{
 	public PagedResponse<Queue> getQueue(int mediaId) throws RequestFailedException{
 		log.info("Getting queue for media {}", mediaId);
 		return HttpUtils.unwrapIfStatusOkAndNotNullBody(apiClient.get()
-				.uri(b -> b.pathSegment("api", "v3", "queue")
+				.uri(b -> b.pathSegment("api", "v5", "queue")
 						.queryParam("pageSize", 100)
-						.queryParam("includeSeries", true)
+						.queryParam("includeSubresources", "series")
 						.queryParam("seriesIds", mediaId)
 						.build())
 				.retrieve()
@@ -81,7 +79,7 @@ public class SonarrApiService{
 	public void deleteQueue(int queueId, boolean removeFromClient) throws RequestFailedException{
 		log.info("Deleting queue with id {} and removing from client {}", queueId, removeFromClient);
 		HttpUtils.unwrapIfStatusOk(apiClient.delete()
-				.uri(b -> b.pathSegment("api", "v3", "queue", "{mediaId}")
+				.uri(b -> b.pathSegment("api", "v5", "queue", "{queueId}")
 						.queryParam("removeFromClient", removeFromClient)
 						.build(queueId))
 				.retrieve()
@@ -91,7 +89,7 @@ public class SonarrApiService{
 	public void deleteSeries(int mediaId, boolean deleteFiles) throws RequestFailedException{
 		log.info("Deleting media with mediaId {} and deleting files {}", mediaId, deleteFiles);
 		HttpUtils.requireStatusOkOrNotFound(apiClient.delete()
-				.uri(b -> b.pathSegment("api", "v3", "series", "{mediaId}")
+				.uri(b -> b.pathSegment("api", "v5", "series", "{mediaId}")
 						.queryParam("deleteFiles", deleteFiles)
 						.build(mediaId))
 				.retrieve()
