@@ -16,4 +16,6 @@ public final class AlternativeTitle{
 	private String title;
 	@Nullable
 	private Integer seasonNumber;
+	@Nullable
+	private Integer sceneSeasonNumber;
 }
