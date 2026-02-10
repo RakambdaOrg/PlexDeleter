@@ -4,6 +4,7 @@ import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 import org.jspecify.annotations.NonNull;
+import org.jspecify.annotations.Nullable;
 import org.springframework.aot.hint.annotation.RegisterReflectionForBinding;
 
 @Data
@@ -13,5 +14,6 @@ import org.springframework.aot.hint.annotation.RegisterReflectionForBinding;
 public final class AlternativeTitle{
 	@NonNull
 	private String title;
-	private int seasonNumber;
+	@Nullable
+	private Integer seasonNumber;
 }
