@@ -15,6 +15,7 @@ public class LanguageFlagService{
 		FLAG_MAP.put("ita", "it"); // Italian -> Italy
 		FLAG_MAP.put("spa", "es"); // Spanish -> Spain
 		FLAG_MAP.put("nld", "nl"); // Dutch -> Netherlands (not 'aw' Aruba)
+		FLAG_MAP.put("srp", "sr"); // Serbian -> Serbia
 		
 		// Northern Europe
 		FLAG_MAP.put("dan", "dk"); // Danish -> Denmark
@@ -49,6 +50,11 @@ public class LanguageFlagService{
 		FLAG_MAP.put("mal", "in"); // Malayalam -> India
 		FLAG_MAP.put("tam", "in"); // Tamil -> India
 		FLAG_MAP.put("tel", "in"); // Telugu -> India
+		FLAG_MAP.put("guj", "in"); // Gujarati -> India
+		FLAG_MAP.put("mar", "in"); // Marathi -> India
+		FLAG_MAP.put("ben", "bn"); // Bengali -> Bengladesh
+		FLAG_MAP.put("pan", "pk"); // Punjabi -> Pakistan
+		FLAG_MAP.put("urd", "pk"); // Urdu -> Pakistan
 		
 		// English & Others
 		FLAG_MAP.put("eng", "gb"); // English -> UK (standard for "English")
@@ -57,6 +63,7 @@ public class LanguageFlagService{
 		FLAG_MAP.put("eus", "es"); // Basque -> Basque Country
 		FLAG_MAP.put("glg", "es"); // Galician -> Galicia
 		FLAG_MAP.put("fil", "ph"); // Filipino -> Philippines
+		FLAG_MAP.put("nep", "ne"); // Nepali -> Nepal
 	}
 	public String getFlagUrl(String iso3Code){
 		var countryCode = FLAG_MAP.getOrDefault(iso3Code.toLowerCase(), "un");
