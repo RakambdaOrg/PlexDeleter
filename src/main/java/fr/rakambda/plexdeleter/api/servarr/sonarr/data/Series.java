@@ -23,7 +23,7 @@ public final class Series{
 	private String title;
 	@NonNull
 	private String sortTitle;
-	@NonNull
+	@Nullable
 	private String overview;
 	@NonNull
 	private String status;
