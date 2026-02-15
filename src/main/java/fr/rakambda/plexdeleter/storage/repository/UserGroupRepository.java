@@ -31,9 +31,9 @@ public interface UserGroupRepository extends JpaRepository<UserGroupEntity, Inte
 			FROM UserGroupEntity G
 			INNER JOIN MediaRequirementEntity MR ON MR.group.id = G.id
 			INNER JOIN MediaEntity M ON M.id = MR.media.id
-			WHERE M.overseerrId = ?1 AND M.index = ?2 AND MR.status NOT IN ?3"""
+			WHERE M.seerrId = ?1 AND M.index = ?2 AND MR.status NOT IN ?3"""
 	)
-	List<UserGroupEntity> findAllByHasRequirementOn(int overseerrId, int index, Collection<MediaRequirementStatus> excludedStatuses);
+	List<UserGroupEntity> findAllByHasRequirementOn(int seerrId, int index, Collection<MediaRequirementStatus> excludedStatuses);
 	
 	@Query(value = """
 			SELECT G
@@ -41,7 +41,7 @@ public interface UserGroupRepository extends JpaRepository<UserGroupEntity, Inte
 			INNER JOIN MediaRequirementEntity MR ON MR.group.id = G.id
 			WHERE MR.media.id = ?1 AND MR.status = ?2"""
 	)
-	List<UserGroupEntity> findAllByHasRequirementOnOverseerr(int overseerrId, @NonNull MediaRequirementStatus status);
+	List<UserGroupEntity> findAllByHasRequirementStatus(int mediaId, @NonNull MediaRequirementStatus status);
 	
 	@Query(value = """
 			SELECT DISTINCT G

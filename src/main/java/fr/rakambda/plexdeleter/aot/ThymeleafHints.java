@@ -27,7 +27,7 @@ public class ThymeleafHints implements RuntimeHintsRegistrar{
 	@Override
 	public void registerHints(@NonNull RuntimeHints hints, @Nullable ClassLoader classLoader){
 		try{
-			hints.reflection().registerMethod(ThymeleafService.class.getMethod("getMediaOverseerrUrl", MediaEntity.class), ExecutableMode.INVOKE);
+			hints.reflection().registerMethod(ThymeleafService.class.getMethod("getMediaSeerrUrl", MediaEntity.class), ExecutableMode.INVOKE);
 			hints.reflection().registerMethod(ThymeleafService.class.getMethod("getMediaRadarrUrl", MediaEntity.class), ExecutableMode.INVOKE);
 			hints.reflection().registerMethod(ThymeleafService.class.getMethod("getMediaSonarrUrl", MediaEntity.class), ExecutableMode.INVOKE);
 			hints.reflection().registerMethod(ThymeleafService.class.getMethod("getMediaPlexUrl", MediaEntity.class), ExecutableMode.INVOKE);

@@ -98,8 +98,8 @@
                 </th:block>
 
                 <span style="padding: 0 5px;">|</span>
-                <a th:if="${media.getOverseerrId()}" th:href="${thymeleafService.getMediaOverseerrUrl(media)}" class="inline-logo">
-                    <img th:src="|cid:${overseerrLogoResourceName}|" alt="Logo" class="provider-logo"/>
+                <a th:if="${media.getSeerrId()}" th:href="${thymeleafService.getMediaSeerrUrl(media)}" class="inline-logo">
+                    <img th:src="|cid:${seerrLogoResourceName}|" alt="Logo" class="provider-logo"/>
                 </a>
                 <a th:if="${media.getPlexId()}" th:href="${thymeleafService.getMediaPlexUrl(media)}" class="inline-logo">
                     <img th:src="|cid:${plexLogoResourceName}|" alt="Logo" class="provider-logo"/>

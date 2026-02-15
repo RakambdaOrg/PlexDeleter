@@ -1,7 +1,7 @@
 package fr.rakambda.plexdeleter.schedule;
 
 import fr.rakambda.plexdeleter.api.RequestFailedException;
-import fr.rakambda.plexdeleter.api.overseerr.OverseerrApiService;
+import fr.rakambda.plexdeleter.api.seerr.SeerrApiService;
 import fr.rakambda.plexdeleter.api.servarr.radarr.RadarrApiService;
 import fr.rakambda.plexdeleter.api.servarr.sonarr.SonarrApiService;
 import fr.rakambda.plexdeleter.api.tautulli.TautulliApiService;
@@ -57,7 +57,7 @@ class DeleteMediaSchedulerTest{
 	@Mock
 	private TautulliApiService tautulliApiService;
 	@Mock
-	private OverseerrApiService overseerrApiService;
+	private SeerrApiService seerrApiService;
 	@Mock
 	private ApplicationConfiguration applicationConfiguration;
 	@Mock
@@ -99,8 +99,8 @@ class DeleteMediaSchedulerTest{
 		lenient().when(getMetadataResponse.getMediaInfo()).thenReturn(Set.of(mediaInfo));
 		lenient().when(mediaInfo.getParts()).thenReturn(Set.of(mediaPart));
 		lenient().when(mediaPart.getFile()).thenReturn(REMOTE_FILE);
-
-		tested = new DeleteMediaScheduler(mediaRepository, supervisionService, tautulliApiService, applicationConfiguration, overseerrApiService, radarrApiService, sonarrApiService);
+		
+		tested = new DeleteMediaScheduler(mediaRepository, supervisionService, tautulliApiService, applicationConfiguration, seerrApiService, radarrApiService, sonarrApiService);
 	}
 	
 	@Test

@@ -19,13 +19,13 @@ public interface MediaRepository extends JpaRepository<MediaEntity, Integer>{
 	Optional<MediaEntity> findByPlexId(int plexId);
 	
 	@NonNull
-	List<MediaEntity> findAllByOverseerrId(int tvdbId);
+	List<MediaEntity> findAllBySeerrId(int tvdbId);
 	
 	@NonNull
-	Optional<MediaEntity> findByOverseerrIdAndIndex(int overseerrId, int index);
+	Optional<MediaEntity> findBySeerrIdAndIndex(int seerrId, int index);
 	
 	@NonNull
-	Optional<MediaEntity> findByOverseerrIdAndIndexAndSubIndex(int overseerrId, int index, int episode);
+	Optional<MediaEntity> findBySeerrIdAndIndexAndSubIndex(int seerrId, int index, int episode);
 	
 	@NonNull
 	Optional<MediaEntity> findByTmdbIdAndIndex(int tmdbId, int index);
@@ -41,8 +41,6 @@ public interface MediaRepository extends JpaRepository<MediaEntity, Integer>{
 	
 	@NonNull
 	Optional<MediaEntity> findByPlexGuidAndIndex(String guid, int index);
-	
-	long countByServarrIdAndType(int servarrId, @NonNull MediaType type);
 	
 	@NonNull
 	List<MediaEntity> findAllByPlexGuid(String guid);

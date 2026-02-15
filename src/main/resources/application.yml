@@ -101,8 +101,8 @@ app:
   tmdb:
     endpoint: "https://api.themoviedb.org"
     token: "token"
-  overseerr:
-    endpoint: "https://overseerr"
+  seerr:
+    endpoint: "https://seerr"
     api-key: "api-key"
   tautulli:
     endpoint: "https://tautulli"

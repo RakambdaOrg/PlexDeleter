@@ -1,7 +1,7 @@
 package fr.rakambda.plexdeleter.schedule;
 
 import fr.rakambda.plexdeleter.api.RequestFailedException;
-import fr.rakambda.plexdeleter.api.overseerr.OverseerrApiService;
+import fr.rakambda.plexdeleter.api.seerr.SeerrApiService;
 import fr.rakambda.plexdeleter.api.servarr.radarr.RadarrApiService;
 import fr.rakambda.plexdeleter.api.servarr.sonarr.SonarrApiService;
 import fr.rakambda.plexdeleter.api.tautulli.TautulliApiService;
@@ -49,19 +49,19 @@ public class DeleteMediaScheduler implements IScheduler{
 	private final int daysDelay;
 	private final boolean dryDelete;
 	private final Map<String, String> remotePathMappings;
-	private final OverseerrApiService overseerrApiService;
+	private final SeerrApiService seerrApiService;
 	private final RadarrApiService radarrApiService;
 	private final SonarrApiService sonarrApiService;
 	
 	@Autowired
-	public DeleteMediaScheduler(MediaRepository mediaRepository, SupervisionService supervisionService, TautulliApiService tautulliApiService, ApplicationConfiguration applicationConfiguration, OverseerrApiService overseerrApiService, RadarrApiService radarrApiService, SonarrApiService sonarrApiService){
+	public DeleteMediaScheduler(MediaRepository mediaRepository, SupervisionService supervisionService, TautulliApiService tautulliApiService, ApplicationConfiguration applicationConfiguration, SeerrApiService seerrApiService, RadarrApiService radarrApiService, SonarrApiService sonarrApiService){
 		this.mediaRepository = mediaRepository;
 		this.supervisionService = supervisionService;
 		this.tautulliApiService = tautulliApiService;
 		this.daysDelay = applicationConfiguration.getDeletion().getDaysDelay();
 		this.dryDelete = applicationConfiguration.getDeletion().isDryDelete();
 		this.remotePathMappings = applicationConfiguration.getDeletion().getRemotePathMappings();
-		this.overseerrApiService = overseerrApiService;
+		this.seerrApiService = seerrApiService;
 		this.radarrApiService = radarrApiService;
 		this.sonarrApiService = sonarrApiService;
 	}
@@ -92,17 +92,17 @@ public class DeleteMediaScheduler implements IScheduler{
 		supervisionService.send("♻\uFE0F✅ Deleted a total of %s", supervisionService.sizeToHuman(size));
 		
 		if(size > 0){
-			refreshOverseerr();
+			refreshSeerr();
 		}
 	}
 	
-	private boolean refreshOverseerr(){
+	private boolean refreshSeerr(){
 		try{
-			log.info("Starting Overseerr refresh");
-			return overseerrApiService.plexSync(false, true).isRunning();
+			log.info("Starting Seerr refresh");
+			return seerrApiService.plexSync(false, true).isRunning();
 		}
 		catch(RequestFailedException e){
-			log.error("Failed to refresh Overseerr after deletion");
+			log.error("Failed to refresh Seerr after deletion");
 			return false;
 		}
 	}
@@ -161,7 +161,7 @@ public class DeleteMediaScheduler implements IScheduler{
 			mediaEntity.setStatus(MediaStatus.DELETED);
 			mediaEntity.setPlexId(null);
 			mediaEntity = mediaRepository.save(mediaEntity);
-			deleteFromOverseerr(mediaEntity);
+			deleteFromSeerr(mediaEntity);
 			deleteFromServarr(mediaEntity);
 		}
 		
@@ -300,19 +300,19 @@ public class DeleteMediaScheduler implements IScheduler{
 		supervisionService.send("\uD83D\uDEAE Deleted file %s for a size of %s", path, supervisionService.sizeToHuman(size));
 	}
 	
-	private void deleteFromOverseerr(@NonNull MediaEntity mediaEntity){
-		if(Objects.isNull(mediaEntity.getOverseerrId())){
+	private void deleteFromSeerr(@NonNull MediaEntity mediaEntity){
+		if(Objects.isNull(mediaEntity.getSeerrId())){
 			return;
 		}
 		try{
-			var data = overseerrApiService.getMediaDetails(mediaEntity.getOverseerrId(), mediaEntity.getType().getOverseerrType());
+			var data = seerrApiService.getMediaDetails(mediaEntity.getSeerrId(), mediaEntity.getType().getSeerrType());
 			var internalId = Optional.ofNullable(data.getMediaInfo())
-					.map(fr.rakambda.plexdeleter.api.overseerr.data.MediaInfo::getId)
-					.orElseThrow(() -> new IllegalStateException("Couldn't find internal media id on Overseerr"));
-			overseerrApiService.deleteMedia(internalId);
+					.map(fr.rakambda.plexdeleter.api.seerr.data.MediaInfo::getId)
+					.orElseThrow(() -> new IllegalStateException("Couldn't find internal media id on Seerr"));
+			seerrApiService.deleteMedia(internalId);
 		}
 		catch(Exception e){
-			log.error("Failed to delete media {} on Overseerr", mediaEntity);
+			log.error("Failed to delete media {} on Seerr", mediaEntity);
 		}
 	}
 	

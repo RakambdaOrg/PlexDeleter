@@ -1,9 +1,9 @@
 package fr.rakambda.plexdeleter.service;
 
 import fr.rakambda.plexdeleter.config.ApplicationConfiguration;
-import fr.rakambda.plexdeleter.config.OverseerrConfiguration;
 import fr.rakambda.plexdeleter.config.PlexConfiguration;
 import fr.rakambda.plexdeleter.config.RadarrConfiguration;
+import fr.rakambda.plexdeleter.config.SeerrConfiguration;
 import fr.rakambda.plexdeleter.config.SonarrConfiguration;
 import fr.rakambda.plexdeleter.storage.entity.MediaEntity;
 import org.jspecify.annotations.NonNull;
@@ -14,7 +14,7 @@ import java.util.Optional;
 
 @Service
 public class ThymeleafService{
-	private final String overseerrEndpoint;
+	private final String seerrEndpoint;
 	private final String radarrEndpoint;
 	private final String sonarrEndpoint;
 	private final String plexEndpoint;
@@ -22,8 +22,8 @@ public class ThymeleafService{
 	private final String applicationEndpoint;
 	
 	@Autowired
-	public ThymeleafService(ApplicationConfiguration applicationConfiguration, OverseerrConfiguration overseerrConfiguration, PlexConfiguration plexConfiguration, RadarrConfiguration radarrConfiguration, SonarrConfiguration sonarrConfiguration){
-		this.overseerrEndpoint = overseerrConfiguration.endpoint();
+	public ThymeleafService(ApplicationConfiguration applicationConfiguration, SeerrConfiguration seerrConfiguration, PlexConfiguration plexConfiguration, RadarrConfiguration radarrConfiguration, SonarrConfiguration sonarrConfiguration){
+		this.seerrEndpoint = seerrConfiguration.endpoint();
 		this.radarrEndpoint = radarrConfiguration.endpoint();
 		this.sonarrEndpoint = sonarrConfiguration.endpoint();
 		this.plexEndpoint = plexConfiguration.appEndpoint();
@@ -32,9 +32,9 @@ public class ThymeleafService{
 	}
 	
 	@Nullable
-	public String getMediaOverseerrUrl(@NonNull MediaEntity media){
-		return Optional.ofNullable(media.getOverseerrId())
-				.map(id -> "%s/%s/%d".formatted(overseerrEndpoint, media.getType().getOverseerrType().getValue(), id))
+	public String getMediaSeerrUrl(@NonNull MediaEntity media){
+		return Optional.ofNullable(media.getSeerrId())
+				.map(id -> "%s/%s/%d".formatted(seerrEndpoint, media.getType().getSeerrType().getValue(), id))
 				.orElse(null);
 	}
 	
@@ -62,7 +62,7 @@ public class ThymeleafService{
 	@Nullable
 	public String getMediaTraktUrl(@NonNull MediaEntity media){
 		return Optional.ofNullable(media.getTmdbId())
-				.map(id -> "https://trakt.tv/search/tmdb/%d?id_type=%s".formatted(id, media.getType().getOverseerrType().getTraktSearchValue()))
+				.map(id -> "https://trakt.tv/search/tmdb/%d?id_type=%s".formatted(id, media.getType().getSeerrType().getTraktSearchValue()))
 				.orElse(null);
 	}
 	

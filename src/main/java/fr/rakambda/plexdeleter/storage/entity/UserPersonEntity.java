@@ -47,7 +47,7 @@ public class UserPersonEntity{
 	@Basic
 	@Column
 	@Nullable
-	private Integer overseerrId;
+	private Integer seerrId;
 	@Basic
 	@Column(nullable = false)
 	@NonNull

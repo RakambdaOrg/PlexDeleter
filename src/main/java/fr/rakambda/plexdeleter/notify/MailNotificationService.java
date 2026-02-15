@@ -196,9 +196,9 @@ public class MailNotificationService extends AbstractNotificationService{
 								.filter(Objects::nonNull)
 								.map(url -> new MetadataProviderInfo("Plex", url)),
 						Optional.ofNullable(media).stream()
-								.map(thymeleafService::getMediaOverseerrUrl)
+								.map(thymeleafService::getMediaSeerrUrl)
 								.filter(Objects::nonNull)
-								.map(url -> new MetadataProviderInfo("Overseerr", url))
+								.map(url -> new MetadataProviderInfo("Seerr", url))
 				).flatMap(Function.identity())
 		).toList();
 		
@@ -263,26 +263,26 @@ public class MailNotificationService extends AbstractNotificationService{
 			mailHelper.setBcc(mailConfiguration.getBccAddresses().toArray(new String[0]));
 		}
 		
-		var overseerrLogoResourceName = "overseerrLogoResourceName";
+		var seerrLogoResourceName = "seerrLogoResourceName";
 		var plexLogoResourceName = "plexLogoResourceName";
 		var tmdbLogoResourceName = "tmdbLogoResourceName";
 		var tvdbLogoResourceName = "tvdbLogoResourceName";
 		var traktLogoResourceName = "traktLogoResourceName";
 		
-		var hasOverseerrLink = hasAnyMediaValueNotNull(MediaEntity::getOverseerrId, mediasForResources);
+		var hasSeerrLink = hasAnyMediaValueNotNull(MediaEntity::getSeerrId, mediasForResources);
 		var hasPlexLink = hasAnyMediaValueNotNull(MediaEntity::getPlexId, mediasForResources);
 		var hasTmdbLink = hasAnyMediaValueNotNull(MediaEntity::getTmdbId, mediasForResources);
 		var hasTvdbLink = hasAnyMediaValueNotNull(MediaEntity::getTvdbId, mediasForResources);
 		var hasTraktLink = hasAnyMediaValueNotNull(MediaEntity::getTmdbId, mediasForResources);
 		
-		var overseerrLogoData = hasOverseerrLink ? getOverseerrLogoBytes() : Optional.<byte[]> empty();
+		var seerrLogoData = hasSeerrLink ? getSeerrLogoBytes() : Optional.<byte[]> empty();
 		var plexLogoData = hasPlexLink ? getPlexLogoBytes() : Optional.<byte[]> empty();
 		var tmdbLogoData = hasTmdbLink ? getTmdbLogoBytes() : Optional.<byte[]> empty();
 		var tvdbLogoData = hasTvdbLink ? getTvdbLogoBytes() : Optional.<byte[]> empty();
 		var traktLogoData = hasTraktLink ? getTraktLogoBytes() : Optional.<byte[]> empty();
 		
 		var context = new Context();
-		context.setVariable("overseerrLogoResourceName", overseerrLogoData.isPresent() ? overseerrLogoResourceName : null);
+		context.setVariable("seerrLogoResourceName", seerrLogoData.isPresent() ? seerrLogoResourceName : null);
 		context.setVariable("plexLogoResourceName", plexLogoData.isPresent() ? plexLogoResourceName : null);
 		context.setVariable("tmdbLogoResourceName", tmdbLogoData.isPresent() ? tmdbLogoResourceName : null);
 		context.setVariable("tvdbLogoResourceName", tvdbLogoData.isPresent() ? tvdbLogoResourceName : null);
@@ -293,8 +293,8 @@ public class MailNotificationService extends AbstractNotificationService{
 		mailHelper.setSubject(messageSource.getMessage(subjectKey, new Object[0], locale));
 		mailHelper.setText(renderMail(templateEngine.process(template, context), locale), true);
 		
-		if(overseerrLogoData.isPresent()){
-			mailHelper.addInline(overseerrLogoResourceName, new ByteArrayResource(overseerrLogoData.get()), "image/png");
+		if(seerrLogoData.isPresent()){
+			mailHelper.addInline(seerrLogoResourceName, new ByteArrayResource(seerrLogoData.get()), "image/png");
 		}
 		if(plexLogoData.isPresent()){
 			mailHelper.addInline(plexLogoResourceName, new ByteArrayResource(plexLogoData.get()), "image/png");
@@ -321,8 +321,8 @@ public class MailNotificationService extends AbstractNotificationService{
 	}
 	
 	@NonNull
-	private Optional<byte[]> getOverseerrLogoBytes(){
-		return getResourceBytes("static/overseerr.png");
+	private Optional<byte[]> getSeerrLogoBytes(){
+		return getResourceBytes("static/seerr.png");
 	}
 	
 	@NonNull

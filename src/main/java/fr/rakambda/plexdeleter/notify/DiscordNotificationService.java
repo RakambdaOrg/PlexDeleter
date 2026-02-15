@@ -358,11 +358,11 @@ public class DiscordNotificationService extends AbstractNotificationService{
 			}
 		}
 		
-		var overseerrUrl = thymeleafService.getMediaOverseerrUrl(media);
-		if(Objects.nonNull(overseerrUrl)){
+		var seerrUrl = thymeleafService.getMediaSeerrUrl(media);
+		if(Objects.nonNull(seerrUrl)){
 			sb.append(" | ");
-			sb.append("[Overseerr](");
-			sb.append(overseerrUrl);
+			sb.append("[Seerr](");
+			sb.append(seerrUrl);
 			sb.append(")");
 		}
 		

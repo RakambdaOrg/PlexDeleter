@@ -6,9 +6,9 @@ import fr.rakambda.plexdeleter.aot.JacksonHints;
 import fr.rakambda.plexdeleter.aot.ResourceHints;
 import fr.rakambda.plexdeleter.aot.ThymeleafHints;
 import fr.rakambda.plexdeleter.aot.WebHints;
-import fr.rakambda.plexdeleter.config.OverseerrConfiguration;
 import fr.rakambda.plexdeleter.config.PlexConfiguration;
 import fr.rakambda.plexdeleter.config.RadarrConfiguration;
+import fr.rakambda.plexdeleter.config.SeerrConfiguration;
 import fr.rakambda.plexdeleter.config.SonarrConfiguration;
 import fr.rakambda.plexdeleter.config.TautulliConfiguration;
 import fr.rakambda.plexdeleter.config.TmdbConfiguration;
@@ -34,7 +34,7 @@ import org.springframework.scheduling.annotation.EnableScheduling;
 		WebHints.class
 })
 @EnableConfigurationProperties({
-		OverseerrConfiguration.class,
+		SeerrConfiguration.class,
 		PlexConfiguration.class,
 		RadarrConfiguration.class,
 		SonarrConfiguration.class,

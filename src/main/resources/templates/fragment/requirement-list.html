@@ -43,10 +43,10 @@
             <td th:text="${requirement.getWatchedCount() + ' / ' + requirement.getMedia().getPartsCount()}"></td>
             <td>
                 <div class="d-flex flex-row justify-content-center align-items-center">
-                    <div th:if="${requirement.getMedia().getOverseerrId()}" class="m-1">
-                        <a title="Overseerr" th:href="${thymeleafService.getMediaOverseerrUrl(requirement.getMedia())}" th:target="_blank">
+                    <div th:if="${requirement.getMedia().getSeerrId()}" class="m-1">
+                        <a title="Seerr" th:href="${thymeleafService.getMediaSeerrUrl(requirement.getMedia())}" th:target="_blank">
                             <svg class="m-1" height="20" width="20">
-                                <image th:xlink:href="@{~/static/overseerr.svg}" height="20" width="20"/>
+                                <image th:xlink:href="@{~/static/seerr.svg}" height="20" width="20"/>
                             </svg>
                         </a>
                     </div>

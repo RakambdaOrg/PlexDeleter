@@ -74,7 +74,7 @@ class MailNotificationServiceTest{
 	@Transactional
 	void sendTestMediaAddedMail() throws MessagingException, UnsupportedEncodingException, RequestFailedException{
 		var userGroup = userGroupRepository.findById(2).orElseThrow();
-		var media = mediaRepository.findByOverseerrIdAndIndex(95480, 4).get();
+		var media = mediaRepository.findBySeerrIdAndIndex(95480, 4).get();
 		
 		mailNotificationService.notifyMediaAdded(userGroup.getNotification(), userGroup, media, getMetadata());
 	}

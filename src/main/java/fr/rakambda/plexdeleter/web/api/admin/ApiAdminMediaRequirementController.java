@@ -43,7 +43,7 @@ public class ApiAdminMediaRequirementController{
 	@PostMapping("/add")
 	public ModelAndView add(
 			@NotNull @RequestParam("group") int groupId,
-			@NotNull @RequestParam("overseerr") int overseerrId,
+			@NotNull @RequestParam("seerr") int seerrId,
 			@NotNull @RequestParam("season") int season,
 			@Nullable @RequestParam("episode") Integer episode,
 			@NotNull @RequestParam("type") MediaType type
@@ -51,7 +51,7 @@ public class ApiAdminMediaRequirementController{
 		var userGroupEntity = userGroupRepository.findById(groupId)
 				.orElseThrow(() -> new IllegalArgumentException("Could not find user group with id %d".formatted(groupId)));
 		
-		var media = mediaService.addMedia(overseerrId, type, season, episode);
+		var media = mediaService.addMedia(seerrId, type, season, episode);
 		mediaRequirementService.addRequirementForNewMedia(media, userGroupEntity);
 		return new ModelAndView("api/success");
 	}

@@ -55,7 +55,7 @@ public class MediaEntity{
 	@Basic
 	@Column
 	@Nullable
-	private Integer overseerrId;
+	private Integer seerrId;
 	@Basic
 	@Column
 	@Nullable

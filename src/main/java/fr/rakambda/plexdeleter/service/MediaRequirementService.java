@@ -116,8 +116,8 @@ public class MediaRequirementService{
 		if(Objects.nonNull(userGroupEntity)){
 			added |= addRequirement(media, userGroupEntity, true);
 		}
-		
-		var otherGroups = userGroupRepository.findAllByHasRequirementOn(Objects.requireNonNull(media.getOverseerrId()), media.getIndex() - 1, Set.of(MediaRequirementStatus.ABANDONED));
+
+		var otherGroups = userGroupRepository.findAllByHasRequirementOn(Objects.requireNonNull(media.getSeerrId()), media.getIndex() - 1, Set.of(MediaRequirementStatus.ABANDONED));
 		for(var otherGroup : otherGroups){
 			if(Objects.nonNull(userGroupEntity) && Objects.equals(otherGroup.getId(), userGroupEntity.getId())){
 				continue;

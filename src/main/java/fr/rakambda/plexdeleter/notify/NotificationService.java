@@ -115,7 +115,7 @@ public class NotificationService{
 	
 	@Transactional
 	public void notifyMediaAvailable(@NonNull MediaEntity media) throws NotifyException{
-		var userGroups = userGroupRepository.findAllByHasRequirementOnOverseerr(media.getId(), MediaRequirementStatus.WAITING);
+		var userGroups = userGroupRepository.findAllByHasRequirementStatus(media.getId(), MediaRequirementStatus.WAITING);
 		for(var userGroup : userGroups){
 			notifyMediaAvailable(userGroup, media);
 		}

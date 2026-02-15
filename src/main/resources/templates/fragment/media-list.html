@@ -35,10 +35,10 @@
             <td th:text="#{${media.getStatus().getLocalizationKey()}}"></td>
             <td>
                 <div class="d-flex flex-row justify-content-center align-items-center">
-                    <div th:if="${media.getOverseerrId()}" class="m-1">
-                        <a title="Overseerr" th:href="${thymeleafService.getMediaOverseerrUrl(media)}" th:target="_blank">
+                    <div th:if="${media.getSeerrId()}" class="m-1">
+                        <a title="Seerr" th:href="${thymeleafService.getMediaSeerrUrl(media)}" th:target="_blank">
                             <svg class="m-1" height="20" width="20">
-                                <image th:xlink:href="@{~/static/overseerr.svg}" height="20" width="20"/>
+                                <image th:xlink:href="@{~/static/seerr.svg}" height="20" width="20"/>
                             </svg>
                         </a>
                     </div>

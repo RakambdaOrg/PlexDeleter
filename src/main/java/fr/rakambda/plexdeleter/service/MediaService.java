@@ -1,13 +1,13 @@
 package fr.rakambda.plexdeleter.service;
 
 import fr.rakambda.plexdeleter.api.RequestFailedException;
-import fr.rakambda.plexdeleter.api.overseerr.OverseerrApiService;
-import fr.rakambda.plexdeleter.api.overseerr.data.MediaInfo;
-import fr.rakambda.plexdeleter.api.overseerr.data.MovieMedia;
-import fr.rakambda.plexdeleter.api.overseerr.data.SeriesMedia;
 import fr.rakambda.plexdeleter.api.plex.rest.PlexMediaServerApiService;
 import fr.rakambda.plexdeleter.api.plex.rest.data.Label;
 import fr.rakambda.plexdeleter.api.plex.rest.data.Metadata;
+import fr.rakambda.plexdeleter.api.seerr.SeerrApiService;
+import fr.rakambda.plexdeleter.api.seerr.data.MediaInfo;
+import fr.rakambda.plexdeleter.api.seerr.data.MovieMedia;
+import fr.rakambda.plexdeleter.api.seerr.data.SeriesMedia;
 import fr.rakambda.plexdeleter.api.servarr.radarr.RadarrApiService;
 import fr.rakambda.plexdeleter.api.servarr.sonarr.SonarrApiService;
 import fr.rakambda.plexdeleter.api.servarr.sonarr.data.Season;
@@ -49,7 +49,7 @@ public class MediaService{
 	private final TautulliApiService tautulliApiService;
 	private final SupervisionService supervisionService;
 	private final MediaRepository mediaRepository;
-	private final OverseerrApiService overseerrApiService;
+	private final SeerrApiService seerrApiService;
 	private final SonarrApiService sonarrApiService;
 	private final RadarrApiService radarrApiService;
 	private final NotificationService notificationService;
@@ -57,11 +57,11 @@ public class MediaService{
 	private final Lock mediaOperationLock;
 	
 	@Autowired
-	public MediaService(TautulliApiService tautulliApiService, SupervisionService supervisionService, MediaRepository mediaRepository, OverseerrApiService overseerrApiService, SonarrApiService sonarrApiService, RadarrApiService radarrApiService, NotificationService notificationService, PlexMediaServerApiService plexMediaServerApiService){
+	public MediaService(TautulliApiService tautulliApiService, SupervisionService supervisionService, MediaRepository mediaRepository, SeerrApiService seerrApiService, SonarrApiService sonarrApiService, RadarrApiService radarrApiService, NotificationService notificationService, PlexMediaServerApiService plexMediaServerApiService){
 		this.tautulliApiService = tautulliApiService;
 		this.supervisionService = supervisionService;
 		this.mediaRepository = mediaRepository;
-		this.overseerrApiService = overseerrApiService;
+		this.seerrApiService = seerrApiService;
 		this.sonarrApiService = sonarrApiService;
 		this.radarrApiService = radarrApiService;
 		this.notificationService = notificationService;
@@ -112,7 +112,7 @@ public class MediaService{
 		try{
 			log.info("Updating media {}", mediaEntity);
 			
-			updateFromOverseerr(mediaEntity);
+			updateFromSeerr(mediaEntity);
 			updateFromTautulli(mediaEntity);
 			updateFromServarr(mediaEntity, forceMediaCount);
 			
@@ -167,13 +167,13 @@ public class MediaService{
 		}
 	}
 	
-	private void updateFromOverseerr(@NonNull MediaEntity mediaEntity){
-		if(Objects.isNull(mediaEntity.getOverseerrId())){
-			log.warn("Cannot update media {} as it does not seem to be in Overseerr", mediaEntity);
+	private void updateFromSeerr(@NonNull MediaEntity mediaEntity){
+		if(Objects.isNull(mediaEntity.getSeerrId())){
+			log.warn("Cannot update media {} as it does not seem to be in Seerr", mediaEntity);
 			return;
 		}
 		try{
-			var mediaDetails = overseerrApiService.getMediaDetails(mediaEntity.getOverseerrId(), mediaEntity.getType().getOverseerrType());
+			var mediaDetails = seerrApiService.getMediaDetails(mediaEntity.getSeerrId(), mediaEntity.getType().getSeerrType());
 			
 			Optional.ofNullable(switch(mediaDetails){
 						case MovieMedia movieMedia -> movieMedia.getTitle();
@@ -208,7 +208,7 @@ public class MediaService{
 			// 	case SeriesMedia seriesMedia -> seriesMedia.getSeasons().stream()
 			// 			.filter(s -> Objects.equals(s.getSeasonNumber(), mediaEntity.getIndex()))
 			// 			.findFirst()
-			// 			.map(fr.rakambda.plexdeleter.api.overseerr.data.Season::getEpisodeCount)
+			// 			.map(fr.rakambda.plexdeleter.api.seerr.data.Season::getEpisodeCount)
 			// 			.orElse(0);
 			// 	default -> throw new UpdateException("Unexpected value: " + mediaDetails);
 			// };
@@ -219,15 +219,15 @@ public class MediaService{
 		catch(HttpServerErrorException.InternalServerError e){
 			var body = e.getResponseBodyAsString();
 			if(body.contains("Unable to retrieve movie.")){
-				log.warn("Failed to update media from Overseerr");
-				mediaEntity.setOverseerrId(null);
-				supervisionService.send("❓ Media disappeared from Overseerr %s", mediaEntity);
+				log.warn("Failed to update media from Seerr");
+				mediaEntity.setSeerrId(null);
+				supervisionService.send("❓ Media disappeared from Seerr %s", mediaEntity);
 				return;
 			}
-			log.error("Failed to update media from Overseerr, body was {}", body, e);
+			log.error("Failed to update media from Seerr, body was {}", body, e);
 		}
 		catch(Exception e){
-			log.error("Failed to update media from Overseerr", e);
+			log.error("Failed to update media from Seerr", e);
 		}
 	}
 	
@@ -324,14 +324,14 @@ public class MediaService{
 		mediaOperationLock.lock();
 		try{
 			var deletedServarr = false;
-			var deletedOverseerr = false;
+			var deletedDeerr = false;
 			
 			if(Objects.nonNull(userGroup)){
-				deletedOverseerr = deleteMediaRequestsFromOverseerr(media, userGroup);
+				deletedDeerr = deleteMediaRequestsFromSeerr(media, userGroup);
 			}
 			
 			if(media.getRequirements().stream().map(MediaRequirementEntity::getStatus).anyMatch(MediaRequirementStatus::isWantToWatchMore)){
-				return new DeleteMediaResponse(false, deletedServarr, deletedOverseerr);
+				return new DeleteMediaResponse(false, deletedServarr, deletedDeerr);
 			}
 			
 			if(deleteFromServarr){
@@ -343,7 +343,7 @@ public class MediaService{
 			
 			supervisionService.send("\uD83D\uDCDB Media marked ready to delete %s", media);
 			
-			return new DeleteMediaResponse(false, deletedServarr, deletedOverseerr);
+			return new DeleteMediaResponse(false, deletedServarr, deletedDeerr);
 		}
 		finally{
 			mediaOperationLock.unlock();
@@ -386,8 +386,8 @@ public class MediaService{
 		return false;
 	}
 	
-	private boolean deleteMediaRequestsFromOverseerr(@NonNull MediaEntity media, @NonNull UserGroupEntity userGroup) throws RequestFailedException{
-		if(Objects.isNull(media.getOverseerrId())){
+	private boolean deleteMediaRequestsFromSeerr(@NonNull MediaEntity media, @NonNull UserGroupEntity userGroup) throws RequestFailedException{
+		if(Objects.isNull(media.getSeerrId())){
 			return false;
 		}
 		if(media.getAvailablePartsCount() > 0
@@ -396,21 +396,21 @@ public class MediaService{
 		}
 		
 		var userIds = userGroup.getPersons().stream()
-				.map(UserPersonEntity::getOverseerrId)
+				.map(UserPersonEntity::getSeerrId)
 				.filter(Objects::nonNull)
 				.toList();
 		
-		log.info("Deleting media request from Overseerr {} for group {}", media, userGroup);
-		overseerrApiService.deleteRequestForUserAndMedia(userIds, media);
+		log.info("Deleting media request from Seerr {} for group {}", media, userGroup);
+		seerrApiService.deleteRequestForUserAndMedia(userIds, media);
 		return true;
 	}
 	
 	@NonNull
-	public MediaEntity addMedia(int overseerrId, @NonNull MediaType mediaType, int season, @Nullable Integer episode) throws RequestFailedException, UpdateException, NotifyException{
+	public MediaEntity addMedia(int seerrId, @NonNull MediaType mediaType, int season, @Nullable Integer episode) throws RequestFailedException, UpdateException, NotifyException{
 		mediaOperationLock.lock();
 		try{
-			log.info("Adding media with Overseerr id {}, season {}, episode {}", overseerrId, season, episode);
-			var media = getOrCreateMedia(overseerrId, mediaType, season, episode);
+			log.info("Adding media with Seerr id {}, season {}, episode {}", seerrId, season, episode);
+			var media = getOrCreateMedia(seerrId, mediaType, season, episode);
 			if(media.getStatus().isNeverChange() || media.getStatus().isOnDiskOrWillBe()){
 				return media;
 			}
@@ -444,22 +444,22 @@ public class MediaService{
 	}
 	
 	@NonNull
-	private MediaEntity getOrCreateMedia(int overseerrId, @NonNull MediaType mediaType, int season, @Nullable Integer episode) throws RequestFailedException{
+	private MediaEntity getOrCreateMedia(int seerrId, @NonNull MediaType mediaType, int season, @Nullable Integer episode) throws RequestFailedException{
 		var media = episode == null
-				? mediaRepository.findByOverseerrIdAndIndex(overseerrId, season)
-				: mediaRepository.findByOverseerrIdAndIndexAndSubIndex(overseerrId, season, episode);
+				? mediaRepository.findBySeerrIdAndIndex(seerrId, season)
+				: mediaRepository.findBySeerrIdAndIndexAndSubIndex(seerrId, season, episode);
 		if(media.isPresent()){
 			return media.get();
 		}
-		return createMedia(overseerrId, mediaType, season, episode);
+		return createMedia(seerrId, mediaType, season, episode);
 	}
 	
 	@NonNull
-	private MediaEntity createMedia(int overseerrId, @NonNull MediaType mediaType, int season, @Nullable Integer episode) throws RequestFailedException{
-		var mediaDetails = overseerrApiService.getMediaDetails(overseerrId, mediaType.getOverseerrType());
+	private MediaEntity createMedia(int seerrId, @NonNull MediaType mediaType, int season, @Nullable Integer episode) throws RequestFailedException{
+		var mediaDetails = seerrApiService.getMediaDetails(seerrId, mediaType.getSeerrType());
 		var media = mediaRepository.save(MediaEntity.builder()
 				.type(mediaType)
-				.overseerrId(overseerrId)
+				.seerrId(seerrId)
 				.name(switch(mediaDetails){
 					case MovieMedia movieMedia -> movieMedia.getTitle();
 					case SeriesMedia seriesMedia -> seriesMedia.getName();
@@ -473,7 +473,7 @@ public class MediaService{
 				.lastRequestedTime(Instant.now())
 				.build());
 		
-		log.info("Creating new media {} for Overseerr id {}", media, overseerrId);
+		log.info("Creating new media {} for Seerr id {}", media, seerrId);
 		supervisionService.send("\uD83C\uDD95 Added media %s", media);
 		return media;
 	}
@@ -483,7 +483,7 @@ public class MediaService{
 		var media = MediaEntity.builder()
 				.type(previous.getType())
 				.plexGuid(previous.getPlexGuid())
-				.overseerrId(previous.getOverseerrId())
+				.seerrId(previous.getSeerrId())
 				.servarrId(previous.getServarrId())
 				.tvdbId(previous.getTvdbId())
 				.tmdbId(previous.getTmdbId())

@@ -53,7 +53,7 @@ public class WebSecurityConfig{
 						.requestMatchers("/static/**").permitAll()
 						.requestMatchers("/user/**").hasRole("USER")
 						.requestMatchers("/webauthn/**").permitAll()
-						.requestMatchers("/webhook/overseerr/**").hasRole("OVERSEERR")
+						.requestMatchers("/webhook/seerr/**").hasRole("SEERR")
 						.requestMatchers("/webhook/radarr/**").hasRole("RADARR")
 						.requestMatchers("/webhook/sonarr/**").hasRole("SONARR")
 						.requestMatchers("/webhook/tautulli/**").hasRole("TAUTULLI")
