@@ -14,6 +14,7 @@ import org.springframework.http.client.ClientHttpResponse;
 import org.springframework.util.backoff.BackOff;
 import org.springframework.util.backoff.BackOffExecution;
 import org.springframework.web.client.RestClientResponseException;
+import java.io.IOException;
 import java.nio.charset.StandardCharsets;
 import java.time.Duration;
 import java.time.temporal.TemporalUnit;
@@ -39,36 +40,46 @@ public class RetryInterceptor implements ClientHttpRequestInterceptor{
 		
 		var policy = RetryPolicy.builder()
 				.backOff(new DynamicRetryAfterBackOff(maxRetries, backoffMs, retryAfterHeader))
-				.predicate(err -> err instanceof RestClientResponseException ex && this.statuses.contains(ex.getStatusCode()))
+				.predicate(this::shouldRetry)
 				.build();
 		this.retryTemplate = new RetryTemplate(policy);
+	}
+	
+	private boolean shouldRetry(Throwable throwable){
+		if(throwable instanceof IOException){
+			return true;
+		}
+		return throwable instanceof RestClientResponseException ex && this.statuses.contains(ex.getStatusCode());
 	}
 	
 	@NonNull
 	@Override
 	public ClientHttpResponse intercept(@NonNull HttpRequest request, byte @NonNull [] body, @NonNull ClientHttpRequestExecution execution){
 		try{
-			return retryTemplate.execute(() -> {
-				try{
-					var response = execution.execute(request, body);
-					
-					if(statuses.contains(response.getStatusCode())){
-						var error = new RestClientResponseException("Retryable error code", response.getStatusCode(), response.getStatusText(), response.getHeaders(), response.getBody().readAllBytes(), StandardCharsets.UTF_8);
-						response.close();
-						throw error;
-					}
-					return response;
-				}
-				catch(RestClientResponseException e){
-					if(statuses.contains(e.getStatusCode())){
-						calculateDelay(e, request).ifPresent(d -> retryAfterHeader.set(d.toMillis()));
-					}
-					throw e;
-				}
-			});
+			return retryTemplate.execute(() -> executeRetryable(request, body, execution));
 		}
 		catch(RetryException e){
 			throw new RuntimeException("Failed retrying request", e);
+		}
+	}
+	
+	@NonNull
+	private ClientHttpResponse executeRetryable(@NonNull HttpRequest request, byte @NonNull [] body, @NonNull ClientHttpRequestExecution execution) throws IOException{
+		try{
+			var response = execution.execute(request, body);
+			
+			if(statuses.contains(response.getStatusCode())){
+				var error = new RestClientResponseException("Retryable error code", response.getStatusCode(), response.getStatusText(), response.getHeaders(), response.getBody().readAllBytes(), StandardCharsets.UTF_8);
+				response.close();
+				throw error;
+			}
+			return response;
+		}
+		catch(RestClientResponseException e){
+			if(statuses.contains(e.getStatusCode())){
+				calculateDelay(e, request).ifPresent(d -> retryAfterHeader.set(d.toMillis()));
+			}
+			throw e;
 		}
 	}
 	
