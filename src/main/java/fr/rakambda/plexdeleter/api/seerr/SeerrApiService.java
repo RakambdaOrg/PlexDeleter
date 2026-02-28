@@ -119,7 +119,7 @@ public class SeerrApiService{
 	public PagedResponse<Request> getUserRequests(int userId) throws RequestFailedException{
 		log.info("Getting user requests for user id {}", userId);
 		return HttpUtils.unwrapIfStatusOkAndNotNullBody(apiClient.get()
-				.uri("/api/v1/user/{userId}/requests?take=1000", builder -> builder.queryParam("take", 1000).build(userId))
+				.uri("/api/v1/user/{userId}/requests", builder -> builder.queryParam("take", 1000).build(userId))
 				.retrieve()
 				.toEntity(new ParameterizedTypeReference<>(){}));
 	}

@@ -99,4 +99,13 @@ class SeerrServiceTest{
 		assertThatCode(() -> tested.getMediaDetails(4614, MediaType.TV))
 				.doesNotThrowAnyException();
 	}
+	
+	@Test
+	void itShouldGetUserRequests() throws RequestFailedException{
+		var requests = tested.getUserRequests(1);
+		
+		assertThat(requests).isNotNull();
+		assertThat(requests.getPageInfo().getPage()).isEqualTo(1);
+		assertThat(requests.getResults()).isNotNull();
+	}
 }
