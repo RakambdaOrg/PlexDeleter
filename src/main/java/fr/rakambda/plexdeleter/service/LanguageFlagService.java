@@ -16,12 +16,19 @@ public class LanguageFlagService{
 		FLAG_MAP.put("spa", "es"); // Spanish -> Spain
 		FLAG_MAP.put("nld", "nl"); // Dutch -> Netherlands (not 'aw' Aruba)
 		FLAG_MAP.put("srp", "sr"); // Serbian -> Serbia
+		FLAG_MAP.put("bul", "bg"); // Bulgarian -> Bulgaria
+		FLAG_MAP.put("est", "es"); // Estonian -> Estonia
+		FLAG_MAP.put("lat", "lv"); // Latvian -> Latvia
+		FLAG_MAP.put("lit", "lt"); // Lithuanian -> Lithuania
+		FLAG_MAP.put("slk", "sk"); // Slovak -> Slovakia
+		FLAG_MAP.put("slv", "sl"); // Slovenian -> Slovenia
 		
 		// Northern Europe
 		FLAG_MAP.put("dan", "dk"); // Danish -> Denmark
 		FLAG_MAP.put("fin", "fi"); // Finnish -> Finland
 		FLAG_MAP.put("swe", "se"); // Swedish -> Sweden
 		FLAG_MAP.put("nob", "no"); // Norwegian -> Norway
+		FLAG_MAP.put("nor", "no"); // Norwegian -> Norway
 		
 		// Eastern Europe / Balkans
 		FLAG_MAP.put("ces", "cz"); // Czech -> Czechia
